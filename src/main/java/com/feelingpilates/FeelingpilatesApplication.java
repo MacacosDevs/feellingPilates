@@ -11,10 +11,17 @@ public class FeelingpilatesApplication {
 
     private static final Logger log = LoggerFactory.getLogger(FeelingpilatesApplication.class);
 
-    public static void main(String[] args) {
+   public static void main(String[] args) {
+        String pass = System.getenv("DB_PASSWORD");
+        System.out.println("DEBUG >> DB_HOST=" + System.getenv("DB_HOST"));
+        System.out.println("DEBUG >> DB_USER=" + System.getenv("DB_USER"));
+        System.out.println("DEBUG >> DB_PASSWORD length=" + (pass != null ? pass.length() : -1));
+        if (pass != null && pass.length() > 0) {
+            System.out.println("DEBUG >> DB_PASSWORD first/last=" + pass.charAt(0) + "/" + pass.charAt(pass.length()-1));
+        }
         SpringApplication.run(FeelingpilatesApplication.class, args);
     }
-
+    
     @PostConstruct
     public void debugEnv() {
         String host = System.getenv("DB_HOST");

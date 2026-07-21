@@ -1,7 +1,7 @@
 package com.feelingpilates.usuarios.entidad;
 
 import com.feelingpilates.comun.entidad.EntidadBase;
-import jakarta.persistence.Column;
+import com.feelingpilates.ubicaciones.entidad.Salon;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -10,8 +10,6 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "usuario_rol")
@@ -28,12 +26,19 @@ public class UsuarioRol extends EntidadBase {
     @JoinColumn(name = "rol_id")
     private Rol rol;
 
-    // TODO: mapear como relacion @ManyToOne cuando exista la entidad Ubicacion
-    @Column(name = "ubicacion_id")
-    private UUID ubicacionId;
+    /** Sede/salon donde aplica este rol; null = asignacion global (sin restringir a una sede). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "salon_id")
+    private Salon salon;
 
     public UsuarioRol(Usuario usuario, Rol rol) {
         this.usuario = usuario;
         this.rol = rol;
+    }
+
+    public UsuarioRol(Usuario usuario, Rol rol, Salon salon) {
+        this.usuario = usuario;
+        this.rol = rol;
+        this.salon = salon;
     }
 }

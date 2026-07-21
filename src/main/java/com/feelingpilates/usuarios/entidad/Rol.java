@@ -22,6 +22,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class Rol extends EntidadBase {
 
+    public static final String SUPER_ADMIN = "SUPER_ADMIN";
     public static final String ADMIN = "ADMIN";
     public static final String PERSONAL = "PERSONAL";
     public static final String INSTRUCTOR = "INSTRUCTOR";

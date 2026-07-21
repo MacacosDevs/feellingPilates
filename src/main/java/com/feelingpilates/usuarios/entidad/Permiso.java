@@ -19,4 +19,7 @@ public class Permiso extends EntidadBase {
     private String codigo;
 
     private String descripcion;
+
+    @Column(nullable = false)
+    private String categoria;
 }

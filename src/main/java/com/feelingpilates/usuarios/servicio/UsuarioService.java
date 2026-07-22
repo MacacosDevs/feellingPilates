@@ -67,11 +67,15 @@ public class UsuarioService {
     }
 
     /**
-     * Reemplaza las sedes asignadas a un rol concreto del usuario (ADMIN/SUPER_ADMIN no aplican,
-     * son roles globales). El usuario debe tener ya ese rol asignado.
+     * Reemplaza las sedes asignadas a un rol concreto del usuario. Solo aplica a PERSONAL e
+     * INSTRUCTOR: ADMIN/SUPER_ADMIN son roles globales y CLIENTE puede ir a cualquier sede,
+     * así que a ninguno de los dos se le puede asignar una sede desde aquí.
      */
     @Transactional
     public UsuarioResponse actualizarSedesRol(UUID id, String nombreRol, List<UUID> salonIds) {
+        if (nombreRol.equals(Rol.CLIENTE)) {
+            throw new ValidacionException("Los clientes pueden ir a cualquier sede; no se les asigna una en particular");
+        }
         Usuario usuario = buscar(id);
         List<UUID> sedes = salonIds == null ? List.of() : salonIds;
         SedeRolValidador.validar(nombreRol, sedes);

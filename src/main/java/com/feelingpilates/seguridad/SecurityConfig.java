@@ -47,6 +47,9 @@ public class SecurityConfig {
                 // (clases, sedes, instructores de modulos futuros) sera GET permitAll.
                 // Lo que implique identidad (reservar, comprar, /me) requiere token.
                 .requestMatchers(HttpMethod.GET, "/api/publico/**").permitAll()
+                // La foto de perfil no es informacion sensible; se sirve publica para que
+                // <Image> en la app movil la cargue directo sin mandar el token JWT.
+                .requestMatchers(HttpMethod.GET, "/api/usuarios/*/foto").permitAll()
                 .anyRequest().authenticated())
             .exceptionHandling(eh -> eh
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))

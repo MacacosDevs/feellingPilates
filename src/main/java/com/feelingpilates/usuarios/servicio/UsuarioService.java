@@ -5,17 +5,22 @@ import com.feelingpilates.exception.ValidacionException;
 import com.feelingpilates.ubicaciones.entidad.Salon;
 import com.feelingpilates.ubicaciones.repositorio.SalonRepository;
 import com.feelingpilates.usuarios.dto.ActualizarPerfilRequest;
+import com.feelingpilates.usuarios.dto.FotoUsuario;
 import com.feelingpilates.usuarios.dto.RolConteoResponse;
 import com.feelingpilates.usuarios.dto.UsuarioResponse;
 import com.feelingpilates.usuarios.entidad.Rol;
 import com.feelingpilates.usuarios.entidad.Usuario;
 import com.feelingpilates.usuarios.entidad.UsuarioRol;
 import com.feelingpilates.usuarios.repositorio.UsuarioRepository;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,6 +48,37 @@ public class UsuarioService {
         usuario.setFotoUrl(request.fotoUrl());
         usuario.setDescripcion(request.descripcion());
         return UsuarioResponse.desde(usuario);
+    }
+
+    @Transactional
+    public UsuarioResponse actualizarFoto(UUID id, MultipartFile archivo) {
+        if (archivo.isEmpty() || archivo.getContentType() == null || !archivo.getContentType().startsWith("image/")) {
+            throw new ValidacionException("El archivo debe ser una imagen");
+        }
+        Usuario usuario = buscar(id);
+        try {
+            ByteArrayOutputStream salida = new ByteArrayOutputStream();
+            Thumbnails.of(archivo.getInputStream())
+                    .size(512, 512)
+                    .outputFormat("jpg")
+                    .outputQuality(0.85)
+                    .toOutputStream(salida);
+            usuario.setFotoDatos(salida.toByteArray());
+            usuario.setFotoTipo("image/jpeg");
+            usuario.setFotoUrl("/api/usuarios/" + id + "/foto");
+        } catch (IOException e) {
+            throw new ValidacionException("No se pudo procesar la imagen");
+        }
+        return UsuarioResponse.desde(usuario);
+    }
+
+    @Transactional(readOnly = true)
+    public FotoUsuario obtenerFoto(UUID id) {
+        Usuario usuario = buscar(id);
+        if (usuario.getFotoDatos() == null) {
+            throw new ResourceNotFoundException("El usuario no tiene foto de perfil");
+        }
+        return new FotoUsuario(usuario.getFotoDatos(), usuario.getFotoTipo());
     }
 
     @Transactional(readOnly = true)

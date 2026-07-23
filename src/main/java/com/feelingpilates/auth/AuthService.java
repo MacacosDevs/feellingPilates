@@ -3,6 +3,7 @@ package com.feelingpilates.auth;
 import com.feelingpilates.auth.dto.CompletarInvitacionRequest;
 import com.feelingpilates.auth.dto.InvitacionInfoResponse;
 import com.feelingpilates.auth.dto.LoginRequest;
+import com.feelingpilates.auth.dto.RegistroRequest;
 import com.feelingpilates.auth.dto.TokenResponse;
 import com.feelingpilates.exception.ConflictException;
 import com.feelingpilates.exception.ResourceNotFoundException;
@@ -14,6 +15,7 @@ import com.feelingpilates.usuarios.entidad.Usuario;
 import com.feelingpilates.usuarios.repositorio.InvitacionUsuarioRepository;
 import com.feelingpilates.usuarios.repositorio.PermisoRepository;
 import com.feelingpilates.usuarios.repositorio.UsuarioRepository;
+import com.feelingpilates.usuarios.servicio.AltaUsuarioService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,14 +32,24 @@ public class AuthService {
     private final PermisoRepository permisoRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final AltaUsuarioService altaUsuarioService;
 
     public AuthService(UsuarioRepository usuarioRepository, InvitacionUsuarioRepository invitacionRepository,
-                       PermisoRepository permisoRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+                       PermisoRepository permisoRepository, PasswordEncoder passwordEncoder, JwtService jwtService,
+                       AltaUsuarioService altaUsuarioService) {
         this.usuarioRepository = usuarioRepository;
         this.invitacionRepository = invitacionRepository;
         this.permisoRepository = permisoRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.altaUsuarioService = altaUsuarioService;
+    }
+
+    @Transactional
+    public TokenResponse registrar(RegistroRequest request) {
+        Usuario usuario = altaUsuarioService.crearClienteAutoRegistro(
+                request.correo(), request.nombre(), request.contrasena());
+        return generarRespuesta(usuario);
     }
 
     @Transactional(readOnly = true)

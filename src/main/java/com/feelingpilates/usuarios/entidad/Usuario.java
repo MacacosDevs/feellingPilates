@@ -40,6 +40,12 @@ public class Usuario extends EntidadBase {
     @Column(name = "foto_url")
     private String fotoUrl;
 
+    @Column(name = "foto_datos")
+    private byte[] fotoDatos;
+
+    @Column(name = "foto_tipo")
+    private String fotoTipo;
+
     private String descripcion;
 
     @Enumerated(EnumType.STRING)

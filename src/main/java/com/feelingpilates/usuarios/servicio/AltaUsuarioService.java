@@ -80,6 +80,14 @@ public class AltaUsuarioService {
     }
 
     @Transactional
+    public Usuario crearClienteAutoRegistro(String correo, String nombre, String contrasenaPlano) {
+        Usuario usuario = crearUsuarioBase(correo, nombre, null, Rol.CLIENTE, null);
+        usuario.setContrasenaHash(passwordEncoder.encode(contrasenaPlano));
+        usuarioRepository.save(usuario);
+        return usuario;
+    }
+
+    @Transactional
     public AltaPersonalResponse crearPersonal(CrearPersonalRequest request) {
         Usuario usuario = crearUsuarioBase(
                 request.correo(), request.nombre(), request.telefono(), request.rol(), request.salonIds());

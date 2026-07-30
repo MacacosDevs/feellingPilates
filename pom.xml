@@ -89,6 +89,16 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>2.7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>29.4.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
@@ -105,9 +115,13 @@
             <version>0.4.20</version>
         </dependency>
         <dependency>
-            <groupId>me.paulschwarz</groupId>
-            <artifactId>spring-dotenv</artifactId>
-            <version>4.0.0</version>
+            <!-- spring-dotenv se registra vía META-INF/spring.factories, que Spring
+                 Boot 4.x ya no lee para SpringApplicationRunListener: nunca cargaba
+                 el .env. Se reemplaza por una carga manual con esta misma librería
+                 (antes transitiva de spring-dotenv) en FeelingpilatesApplication#main. -->
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>dotenv-java</artifactId>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>

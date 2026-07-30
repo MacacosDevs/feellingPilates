@@ -50,6 +50,9 @@ public class SecurityConfig {
                 // La foto de perfil no es informacion sensible; se sirve publica para que
                 // <Image> en la app movil la cargue directo sin mandar el token JWT.
                 .requestMatchers(HttpMethod.GET, "/api/usuarios/*/foto").permitAll()
+                // Stripe llama este endpoint sin JWT; se autentica con la firma
+                // Stripe-Signature (ver PagoService#procesarWebhook), no con el filtro JWT.
+                .requestMatchers(HttpMethod.POST, "/api/pagos/webhook").permitAll()
                 .anyRequest().authenticated())
             .exceptionHandling(eh -> eh
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))

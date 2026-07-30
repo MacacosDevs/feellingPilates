@@ -65,7 +65,8 @@ public class AltaUsuarioService {
     public UsuarioResponse crearCliente(CrearClienteRequest request) {
         // El cliente puede ir a cualquier sede: salonIds es opcional, puede venir o no.
         Usuario usuario = crearUsuarioBase(
-                request.correo(), request.nombre(), request.telefono(), Rol.CLIENTE, request.salonIds());
+                request.correo(), request.nombre(), request.telefono(), Rol.CLIENTE, request.salonIds(),
+                Usuario.ProveedorAuth.local);
         usuarioRepository.save(usuario);
 
         String token = generarToken();
@@ -81,8 +82,22 @@ public class AltaUsuarioService {
 
     @Transactional
     public Usuario crearClienteAutoRegistro(String correo, String nombre, String contrasenaPlano) {
-        Usuario usuario = crearUsuarioBase(correo, nombre, null, Rol.CLIENTE, null);
+        Usuario usuario = crearUsuarioBase(correo, nombre, null, Rol.CLIENTE, null, Usuario.ProveedorAuth.local);
         usuario.setContrasenaHash(passwordEncoder.encode(contrasenaPlano));
+        usuarioRepository.save(usuario);
+        return usuario;
+    }
+
+    @Transactional
+    public Usuario crearClienteGoogle(String correo, String nombre, String fotoUrl) {
+        // Sin contraseña: esta cuenta solo puede iniciar sesión con Google.
+        Usuario usuario = crearUsuarioBase(correo, nombre, null, Rol.CLIENTE, null, Usuario.ProveedorAuth.google);
+        if (fotoUrl != null && !fotoUrl.isBlank()) {
+            // Es una URL externa (googleusercontent.com), no una foto subida a
+            // nuestro backend: fotoUrl acepta ambas, el cliente ya resuelve URLs
+            // absolutas tal cual (ver resolveMediaUrl en la app móvil).
+            usuario.setFotoUrl(fotoUrl);
+        }
         usuarioRepository.save(usuario);
         return usuario;
     }
@@ -90,7 +105,8 @@ public class AltaUsuarioService {
     @Transactional
     public AltaPersonalResponse crearPersonal(CrearPersonalRequest request) {
         Usuario usuario = crearUsuarioBase(
-                request.correo(), request.nombre(), request.telefono(), request.rol(), request.salonIds());
+                request.correo(), request.nombre(), request.telefono(), request.rol(), request.salonIds(),
+                Usuario.ProveedorAuth.local);
         String contrasenaTemporal = generarContrasenaTemporal();
         usuario.setContrasenaHash(passwordEncoder.encode(contrasenaTemporal));
         usuarioRepository.save(usuario);
@@ -99,7 +115,8 @@ public class AltaUsuarioService {
     }
 
     private Usuario crearUsuarioBase(
-            String correo, String nombre, String telefono, String nombreRol, List<UUID> salonIds) {
+            String correo, String nombre, String telefono, String nombreRol, List<UUID> salonIds,
+            Usuario.ProveedorAuth proveedorAuth) {
         if (usuarioRepository.existsByCorreo(correo)) {
             throw new ConflictException("El correo ya está registrado");
         }
@@ -110,7 +127,7 @@ public class AltaUsuarioService {
         usuario.setCorreo(correo);
         usuario.setNombre(nombre);
         usuario.setTelefono(telefono);
-        usuario.setProveedorAuth(Usuario.ProveedorAuth.local);
+        usuario.setProveedorAuth(proveedorAuth);
 
         Rol rol = rolRepository.findByNombre(nombreRol)
                 .orElseThrow(() -> new IllegalStateException("El rol " + nombreRol + " no existe; revisa las migraciones"));

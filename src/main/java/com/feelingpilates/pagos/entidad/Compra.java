@@ -1,0 +1,51 @@
+package com.feelingpilates.pagos.entidad;
+
+import com.feelingpilates.comun.entidad.EntidadBase;
+import com.feelingpilates.usuarios.entidad.Usuario;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.OffsetDateTime;
+
+@Entity
+@Table(name = "compra")
+@Getter
+@Setter
+@NoArgsConstructor
+public class Compra extends EntidadBase {
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "paquete_id")
+    private Paquete paquete;
+
+    @Column(name = "monto_centavos", nullable = false)
+    private int montoCentavos;
+
+    @Column(nullable = false)
+    private String moneda = "mxn";
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstadoCompra estado = EstadoCompra.pendiente;
+
+    @Column(name = "stripe_payment_intent_id", unique = true)
+    private String stripePaymentIntentId;
+
+    @Column(name = "fecha_expiracion")
+    private OffsetDateTime fechaExpiracion;
+
+    public enum EstadoCompra { pendiente, pagada, fallida, cancelada }
+}

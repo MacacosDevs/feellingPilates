@@ -4,7 +4,6 @@ import com.feelingpilates.pagos.entidad.Compra;
 import com.feelingpilates.pagos.entidad.Compra.EstadoCompra;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,5 +16,7 @@ public interface CompraRepository extends JpaRepository<Compra, UUID> {
 
     List<Compra> findByUsuarioIdOrderByCreadoEnDesc(UUID usuarioId);
 
-    List<Compra> findByEstadoAndCreadoEnBefore(EstadoCompra estado, OffsetDateTime limite);
+    List<Compra> findByEstado(EstadoCompra estado);
+
+    Optional<Compra> findByIdempotencyKey(String idempotencyKey);
 }

@@ -47,5 +47,11 @@ public class Compra extends EntidadBase {
     @Column(name = "fecha_expiracion")
     private OffsetDateTime fechaExpiracion;
 
-    public enum EstadoCompra { pendiente, pagada, fallida, cancelada }
+    // La app la genera una vez por intento de compra (no por cada tap), para
+    // que un reintento tras un timeout de red reutilice el PaymentIntent en
+    // vez de crear uno duplicado.
+    @Column(name = "idempotency_key", unique = true)
+    private String idempotencyKey;
+
+    public enum EstadoCompra { pendiente, pagada, fallida, cancelada, reembolsada }
 }

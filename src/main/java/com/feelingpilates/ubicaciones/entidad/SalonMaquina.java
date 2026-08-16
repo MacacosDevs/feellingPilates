@@ -6,8 +6,8 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,19 +18,19 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-@Table(name = "espacio_maquina")
+@Table(name = "salon_maquina")
 @Getter
 @Setter
 @NoArgsConstructor
-public class EspacioMaquina {
+public class SalonMaquina {
 
     @EmbeddedId
     private Id id = new Id();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @MapsId("espacioId")
-    @JoinColumn(name = "espacio_id")
-    private Espacio espacio;
+    @MapsId("salonId")
+    @JoinColumn(name = "salon_id")
+    private Salon salon;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId("tipoMaquinaId")
@@ -40,8 +40,8 @@ public class EspacioMaquina {
     @Column(nullable = false)
     private Short cantidad;
 
-    public EspacioMaquina(Espacio espacio, TipoMaquina tipoMaquina, Short cantidad) {
-        this.espacio = espacio;
+    public SalonMaquina(Salon salon, TipoMaquina tipoMaquina, Short cantidad) {
+        this.salon = salon;
         this.tipoMaquina = tipoMaquina;
         this.cantidad = cantidad;
     }
@@ -52,7 +52,7 @@ public class EspacioMaquina {
     @NoArgsConstructor
     @EqualsAndHashCode
     public static class Id implements Serializable {
-        private UUID espacioId;
+        private UUID salonId;
         private UUID tipoMaquinaId;
     }
 }

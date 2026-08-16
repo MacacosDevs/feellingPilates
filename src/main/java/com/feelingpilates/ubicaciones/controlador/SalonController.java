@@ -38,7 +38,8 @@ public class SalonController {
                 .map(p -> new SalonResponse(
                         p.getId(), p.getNombre(), p.getDireccion(),
                         p.getEstadoId(), p.getEstadoNombre(),
-                        p.getMunicipioId(), p.getMunicipioNombre()))
+                        p.getMunicipioId(), p.getMunicipioNombre(),
+                        p.getPermitePareja()))
                 .toList();
     }
 

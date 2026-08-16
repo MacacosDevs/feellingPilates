@@ -20,9 +20,15 @@ public record UsuarioResponse(
         String estatus,
         List<String> roles,
         List<RolAsignadoResponse> rolesAsignados,
-        OffsetDateTime creadoEn) {
+        OffsetDateTime creadoEn,
+        List<String> permisos) {
 
     public static UsuarioResponse desde(Usuario usuario) {
+        return desde(usuario, List.of());
+    }
+
+    /** Incluye los permisos efectivos del usuario (usar solo al construir la respuesta del propio usuario logueado). */
+    public static UsuarioResponse desde(Usuario usuario, List<String> permisos) {
         Map<String, List<UUID>> sedesPorRol = new LinkedHashMap<>();
         for (UsuarioRol ur : usuario.getRoles()) {
             sedesPorRol
@@ -45,6 +51,7 @@ public record UsuarioResponse(
                 usuario.getEstatus().name(),
                 usuario.getRoles().stream().map(ur -> ur.getRol().getNombre()).distinct().toList(),
                 rolesAsignados,
-                usuario.getCreadoEn());
+                usuario.getCreadoEn(),
+                permisos);
     }
 }

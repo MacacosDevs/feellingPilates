@@ -22,4 +22,8 @@ public class TipoActividad extends EntidadBase {
 
     @Column(nullable = false)
     private boolean activo = true;
+
+    /** Duracion de una clase de este tipo; define el tamano del bloque al reservar. */
+    @Column(name = "duracion_minutos", nullable = false)
+    private Short duracionMinutos = 60;
 }

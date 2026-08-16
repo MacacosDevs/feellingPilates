@@ -41,6 +41,9 @@ public class TipoActividadController {
         TipoActividad tipo = new TipoActividad();
         tipo.setNombre(request.nombre());
         tipo.setDescripcion(request.descripcion());
+        if (request.duracionMinutos() != null) {
+            tipo.setDuracionMinutos(request.duracionMinutos());
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(aResponse(repository.save(tipo)));
     }
 
@@ -53,6 +56,6 @@ public class TipoActividadController {
     }
 
     private TipoActividadResponse aResponse(TipoActividad t) {
-        return new TipoActividadResponse(t.getId(), t.getNombre(), t.getDescripcion(), t.isActivo());
+        return new TipoActividadResponse(t.getId(), t.getNombre(), t.getDescripcion(), t.isActivo(), t.getDuracionMinutos());
     }
 }

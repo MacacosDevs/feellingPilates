@@ -23,5 +23,6 @@ public record SalonDetalleResponse(
         boolean activo,
         List<TipoActividadResponse> tiposActividad,
         List<HorarioOperacionResponse> horarios,
-        List<EspacioResponse> espacios) {
+        boolean permitePareja,
+        List<MaquinaItemResponse> maquinas) {
 }

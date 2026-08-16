@@ -12,7 +12,8 @@ public interface SalonRepository extends JpaRepository<Salon, UUID> {
     @Query(value = """
             select s.id as id, s.nombre as nombre, s.direccion as direccion,
                    s.estado_id as estadoId, e.nombre as estadoNombre,
-                   s.municipio_id as municipioId, m.nombre as municipioNombre
+                   s.municipio_id as municipioId, m.nombre as municipioNombre,
+                   s.permite_pareja as permitePareja
             from salon s
             join estado e on e.id = s.estado_id
             join municipio m on m.estado_id = s.estado_id and m.id = s.municipio_id
@@ -31,5 +32,6 @@ public interface SalonRepository extends JpaRepository<Salon, UUID> {
         String getEstadoNombre();
         Short getMunicipioId();
         String getMunicipioNombre();
+        boolean getPermitePareja();
     }
 }

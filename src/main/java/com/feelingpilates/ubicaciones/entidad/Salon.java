@@ -57,6 +57,9 @@ public class Salon extends EntidadBase {
     @Column(nullable = false)
     private boolean activo = true;
 
+    @Column(name = "permite_pareja", nullable = false)
+    private boolean permitePareja = false;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "salon_tipo_actividad",

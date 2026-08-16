@@ -29,15 +29,25 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final SalonRepository salonRepository;
+    private final PermisoResolver permisoResolver;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, SalonRepository salonRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, SalonRepository salonRepository,
+                          PermisoResolver permisoResolver) {
         this.usuarioRepository = usuarioRepository;
         this.salonRepository = salonRepository;
+        this.permisoResolver = permisoResolver;
     }
 
     @Transactional(readOnly = true)
     public UsuarioResponse obtenerPorId(UUID id) {
         return UsuarioResponse.desde(buscar(id));
+    }
+
+    /** Para el propio usuario logueado: incluye sus permisos efectivos. */
+    @Transactional(readOnly = true)
+    public UsuarioResponse obtenerMiPerfil(UUID id) {
+        Usuario usuario = buscar(id);
+        return UsuarioResponse.desde(usuario, permisoResolver.resolver(usuario));
     }
 
     @Transactional
@@ -123,6 +133,9 @@ public class UsuarioService {
                 .orElseThrow(() -> new ValidacionException("El usuario no tiene el rol " + nombreRol));
 
         usuario.getRoles().removeIf(ur -> ur.getRol().getNombre().equals(nombreRol));
+        // Flush del borrado antes de insertar las nuevas filas: si las sedes no
+        // cambian, insertar antes de borrar violaria la unique (usuario_id, rol_id, salon_id).
+        usuarioRepository.saveAndFlush(usuario);
 
         if (sedes.isEmpty()) {
             usuario.getRoles().add(new UsuarioRol(usuario, rol));

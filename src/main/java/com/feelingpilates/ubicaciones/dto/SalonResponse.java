@@ -9,5 +9,6 @@ public record SalonResponse(
         Short estadoId,
         String estadoNombre,
         Short municipioId,
-        String municipioNombre) {
+        String municipioNombre,
+        boolean permitePareja) {
 }

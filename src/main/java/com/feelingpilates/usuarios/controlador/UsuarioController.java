@@ -33,7 +33,7 @@ public class UsuarioController {
 
     @GetMapping("/me")
     public UsuarioResponse miPerfil(@AuthenticationPrincipal UsuarioAutenticado usuario) {
-        return usuarioService.obtenerPorId(usuario.id());
+        return usuarioService.obtenerMiPerfil(usuario.id());
     }
 
     @PutMapping("/me")

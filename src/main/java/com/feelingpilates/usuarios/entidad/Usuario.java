@@ -1,11 +1,16 @@
 package com.feelingpilates.usuarios.entidad;
 
 import com.feelingpilates.comun.entidad.EntidadBase;
+import com.feelingpilates.ubicaciones.entidad.TipoActividad;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -54,6 +59,14 @@ public class Usuario extends EntidadBase {
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UsuarioRol> roles = new HashSet<>();
+
+    /** Actividades que este usuario, como instructor, esta capacitado para impartir. */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "instructor_actividad",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "tipo_actividad_id"))
+    private Set<TipoActividad> especialidades = new HashSet<>();
 
     public enum ProveedorAuth { local, google }
 

@@ -86,7 +86,7 @@ public class AdminUsuarioController {
     @PostMapping("/clientes")
     @PreAuthorize("hasAuthority('usuario.crear.cliente')")
     public ResponseEntity<UsuarioResponse> crearCliente(@Valid @RequestBody CrearClienteRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(altaUsuarioService.crearCliente(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(altaUsuarioService.crearClienteSalon(request));
     }
 
     /**
@@ -97,7 +97,7 @@ public class AdminUsuarioController {
     @PostMapping("/personal")
     @PreAuthorize("hasAuthority('usuario.administrar')")
     public ResponseEntity<AltaPersonalResponse> crearPersonal(@Valid @RequestBody CrearPersonalRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(altaUsuarioService.crearPersonal(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(altaUsuarioService.crearPersonalSalon(request));
     }
 
     /**

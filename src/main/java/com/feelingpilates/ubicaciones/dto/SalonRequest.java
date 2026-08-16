@@ -23,5 +23,6 @@ public record SalonRequest(
         Double longitud,
         List<UUID> tipoActividadIds,
         @Valid List<HorarioOperacionRequest> horarios,
-        @Valid List<EspacioRequest> espacios) {
+        boolean permitePareja,
+        @Valid List<MaquinaItem> maquinas) {
 }

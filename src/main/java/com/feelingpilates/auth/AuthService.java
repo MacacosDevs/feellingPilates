@@ -10,13 +10,11 @@ import com.feelingpilates.exception.ConflictException;
 import com.feelingpilates.exception.ResourceNotFoundException;
 import com.feelingpilates.seguridad.JwtService;
 import com.feelingpilates.usuarios.entidad.InvitacionUsuario;
-import com.feelingpilates.usuarios.entidad.Permiso;
-import com.feelingpilates.usuarios.entidad.Rol;
 import com.feelingpilates.usuarios.entidad.Usuario;
 import com.feelingpilates.usuarios.repositorio.InvitacionUsuarioRepository;
-import com.feelingpilates.usuarios.repositorio.PermisoRepository;
 import com.feelingpilates.usuarios.repositorio.UsuarioRepository;
 import com.feelingpilates.usuarios.servicio.AltaUsuarioService;
+import com.feelingpilates.usuarios.servicio.PermisoResolver;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,27 +28,26 @@ public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
     private final InvitacionUsuarioRepository invitacionRepository;
-    private final PermisoRepository permisoRepository;
+    private final PermisoResolver permisoResolver;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AltaUsuarioService altaUsuarioService;
     private final GoogleTokenVerifier googleTokenVerifier;
 
     public AuthService(UsuarioRepository usuarioRepository, InvitacionUsuarioRepository invitacionRepository,
-                       PermisoRepository permisoRepository, PasswordEncoder passwordEncoder, JwtService jwtService,
-                       AltaUsuarioService altaUsuarioService, GoogleTokenVerifier googleTokenVerifier) {
+                       PermisoResolver permisoResolver, PasswordEncoder passwordEncoder, JwtService jwtService,
+                       AltaUsuarioService altaUsuarioService) {
         this.usuarioRepository = usuarioRepository;
         this.invitacionRepository = invitacionRepository;
-        this.permisoRepository = permisoRepository;
+        this.permisoResolver = permisoResolver;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.altaUsuarioService = altaUsuarioService;
-        this.googleTokenVerifier = googleTokenVerifier;
     }
 
     @Transactional
     public TokenResponse registrar(RegistroRequest request) {
-        Usuario usuario = altaUsuarioService.crearClienteAutoRegistro(
+        Usuario usuario = altaUsuarioService.crearClienteRegistro(
                 request.correo(), request.nombre(), request.contrasena());
         return generarRespuesta(usuario);
     }
@@ -118,15 +115,7 @@ public class AuthService {
                 .map(ur -> ur.getRol().getNombre())
                 .distinct()
                 .toList();
-        // SUPER_ADMIN siempre tiene todos los permisos, incluidos los que se agreguen
-        // despues; no depende de rol_permiso para no requerir una migracion por permiso nuevo.
-        List<String> permisos = roles.contains(Rol.SUPER_ADMIN)
-                ? permisoRepository.findAll().stream().map(Permiso::getCodigo).distinct().toList()
-                : usuario.getRoles().stream()
-                        .flatMap(ur -> ur.getRol().getPermisos().stream())
-                        .map(Permiso::getCodigo)
-                        .distinct()
-                        .toList();
+        List<String> permisos = permisoResolver.resolver(usuario);
         return TokenResponse.bearer(jwtService.generarToken(usuario, roles, permisos));
     }
 }

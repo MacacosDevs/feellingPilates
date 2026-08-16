@@ -116,7 +116,7 @@ public class ReservaService {
      */
     private List<TurnoInstructor> turnosVigentes(UUID instructorId, UUID salonId, LocalDate fecha) {
         List<TurnoInstructor> paraFecha = turnoRepository
-                .findByUsuarioIdAndSalonIdAndActivoTrueAndFecha(instructorId, salonId, fecha);
+                .buscarPuntualesPorInstructorSalonYFecha(instructorId, salonId, fecha);
 
         boolean cancelado = paraFecha.stream().anyMatch(t -> t.getTipo() == TurnoInstructor.Tipo.CANCELACION);
         if (cancelado) {
@@ -131,7 +131,7 @@ public class ReservaService {
         }
 
         short diaSemana = (short) diaSemanaIso(fecha.getDayOfWeek());
-        return turnoRepository.findByUsuarioIdAndSalonIdAndActivoTrueAndDiaSemana(instructorId, salonId, diaSemana);
+        return turnoRepository.buscarRecurrentesPorInstructorSalonYDia(instructorId, salonId, diaSemana);
     }
 
     private int diaSemanaIso(DayOfWeek dayOfWeek) {

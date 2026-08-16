@@ -1,8 +1,12 @@
 package com.feelingpilates.calendario.servicio;
 
+import com.feelingpilates.calendario.dto.ActualizarTurnoRequest;
+import com.feelingpilates.calendario.dto.AsignacionInstructorRequest;
 import com.feelingpilates.calendario.dto.TurnoInstructorRequest;
 import com.feelingpilates.calendario.dto.TurnoInstructorResponse;
 import com.feelingpilates.calendario.entidad.TurnoInstructor;
+import com.feelingpilates.calendario.entidad.TurnoInstructorAsignacion;
+import com.feelingpilates.calendario.repositorio.TurnoInstructorAsignacionRepository;
 import com.feelingpilates.calendario.repositorio.TurnoInstructorRepository;
 import com.feelingpilates.exception.ResourceNotFoundException;
 import com.feelingpilates.exception.ValidacionException;
@@ -25,16 +29,25 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
-/** Turnos (recurrentes o por fecha) que cubre un instructor en un salon. */
+/** Bloques de horario (recurrentes o por fecha) de un salon, con uno o mas instructores y actividades. */
 @Service
 @Transactional
 public class TurnoInstructorService {
 
     private final TurnoInstructorRepository turnoRepository;
+    private final TurnoInstructorAsignacionRepository asignacionRepository;
     private final UsuarioRepository usuarioRepository;
     private final SalonRepository salonRepository;
     private final HorarioOperacionRepository horarioOperacionRepository;
@@ -43,12 +56,14 @@ public class TurnoInstructorService {
 
     public TurnoInstructorService(
             TurnoInstructorRepository turnoRepository,
+            TurnoInstructorAsignacionRepository asignacionRepository,
             UsuarioRepository usuarioRepository,
             SalonRepository salonRepository,
             HorarioOperacionRepository horarioOperacionRepository,
             TipoActividadRepository tipoActividadRepository,
             SalonHorarioExcepcionRepository salonHorarioExcepcionRepository) {
         this.turnoRepository = turnoRepository;
+        this.asignacionRepository = asignacionRepository;
         this.usuarioRepository = usuarioRepository;
         this.salonRepository = salonRepository;
         this.horarioOperacionRepository = horarioOperacionRepository;
@@ -58,7 +73,7 @@ public class TurnoInstructorService {
 
     @Transactional(readOnly = true)
     public List<TurnoInstructorResponse> listarPorInstructorYSalon(UUID usuarioId, UUID salonId) {
-        return turnoRepository.findByUsuarioIdAndSalonIdAndActivoTrue(usuarioId, salonId).stream()
+        return turnoRepository.buscarPorInstructorYSalon(usuarioId, salonId).stream()
                 .map(this::aResponse)
                 .toList();
     }
@@ -70,26 +85,27 @@ public class TurnoInstructorService {
                 .toList();
     }
 
-    /** Turnos puntuales (EXCEPCION/CANCELACION) de un instructor, paginados y filtrables por tipo y día de la semana. */
+    /** Bloques puntuales (EXCEPCION/CANCELACION) de un salón, paginados y filtrables por instructor, tipo y día. */
     @Transactional(readOnly = true)
     public Page<TurnoInstructorResponse> listarPuntualesPaginado(
-            UUID usuarioId, UUID salonId, TurnoInstructor.Tipo tipo, Integer diaSemana, Pageable pageable) {
+            UUID salonId, UUID usuarioId, TurnoInstructor.Tipo tipo, Integer diaSemana, Pageable pageable) {
         return turnoRepository
-                .buscarPuntuales(usuarioId, salonId, tipo != null ? tipo.name() : null, diaSemana, pageable)
+                .buscarPuntuales(salonId, usuarioId, tipo != null ? tipo.name() : null, diaSemana, pageable)
                 .map(this::aResponse);
     }
 
     public TurnoInstructorResponse crear(TurnoInstructorRequest request) {
-        Usuario usuario = usuarioRepository.findById(request.usuarioId())
-                .orElseThrow(() -> new ResourceNotFoundException("Instructor no encontrado"));
+        Map<Usuario, AsignacionResuelta> asignaciones = resolverAsignaciones(request.asignaciones());
+        Set<Usuario> instructores = new LinkedHashSet<>(asignaciones.keySet());
         Salon salon = salonRepository.findById(request.salonId())
                 .orElseThrow(() -> new ResourceNotFoundException("Salón no encontrado"));
 
-        validarEsInstructorDelSalon(usuario, salon.getId());
+        instructores.forEach(usuario -> validarEsInstructorDelSalon(usuario, salon.getId()));
 
         if (!request.horaFin().isAfter(request.horaInicio())) {
             throw new ValidacionException("La hora de fin debe ser posterior a la de inicio");
         }
+        validarRangosDeAsignaciones(asignaciones, request.horaInicio(), request.horaFin());
 
         Short diaSemana = switch (request.tipo()) {
             case RECURRENTE -> {
@@ -111,23 +127,22 @@ public class TurnoInstructorService {
         if (request.tipo() != TurnoInstructor.Tipo.CANCELACION) {
             validarDentroDeHorarioSalon(salon.getId(), diaSemana, request.fecha(), request.horaInicio(), request.horaFin());
             validarSinTraslape(
-                    usuario.getId(), salon.getId(), request.tipo(), diaSemana, request.fecha(),
+                    salon.getId(), request.tipo(), diaSemana, request.fecha(),
                     request.horaInicio(), request.horaFin(), null);
         }
 
-        TipoActividad actividad = resolverActividad(usuario, request.tipoActividadId());
-
         TurnoInstructor turno = new TurnoInstructor();
-        turno.setUsuario(usuario);
+        turno.setInstructores(instructores);
         turno.setSalon(salon);
         turno.setTipo(request.tipo());
         turno.setDiaSemana(request.tipo() == TurnoInstructor.Tipo.RECURRENTE ? request.diaSemana() : null);
         turno.setFecha(request.tipo() == TurnoInstructor.Tipo.RECURRENTE ? null : request.fecha());
         turno.setHoraInicio(request.horaInicio());
         turno.setHoraFin(request.horaFin());
-        turno.setTipoActividad(actividad);
+        turno = turnoRepository.save(turno);
+        List<TurnoInstructorAsignacion> filas = reemplazarAsignaciones(turno, asignaciones);
 
-        return aResponse(turnoRepository.save(turno));
+        return aResponse(turno, filas);
     }
 
     public void eliminar(UUID id) {
@@ -137,46 +152,135 @@ public class TurnoInstructorService {
         turnoRepository.save(turno);
     }
 
-    /** Mueve un turno recurrente (dia y/u hora) y opcionalmente cambia su actividad. */
-    public TurnoInstructorResponse actualizarTurno(
-            UUID id, short diaSemana, LocalTime horaInicio, LocalTime horaFin, UUID tipoActividadId) {
+    /** Mueve un bloque recurrente (dia y/u hora) y opcionalmente cambia sus instructores/actividades. */
+    public TurnoInstructorResponse actualizarTurno(UUID id, ActualizarTurnoRequest request) {
         TurnoInstructor turno = turnoRepository.findById(id)
                 .filter(TurnoInstructor::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Turno no encontrado"));
 
         if (turno.getTipo() != TurnoInstructor.Tipo.RECURRENTE) {
-            throw new ValidacionException("Solo los turnos recurrentes se pueden mover desde el calendario");
+            throw new ValidacionException("Solo los bloques recurrentes se pueden mover desde el calendario");
         }
+        short diaSemana = request.diaSemana();
         if (diaSemana < 0 || diaSemana > 6) {
             throw new ValidacionException("Día de la semana inválido");
         }
-        if (!horaFin.isAfter(horaInicio)) {
+        if (!request.horaFin().isAfter(request.horaInicio())) {
             throw new ValidacionException("La hora de fin debe ser posterior a la de inicio");
         }
 
-        validarDentroDeHorarioSalon(turno.getSalon().getId(), diaSemana, null, horaInicio, horaFin);
+        Map<Usuario, AsignacionResuelta> asignaciones = resolverAsignaciones(request.asignaciones());
+        Set<Usuario> instructores = new LinkedHashSet<>(asignaciones.keySet());
+        instructores.forEach(usuario -> validarEsInstructorDelSalon(usuario, turno.getSalon().getId()));
+        validarRangosDeAsignaciones(asignaciones, request.horaInicio(), request.horaFin());
+
+        validarDentroDeHorarioSalon(turno.getSalon().getId(), diaSemana, null, request.horaInicio(), request.horaFin());
         validarSinTraslape(
-                turno.getUsuario().getId(), turno.getSalon().getId(), TurnoInstructor.Tipo.RECURRENTE, diaSemana,
-                null, horaInicio, horaFin, turno.getId());
-        TipoActividad actividad = resolverActividad(turno.getUsuario(), tipoActividadId);
+                turno.getSalon().getId(), TurnoInstructor.Tipo.RECURRENTE, diaSemana, null,
+                request.horaInicio(), request.horaFin(), turno.getId());
 
         turno.setDiaSemana(diaSemana);
-        turno.setHoraInicio(horaInicio);
-        turno.setHoraFin(horaFin);
-        turno.setTipoActividad(actividad);
-        return aResponse(turnoRepository.save(turno));
+        turno.setHoraInicio(request.horaInicio());
+        turno.setHoraFin(request.horaFin());
+        turno.setInstructores(instructores);
+        TurnoInstructor guardado = turnoRepository.save(turno);
+        List<TurnoInstructorAsignacion> filas = reemplazarAsignaciones(guardado, asignaciones);
+        return aResponse(guardado, filas);
     }
 
-    private TipoActividad resolverActividad(Usuario usuario, UUID tipoActividadId) {
-        if (tipoActividadId == null) {
-            return null;
+    /** Actividades que da un instructor en el bloque y el lapso que cubre (null = bloque completo). */
+    private record AsignacionResuelta(Set<TipoActividad> actividades, LocalTime horaInicio, LocalTime horaFin) {
+    }
+
+    /**
+     * Resuelve, por instructor, que actividades especificas da en este bloque y que lapso cubre.
+     * Valida que cada instructor y actividad existan, y que la actividad este entre las
+     * especialidades del instructor (si no la tiene, no puede quedar asignado a darla en un turno).
+     */
+    private Map<Usuario, AsignacionResuelta> resolverAsignaciones(List<AsignacionInstructorRequest> asignaciones) {
+        if (asignaciones == null || asignaciones.isEmpty()) {
+            throw new ValidacionException("El bloque necesita al menos un instructor");
         }
-        TipoActividad actividad = tipoActividadRepository.findById(tipoActividadId)
-                .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada"));
-        if (!usuario.getEspecialidades().contains(actividad)) {
-            throw new ValidacionException("El instructor no tiene esa actividad entre sus especialidades");
+
+        List<UUID> instructorIds = asignaciones.stream().map(AsignacionInstructorRequest::instructorId).toList();
+        List<Usuario> usuarios = usuarioRepository.findAllById(instructorIds);
+        if (usuarios.size() != new HashSet<>(instructorIds).size()) {
+            throw new ResourceNotFoundException("Uno o más instructores no existen");
         }
-        return actividad;
+        Map<UUID, Usuario> usuariosPorId = new HashMap<>();
+        usuarios.forEach(u -> usuariosPorId.put(u.getId(), u));
+
+        List<UUID> tipoActividadIds = asignaciones.stream()
+                .flatMap(a -> a.tipoActividadIds() == null ? List.<UUID>of().stream() : a.tipoActividadIds().stream())
+                .distinct()
+                .toList();
+        Map<UUID, TipoActividad> actividadesPorId = new HashMap<>();
+        if (!tipoActividadIds.isEmpty()) {
+            List<TipoActividad> actividades = tipoActividadRepository.findAllById(tipoActividadIds);
+            if (actividades.size() != new HashSet<>(tipoActividadIds).size()) {
+                throw new ResourceNotFoundException("Una o más actividades no existen");
+            }
+            actividades.forEach(a -> actividadesPorId.put(a.getId(), a));
+        }
+
+        Map<Usuario, AsignacionResuelta> resultado = new LinkedHashMap<>();
+        for (AsignacionInstructorRequest asignacion : asignaciones) {
+            Usuario usuario = usuariosPorId.get(asignacion.instructorId());
+            Set<TipoActividad> actividadesInstructor = new HashSet<>();
+            if (asignacion.tipoActividadIds() != null) {
+                for (UUID tipoActividadId : asignacion.tipoActividadIds()) {
+                    TipoActividad actividad = actividadesPorId.get(tipoActividadId);
+                    if (!usuario.getEspecialidades().contains(actividad)) {
+                        throw new ValidacionException(
+                                "El usuario " + usuario.getNombre() + " no tiene la especialidad " + actividad.getNombre());
+                    }
+                    actividadesInstructor.add(actividad);
+                }
+            }
+            if ((asignacion.horaInicio() == null) != (asignacion.horaFin() == null)) {
+                throw new ValidacionException(
+                        "El rango horario de " + usuario.getNombre() + " necesita ambas horas, o ninguna (tiempo completo)");
+            }
+            if (asignacion.horaInicio() != null && !asignacion.horaFin().isAfter(asignacion.horaInicio())) {
+                throw new ValidacionException(
+                        "El rango horario de " + usuario.getNombre() + " debe terminar después de que empieza");
+            }
+            resultado.put(usuario, new AsignacionResuelta(actividadesInstructor, asignacion.horaInicio(), asignacion.horaFin()));
+        }
+        return resultado;
+    }
+
+    /** Si un instructor tiene un rango propio (no "tiempo completo"), debe caer dentro del turno. */
+    private void validarRangosDeAsignaciones(
+            Map<Usuario, AsignacionResuelta> asignaciones, LocalTime turnoInicio, LocalTime turnoFin) {
+        asignaciones.forEach((usuario, asignacion) -> {
+            if (asignacion.horaInicio() == null) return;
+            if (asignacion.horaInicio().isBefore(turnoInicio) || asignacion.horaFin().isAfter(turnoFin)) {
+                throw new ValidacionException(
+                        "El rango horario de " + usuario.getNombre() + " debe caer dentro del horario del bloque ("
+                                + turnoInicio + " a " + turnoFin + ")");
+            }
+        });
+    }
+
+    /**
+     * Reemplaza por completo las asignaciones instructor-actividad de un turno (borra y recrea).
+     * Se hace por repositorio con flush entre el borrado y la inserción (no reemplazando la
+     * colección de la entidad) porque las filas nuevas son instancias nuevas: si se dejara que
+     * Hibernate difiera el reemplazo de la colección, encola los INSERT antes que los DELETE y
+     * choca con la llave primaria compuesta cuando una fila coincide entre lo viejo y lo nuevo.
+     */
+    private List<TurnoInstructorAsignacion> reemplazarAsignaciones(
+            TurnoInstructor turno, Map<Usuario, AsignacionResuelta> asignaciones) {
+        asignacionRepository.deleteByTurno_Id(turno.getId());
+        asignacionRepository.flush();
+        List<TurnoInstructorAsignacion> nuevas = new ArrayList<>();
+        asignaciones.forEach((usuario, asignacion) ->
+                asignacion.actividades().forEach(actividad -> nuevas.add(new TurnoInstructorAsignacion(
+                        turno, usuario, actividad, asignacion.horaInicio(), asignacion.horaFin()))));
+        List<TurnoInstructorAsignacion> guardadas = asignacionRepository.saveAll(nuevas);
+        asignacionRepository.flush();
+        return guardadas;
     }
 
     private void validarEsInstructorDelSalon(Usuario usuario, UUID salonId) {
@@ -184,7 +288,7 @@ public class TurnoInstructorService {
                 .anyMatch(ur -> Rol.INSTRUCTOR.equals(ur.getRol().getNombre())
                         && (ur.getSalon() == null || ur.getSalon().getId().equals(salonId)));
         if (!esInstructorDelSalon) {
-            throw new ValidacionException("El usuario no tiene el rol de instructor en ese salón");
+            throw new ValidacionException("El usuario " + usuario.getNombre() + " no tiene el rol de instructor en ese salón");
         }
     }
 
@@ -222,25 +326,25 @@ public class TurnoInstructorService {
     }
 
     /**
-     * Un instructor no puede tener dos turnos que se traslapen en el mismo dia. RECURRENTE se
-     * compara contra otros RECURRENTE de ese dia de la semana; EXCEPCION se compara contra otras
-     * EXCEPCION de esa misma fecha (no contra el recurrente: una excepcion esta pensada para
-     * redefinir/extender el horario de esa fecha puntual, no para sumarse a el).
+     * Un salón es un espacio físico: no puede tener dos bloques que se traslapen en el mismo
+     * horario, sin importar si comparten instructor o no. RECURRENTE se compara contra otros
+     * RECURRENTE de ese dia de la semana; EXCEPCION se compara contra otras EXCEPCION de esa
+     * misma fecha y también contra los RECURRENTE de ese día de la semana (un recurrente que no
+     * fue reemplazado explícitamente sigue ocupando el salón esa fecha).
      */
     private void validarSinTraslape(
-            UUID usuarioId, UUID salonId, TurnoInstructor.Tipo tipo, short diaSemana, LocalDate fecha,
+            UUID salonId, TurnoInstructor.Tipo tipo, short diaSemana, LocalDate fecha,
             LocalTime inicio, LocalTime fin, UUID excluirTurnoId) {
-        List<TurnoInstructor> existentes = tipo == TurnoInstructor.Tipo.RECURRENTE
-                ? turnoRepository.findByUsuarioIdAndSalonIdAndActivoTrueAndDiaSemana(usuarioId, salonId, diaSemana)
-                : turnoRepository.findByUsuarioIdAndSalonIdAndActivoTrueAndFecha(usuarioId, salonId, fecha).stream()
-                        .filter(t -> t.getTipo() == TurnoInstructor.Tipo.EXCEPCION)
-                        .toList();
+        List<TurnoInstructor> existentes = new ArrayList<>(turnoRepository.buscarRecurrentesPorSalonYDia(salonId, diaSemana));
+        if (tipo == TurnoInstructor.Tipo.EXCEPCION) {
+            existentes.addAll(turnoRepository.buscarExcepcionesPorSalonYFecha(salonId, fecha));
+        }
 
         boolean traslapa = existentes.stream()
                 .filter(t -> !t.getId().equals(excluirTurnoId))
                 .anyMatch(t -> inicio.isBefore(t.getHoraFin()) && fin.isAfter(t.getHoraInicio()));
         if (traslapa) {
-            throw new ValidacionException("El instructor ya tiene otro turno que se encima con ese horario ese día");
+            throw new ValidacionException("Ese horario se cruza con otro bloque de este salón ese día");
         }
     }
 
@@ -250,11 +354,51 @@ public class TurnoInstructorService {
     }
 
     private TurnoInstructorResponse aResponse(TurnoInstructor t) {
+        return aResponse(t, t.getAsignaciones());
+    }
+
+    /**
+     * Variante para crear/actualizar: recibe las filas recien guardadas explicitamente en vez de
+     * leerlas de {@code t.getAsignaciones()}, que en ese punto puede estar "stale" (ya se
+     * inicializo vacia al crear la entidad o se cargo antes de insertar por otro repositorio).
+     */
+    private TurnoInstructorResponse aResponse(TurnoInstructor t, List<TurnoInstructorAsignacion> filasAsignacion) {
+        Map<Usuario, List<TipoActividad>> actividadesPorInstructor = new LinkedHashMap<>();
+        Map<Usuario, TurnoInstructorAsignacion> filaPorInstructor = new LinkedHashMap<>();
+        Set<TipoActividad> actividadesDistintas = new HashSet<>();
+        for (TurnoInstructorAsignacion asignacion : filasAsignacion) {
+            actividadesPorInstructor
+                    .computeIfAbsent(asignacion.getUsuario(), u -> new ArrayList<>())
+                    .add(asignacion.getTipoActividad());
+            filaPorInstructor.putIfAbsent(asignacion.getUsuario(), asignacion);
+            actividadesDistintas.add(asignacion.getTipoActividad());
+        }
+
+        List<TurnoInstructorResponse.InstructorAsignacionResponse> asignaciones = t.getInstructores().stream()
+                .sorted(Comparator.comparing(Usuario::getNombre))
+                .map(u -> new TurnoInstructorResponse.InstructorAsignacionResponse(
+                        u.getId(),
+                        u.getNombre(),
+                        actividadesPorInstructor.getOrDefault(u, List.of()).stream()
+                                .map(a -> new TurnoInstructorResponse.ActividadResumen(a.getId(), a.getNombre()))
+                                .sorted(Comparator.comparing(TurnoInstructorResponse.ActividadResumen::nombre))
+                                .toList(),
+                        filaPorInstructor.containsKey(u) ? filaPorInstructor.get(u).getHoraInicio() : null,
+                        filaPorInstructor.containsKey(u) ? filaPorInstructor.get(u).getHoraFin() : null))
+                .toList();
+
         return new TurnoInstructorResponse(
-                t.getId(), t.getUsuario().getId(), t.getUsuario().getNombre(),
+                t.getId(),
+                t.getInstructores().stream()
+                        .map(u -> new TurnoInstructorResponse.InstructorResumen(u.getId(), u.getNombre()))
+                        .sorted((a, b) -> a.nombre().compareTo(b.nombre()))
+                        .toList(),
                 t.getSalon().getId(), t.getSalon().getNombre(),
                 t.getTipo(), t.getDiaSemana(), t.getFecha(), t.getHoraInicio(), t.getHoraFin(),
-                t.getTipoActividad() != null ? t.getTipoActividad().getId() : null,
-                t.getTipoActividad() != null ? t.getTipoActividad().getNombre() : null);
+                actividadesDistintas.stream()
+                        .map(a -> new TurnoInstructorResponse.ActividadResumen(a.getId(), a.getNombre()))
+                        .sorted((a, b) -> a.nombre().compareTo(b.nombre()))
+                        .toList(),
+                asignaciones);
     }
 }

@@ -13,44 +13,66 @@ import java.util.UUID;
 
 public interface TurnoInstructorRepository extends JpaRepository<TurnoInstructor, UUID> {
 
-    List<TurnoInstructor> findByUsuarioIdAndSalonIdAndActivoTrue(UUID usuarioId, UUID salonId);
-
     List<TurnoInstructor> findBySalonIdAndActivoTrue(UUID salonId);
 
-    List<TurnoInstructor> findByUsuarioIdAndActivoTrue(UUID usuarioId);
+    @Query("select t from TurnoInstructor t join t.instructores i "
+            + "where i.id = :usuarioId and t.salon.id = :salonId and t.activo = true")
+    List<TurnoInstructor> buscarPorInstructorYSalon(@Param("usuarioId") UUID usuarioId, @Param("salonId") UUID salonId);
 
-    List<TurnoInstructor> findByUsuarioIdAndSalonIdAndActivoTrueAndDiaSemana(
-            UUID usuarioId, UUID salonId, Short diaSemana);
+    @Query("select t from TurnoInstructor t join t.instructores i "
+            + "where i.id = :usuarioId and t.salon.id = :salonId and t.activo = true "
+            + "and t.tipo = 'RECURRENTE' and t.diaSemana = :diaSemana")
+    List<TurnoInstructor> buscarRecurrentesPorInstructorSalonYDia(
+            @Param("usuarioId") UUID usuarioId, @Param("salonId") UUID salonId, @Param("diaSemana") Short diaSemana);
 
-    List<TurnoInstructor> findByUsuarioIdAndSalonIdAndActivoTrueAndFecha(
-            UUID usuarioId, UUID salonId, LocalDate fecha);
+    @Query("select t from TurnoInstructor t join t.instructores i "
+            + "where i.id = :usuarioId and t.salon.id = :salonId and t.activo = true "
+            + "and t.fecha = :fecha and t.tipo <> 'RECURRENTE'")
+    List<TurnoInstructor> buscarPuntualesPorInstructorSalonYFecha(
+            @Param("usuarioId") UUID usuarioId, @Param("salonId") UUID salonId, @Param("fecha") LocalDate fecha);
+
+    /** Todos los turnos recurrentes de ese salón/día, sin importar el instructor (para validar que el salón, como espacio físico, no tenga dos bloques encimados). */
+    @Query("select distinct t from TurnoInstructor t "
+            + "where t.salon.id = :salonId and t.activo = true "
+            + "and t.tipo = 'RECURRENTE' and t.diaSemana = :diaSemana")
+    List<TurnoInstructor> buscarRecurrentesPorSalonYDia(@Param("salonId") UUID salonId, @Param("diaSemana") Short diaSemana);
+
+    /** Todas las excepciones (EXCEPCION) de ese salón/fecha, sin importar el instructor. */
+    @Query("select distinct t from TurnoInstructor t "
+            + "where t.salon.id = :salonId and t.activo = true "
+            + "and t.fecha = :fecha and t.tipo = 'EXCEPCION'")
+    List<TurnoInstructor> buscarExcepcionesPorSalonYFecha(@Param("salonId") UUID salonId, @Param("fecha") LocalDate fecha);
 
     /**
-     * Turnos EXCEPCION/CANCELACION (con fecha) de un instructor en un salon, paginados. El dia
-     * de la semana no existe como columna para estos turnos (solo aplica a RECURRENTE), asi que
-     * se deriva de la fecha con EXTRACT(DOW ...), que ya coincide con la convencion 0=domingo
-     * usada en el resto del sistema.
+     * Bloques EXCEPCION/CANCELACION (con fecha) de un salon, paginados. El dia de la semana no
+     * existe como columna para estos bloques (solo aplica a RECURRENTE), asi que se deriva de la
+     * fecha con EXTRACT(DOW ...), que ya coincide con la convencion 0=domingo del resto del
+     * sistema. Filtra opcionalmente por instructor (:usuarioId puede ser null = cualquiera).
      */
     @Query(
             value = """
-                    select * from turno_instructor t
-                    where t.usuario_id = :usuarioId and t.salon_id = :salonId
+                    select distinct t.* from turno_instructor t
+                    left join turno_instructor_usuario tiu on tiu.turno_id = t.id
+                    where t.salon_id = :salonId
                     and t.activo = true and t.tipo <> 'RECURRENTE'
+                    and (:usuarioId is null or tiu.usuario_id = :usuarioId)
                     and (:tipo is null or t.tipo = :tipo)
                     and (:diaSemana is null or extract(dow from t.fecha) = :diaSemana)
                     order by t.fecha desc
                     """,
             countQuery = """
-                    select count(*) from turno_instructor t
-                    where t.usuario_id = :usuarioId and t.salon_id = :salonId
+                    select count(distinct t.id) from turno_instructor t
+                    left join turno_instructor_usuario tiu on tiu.turno_id = t.id
+                    where t.salon_id = :salonId
                     and t.activo = true and t.tipo <> 'RECURRENTE'
+                    and (:usuarioId is null or tiu.usuario_id = :usuarioId)
                     and (:tipo is null or t.tipo = :tipo)
                     and (:diaSemana is null or extract(dow from t.fecha) = :diaSemana)
                     """,
             nativeQuery = true)
     Page<TurnoInstructor> buscarPuntuales(
-            @Param("usuarioId") UUID usuarioId,
             @Param("salonId") UUID salonId,
+            @Param("usuarioId") UUID usuarioId,
             @Param("tipo") String tipo,
             @Param("diaSemana") Integer diaSemana,
             Pageable pageable);

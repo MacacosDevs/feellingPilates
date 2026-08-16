@@ -43,16 +43,16 @@ public class TurnoInstructorController {
                 : turnoInstructorService.listarPorInstructorYSalon(usuarioId, salonId);
     }
 
-    /** Excepciones/cancelaciones (con fecha) de un instructor, paginadas y filtrables por tipo y día de la semana. */
+    /** Excepciones/cancelaciones (con fecha) de un salón, paginadas y filtrables por instructor, tipo y día de la semana. */
     @GetMapping("/puntuales")
     @PreAuthorize("hasAuthority('calendario.leer')")
     public Page<TurnoInstructorResponse> listarPuntuales(
             @RequestParam UUID salonId,
-            @RequestParam UUID usuarioId,
+            @RequestParam(required = false) UUID usuarioId,
             @RequestParam(required = false) TurnoInstructor.Tipo tipo,
             @RequestParam(required = false) Integer diaSemana,
             Pageable pageable) {
-        return turnoInstructorService.listarPuntualesPaginado(usuarioId, salonId, tipo, diaSemana, pageable);
+        return turnoInstructorService.listarPuntualesPaginado(salonId, usuarioId, tipo, diaSemana, pageable);
     }
 
     @PostMapping
@@ -63,13 +63,12 @@ public class TurnoInstructorController {
         return ResponseEntity.status(HttpStatus.CREATED).body(turnoInstructorService.crear(request));
     }
 
-    /** Mueve un turno recurrente existente (dia, hora, actividad); el instructor no cambia. */
+    /** Mueve un bloque recurrente existente (dia, hora, instructores, actividades). */
     @PatchMapping("/{id}")
     @PreAuthorize("hasAuthority('calendario.gestionar') or hasAuthority('calendario.editar')")
     public TurnoInstructorResponse actualizarTurno(
             @PathVariable UUID id, @Valid @RequestBody ActualizarTurnoRequest request) {
-        return turnoInstructorService.actualizarTurno(
-                id, request.diaSemana(), request.horaInicio(), request.horaFin(), request.tipoActividadId());
+        return turnoInstructorService.actualizarTurno(id, request);
     }
 
     @DeleteMapping("/{id}")

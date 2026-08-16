@@ -1,18 +1,18 @@
 package com.feelingpilates.calendario.dto;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalTime;
-import java.util.UUID;
+import java.util.List;
 
 /**
- * Mueve un turno recurrente existente: dia, horas y actividad. El frontend
- * siempre manda el dia vigente (cambiado o no), asi que no hay ambiguedad de
- * "sin cambios"; tipoActividadId nulo significa "sin actividad asignada".
+ * Mueve un bloque recurrente existente: dia, horas, instructores y actividades. El frontend
+ * siempre manda el dia vigente (cambiado o no), asi que no hay ambiguedad de "sin cambios".
  */
 public record ActualizarTurnoRequest(
         @NotNull Short diaSemana,
         @NotNull LocalTime horaInicio,
         @NotNull LocalTime horaFin,
-        UUID tipoActividadId) {
+        @NotEmpty List<AsignacionInstructorRequest> asignaciones) {
 }

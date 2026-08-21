@@ -145,4 +145,17 @@ class AuthControllerTest {
 
         verifyNoInteractions(googleTokenVerifier);
     }
+
+    @Test
+    void invitacionInvalidaNoReflejaTokenEnRespuesta() throws Exception {
+        String token = "token-invitacion-super-secreto";
+
+        String respuesta = mockMvc.perform(get("/api/auth/invitaciones/{token}", token))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Invitación no encontrada"))
+                .andExpect(jsonPath("$.path").value("/api/auth/invitaciones/[REDACTADO]"))
+                .andReturn().getResponse().getContentAsString();
+
+        assertThat(respuesta).doesNotContain(token);
+    }
 }

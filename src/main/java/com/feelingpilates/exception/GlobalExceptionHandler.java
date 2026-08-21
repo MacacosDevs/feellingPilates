@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final String RUTA_INVITACIONES = "/api/auth/invitaciones/";
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
         return build(HttpStatus.NOT_FOUND, ex.getMessage(), request, null);
@@ -82,9 +84,17 @@ public class GlobalExceptionHandler {
                 status.value(),
                 status.getReasonPhrase(),
                 message,
-                request.getRequestURI(),
+                rutaSinSecretos(request.getRequestURI()),
                 fieldErrors
         );
         return ResponseEntity.status(status).body(body);
+    }
+
+    private String rutaSinSecretos(String requestUri) {
+        if (requestUri.startsWith(RUTA_INVITACIONES)
+                && !requestUri.equals(RUTA_INVITACIONES + "completar")) {
+            return RUTA_INVITACIONES + "[REDACTADO]";
+        }
+        return requestUri;
     }
 }

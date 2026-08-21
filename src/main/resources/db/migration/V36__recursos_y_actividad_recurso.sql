@@ -1,30 +1,25 @@
--- Rename tipo_maquina -> tipo_recurso (machine/equipment catalog renamed to a broader "resource" concept)
+-- V36: amplia el concepto maquina -> recurso conservando catalogo, UUID e inventario.
 ALTER TABLE tipo_maquina RENAME TO tipo_recurso;
+ALTER TABLE tipo_recurso RENAME CONSTRAINT tipo_maquina_pkey TO tipo_recurso_pkey;
+ALTER TABLE tipo_recurso RENAME CONSTRAINT tipo_maquina_nombre_key
+    TO tipo_recurso_nombre_key;
 
--- Rename salon_maquina -> salon_recurso, and its FK column tipo_maquina_id -> tipo_recurso_id
 ALTER TABLE salon_maquina RENAME TO salon_recurso;
 ALTER TABLE salon_recurso RENAME COLUMN tipo_maquina_id TO tipo_recurso_id;
+ALTER TABLE salon_recurso RENAME CONSTRAINT salon_maquina_pkey TO salon_recurso_pkey;
+ALTER TABLE salon_recurso RENAME CONSTRAINT salon_maquina_cantidad_check
+    TO salon_recurso_cantidad_check;
+ALTER TABLE salon_recurso RENAME CONSTRAINT salon_maquina_salon_id_fkey
+    TO salon_recurso_salon_id_fkey;
+ALTER TABLE salon_recurso RENAME CONSTRAINT salon_maquina_tipo_maquina_id_fkey
+    TO salon_recurso_tipo_recurso_id_fkey;
 
--- Dev-only clean slate: wipe existing catalog + everything that references it, per explicit
--- user approval. None of the parent tables below (turno_instructor, paquete, compra, reserva's
--- containing tables) are dropped or altered structurally - only rows that point at a
--- tipo_actividad row being deleted are cleared, so those rows lose their activity link but
--- the tables/records themselves remain.
-DELETE FROM salon_recurso;
-DELETE FROM salon_tipo_actividad;
-DELETE FROM turno_instructor_asignacion;
-DELETE FROM instructor_actividad;
-DELETE FROM paquete_actividad;
-DELETE FROM reserva;
-DELETE FROM tipo_recurso;
-DELETE FROM tipo_actividad;
-
--- New table: which resources an activity requires
+-- Relacion aditiva. Nace vacia porque la historia previa no contiene un mapping
+-- actividad -> maquina que permita poblarla sin inventar asociaciones.
+-- cantidad representa unidades TOTALES consumidas por una reserva.
 CREATE TABLE actividad_recurso (
     tipo_actividad_id UUID NOT NULL REFERENCES tipo_actividad (id) ON DELETE CASCADE,
     tipo_recurso_id   UUID NOT NULL REFERENCES tipo_recurso (id) ON DELETE CASCADE,
     cantidad          SMALLINT NOT NULL CHECK (cantidad > 0),
-    modo_consumo      VARCHAR(20) NOT NULL DEFAULT 'POR_PARTICIPANTE'
-        CHECK (modo_consumo IN ('POR_PARTICIPANTE', 'POR_SESION')),
     PRIMARY KEY (tipo_actividad_id, tipo_recurso_id)
 );

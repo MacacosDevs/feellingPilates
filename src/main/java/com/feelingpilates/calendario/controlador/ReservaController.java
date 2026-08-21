@@ -34,8 +34,11 @@ public class ReservaController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('calendario.leer')")
-    public List<ReservaResponse> listarPorSalonYFecha(@RequestParam UUID salonId, @RequestParam LocalDate fecha) {
-        return reservaService.listarPorSalonYFecha(salonId, fecha);
+    public List<ReservaResponse> listarPorSalonYFecha(
+            @AuthenticationPrincipal UsuarioAutenticado usuario,
+            @RequestParam UUID salonId,
+            @RequestParam LocalDate fecha) {
+        return reservaService.listarPorSalonYFecha(usuario.id(), salonId, fecha);
     }
 
     @GetMapping("/mias")
@@ -45,14 +48,17 @@ public class ReservaController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('reserva.administrar')")
-    public ResponseEntity<ReservaResponse> crear(@Valid @RequestBody ReservaRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(reservaService.crear(request));
+    public ResponseEntity<ReservaResponse> crear(
+            @AuthenticationPrincipal UsuarioAutenticado usuario,
+            @Valid @RequestBody ReservaRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(reservaService.crear(usuario.id(), request));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('reserva.administrar')")
-    public ResponseEntity<Void> cancelar(@PathVariable UUID id) {
-        reservaService.cancelar(id);
+    public ResponseEntity<Void> cancelar(
+            @AuthenticationPrincipal UsuarioAutenticado usuario, @PathVariable UUID id) {
+        reservaService.cancelar(usuario.id(), id);
         return ResponseEntity.noContent().build();
     }
 }

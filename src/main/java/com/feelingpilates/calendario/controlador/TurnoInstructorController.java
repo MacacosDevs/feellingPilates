@@ -5,12 +5,14 @@ import com.feelingpilates.calendario.dto.TurnoInstructorRequest;
 import com.feelingpilates.calendario.dto.TurnoInstructorResponse;
 import com.feelingpilates.calendario.entidad.TurnoInstructor;
 import com.feelingpilates.calendario.servicio.TurnoInstructorService;
+import com.feelingpilates.seguridad.UsuarioAutenticado;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -59,22 +61,26 @@ public class TurnoInstructorController {
     @PreAuthorize("hasAuthority('calendario.gestionar') "
             + "or (#request.tipo().name() == 'CANCELACION' and hasAuthority('calendario.cancelar')) "
             + "or (#request.tipo().name() == 'EXCEPCION' and hasAuthority('calendario.editar'))")
-    public ResponseEntity<TurnoInstructorResponse> crear(@Valid @RequestBody TurnoInstructorRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(turnoInstructorService.crear(request));
+    public ResponseEntity<TurnoInstructorResponse> crear(
+            @AuthenticationPrincipal UsuarioAutenticado actor,
+            @Valid @RequestBody TurnoInstructorRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(turnoInstructorService.crear(actor.id(), request));
     }
 
     /** Mueve un bloque recurrente existente (dia, hora, instructores, actividades). */
     @PatchMapping("/{id}")
     @PreAuthorize("hasAuthority('calendario.gestionar') or hasAuthority('calendario.editar')")
     public TurnoInstructorResponse actualizarTurno(
+            @AuthenticationPrincipal UsuarioAutenticado actor,
             @PathVariable UUID id, @Valid @RequestBody ActualizarTurnoRequest request) {
-        return turnoInstructorService.actualizarTurno(id, request);
+        return turnoInstructorService.actualizarTurno(actor.id(), id, request);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('calendario.gestionar')")
-    public ResponseEntity<Void> eliminar(@PathVariable UUID id) {
-        turnoInstructorService.eliminar(id);
+    public ResponseEntity<Void> eliminar(
+            @AuthenticationPrincipal UsuarioAutenticado actor, @PathVariable UUID id) {
+        turnoInstructorService.eliminar(actor.id(), id);
         return ResponseEntity.noContent().build();
     }
 }

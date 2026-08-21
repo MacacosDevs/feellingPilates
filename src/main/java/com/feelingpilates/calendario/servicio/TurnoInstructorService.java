@@ -10,6 +10,7 @@ import com.feelingpilates.calendario.repositorio.TurnoInstructorAsignacionReposi
 import com.feelingpilates.calendario.repositorio.TurnoInstructorRepository;
 import com.feelingpilates.exception.ResourceNotFoundException;
 import com.feelingpilates.exception.ValidacionException;
+import com.feelingpilates.seguridad.AutorizadorSalon;
 import com.feelingpilates.ubicaciones.entidad.HorarioOperacion;
 import com.feelingpilates.ubicaciones.entidad.Salon;
 import com.feelingpilates.ubicaciones.entidad.SalonHorarioExcepcion;
@@ -53,6 +54,7 @@ public class TurnoInstructorService {
     private final HorarioOperacionRepository horarioOperacionRepository;
     private final TipoActividadRepository tipoActividadRepository;
     private final SalonHorarioExcepcionRepository salonHorarioExcepcionRepository;
+    private final AutorizadorSalon autorizadorSalon;
 
     public TurnoInstructorService(
             TurnoInstructorRepository turnoRepository,
@@ -61,7 +63,8 @@ public class TurnoInstructorService {
             SalonRepository salonRepository,
             HorarioOperacionRepository horarioOperacionRepository,
             TipoActividadRepository tipoActividadRepository,
-            SalonHorarioExcepcionRepository salonHorarioExcepcionRepository) {
+            SalonHorarioExcepcionRepository salonHorarioExcepcionRepository,
+            AutorizadorSalon autorizadorSalon) {
         this.turnoRepository = turnoRepository;
         this.asignacionRepository = asignacionRepository;
         this.usuarioRepository = usuarioRepository;
@@ -69,6 +72,7 @@ public class TurnoInstructorService {
         this.horarioOperacionRepository = horarioOperacionRepository;
         this.tipoActividadRepository = tipoActividadRepository;
         this.salonHorarioExcepcionRepository = salonHorarioExcepcionRepository;
+        this.autorizadorSalon = autorizadorSalon;
     }
 
     @Transactional(readOnly = true)
@@ -94,7 +98,13 @@ public class TurnoInstructorService {
                 .map(this::aResponse);
     }
 
-    public TurnoInstructorResponse crear(TurnoInstructorRequest request) {
+    public TurnoInstructorResponse crear(UUID actorId, TurnoInstructorRequest request) {
+        String[] permisos = switch (request.tipo()) {
+            case RECURRENTE -> new String[]{"calendario.gestionar"};
+            case EXCEPCION -> new String[]{"calendario.gestionar", "calendario.editar"};
+            case CANCELACION -> new String[]{"calendario.gestionar", "calendario.cancelar"};
+        };
+        autorizadorSalon.verificarAccesoSalon(actorId, request.salonId(), permisos);
         Map<Usuario, AsignacionResuelta> asignaciones = resolverAsignaciones(request.asignaciones());
         Set<Usuario> instructores = new LinkedHashSet<>(asignaciones.keySet());
         Salon salon = salonRepository.findById(request.salonId())
@@ -145,18 +155,21 @@ public class TurnoInstructorService {
         return aResponse(turno, filas);
     }
 
-    public void eliminar(UUID id) {
+    public void eliminar(UUID actorId, UUID id) {
         TurnoInstructor turno = turnoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Turno no encontrado"));
+        autorizadorSalon.verificarAccesoSalon(actorId, "calendario.gestionar", turno.getSalon().getId());
         turno.setActivo(false);
         turnoRepository.save(turno);
     }
 
     /** Mueve un bloque recurrente (dia y/u hora) y opcionalmente cambia sus instructores/actividades. */
-    public TurnoInstructorResponse actualizarTurno(UUID id, ActualizarTurnoRequest request) {
+    public TurnoInstructorResponse actualizarTurno(UUID actorId, UUID id, ActualizarTurnoRequest request) {
         TurnoInstructor turno = turnoRepository.findById(id)
                 .filter(TurnoInstructor::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Turno no encontrado"));
+        autorizadorSalon.verificarAccesoSalon(
+                actorId, turno.getSalon().getId(), "calendario.gestionar", "calendario.editar");
 
         if (turno.getTipo() != TurnoInstructor.Tipo.RECURRENTE) {
             throw new ValidacionException("Solo los bloques recurrentes se pueden mover desde el calendario");

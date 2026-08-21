@@ -1,7 +1,6 @@
 package com.feelingpilates.auth;
 
 import com.feelingpilates.auth.dto.CompletarInvitacionRequest;
-import com.feelingpilates.auth.dto.GoogleTokenRequest;
 import com.feelingpilates.auth.dto.InvitacionInfoResponse;
 import com.feelingpilates.auth.dto.LoginRequest;
 import com.feelingpilates.auth.dto.RegistroRequest;
@@ -47,8 +46,8 @@ public class AuthController {
         return authService.completarInvitacion(request);
     }
 
-//    @PostMapping("/google")
-//    public TokenResponse google(@Valid @RequestBody GoogleTokenRequest request) {
-//        return authService.loginConGoogle(request);
-//    }
+    @PostMapping("/google")
+    public void google() {
+        throw new GoogleLoginDisabledException("El inicio de sesión con Google está deshabilitado");
+    }
 }

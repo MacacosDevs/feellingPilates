@@ -3,10 +3,12 @@ package com.feelingpilates.calendario.controlador;
 import com.feelingpilates.calendario.dto.ReservaRequest;
 import com.feelingpilates.calendario.dto.ReservaResponse;
 import com.feelingpilates.calendario.servicio.ReservaService;
+import com.feelingpilates.seguridad.UsuarioAutenticado;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,8 +39,8 @@ public class ReservaController {
     }
 
     @GetMapping("/mias")
-    public List<ReservaResponse> listarMias(@RequestParam UUID clienteId) {
-        return reservaService.listarPorCliente(clienteId);
+    public List<ReservaResponse> listarMias(@AuthenticationPrincipal UsuarioAutenticado usuario) {
+        return reservaService.listarPorCliente(usuario.id());
     }
 
     @PostMapping

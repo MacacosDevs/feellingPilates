@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record MaquinaItem(
-        @NotNull UUID tipoMaquinaId,
+public record ActividadRecursoRequest(
+        @NotNull UUID tipoRecursoId,
         @Min(1) short cantidad) {
 }

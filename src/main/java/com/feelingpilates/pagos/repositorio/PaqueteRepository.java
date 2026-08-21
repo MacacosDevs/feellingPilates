@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface PaqueteRepository extends JpaRepository<Paquete, UUID> {
 
     List<Paquete> findByActivoTrueOrderByCategoriaAscOrdenAsc();
+
+    List<Paquete> findAllByOrderByActivoDescOrdenAsc();
 }

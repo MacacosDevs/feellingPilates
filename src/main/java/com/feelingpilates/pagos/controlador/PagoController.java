@@ -4,11 +4,9 @@ import com.feelingpilates.pagos.dto.CompraResponse;
 import com.feelingpilates.pagos.dto.CrearPagoRequest;
 import com.feelingpilates.pagos.dto.CrearPagoResponse;
 import com.feelingpilates.pagos.dto.PaqueteActivoResponse;
-import com.feelingpilates.pagos.dto.ReembolsoResponse;
 import com.feelingpilates.pagos.servicio.PagoService;
 import com.feelingpilates.seguridad.UsuarioAutenticado;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,12 +45,6 @@ public class PagoController {
     @GetMapping("/mis-compras")
     public List<CompraResponse> misCompras(@AuthenticationPrincipal UsuarioAutenticado usuario) {
         return pagoService.obtenerHistorialCompras(usuario.id());
-    }
-
-    @PostMapping("/compras/{compraId}/reembolso")
-    @PreAuthorize("hasAuthority('pagos.reembolsar')")
-    public ReembolsoResponse reembolsar(@PathVariable UUID compraId) {
-        return pagoService.reembolsarCompra(compraId);
     }
 
     // Stripe llama este endpoint directo (sin JWT); la autenticidad se verifica

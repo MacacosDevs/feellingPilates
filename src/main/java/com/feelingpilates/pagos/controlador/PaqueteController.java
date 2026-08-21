@@ -1,5 +1,6 @@
 package com.feelingpilates.pagos.controlador;
 
+import com.feelingpilates.pagos.dto.ActividadPaqueteResponse;
 import com.feelingpilates.pagos.dto.PaqueteResponse;
 import com.feelingpilates.pagos.entidad.Paquete;
 import com.feelingpilates.pagos.repositorio.PaqueteRepository;
@@ -29,12 +30,16 @@ public class PaqueteController {
     private PaqueteResponse aResponse(Paquete p) {
         return new PaqueteResponse(
                 p.getId(),
-                p.getCategoria().name(),
+                p.getCategoria() != null ? p.getCategoria().name() : null,
                 p.getNombre(),
                 p.getDescripcion(),
                 p.getPrecioCentavos(),
                 p.getVigenciaDias(),
                 p.getUnitarioTexto(),
-                p.isDestacado());
+                p.isDestacado(),
+                p.getActividades().stream()
+                        .map(a -> new ActividadPaqueteResponse(
+                                a.getTipoActividad().getId(), a.getTipoActividad().getNombre(), a.getCantidadClases()))
+                        .toList());
     }
 }

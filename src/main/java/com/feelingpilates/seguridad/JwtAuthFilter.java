@@ -18,13 +18,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Autentica cada request con su JWT, pero NO confia en los claims "roles"/
+ * "permisos" que trae el token: los recalcula desde la base de datos en cada
+ * request via PermisoResolver. Asi, revocar o cambiar permisos de un rol
+ * aplica de inmediato a las sesiones ya activas, en vez de esperar a que el
+ * usuario vuelva a iniciar sesion o el token expire.
+ */
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final ContextoAutenticacionService contextoAutenticacionService;
 
-    public JwtAuthFilter(JwtService jwtService) {
+    public JwtAuthFilter(JwtService jwtService, ContextoAutenticacionService contextoAutenticacionService) {
         this.jwtService = jwtService;
+        this.contextoAutenticacionService = contextoAutenticacionService;
     }
 
     @Override
@@ -34,28 +43,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")) {
             try {
                 Claims claims = jwtService.validarYObtenerClaims(header.substring(7));
-                List<GrantedAuthority> authorities = new ArrayList<>();
-                obtenerListaString(claims, "roles")
-                        .forEach(rol -> authorities.add(new SimpleGrantedAuthority("ROLE_" + rol)));
-                obtenerListaString(claims, "permisos")
-                        .forEach(permiso -> authorities.add(new SimpleGrantedAuthority(permiso)));
+                UUID usuarioId = UUID.fromString(claims.getSubject());
 
-                UsuarioAutenticado principal = new UsuarioAutenticado(
-                        UUID.fromString(claims.getSubject()),
-                        claims.get("correo", String.class));
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(principal, null, authorities);
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                contextoAutenticacionService.resolver(usuarioId)
+                        .filter(ContextoAutenticacionService.Contexto::activo)
+                        .ifPresent(contexto -> {
+                            List<GrantedAuthority> authorities = new ArrayList<>();
+                            contexto.roles().forEach(rol -> authorities.add(new SimpleGrantedAuthority("ROLE_" + rol)));
+                            contexto.permisos().forEach(permiso -> authorities.add(new SimpleGrantedAuthority(permiso)));
+
+                            UsuarioAutenticado principal = new UsuarioAutenticado(contexto.id(), contexto.correo());
+                            UsernamePasswordAuthenticationToken auth =
+                                    new UsernamePasswordAuthenticationToken(principal, null, authorities);
+                            SecurityContextHolder.getContext().setAuthentication(auth);
+                        });
             } catch (JwtException | IllegalArgumentException e) {
                 SecurityContextHolder.clearContext();
             }
         }
         filterChain.doFilter(request, response);
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<String> obtenerListaString(Claims claims, String nombre) {
-        Object valor = claims.get(nombre);
-        return valor instanceof List<?> lista ? (List<String>) lista : List.of();
     }
 }

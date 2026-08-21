@@ -5,7 +5,6 @@ import com.feelingpilates.exception.ValidacionException;
 import com.feelingpilates.pagos.dto.CompraResponse;
 import com.feelingpilates.pagos.dto.CrearPagoResponse;
 import com.feelingpilates.pagos.dto.PaqueteActivoResponse;
-import com.feelingpilates.pagos.dto.ReembolsoResponse;
 import com.feelingpilates.pagos.entidad.Compra;
 import com.feelingpilates.pagos.entidad.Compra.EstadoCompra;
 import com.feelingpilates.pagos.entidad.Paquete;
@@ -20,13 +19,11 @@ import com.stripe.model.Charge;
 import com.stripe.model.Event;
 import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.PaymentIntent;
-import com.stripe.model.Refund;
 import com.stripe.model.StripeObject;
 import com.stripe.net.ApiResource;
 import com.stripe.net.RequestOptions;
 import com.stripe.net.Webhook;
 import com.stripe.param.PaymentIntentCreateParams;
-import com.stripe.param.RefundCreateParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -257,29 +254,6 @@ public class PagoService {
             compra.setEstado(EstadoCompra.reembolsada);
             compraRepository.save(compra);
         });
-    }
-
-    // Solo se puede reembolsar una compra que de verdad se cobró; el permiso
-    // 'pagos.reembolsar' (solo ADMIN) evita que un cliente se autoreembolse.
-    @Transactional
-    public ReembolsoResponse reembolsarCompra(UUID compraId) {
-        Compra compra = compraRepository.findById(compraId)
-                .orElseThrow(() -> new ResourceNotFoundException("Compra no encontrada"));
-        if (compra.getEstado() != EstadoCompra.pagada) {
-            throw new ValidacionException("Solo se puede reembolsar una compra pagada");
-        }
-
-        try {
-            Refund refund = Refund.create(RefundCreateParams.builder()
-                    .setPaymentIntent(compra.getStripePaymentIntentId())
-                    .build());
-            compra.setEstado(EstadoCompra.reembolsada);
-            compraRepository.save(compra);
-            return new ReembolsoResponse(compra.getId(), compra.getEstado().name(), refund.getAmount().intValue());
-        } catch (StripeException e) {
-            log.error("Stripe rechazó el reembolso de la compra {}: {}", compra.getId(), e.toString());
-            throw new ValidacionException("No se pudo procesar el reembolso: " + e.getMessage());
-        }
     }
 
     // Red de seguridad para cuando el webhook nunca llega (se cae la conexión,

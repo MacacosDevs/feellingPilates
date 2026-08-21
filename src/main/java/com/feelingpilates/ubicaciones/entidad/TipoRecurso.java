@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "tipo_maquina")
+@Table(name = "tipo_recurso")
 @Getter
 @Setter
 @NoArgsConstructor
-public class TipoMaquina extends EntidadBase {
+public class TipoRecurso extends EntidadBase {
 
     @Column(nullable = false, unique = true)
     private String nombre;

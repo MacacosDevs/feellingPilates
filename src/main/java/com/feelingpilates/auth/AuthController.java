@@ -47,8 +47,8 @@ public class AuthController {
         return authService.completarInvitacion(request);
     }
 
-    @PostMapping("/google")
-    public TokenResponse google(@Valid @RequestBody GoogleTokenRequest request) {
-        return authService.loginConGoogle(request);
-    }
+//    @PostMapping("/google")
+//    public TokenResponse google(@Valid @RequestBody GoogleTokenRequest request) {
+//        return authService.loginConGoogle(request);
+//    }
 }

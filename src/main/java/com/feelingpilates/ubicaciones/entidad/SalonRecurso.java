@@ -18,11 +18,11 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-@Table(name = "salon_maquina")
+@Table(name = "salon_recurso")
 @Getter
 @Setter
 @NoArgsConstructor
-public class SalonMaquina {
+public class SalonRecurso {
 
     @EmbeddedId
     private Id id = new Id();
@@ -33,16 +33,16 @@ public class SalonMaquina {
     private Salon salon;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @MapsId("tipoMaquinaId")
-    @JoinColumn(name = "tipo_maquina_id")
-    private TipoMaquina tipoMaquina;
+    @MapsId("tipoRecursoId")
+    @JoinColumn(name = "tipo_recurso_id")
+    private TipoRecurso tipoRecurso;
 
     @Column(nullable = false)
     private Short cantidad;
 
-    public SalonMaquina(Salon salon, TipoMaquina tipoMaquina, Short cantidad) {
+    public SalonRecurso(Salon salon, TipoRecurso tipoRecurso, Short cantidad) {
         this.salon = salon;
-        this.tipoMaquina = tipoMaquina;
+        this.tipoRecurso = tipoRecurso;
         this.cantidad = cantidad;
     }
 
@@ -53,6 +53,6 @@ public class SalonMaquina {
     @EqualsAndHashCode
     public static class Id implements Serializable {
         private UUID salonId;
-        private UUID tipoMaquinaId;
+        private UUID tipoRecursoId;
     }
 }

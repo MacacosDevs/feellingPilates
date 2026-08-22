@@ -142,8 +142,14 @@ class ReservaServiceCaracterizacionTest {
                 .hasMessageContaining("no está capacitado");
     }
 
+    /**
+     * Renombrado en Fase 1A.1: el nombre anterior ("excepcionDeFechaTienePrecedenciaSobreElRecurrente")
+     * sonaba a regla deseada. Lo que caracteriza es que HOY una EXCEPCION del instructor/salón/fecha
+     * sustituye TODOS sus recurrentes de ese día (no solo el bloque que se pretendía reemplazar). El
+     * modelo futuro de sesiones/asignaciones no debe asumir esta sustitución global.
+     */
     @Test
-    void excepcionDeFechaTienePrecedenciaSobreElRecurrente() {
+    void caracterizaLimitacionActualExcepcionTienePrecedenciaSobreElRecurrente() {
         TurnoInstructor excepcion = turno(TurnoInstructor.Tipo.EXCEPCION, LUNES, 14, 0, 16, 0);
         when(turnoRepository.buscarPuntualesPorInstructorSalonYFecha(INSTRUCTOR_ID, SALON_ID, LUNES))
                 .thenReturn(List.of(excepcion));
@@ -168,8 +174,16 @@ class ReservaServiceCaracterizacionTest {
                 .buscarRecurrentesPorInstructorSalonYDia(INSTRUCTOR_ID, SALON_ID, (short) 1);
     }
 
+    /**
+     * Renombrado en Fase 1A.1: el nombre anterior ("cancelacionDeFechaTienePrecedenciaSobreExcepcionYRecurrente")
+     * usaba una CANCELACION de todo el día (00:00-23:59), lo que no distinguía "cancelación de un
+     * rango puntual" de "cancelación del día completo". Se mantiene como caracterización de la
+     * precedencia CANCELACION > EXCEPCION > RECURRENTE; la granularidad real (que CUALQUIER
+     * CANCELACION puntual también anula todo el día) queda caracterizada aparte en
+     * {@link #caracterizaLimitacionActualCancelacionDeUnRangoPuntualAnulaTodoElDia()}.
+     */
     @Test
-    void cancelacionDeFechaTienePrecedenciaSobreExcepcionYRecurrente() {
+    void caracterizaLimitacionActualCancelacionDeFechaTienePrecedenciaSobreExcepcionYRecurrente() {
         TurnoInstructor excepcion = turno(TurnoInstructor.Tipo.EXCEPCION, LUNES, 14, 0, 16, 0);
         TurnoInstructor cancelacion = turno(TurnoInstructor.Tipo.CANCELACION, LUNES, 0, 0, 23, 59);
         when(turnoRepository.buscarPuntualesPorInstructorSalonYFecha(INSTRUCTOR_ID, SALON_ID, LUNES))
@@ -180,6 +194,67 @@ class ReservaServiceCaracterizacionTest {
                 .hasMessageContaining("no tiene turno disponible");
         verify(turnoRepository, never())
                 .buscarRecurrentesPorInstructorSalonYDia(INSTRUCTOR_ID, SALON_ID, (short) 1);
+    }
+
+    /**
+     * P0 (revisión Fase 1A.1): el test viejo de CANCELACION no demostraba la granularidad real
+     * porque usaba un rango de 00:00-23:59 (ya era "todo el día" por construcción). Este test usa
+     * una CANCELACION de un rango puntual (14:00-15:00, fuera de la hora solicitada) y confirma que
+     * HOY de todas formas bloquea TODO el día: `ReservaService.turnosVigentes` regresa lista vacía
+     * si existe cualquier CANCELACION para esa fecha, sin filtrar por el rango de horas de la
+     * cancelación. Esto es una LIMITACION ACTUAL, no una regla deseada: el modelo futuro de
+     * cancelación por bloque/asignación no debe asumir que cancelar un rango anula todo el día.
+     */
+    @Test
+    void caracterizaLimitacionActualCancelacionDeUnRangoPuntualAnulaTodoElDia() {
+        TurnoInstructor cancelacionParcial = turno(TurnoInstructor.Tipo.CANCELACION, LUNES, 14, 0, 15, 0);
+        when(turnoRepository.buscarPuntualesPorInstructorSalonYFecha(INSTRUCTOR_ID, SALON_ID, LUNES))
+                .thenReturn(List.of(cancelacionParcial));
+
+        assertThatThrownBy(() -> service.crear(ACTOR_ID, request(LUNES, LocalTime.of(9, 0))))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("no tiene turno disponible");
+        verify(turnoRepository, never())
+                .buscarRecurrentesPorInstructorSalonYDia(INSTRUCTOR_ID, SALON_ID, (short) 1);
+    }
+
+    /**
+     * P0 (revisión Fase 1A.1): la Fase 1A siempre stubbeaba `existeTraslape` en false, dejando sin
+     * cubrir la exclusividad actual de reserva por instructor. Hoy `ReservaService` rechaza una
+     * segunda reserva del mismo instructor si se traslapa con otra ya confirmada, sin importar el
+     * cliente. El futuro modelo de sesiones grupales eliminará esta exclusividad para permitir varios
+     * clientes en la misma clase; esto NO es la regla deseada, es lo que hace el sistema hoy.
+     */
+    @Test
+    void caracterizaLimitacionActualInstructorExclusivoPorReserva() {
+        when(reservaRepository.existeTraslape(
+                any(UUID.class), any(LocalDate.class), any(LocalTime.class), any(LocalTime.class), any(Reserva.Estado.class)))
+                .thenReturn(true);
+
+        assertThatThrownBy(() -> service.crear(ACTOR_ID, request(LUNES, LocalTime.of(9, 0))))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("ya tiene una reserva");
+    }
+
+    /**
+     * P1 (revisión Fase 1A.1): la convención `domingo = 0` (ver
+     * {@code ReservaService.diaSemanaIso}) no tenía cobertura directa. Domingo 23 de agosto de 2026
+     * cae en domingo; se configura el recurrente para día 0 y se confirma que la reserva lo
+     * encuentra y lo usa, validando el mapeo de `DayOfWeek.SUNDAY` a `0` (no a `7`).
+     */
+    @Test
+    void diaSemanaIsoMapeaDomingoAlValorCero() {
+        LocalDate domingo = LocalDate.of(2026, 8, 23);
+        TurnoInstructor recurrenteDomingo = turno(TurnoInstructor.Tipo.RECURRENTE, null, 8, 0, 12, 0);
+        when(turnoRepository.buscarPuntualesPorInstructorSalonYFecha(INSTRUCTOR_ID, SALON_ID, domingo))
+                .thenReturn(List.of());
+        when(turnoRepository.buscarRecurrentesPorInstructorSalonYDia(INSTRUCTOR_ID, SALON_ID, (short) 0))
+                .thenReturn(List.of(recurrenteDomingo));
+
+        ReservaResponse resultado = service.crear(ACTOR_ID, request(domingo, LocalTime.of(9, 0)));
+
+        assertThat(resultado.fecha()).isEqualTo(domingo);
+        verify(turnoRepository).buscarRecurrentesPorInstructorSalonYDia(INSTRUCTOR_ID, SALON_ID, (short) 0);
     }
 
     @Test

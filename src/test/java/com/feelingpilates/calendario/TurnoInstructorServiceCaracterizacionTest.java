@@ -1,5 +1,6 @@
 package com.feelingpilates.calendario;
 
+import com.feelingpilates.calendario.dto.ActualizarTurnoRequest;
 import com.feelingpilates.calendario.dto.AsignacionInstructorRequest;
 import com.feelingpilates.calendario.dto.TurnoInstructorRequest;
 import com.feelingpilates.calendario.dto.TurnoInstructorResponse;
@@ -24,6 +25,7 @@ import com.feelingpilates.usuarios.entidad.UsuarioRol;
 import com.feelingpilates.usuarios.repositorio.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -33,9 +35,12 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,6 +63,7 @@ class TurnoInstructorServiceCaracterizacionTest {
     private TipoActividadRepository tipoActividadRepository;
     private SalonHorarioExcepcionRepository salonHorarioExcepcionRepository;
     private TurnoInstructorService service;
+    private AutorizadorSalon autorizadorSalon;
     private List<TurnoInstructorAsignacion> asignacionesGuardadas;
 
     private Salon salon;
@@ -75,7 +81,7 @@ class TurnoInstructorServiceCaracterizacionTest {
         horarioOperacionRepository = mock(HorarioOperacionRepository.class);
         tipoActividadRepository = mock(TipoActividadRepository.class);
         salonHorarioExcepcionRepository = mock(SalonHorarioExcepcionRepository.class);
-        AutorizadorSalon autorizadorSalon = mock(AutorizadorSalon.class);
+        autorizadorSalon = mock(AutorizadorSalon.class);
 
         salon = salon(SALON_ID, "Juriquilla");
         reformer = actividad(REFORMER_ID, "Reformer");
@@ -326,6 +332,308 @@ class TurnoInstructorServiceCaracterizacionTest {
                 .hasMessageContaining("no tiene la especialidad");
     }
 
+    /**
+     * P0 (Fase 1A.1): {@code TurnoInstructorService.crear} salta explícitamente
+     * {@code validarDentroDeHorarioSalon} para tipo CANCELACION (comentario en el código: "cubre el
+     * día completo... no tiene sentido validarlo contra el horario del salón"). Se prueba por
+     * resultado: un rango claramente fuera del horario operativo (8:00-20:00) se acepta sin lanzar
+     * excepción.
+     */
+    @Test
+    void permiteCancelacionFueraDelHorarioOperativoDelSalonPorqueNoValidaHorario() {
+        TurnoInstructorResponse resultado = service.crear(ACTOR_ID, cancelacion(21, 0, 22, 0));
+
+        assertThat(resultado.tipo()).isEqualTo(TurnoInstructor.Tipo.CANCELACION);
+        assertThat(resultado.horaInicio()).isEqualTo(LocalTime.of(21, 0));
+        verify(horarioOperacionRepository, never()).findBySalonIdOrderByDiaSemana(any());
+    }
+
+    /**
+     * P0 (Fase 1A.1): igual que arriba, pero para {@code validarSinTraslape}: una CANCELACION que
+     * ocupa exactamente el mismo rango que un RECURRENTE existente se acepta sin lanzar "se cruza",
+     * porque para tipo CANCELACION el método completo se salta.
+     */
+    @Test
+    void permiteCancelacionQueSeTraslapaConUnRecurrenteExistentePorqueNoValidaTraslape() {
+        when(turnoRepository.buscarRecurrentesPorSalonYDia(SALON_ID, (short) 1))
+                .thenReturn(List.of(turnoExistente(8, 0, 12, 0)));
+
+        TurnoInstructorResponse resultado = service.crear(ACTOR_ID, cancelacion(8, 0, 12, 0));
+
+        assertThat(resultado.tipo()).isEqualTo(TurnoInstructor.Tipo.CANCELACION);
+        verify(turnoRepository, never()).buscarExcepcionesPorSalonYFecha(any(), any());
+    }
+
+    /**
+     * P0 (Fase 1A.1): dos instructores en el mismo bloque, cada uno con una actividad distinta.
+     * Demuestra que la actividad no es propiedad/exclusividad del bloque: cada instructor conserva
+     * su propia especialidad asignada.
+     */
+    @Test
+    void permiteInstructoresConActividadesDistintasEnElMismoBloque() {
+        when(usuarioRepository.findAllById(any())).thenReturn(List.of(ariadna, alberto));
+        when(tipoActividadRepository.findAllById(any())).thenReturn(List.of(reformer, mat));
+        TurnoInstructorRequest request = new TurnoInstructorRequest(
+                List.of(
+                        asignacion(ARIADNA_ID, MAT_ID, null, null),
+                        asignacion(ALBERTO_ID, REFORMER_ID, null, null)),
+                SALON_ID,
+                TurnoInstructor.Tipo.RECURRENTE,
+                (short) 1,
+                null,
+                LocalTime.of(8, 0),
+                LocalTime.of(10, 0));
+
+        TurnoInstructorResponse resultado = service.crear(ACTOR_ID, request);
+
+        assertThat(resultado.asignaciones())
+                .extracting(
+                        TurnoInstructorResponse.InstructorAsignacionResponse::instructorNombre,
+                        a -> a.actividades().stream()
+                                .map(TurnoInstructorResponse.ActividadResumen::nombre)
+                                .toList())
+                .containsExactlyInAnyOrder(
+                        tuple("Ariadna", List.of("Mat")),
+                        tuple("Alberto", List.of("Reformer")));
+    }
+
+    /**
+     * P0 (Fase 1A.1): dentro de un mismo bloque (08:00-12:00), dos instructores cubren rangos
+     * parciales distintos (08:00-10:00 y 10:00-12:00 respectivamente). Demuestra que el rango
+     * pertenece a la asignación de cada instructor y no que todo instructor deba cubrir el turno
+     * completo.
+     */
+    @Test
+    void permiteRangosParcialesDistintosPorInstructorDentroDelMismoBloque() {
+        when(usuarioRepository.findAllById(any())).thenReturn(List.of(ariadna, alberto));
+        when(tipoActividadRepository.findAllById(any())).thenReturn(List.of(reformer, mat));
+        TurnoInstructorRequest request = new TurnoInstructorRequest(
+                List.of(
+                        asignacion(ARIADNA_ID, MAT_ID, LocalTime.of(8, 0), LocalTime.of(10, 0)),
+                        asignacion(ALBERTO_ID, REFORMER_ID, LocalTime.of(10, 0), LocalTime.of(12, 0))),
+                SALON_ID,
+                TurnoInstructor.Tipo.RECURRENTE,
+                (short) 1,
+                null,
+                LocalTime.of(8, 0),
+                LocalTime.of(12, 0));
+
+        TurnoInstructorResponse resultado = service.crear(ACTOR_ID, request);
+
+        assertThat(resultado.asignaciones())
+                .extracting(
+                        TurnoInstructorResponse.InstructorAsignacionResponse::instructorNombre,
+                        TurnoInstructorResponse.InstructorAsignacionResponse::horaInicio,
+                        TurnoInstructorResponse.InstructorAsignacionResponse::horaFin)
+                .containsExactlyInAnyOrder(
+                        tuple("Ariadna", LocalTime.of(8, 0), LocalTime.of(10, 0)),
+                        tuple("Alberto", LocalTime.of(10, 0), LocalTime.of(12, 0)));
+    }
+
+    @Test
+    void rechazaIntervaloConHoraFinIgualAHoraInicio() {
+        assertThatThrownBy(() -> service.crear(ACTOR_ID, recurrente(9, 0, 9, 0)))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("hora de fin debe ser posterior");
+    }
+
+    @Test
+    void rechazaIntervaloConHoraFinAnteriorAHoraInicio() {
+        assertThatThrownBy(() -> service.crear(ACTOR_ID, recurrente(10, 0, 9, 0)))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("hora de fin debe ser posterior");
+    }
+
+    /** P0 (Fase 1A.1): un rango idéntico a uno existente debe quedar rechazado por traslape. */
+    @Test
+    void rechazaRangoExactamenteIdenticoAUnoExistente() {
+        when(turnoRepository.buscarRecurrentesPorSalonYDia(SALON_ID, (short) 1))
+                .thenReturn(List.of(turnoExistente(8, 0, 12, 0)));
+
+        assertThatThrownBy(() -> service.crear(ACTOR_ID, recurrente(8, 0, 12, 0)))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("cruza");
+    }
+
+    /**
+     * P0 (Fase 1A.1): dos EXCEPCION de la misma fecha que se traslapan deben quedar rechazadas.
+     * Coincide con la invariante física del salón (un espacio, un bloque a la vez) y se protege
+     * como comportamiento válido.
+     */
+    @Test
+    void rechazaDosExcepcionesDeLaMismaFechaQueSeTraslapan() {
+        when(turnoRepository.buscarExcepcionesPorSalonYFecha(SALON_ID, LUNES))
+                .thenReturn(List.of(turnoExcepcionExistente(10, 0, 12, 0)));
+
+        assertThatThrownBy(() -> service.crear(ACTOR_ID, excepcion(11, 0, 13, 0)))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("cruza");
+    }
+
+    /**
+     * P0 (Fase 1A.1): BUG documentado en la auditoría de Fase 1A (sección C): al crear una
+     * EXCEPCION, {@code validarSinTraslape} la compara también contra los RECURRENTE de ese día de
+     * la semana. Si la EXCEPCION pretende sustituir/ocupar el mismo horario que un recurrente
+     * vigente, HOY es rechazada por "traslape" con ese mismo recurrente, aunque la intención sea
+     * reemplazarlo para esa fecha puntual. Esto es una LIMITACION ACTUAL (bug conocido, no
+     * corregido en esta fase), no la regla deseada del modelo futuro.
+     */
+    @Test
+    void caracterizaLimitacionActualExcepcionQuePretendeSustituirElRecurrenteEsRechazadaPorTraslape() {
+        when(turnoRepository.buscarRecurrentesPorSalonYDia(SALON_ID, (short) 1))
+                .thenReturn(List.of(turnoExistente(8, 0, 12, 0)));
+
+        assertThatThrownBy(() -> service.crear(ACTOR_ID, excepcion(8, 0, 12, 0)))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("cruza");
+    }
+
+    /**
+     * P1 (Fase 1A.1): protege el filtro {@code h.getDiaSemana() == diaSemana} en
+     * {@code validarDentroDeHorarioSalon}. El salón sólo tiene HorarioOperacion para LUNES (1); un
+     * turno recurrente para MARTES (2) no puede usar ese horario aunque exista para otro día.
+     */
+    @Test
+    void rechazaTurnoParaUnDiaSinHorarioOperativoConfiguradoAunqueOtroDiaSiLoTenga() {
+        TurnoInstructorRequest request = new TurnoInstructorRequest(
+                List.of(asignacion(ARIADNA_ID, REFORMER_ID, null, null)),
+                SALON_ID,
+                TurnoInstructor.Tipo.RECURRENTE,
+                (short) 2,
+                null,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0));
+
+        assertThatThrownBy(() -> service.crear(ACTOR_ID, request))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("horario de atención");
+    }
+
+    /** P1 (Fase 1A.1): un salón sin ningún HorarioOperacion configurado rechaza cualquier turno. */
+    @Test
+    void rechazaTurnoCuandoElSalonNoTieneNingunHorarioOperativoConfigurado() {
+        when(horarioOperacionRepository.findBySalonIdOrderByDiaSemana(SALON_ID)).thenReturn(List.of());
+
+        assertThatThrownBy(() -> service.crear(ACTOR_ID, recurrente(9, 0, 10, 0)))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("horario de atención");
+    }
+
+    /**
+     * P1 (Fase 1A.1): {@code actualizarTurno} pasa {@code excluirTurnoId = turno.getId()} a
+     * {@code validarSinTraslape}. Conservar el propio rango al actualizar no debe considerarse
+     * traslapado consigo mismo.
+     */
+    @Test
+    void actualizarTurnoConservandoSuPropioRangoNoSeConsideraTraslapadoConsigoMismo() {
+        TurnoInstructor existente = turnoExistente(8, 0, 12, 0);
+        when(turnoRepository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        when(turnoRepository.buscarRecurrentesPorSalonYDia(SALON_ID, (short) 1))
+                .thenReturn(List.of(existente));
+
+        ActualizarTurnoRequest request = new ActualizarTurnoRequest(
+                (short) 1,
+                LocalTime.of(8, 0),
+                LocalTime.of(12, 0),
+                List.of(asignacion(ARIADNA_ID, REFORMER_ID, null, null)));
+
+        TurnoInstructorResponse resultado = service.actualizarTurno(ACTOR_ID, existente.getId(), request);
+
+        assertThat(resultado.horaInicio()).isEqualTo(LocalTime.of(8, 0));
+        assertThat(resultado.horaFin()).isEqualTo(LocalTime.of(12, 0));
+    }
+
+    /**
+     * P1 (Fase 1A.1): mover un turno a un rango que sí choca contra OTRO turno real (distinto id)
+     * debe seguir siendo rechazado; la autoexclusión sólo aplica al propio turno.
+     */
+    @Test
+    void actualizarTurnoRechazaTraslapeContraOtroTurnoRealDistinto() {
+        TurnoInstructor aActualizar = turnoExistente(8, 0, 10, 0);
+        TurnoInstructor otro = turnoExistente(10, 0, 12, 0);
+        when(turnoRepository.findById(aActualizar.getId())).thenReturn(Optional.of(aActualizar));
+        when(turnoRepository.buscarRecurrentesPorSalonYDia(SALON_ID, (short) 1))
+                .thenReturn(List.of(aActualizar, otro));
+
+        ActualizarTurnoRequest request = new ActualizarTurnoRequest(
+                (short) 1,
+                LocalTime.of(9, 0),
+                LocalTime.of(11, 0),
+                List.of(asignacion(ARIADNA_ID, REFORMER_ID, null, null)));
+
+        assertThatThrownBy(() -> service.actualizarTurno(ACTOR_ID, aActualizar.getId(), request))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("cruza");
+    }
+
+    /**
+     * P1 (Fase 1A.1): confirma la convención "domingo = 0" (ver
+     * {@code TurnoInstructorService.diaSemanaIso}) para EXCEPCION/CANCELACION, cuyo día de la
+     * semana se deriva de la fecha. Si se usara 7 en vez de 0, el HorarioOperacion configurado para
+     * domingo (diaSemana=0) no se encontraría y el turno sería rechazado.
+     */
+    @Test
+    void excepcionEnDomingoUsaDiaSemanaCeroParaValidarHorarioSemanal() {
+        LocalDate domingo = LocalDate.of(2026, 8, 23);
+        HorarioOperacion horarioDomingo = new HorarioOperacion();
+        horarioDomingo.setSalon(salon);
+        horarioDomingo.setDiaSemana((short) 0);
+        horarioDomingo.setHoraApertura(LocalTime.of(9, 0));
+        horarioDomingo.setHoraCierre(LocalTime.of(14, 0));
+        when(horarioOperacionRepository.findBySalonIdOrderByDiaSemana(SALON_ID))
+                .thenReturn(List.of(horarioDomingo));
+        when(salonHorarioExcepcionRepository.findBySalonIdAndFechaAndActivoTrue(SALON_ID, domingo))
+                .thenReturn(Optional.empty());
+        when(turnoRepository.buscarExcepcionesPorSalonYFecha(SALON_ID, domingo)).thenReturn(List.of());
+        when(turnoRepository.buscarRecurrentesPorSalonYDia(SALON_ID, (short) 0)).thenReturn(List.of());
+
+        TurnoInstructorRequest request = new TurnoInstructorRequest(
+                List.of(asignacion(ARIADNA_ID, REFORMER_ID, null, null)),
+                SALON_ID,
+                TurnoInstructor.Tipo.EXCEPCION,
+                null,
+                domingo,
+                LocalTime.of(10, 0),
+                LocalTime.of(12, 0));
+
+        TurnoInstructorResponse resultado = service.crear(ACTOR_ID, request);
+
+        assertThat(resultado.fecha()).isEqualTo(domingo);
+        assertThat(resultado.horaInicio()).isEqualTo(LocalTime.of(10, 0));
+    }
+
+    /**
+     * P1 (Fase 1A.1): protege la matriz de permisos por tipo en {@code crear} contra un cambio
+     * accidental. No duplica la suite completa de {@code AutorizadorSalon}, sólo verifica qué
+     * permisos se solicitan para cada tipo.
+     */
+    @Test
+    void solicitaPermisoDeGestionarParaTurnoRecurrente() {
+        service.crear(ACTOR_ID, recurrente(9, 0, 10, 0));
+
+        ArgumentCaptor<String[]> permisos = ArgumentCaptor.forClass(String[].class);
+        verify(autorizadorSalon).verificarAccesoSalon(eq(ACTOR_ID), eq(SALON_ID), permisos.capture());
+        assertThat(permisos.getValue()).containsExactly("calendario.gestionar");
+    }
+
+    @Test
+    void solicitaPermisoDeGestionarOEditarParaExcepcion() {
+        service.crear(ACTOR_ID, excepcion(9, 0, 10, 0));
+
+        ArgumentCaptor<String[]> permisos = ArgumentCaptor.forClass(String[].class);
+        verify(autorizadorSalon).verificarAccesoSalon(eq(ACTOR_ID), eq(SALON_ID), permisos.capture());
+        assertThat(permisos.getValue()).containsExactly("calendario.gestionar", "calendario.editar");
+    }
+
+    @Test
+    void solicitaPermisoDeGestionarOCancelarParaCancelacion() {
+        service.crear(ACTOR_ID, cancelacion(9, 0, 10, 0));
+
+        ArgumentCaptor<String[]> permisos = ArgumentCaptor.forClass(String[].class);
+        verify(autorizadorSalon).verificarAccesoSalon(eq(ACTOR_ID), eq(SALON_ID), permisos.capture());
+        assertThat(permisos.getValue()).containsExactly("calendario.gestionar", "calendario.cancelar");
+    }
+
     private TurnoInstructorRequest recurrente(int horaInicio, int minutoInicio, int horaFin, int minutoFin) {
         return new TurnoInstructorRequest(
                 List.of(asignacion(ARIADNA_ID, REFORMER_ID, null, null)),
@@ -342,6 +650,17 @@ class TurnoInstructorServiceCaracterizacionTest {
                 List.of(asignacion(ARIADNA_ID, REFORMER_ID, null, null)),
                 SALON_ID,
                 TurnoInstructor.Tipo.EXCEPCION,
+                null,
+                LUNES,
+                LocalTime.of(horaInicio, minutoInicio),
+                LocalTime.of(horaFin, minutoFin));
+    }
+
+    private TurnoInstructorRequest cancelacion(int horaInicio, int minutoInicio, int horaFin, int minutoFin) {
+        return new TurnoInstructorRequest(
+                List.of(asignacion(ARIADNA_ID, REFORMER_ID, null, null)),
+                SALON_ID,
+                TurnoInstructor.Tipo.CANCELACION,
                 null,
                 LUNES,
                 LocalTime.of(horaInicio, minutoInicio),
@@ -378,6 +697,18 @@ class TurnoInstructorServiceCaracterizacionTest {
         turno.setSalon(salon);
         turno.setTipo(TurnoInstructor.Tipo.RECURRENTE);
         turno.setDiaSemana((short) 1);
+        turno.setHoraInicio(LocalTime.of(horaInicio, minutoInicio));
+        turno.setHoraFin(LocalTime.of(horaFin, minutoFin));
+        turno.getInstructores().add(ariadna);
+        return turno;
+    }
+
+    private TurnoInstructor turnoExcepcionExistente(int horaInicio, int minutoInicio, int horaFin, int minutoFin) {
+        TurnoInstructor turno = new TurnoInstructor();
+        turno.setId(UUID.randomUUID());
+        turno.setSalon(salon);
+        turno.setTipo(TurnoInstructor.Tipo.EXCEPCION);
+        turno.setFecha(LUNES);
         turno.setHoraInicio(LocalTime.of(horaInicio, minutoInicio));
         turno.setHoraFin(LocalTime.of(horaFin, minutoFin));
         turno.getInstructores().add(ariadna);

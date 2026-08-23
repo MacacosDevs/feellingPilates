@@ -281,6 +281,37 @@ class BloqueProgramacionServiceTest {
     }
 
     @Test
+    void rechazaAsignacionQueExcedeElFinDelBloque() {
+        assertThatThrownBy(() -> service.crearAsignacion(crearAsignacion(
+                ARIADNA_ID, REFORMER_ID, 12, 15, ENERO, DICIEMBRE)))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("horario del bloque");
+    }
+
+    @Test
+    void rechazaAsignacionCuyaVigenciaTerminaDespuesDelBloque() {
+        bloque.setVigenteDesde(LocalDate.of(2026, 1, 1));
+        bloque.setVigenteHasta(LocalDate.of(2026, 1, 31));
+
+        assertThatThrownBy(() -> service.crearAsignacion(crearAsignacion(
+                ARIADNA_ID, REFORMER_ID, 9, 11,
+                LocalDate.of(2026, 1, 10), LocalDate.of(2026, 2, 1))))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("vigencia de la asignación");
+    }
+
+    @Test
+    void rechazaAsignacionAbiertaBajoBloqueConVigenciaAcotada() {
+        bloque.setVigenteDesde(LocalDate.of(2026, 1, 1));
+        bloque.setVigenteHasta(LocalDate.of(2026, 1, 31));
+
+        assertThatThrownBy(() -> service.crearAsignacion(crearAsignacion(
+                ARIADNA_ID, REFORMER_ID, 9, 11, LocalDate.of(2026, 1, 10), null)))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("vigencia de la asignación");
+    }
+
+    @Test
     void permiteDosSegmentosDisjuntosDelMismoInstructorYActividad() {
         when(asignacionRepository.findByBloqueIdAndActivoTrueOrderByHoraInicio(BLOQUE_ID))
                 .thenReturn(List.of(asignacion(ARIADNA_ID, REFORMER_ID, 8, 10, ENERO, DICIEMBRE)));
@@ -301,6 +332,18 @@ class BloqueProgramacionServiceTest {
                 ARIADNA_ID, REFORMER_ID, 10, 12, ENERO, DICIEMBRE));
 
         assertThat(resultado.getHoraInicio()).isEqualTo(LocalTime.of(10, 0));
+    }
+
+    @Test
+    void permiteTraslapeHorarioDentroDelBloqueConVigenciasDisjuntas() {
+        when(asignacionRepository.findByBloqueIdAndActivoTrueOrderByHoraInicio(BLOQUE_ID))
+                .thenReturn(List.of(asignacion(
+                        ARIADNA_ID, REFORMER_ID, 8, 10, ENERO, LocalDate.of(2027, 1, 31))));
+
+        Asignacion resultado = service.crearAsignacion(crearAsignacion(
+                ARIADNA_ID, REFORMER_ID, 8, 10, LocalDate.of(2027, 2, 1), DICIEMBRE));
+
+        assertThat(resultado.getHoraInicio()).isEqualTo(LocalTime.of(8, 0));
     }
 
     @Test
@@ -337,7 +380,7 @@ class BloqueProgramacionServiceTest {
     }
 
     @Test
-    void rechazaConflictoGlobalDelInstructorEntreSalones() {
+    void propagaConflictoRecurrenteReportadoPorElRepositorio() {
         when(asignacionRepository.buscarConflictosRecurrentesDelInstructor(
                 ARIADNA_ID, (short) 1, LocalTime.of(10, 0), LocalTime.NOON, ENERO, DICIEMBRE))
                 .thenReturn(List.of(asignacion(ARIADNA_ID, REFORMER_ID, 11, 13, ENERO, DICIEMBRE)));
@@ -363,7 +406,7 @@ class BloqueProgramacionServiceTest {
     }
 
     @Test
-    void permiteMismoInstructorEnSalonesDistintosSiLosDiasSonDistintos() {
+    void usaElDiaSemanaDelBloqueAlConsultarConflictoGlobal() {
         bloque.setDiaSemana((short) 2);
 
         Asignacion resultado = service.crearAsignacion(crearAsignacion(

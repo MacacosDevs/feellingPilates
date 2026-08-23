@@ -78,13 +78,25 @@ class UbicacionesPersistenciaTest {
         assertThat(fila.get("vigente_hasta")).isNull();
     }
 
+    /**
+     * REEMPLAZADO INTENCIONALMENTE en F2B.3a: hasta V45, UNIQUE(salon_id, dia_semana)
+     * era la unica garantia de no-duplicidad y esta prueba dependia de ese nombre. A
+     * partir de V46 ese UNIQUE ya no existe; la invariante fisica pasa a ser
+     * ex_horario_operacion_vigencia (EXCLUDE), que rechaza dos filas del mismo
+     * salon+dia solo cuando sus vigencias se intersectan. Dos filas NULL/NULL
+     * (vigencia universal) siempre se intersectan consigo mismas, asi que el
+     * resultado observable (segunda insercion rechazada) no cambia, pero la causa si.
+     * La invariante "vigencias no intersectantes SI permitidas" se prueba en
+     * HorarioOperacionVersionadoPersistenciaTest.
+     */
     @Test
-    void uniqueSalonDiaSemanaSigueVigenteEnF2A() {
+    void mismoSalonDiaSemanaConVigenciasQueIntersectanEsRechazado() {
         UUID salonId = jdbcTemplate.queryForObject("select id from salon limit 1", UUID.class);
         insertarHorarioLegado(salonId, (short) 3);
 
         assertThatThrownBy(() -> insertarHorarioLegado(salonId, (short) 3))
-                .isInstanceOf(DataIntegrityViolationException.class);
+                .isInstanceOf(DataIntegrityViolationException.class)
+                .hasMessageContaining("ex_horario_operacion_vigencia");
     }
 
     @Test

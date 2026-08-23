@@ -42,9 +42,9 @@ class ProgramacionPersistenciaTest {
     private AsignacionRepository asignacionRepository;
 
     @Test
-    void flywayMigraDesdeV1HastaV43() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("43");
-        assertThat(flyway.info().applied()).hasSize(46);
+    void flywayMigraDesdeV1HastaV46() {
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("46");
+        assertThat(flyway.info().applied()).hasSize(49);
     }
 
     @Test

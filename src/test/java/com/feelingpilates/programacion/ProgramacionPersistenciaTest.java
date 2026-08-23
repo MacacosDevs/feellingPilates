@@ -42,9 +42,9 @@ class ProgramacionPersistenciaTest {
     private AsignacionRepository asignacionRepository;
 
     @Test
-    void flywayMigraDesdeV1HastaV41() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("41");
-        assertThat(flyway.info().applied()).hasSize(44);
+    void flywayMigraDesdeV1HastaV43() {
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("43");
+        assertThat(flyway.info().applied()).hasSize(46);
     }
 
     @Test
@@ -253,6 +253,35 @@ class ProgramacionPersistenciaTest {
                 "select count(*) from programacion_asignacion where bloque_id = ?", Integer.class, bloqueId);
 
         assertThat(total).isEqualTo(2);
+    }
+
+    @Test
+    void asignacionNoDetectaConflictoCuandoVigenciaExistenteEsPosteriorAlaConsulta() {
+        UUID salonId = jdbcTemplate.queryForObject("select id from salon limit 1", UUID.class);
+        UUID instructorId = jdbcTemplate.queryForObject("select id from usuario limit 1", UUID.class);
+        UUID actividadId = jdbcTemplate.queryForObject("select id from tipo_actividad limit 1", UUID.class);
+
+        UUID bloqueId = insertarBloque(salonId, (short) 1, "10:00", "12:00", "2026-03-01", null);
+        insertarAsignacion(bloqueId, instructorId, actividadId, "10:00", "12:00", "2026-03-01", null);
+
+        List<Asignacion> conflictos = asignacionRepository.buscarConflictosRecurrentesDelInstructor(
+                instructorId, (short) 1, LocalTime.of(11, 0), LocalTime.of(13, 0),
+                LocalDate.of(2026, 1, 1), LocalDate.of(2026, 2, 28));
+
+        assertThat(conflictos).isEmpty();
+    }
+
+    @Test
+    void bloqueNoDetectaTraslapeCuandoVigenciaExistenteEsPosteriorAlaConsulta() {
+        UUID salonId = jdbcTemplate.queryForObject("select id from salon limit 1", UUID.class);
+
+        insertarBloque(salonId, (short) 1, "10:00", "12:00", "2026-03-01", null);
+
+        List<BloqueProgramacion> traslapes = bloqueRepository.buscarTraslapesActivos(
+                salonId, (short) 1, LocalTime.of(11, 0), LocalTime.of(13, 0),
+                LocalDate.of(2026, 1, 1), LocalDate.of(2026, 2, 28));
+
+        assertThat(traslapes).isEmpty();
     }
 
     private UUID insertarBloque(

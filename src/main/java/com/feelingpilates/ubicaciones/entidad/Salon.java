@@ -57,6 +57,21 @@ public class Salon extends EntidadBase {
     @Column(nullable = false)
     private boolean activo = true;
 
+    @Column(name = "requiere_confirmacion_instructor", nullable = false)
+    private boolean requiereConfirmacionInstructor = false;
+
+    @Column(name = "plazo_respuesta_confirmacion_horas")
+    private Short plazoRespuestaConfirmacionHoras;
+
+    @Column(name = "anticipacion_maxima_reserva_horas")
+    private Short anticipacionMaximaReservaHoras;
+
+    @Column(name = "anticipacion_minima_reserva_horas", nullable = false)
+    private Short anticipacionMinimaReservaHoras = 0;
+
+    @Column(name = "margen_materializacion_dias")
+    private Short margenMaterializacionDias;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "salon_tipo_actividad",

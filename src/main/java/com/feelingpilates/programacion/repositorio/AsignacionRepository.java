@@ -24,7 +24,7 @@ public interface AsignacionRepository extends JpaRepository<Asignacion, UUID> {
               and b.dia_semana = :diaSemana
               and a.hora_inicio < :horaFin
               and :horaInicio < a.hora_fin
-              and (:vigenteHasta is null or a.vigente_desde <= :vigenteHasta)
+              and (cast(:vigenteHasta as date) is null or a.vigente_desde <= :vigenteHasta)
               and (a.vigente_hasta is null or :vigenteDesde <= a.vigente_hasta)
             """, nativeQuery = true)
     List<Asignacion> buscarConflictosRecurrentesDelInstructor(

@@ -128,6 +128,39 @@ class ProgramacionPersistenciaTest {
     }
 
     @Test
+    void asignacionDetectaConflictoCrossSalonConVigenciasAcotadas() {
+        List<UUID> salones = jdbcTemplate.queryForList("select id from salon order by nombre limit 2", UUID.class);
+        UUID salonA = salones.get(0);
+        UUID salonB = salones.get(1);
+        UUID instructorId = jdbcTemplate.queryForObject("select id from usuario limit 1", UUID.class);
+        UUID actividadId = jdbcTemplate.queryForObject("select id from tipo_actividad limit 1", UUID.class);
+
+        UUID bloqueA = insertarBloque(salonA, (short) 1, "10:00", "12:00", "2026-01-01", "2026-03-31");
+        insertarAsignacion(bloqueA, instructorId, actividadId, "10:00", "12:00", "2026-01-01", "2026-03-31");
+        insertarBloque(salonB, (short) 1, "11:00", "13:00", "2026-02-01", "2026-02-28");
+
+        List<Asignacion> conflictos = asignacionRepository.buscarConflictosRecurrentesDelInstructor(
+                instructorId, (short) 1, LocalTime.of(11, 0), LocalTime.of(13, 0),
+                LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 28));
+
+        assertThat(conflictos).extracting(Asignacion::getBloqueId).containsExactly(bloqueA);
+    }
+
+    @Test
+    void bloqueDetectaTraslapeConVigenciasAcotadas() {
+        UUID salonId = jdbcTemplate.queryForObject("select id from salon limit 1", UUID.class);
+
+        UUID bloqueId = insertarBloque(
+                salonId, (short) 1, "10:00", "12:00", "2026-01-01", "2026-03-31");
+
+        List<BloqueProgramacion> traslapes = bloqueRepository.buscarTraslapesActivos(
+                salonId, (short) 1, LocalTime.of(11, 0), LocalTime.of(13, 0),
+                LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 28));
+
+        assertThat(traslapes).extracting(BloqueProgramacion::getId).containsExactly(bloqueId);
+    }
+
+    @Test
     void conflictoGlobalCrossSalonNoAplicaConVigenciasDisjuntas() {
         List<UUID> salones = jdbcTemplate.queryForList("select id from salon order by nombre limit 2", UUID.class);
         UUID salonA = salones.get(0);
@@ -137,13 +170,31 @@ class ProgramacionPersistenciaTest {
 
         UUID bloqueA = insertarBloque(salonA, (short) 1, "10:00", "12:00", "2026-01-01", "2026-01-31");
         insertarAsignacion(bloqueA, instructorId, actividadId, "10:00", "12:00", "2026-01-01", "2026-01-31");
-        insertarBloque(salonB, (short) 1, "11:00", "13:00", "2026-02-01", null);
+        insertarBloque(salonB, (short) 1, "11:00", "13:00", "2026-02-01", "2026-03-31");
 
         List<Asignacion> conflictos = asignacionRepository.buscarConflictosRecurrentesDelInstructor(
                 instructorId, (short) 1, LocalTime.of(11, 0), LocalTime.of(13, 0),
-                LocalDate.of(2026, 2, 1), null);
+                LocalDate.of(2026, 2, 1), LocalDate.of(2026, 3, 31));
 
         assertThat(conflictos).isEmpty();
+    }
+
+    @Test
+    void asignacionConsideraInterseccionCuandoLasVigenciasCompartenElUltimoDia() {
+        UUID salonId = jdbcTemplate.queryForObject("select id from salon limit 1", UUID.class);
+        UUID instructorId = jdbcTemplate.queryForObject("select id from usuario limit 1", UUID.class);
+        UUID actividadId = jdbcTemplate.queryForObject("select id from tipo_actividad limit 1", UUID.class);
+
+        UUID bloqueId = insertarBloque(
+                salonId, (short) 1, "10:00", "12:00", "2026-01-01", "2026-01-31");
+        insertarAsignacion(
+                bloqueId, instructorId, actividadId, "10:00", "12:00", "2026-01-01", "2026-01-31");
+
+        List<Asignacion> conflictos = asignacionRepository.buscarConflictosRecurrentesDelInstructor(
+                instructorId, (short) 1, LocalTime.of(11, 0), LocalTime.of(13, 0),
+                LocalDate.of(2026, 1, 31), LocalDate.of(2026, 2, 28));
+
+        assertThat(conflictos).extracting(Asignacion::getBloqueId).containsExactly(bloqueId);
     }
 
     @Test
@@ -157,9 +208,35 @@ class ProgramacionPersistenciaTest {
 
         List<Asignacion> conflictos = asignacionRepository.buscarConflictosRecurrentesDelInstructor(
                 instructorId, (short) 1, LocalTime.of(10, 0), LocalTime.of(12, 0),
-                LocalDate.of(2027, 1, 15), null);
+                LocalDate.of(2027, 1, 15), LocalDate.of(2027, 2, 28));
 
         assertThat(conflictos).isEmpty();
+    }
+
+    @Test
+    void bloqueNoDetectaTraslapeConVigenciasAcotadasDisjuntas() {
+        UUID salonId = jdbcTemplate.queryForObject("select id from salon limit 1", UUID.class);
+
+        insertarBloque(salonId, (short) 1, "10:00", "12:00", "2026-01-01", "2026-01-31");
+
+        List<BloqueProgramacion> traslapes = bloqueRepository.buscarTraslapesActivos(
+                salonId, (short) 1, LocalTime.of(11, 0), LocalTime.of(13, 0),
+                LocalDate.of(2026, 2, 1), LocalDate.of(2026, 3, 31));
+
+        assertThat(traslapes).isEmpty();
+    }
+
+    @Test
+    void bloqueTrataIntervalosContiguosComoSinTraslapeConVigenciasAcotadas() {
+        UUID salonId = jdbcTemplate.queryForObject("select id from salon limit 1", UUID.class);
+
+        insertarBloque(salonId, (short) 1, "08:00", "10:00", "2026-01-01", "2026-03-31");
+
+        List<BloqueProgramacion> traslapes = bloqueRepository.buscarTraslapesActivos(
+                salonId, (short) 1, LocalTime.of(10, 0), LocalTime.of(12, 0),
+                LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 28));
+
+        assertThat(traslapes).isEmpty();
     }
 
     @Test

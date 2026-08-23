@@ -23,7 +23,7 @@ public interface BloqueProgramacionRepository extends JpaRepository<BloqueProgra
               and b.activo = true
               and b.hora_inicio < :horaFin
               and :horaInicio < b.hora_fin
-              and (:vigenteHasta is null or b.vigente_desde <= :vigenteHasta)
+              and (cast(:vigenteHasta as date) is null or b.vigente_desde <= :vigenteHasta)
               and (b.vigente_hasta is null or :vigenteDesde <= b.vigente_hasta)
             """, nativeQuery = true)
     List<BloqueProgramacion> buscarTraslapesActivos(

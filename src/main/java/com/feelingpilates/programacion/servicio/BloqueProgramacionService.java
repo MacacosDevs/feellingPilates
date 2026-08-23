@@ -6,6 +6,8 @@ import com.feelingpilates.programacion.entidad.Asignacion;
 import com.feelingpilates.programacion.entidad.BloqueProgramacion;
 import com.feelingpilates.programacion.repositorio.AsignacionRepository;
 import com.feelingpilates.programacion.repositorio.BloqueProgramacionRepository;
+import com.feelingpilates.ubicaciones.dominio.CoberturaVigencia;
+import com.feelingpilates.ubicaciones.dominio.RangoVigencia;
 import com.feelingpilates.ubicaciones.entidad.HorarioOperacion;
 import com.feelingpilates.ubicaciones.entidad.Salon;
 import com.feelingpilates.ubicaciones.entidad.TipoActividad;
@@ -165,14 +167,32 @@ public class BloqueProgramacionService {
         }
     }
 
+    /**
+     * El bloque ya trae su propia vigencia explicita ({@code vigenteDesde} obligatorio,
+     * {@code vigenteHasta} nullable = abierta), asi que no necesita reloj: su objetivo temporal es
+     * exactamente esa vigencia. Las versiones del horario del salon para ese dia deben
+     *
+     * <ol>
+     *   <li>CUBRIR completa la vigencia del bloque -- sin huecos, y llegando a +infinito si el
+     *       bloque es abierto; un horario cuya cobertura termina dejaria al bloque sin respaldo;</li>
+     *   <li>y TODAS contener el rango horario del bloque, no solo alguna.</li>
+     * </ol>
+     *
+     * El barrido de cobertura es por intervalos, nunca dia por dia.
+     */
     private void validarDentroDelHorarioOperacion(CrearBloque comando) {
-        List<HorarioOperacion> horarios = horarioOperacionRepository
-                .findBySalonIdOrderByDiaSemana(comando.salonId());
-        boolean contenido = horarios.stream()
-                .filter(h -> h.getDiaSemana() != null && h.getDiaSemana() == comando.diaSemana())
-                .anyMatch(h -> !comando.horaInicio().isBefore(h.getHoraApertura())
+        List<HorarioOperacion> versiones = horarioOperacionRepository.findVersionesQueIntersectan(
+                comando.salonId(), comando.diaSemana(), comando.vigenteDesde(), comando.vigenteHasta());
+
+        RangoVigencia objetivo = new RangoVigencia(comando.vigenteDesde(), comando.vigenteHasta());
+        boolean cubierto = CoberturaVigencia.cubreCompletamente(objetivo, versiones.stream()
+                .map(h -> new RangoVigencia(h.getVigenteDesde(), h.getVigenteHasta()))
+                .toList());
+        boolean todasLoContienen = !versiones.isEmpty() && versiones.stream()
+                .allMatch(h -> !comando.horaInicio().isBefore(h.getHoraApertura())
                         && !comando.horaFin().isAfter(h.getHoraCierre()));
-        if (!contenido) {
+
+        if (!cubierto || !todasLoContienen) {
             throw new ValidacionException("El bloque debe estar contenido en el horario de operación del salón");
         }
     }
@@ -235,10 +255,13 @@ public class BloqueProgramacionService {
         return aInicio.isBefore(bFin) && bInicio.isBefore(aFin);
     }
 
+    /**
+     * Delega en {@link RangoVigencia#intersecta}: una sola implementacion de la semantica de
+     * interseccion de vigencias en todo el proyecto, para que no puedan divergir.
+     */
     static boolean vigenciasSeIntersectan(
             LocalDate aDesde, LocalDate aHasta, LocalDate bDesde, LocalDate bHasta) {
-        return (bHasta == null || !aDesde.isAfter(bHasta))
-                && (aHasta == null || !bDesde.isAfter(aHasta));
+        return new RangoVigencia(aDesde, aHasta).intersecta(new RangoVigencia(bDesde, bHasta));
     }
 
     private void requerir(Object valor, String mensaje) {

@@ -19,6 +19,8 @@ import com.feelingpilates.ubicaciones.repositorio.HorarioOperacionRepository;
 import com.feelingpilates.ubicaciones.repositorio.SalonHorarioExcepcionRepository;
 import com.feelingpilates.ubicaciones.repositorio.SalonRepository;
 import com.feelingpilates.ubicaciones.repositorio.TipoActividadRepository;
+import com.feelingpilates.ubicaciones.servicio.HorarioEfectivoSalon;
+import com.feelingpilates.ubicaciones.servicio.HorarioOperacionResolver;
 import com.feelingpilates.usuarios.entidad.Rol;
 import com.feelingpilates.usuarios.entidad.Usuario;
 import com.feelingpilates.usuarios.entidad.UsuarioRol;
@@ -27,8 +29,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -54,6 +59,10 @@ class TurnoInstructorServiceCaracterizacionTest {
     private static final UUID MAT_ID = UUID.fromString("55555555-5555-5555-5555-555555555555");
     private static final UUID TURNO_NUEVO_ID = UUID.fromString("66666666-6666-6666-6666-666666666666");
     private static final LocalDate LUNES = LocalDate.of(2026, 8, 24);
+    /** Reloj fijo: la validacion del turno RECURRENTE ancla su objetivo temporal en "hoy". */
+    private static final LocalDate HOY = LocalDate.of(2026, 8, 23);
+    private static final Clock RELOJ = Clock.fixed(
+            HOY.atStartOfDay(ZoneId.of("UTC")).toInstant(), ZoneId.of("UTC"));
 
     private TurnoInstructorRepository turnoRepository;
     private TurnoInstructorAsignacionRepository asignacionRepository;
@@ -62,6 +71,7 @@ class TurnoInstructorServiceCaracterizacionTest {
     private HorarioOperacionRepository horarioOperacionRepository;
     private TipoActividadRepository tipoActividadRepository;
     private SalonHorarioExcepcionRepository salonHorarioExcepcionRepository;
+    private HorarioEfectivoSalon horarioEfectivoSalon;
     private TurnoInstructorService service;
     private AutorizadorSalon autorizadorSalon;
     private List<TurnoInstructorAsignacion> asignacionesGuardadas;
@@ -92,8 +102,7 @@ class TurnoInstructorServiceCaracterizacionTest {
         when(salonRepository.findById(SALON_ID)).thenReturn(Optional.of(salon));
         when(usuarioRepository.findAllById(any())).thenReturn(List.of(ariadna));
         when(tipoActividadRepository.findAllById(any())).thenReturn(List.of(reformer));
-        when(horarioOperacionRepository.findBySalonIdOrderByDiaSemana(SALON_ID))
-                .thenReturn(List.of(horarioLunes(LocalTime.of(8, 0), LocalTime.of(20, 0))));
+        horarioLegado(SALON_ID, (short) 1, LocalTime.of(8, 0), LocalTime.of(20, 0));
         when(salonHorarioExcepcionRepository.findBySalonIdAndFechaAndActivoTrue(any(), any()))
                 .thenReturn(Optional.empty());
         when(turnoRepository.buscarRecurrentesPorSalonYDia(SALON_ID, (short) 1)).thenReturn(List.of());
@@ -111,6 +120,9 @@ class TurnoInstructorServiceCaracterizacionTest {
             return filas;
         });
 
+        horarioEfectivoSalon = new HorarioEfectivoSalon(
+                salonHorarioExcepcionRepository, new HorarioOperacionResolver(horarioOperacionRepository));
+
         service = new TurnoInstructorService(
                 turnoRepository,
                 asignacionRepository,
@@ -118,8 +130,36 @@ class TurnoInstructorServiceCaracterizacionTest {
                 salonRepository,
                 horarioOperacionRepository,
                 tipoActividadRepository,
-                salonHorarioExcepcionRepository,
-                autorizadorSalon);
+                horarioEfectivoSalon,
+                autorizadorSalon,
+                RELOJ);
+    }
+
+    /**
+     * Configura el horario semanal de un dia como la unica fila LEGADA (vigencia NULL/NULL), que es
+     * exactamente el estado de los datos actuales tras V43. Alimenta las dos rutas de lectura: la
+     * puntual por fecha ({@code findVigente}, via HorarioEfectivoSalon) y la versionada hacia el
+     * futuro ({@code findVersionesQueIntersectan}, para el turno RECURRENTE).
+     */
+    private void horarioLegado(UUID salonId, short diaSemana, LocalTime apertura, LocalTime cierre) {
+        HorarioOperacion horario = horario(diaSemana, apertura, cierre, null, null);
+        when(horarioOperacionRepository.findVigente(eq(salonId), eq(diaSemana), any()))
+                .thenReturn(List.of(horario));
+        when(horarioOperacionRepository.findVersionesQueIntersectan(
+                eq(salonId), eq(diaSemana), any(), any()))
+                .thenReturn(List.of(horario));
+    }
+
+    private HorarioOperacion horario(
+            short diaSemana, LocalTime apertura, LocalTime cierre, LocalDate vigenteDesde, LocalDate vigenteHasta) {
+        HorarioOperacion horario = new HorarioOperacion();
+        horario.setSalon(salon);
+        horario.setDiaSemana(diaSemana);
+        horario.setHoraApertura(apertura);
+        horario.setHoraCierre(cierre);
+        horario.setVigenteDesde(vigenteDesde);
+        horario.setVigenteHasta(vigenteHasta);
+        return horario;
     }
 
     @Test
@@ -345,7 +385,9 @@ class TurnoInstructorServiceCaracterizacionTest {
 
         assertThat(resultado.tipo()).isEqualTo(TurnoInstructor.Tipo.CANCELACION);
         assertThat(resultado.horaInicio()).isEqualTo(LocalTime.of(21, 0));
-        verify(horarioOperacionRepository, never()).findBySalonIdOrderByDiaSemana(any());
+        verify(horarioOperacionRepository, never())
+                .findVersionesQueIntersectan(any(), anyShort(), any(), any());
+        verify(horarioOperacionRepository, never()).findVigente(any(), anyShort(), any());
     }
 
     /**
@@ -512,7 +554,8 @@ class TurnoInstructorServiceCaracterizacionTest {
     /** P1 (Fase 1A.1): un salón sin ningún HorarioOperacion configurado rechaza cualquier turno. */
     @Test
     void rechazaTurnoCuandoElSalonNoTieneNingunHorarioOperativoConfigurado() {
-        when(horarioOperacionRepository.findBySalonIdOrderByDiaSemana(SALON_ID)).thenReturn(List.of());
+        when(horarioOperacionRepository.findVersionesQueIntersectan(eq(SALON_ID), anyShort(), any(), any()))
+                .thenReturn(List.of());
 
         assertThatThrownBy(() -> service.crear(ACTOR_ID, recurrente(9, 0, 10, 0)))
                 .isInstanceOf(ValidacionException.class)
@@ -575,13 +618,7 @@ class TurnoInstructorServiceCaracterizacionTest {
     @Test
     void excepcionEnDomingoUsaDiaSemanaCeroParaValidarHorarioSemanal() {
         LocalDate domingo = LocalDate.of(2026, 8, 23);
-        HorarioOperacion horarioDomingo = new HorarioOperacion();
-        horarioDomingo.setSalon(salon);
-        horarioDomingo.setDiaSemana((short) 0);
-        horarioDomingo.setHoraApertura(LocalTime.of(9, 0));
-        horarioDomingo.setHoraCierre(LocalTime.of(14, 0));
-        when(horarioOperacionRepository.findBySalonIdOrderByDiaSemana(SALON_ID))
-                .thenReturn(List.of(horarioDomingo));
+        horarioLegado(SALON_ID, (short) 0, LocalTime.of(9, 0), LocalTime.of(14, 0));
         when(salonHorarioExcepcionRepository.findBySalonIdAndFechaAndActivoTrue(SALON_ID, domingo))
                 .thenReturn(Optional.empty());
         when(turnoRepository.buscarExcepcionesPorSalonYFecha(SALON_ID, domingo)).thenReturn(List.of());
@@ -600,6 +637,40 @@ class TurnoInstructorServiceCaracterizacionTest {
 
         assertThat(resultado.fecha()).isEqualTo(domingo);
         assertThat(resultado.horaInicio()).isEqualTo(LocalTime.of(10, 0));
+    }
+
+    /**
+     * F2B.2: tras migrar la validacion de horario a {@code HorarioEfectivoSalon} (que deriva el dia
+     * de la fecha por su cuenta), el {@code diaSemana} calculado en {@code crear} le queda a la
+     * deteccion de traslapes. Este test mantiene protegida la convencion "domingo = 0" en esa ruta:
+     * si se reintrodujera la conversion ISO (domingo = 7), la busqueda de recurrentes consultaria un
+     * dia inexistente, no encontraria el bloque que si ocupa el salon y aceptaria el traslape.
+     */
+    @Test
+    void excepcionEnDomingoDetectaTraslapeContraElRecurrenteDeDiaSemanaCero() {
+        LocalDate domingo = LocalDate.of(2026, 8, 23);
+        horarioLegado(SALON_ID, (short) 0, LocalTime.of(9, 0), LocalTime.of(14, 0));
+        when(salonHorarioExcepcionRepository.findBySalonIdAndFechaAndActivoTrue(SALON_ID, domingo))
+                .thenReturn(Optional.empty());
+        when(turnoRepository.buscarExcepcionesPorSalonYFecha(SALON_ID, domingo)).thenReturn(List.of());
+
+        TurnoInstructor recurrenteDelDomingo = turnoExistente(10, 0, 12, 0);
+        recurrenteDelDomingo.setDiaSemana((short) 0);
+        when(turnoRepository.buscarRecurrentesPorSalonYDia(SALON_ID, (short) 0))
+                .thenReturn(List.of(recurrenteDelDomingo));
+
+        TurnoInstructorRequest request = new TurnoInstructorRequest(
+                List.of(asignacion(ARIADNA_ID, REFORMER_ID, null, null)),
+                SALON_ID,
+                TurnoInstructor.Tipo.EXCEPCION,
+                null,
+                domingo,
+                LocalTime.of(11, 0),
+                LocalTime.of(13, 0));
+
+        assertThatThrownBy(() -> service.crear(ACTOR_ID, request))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("cruza");
     }
 
     /**
@@ -670,15 +741,6 @@ class TurnoInstructorServiceCaracterizacionTest {
     private AsignacionInstructorRequest asignacion(
             UUID instructorId, UUID actividadId, LocalTime horaInicio, LocalTime horaFin) {
         return new AsignacionInstructorRequest(instructorId, List.of(actividadId), horaInicio, horaFin);
-    }
-
-    private HorarioOperacion horarioLunes(LocalTime apertura, LocalTime cierre) {
-        HorarioOperacion horario = new HorarioOperacion();
-        horario.setSalon(salon);
-        horario.setDiaSemana((short) 1);
-        horario.setHoraApertura(apertura);
-        horario.setHoraCierre(cierre);
-        return horario;
     }
 
     private SalonHorarioExcepcion horarioEspecial(LocalTime apertura, LocalTime cierre) {

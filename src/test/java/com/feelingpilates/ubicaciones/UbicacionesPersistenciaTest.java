@@ -97,6 +97,19 @@ class UbicacionesPersistenciaTest {
     }
 
     @Test
+    void checkVigenciaPermiteDesdeIgualAHasta() {
+        UUID salonId = jdbcTemplate.queryForObject("select id from salon limit 1", UUID.class);
+
+        insertarHorarioConVigencia(
+                salonId, (short) 1, LocalDate.of(2026, 8, 22), LocalDate.of(2026, 8, 22));
+
+        Integer total = jdbcTemplate.queryForObject(
+                "select count(*) from horario_operacion where salon_id = ? and dia_semana = 1",
+                Integer.class, salonId);
+        assertThat(total).isEqualTo(1);
+    }
+
+    @Test
     void checkVigenciaPermiteCombinacionesConLimitesAbiertos() {
         UUID salonId = jdbcTemplate.queryForObject("select id from salon limit 1", UUID.class);
 

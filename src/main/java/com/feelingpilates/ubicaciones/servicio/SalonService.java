@@ -40,10 +40,11 @@ import java.util.UUID;
 public class SalonService {
 
     /**
-     * Cuarentena de F2B.2: los horarios de operacion ya son versionados en el tiempo, pero todavia
-     * no existe el writer de versionado (F2B.3b). Reescribirlos desde el PUT de salon exigiria
-     * inferir un {@code efectivoDesde} y borrar historia, asi que un cambio real se rechaza con
-     * este codigo estable en vez de aplicarse silenciosamente.
+     * Cuarentena de F2B.2: los horarios de operacion ya son versionados en el tiempo, y el
+     * versionado real se hace con {@code POST /api/salones/{salonId}/horarios/versiones} y
+     * {@code POST /api/salones/{salonId}/horarios/cierres} (F2B.3b.2a). Reescribirlos desde el PUT
+     * de salon exigiria inferir un {@code efectivoDesde} y borrar historia, asi que un cambio real
+     * se rechaza con este codigo estable en vez de aplicarse silenciosamente.
      */
     static final String HORARIOS_REQUIEREN_VERSIONADO =
             "HORARIOS_REQUIEREN_VERSIONADO: los horarios de operación del salón se versionan en el "
@@ -209,9 +210,9 @@ public class SalonService {
 
     /**
      * Versiones de horario del salon vigentes en {@code fecha}, a lo sumo una por dia de la semana.
-     * Dos versiones vigentes el mismo dia es un estado imposible: hoy lo impide el
-     * UNIQUE(salon_id, dia_semana) y despues de retirarlo lo impedira el versionado. Se falla
-     * ruidosamente en vez de quedarse con la primera en silencio.
+     * Dos versiones vigentes el mismo dia es un estado imposible: lo impide el EXCLUDE
+     * {@code ex_horario_operacion_vigencia} (V45), que prohibe vigencias solapadas del mismo
+     * salon+dia. Se falla ruidosamente en vez de quedarse con la primera en silencio.
      */
     private List<HorarioOperacion> horariosVigentes(UUID salonId, LocalDate fecha) {
         List<HorarioOperacion> vigentes = horarioOperacionRepository.findBySalonIdOrderByDiaSemana(salonId).stream()

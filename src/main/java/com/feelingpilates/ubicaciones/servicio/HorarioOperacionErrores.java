@@ -1,5 +1,6 @@
 package com.feelingpilates.ubicaciones.servicio;
 
+import com.feelingpilates.exception.CodigoErrorExtractor;
 import com.feelingpilates.exception.ValidacionException;
 import com.feelingpilates.ubicaciones.dominio.CambioHorarioOperacion;
 import com.feelingpilates.ubicaciones.dominio.ConflictoProgramacion;
@@ -7,6 +8,7 @@ import com.feelingpilates.ubicaciones.dominio.ValidadorImpactoCambioHorarioOpera
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -63,7 +65,28 @@ public final class HorarioOperacionErrores {
             "PROGRAMACION_INCOMPATIBLE_CON_HORARIO: el cambio dejaría programación existente fuera "
                     + "del horario del salón";
 
+    /**
+     * Codigos de {@code ValidacionException} que representan un choque con el estado del
+     * historial o de la programacion, no con la forma del request. Whitelist cerrada y
+     * explicita (F2B.3b.2a, §11.5 del diseño): la capa HTTP de horarios los traduce a
+     * {@code ConflictException} (409). Cualquier otro codigo, incluidos los que este mismo
+     * archivo declara, sigue siendo 400.
+     */
+    private static final Set<String> CONFLICTOS_DE_ESTADO = Set.of(
+            CodigoErrorExtractor.extraer(YA_EXISTE_VERSION_EN_ESA_FECHA),
+            CodigoErrorExtractor.extraer(VERSIONADO_INTERMEDIO_NO_SOPORTADO),
+            CodigoErrorExtractor.extraer(NO_EXISTE_VERSION_VIGENTE_EN_ESA_FECHA),
+            CodigoErrorExtractor.extraer(CANCELACION_DE_VERSION_NO_SOPORTADA),
+            CodigoErrorExtractor.extraer(CIERRE_CON_VERSIONES_FUTURAS),
+            CodigoErrorExtractor.extraer(PROGRAMACION_INCOMPATIBLE_CON_HORARIO));
+
     private HorarioOperacionErrores() {
+    }
+
+    /** true si el mensaje corresponde a un choque con el estado (historial o programacion). */
+    public static boolean esConflictoDeEstado(String mensaje) {
+        String codigo = CodigoErrorExtractor.extraer(mensaje);
+        return codigo != null && CONFLICTOS_DE_ESTADO.contains(codigo);
     }
 
     /**

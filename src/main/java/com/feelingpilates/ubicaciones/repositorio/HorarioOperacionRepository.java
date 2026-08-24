@@ -86,4 +86,26 @@ public interface HorarioOperacionRepository extends JpaRepository<HorarioOperaci
             @Param("diaSemana") short diaSemana,
             @Param("desde") LocalDate desde,
             @Param("hasta") LocalDate hasta);
+
+    /**
+     * Toda la historia de un salon (o de un dia de ese salon), pasado cerrado incluido: ninguna
+     * otra query del repositorio devuelve eso. Lectura pura para el endpoint de historial
+     * (F2B.3b.2a, §24 del diseño); sin lock, sin invariantes nuevas.
+     *
+     * <p>{@code cast(:diaSemana as smallint) is null}: mismo patron que {@code cast(:hasta as date)
+     * is null} de {@link #findVersionesQueIntersectan}, necesario porque PostgreSQL no puede
+     * inferir el tipo de un parametro nulo. {@code nulls first} explicito porque en PostgreSQL
+     * {@code ASC} pone {@code NULL} al final por defecto, y la fila legada {@code vigente_desde =
+     * NULL} es {@code -infinito} y debe ir primera.
+     */
+    @Query(value = """
+            select h.*
+            from horario_operacion h
+            where h.salon_id = :salonId
+              and (cast(:diaSemana as smallint) is null or h.dia_semana = :diaSemana)
+            order by h.dia_semana asc, h.vigente_desde asc nulls first
+            """, nativeQuery = true)
+    List<HorarioOperacion> findVersionesOrdenadas(
+            @Param("salonId") UUID salonId,
+            @Param("diaSemana") Short diaSemana);
 }

@@ -11,6 +11,7 @@ import com.feelingpilates.ubicaciones.entidad.TipoActividad;
 import com.feelingpilates.ubicaciones.repositorio.HorarioOperacionRepository;
 import com.feelingpilates.ubicaciones.repositorio.SalonRepository;
 import com.feelingpilates.ubicaciones.repositorio.TipoActividadRepository;
+import com.feelingpilates.ubicaciones.servicio.SalonLock;
 import com.feelingpilates.usuarios.entidad.Rol;
 import com.feelingpilates.usuarios.entidad.Usuario;
 import com.feelingpilates.usuarios.entidad.UsuarioRol;
@@ -18,6 +19,7 @@ import com.feelingpilates.usuarios.repositorio.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -35,7 +37,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -64,6 +68,7 @@ class BloqueProgramacionServiceTest {
     private HorarioOperacionRepository horarioOperacionRepository;
     private UsuarioRepository usuarioRepository;
     private TipoActividadRepository tipoActividadRepository;
+    private SalonLock salonLock;
     private BloqueProgramacionService service;
 
     private Salon salon;
@@ -81,6 +86,7 @@ class BloqueProgramacionServiceTest {
         horarioOperacionRepository = mock(HorarioOperacionRepository.class);
         usuarioRepository = mock(UsuarioRepository.class);
         tipoActividadRepository = mock(TipoActividadRepository.class);
+        salonLock = mock(SalonLock.class);
 
         reformer = actividad(REFORMER_ID, "Reformer");
         mat = actividad(MAT_ID, "Mat");
@@ -126,7 +132,33 @@ class BloqueProgramacionServiceTest {
                 salonRepository,
                 horarioOperacionRepository,
                 usuarioRepository,
-                tipoActividadRepository);
+                tipoActividadRepository,
+                salonLock);
+    }
+
+    /**
+     * F2B.3b.1: {@code crearBloque} vuelve visible programacion activa nueva, asi que participa en
+     * el protocolo de lock compartido. El lock debe preceder a la LECTURA del horario contra el
+     * que se valida; ponerlo despues de validar no serializaria nada frente a un versionado
+     * concurrente y ambos lados podrian commitear.
+     */
+    @Test
+    void crearBloqueTomaElLockDeSalonAntesDeLeerElHorario() {
+        service.crearBloque(crearBloque(9, 12, ENERO, DICIEMBRE));
+
+        InOrder orden = inOrder(salonLock, horarioOperacionRepository, bloqueRepository);
+        orden.verify(salonLock).adquirir(SALON_ID);
+        orden.verify(horarioOperacionRepository).findVersionesQueIntersectan(
+                eq(SALON_ID), anyShort(), any(), nullable(LocalDate.class));
+        orden.verify(bloqueRepository).save(any(BloqueProgramacion.class));
+    }
+
+    /** {@code crearAsignacion} no toca el horario: su contencion es transitiva via el bloque. */
+    @Test
+    void crearAsignacionNoTomaElLockDeSalon() {
+        service.crearAsignacion(crearAsignacion(ARIADNA_ID, REFORMER_ID, 9, 12, ENERO, DICIEMBRE));
+
+        verify(salonLock, never()).adquirir(any());
     }
 
     @Test

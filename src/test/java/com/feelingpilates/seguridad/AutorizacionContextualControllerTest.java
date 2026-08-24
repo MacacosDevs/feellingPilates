@@ -20,6 +20,7 @@ import com.feelingpilates.config.RelojConfig;
 import com.feelingpilates.ubicaciones.servicio.HorarioEfectivoSalon;
 import com.feelingpilates.ubicaciones.servicio.HorarioOperacionResolver;
 import com.feelingpilates.ubicaciones.servicio.SalonHorarioExcepcionService;
+import com.feelingpilates.ubicaciones.servicio.SalonLock;
 import com.feelingpilates.usuarios.entidad.Permiso;
 import com.feelingpilates.usuarios.entidad.Rol;
 import com.feelingpilates.usuarios.entidad.Usuario;
@@ -61,6 +62,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         HorarioEfectivoSalon.class,
         HorarioOperacionResolver.class,
         RelojConfig.class,
+        // F2B.3b.1: TurnoInstructorService participa en el protocolo de lock compartido sobre
+        // Salon, asi que el slice necesita tambien ese bean real.
+        SalonLock.class,
         TurnoInstructorService.class,
         ReservaService.class,
         AutorizacionContextualControllerTest.ConfiguracionTest.class

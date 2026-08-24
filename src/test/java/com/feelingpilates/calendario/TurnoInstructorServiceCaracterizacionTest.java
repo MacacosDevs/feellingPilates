@@ -11,6 +11,7 @@ import com.feelingpilates.calendario.repositorio.TurnoInstructorRepository;
 import com.feelingpilates.calendario.servicio.TurnoInstructorService;
 import com.feelingpilates.exception.ValidacionException;
 import com.feelingpilates.seguridad.AutorizadorSalon;
+import com.feelingpilates.ubicaciones.servicio.SalonLock;
 import com.feelingpilates.ubicaciones.entidad.HorarioOperacion;
 import com.feelingpilates.ubicaciones.entidad.Salon;
 import com.feelingpilates.ubicaciones.entidad.SalonHorarioExcepcion;
@@ -28,6 +29,7 @@ import com.feelingpilates.usuarios.repositorio.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -44,6 +46,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -74,6 +78,7 @@ class TurnoInstructorServiceCaracterizacionTest {
     private HorarioEfectivoSalon horarioEfectivoSalon;
     private TurnoInstructorService service;
     private AutorizadorSalon autorizadorSalon;
+    private SalonLock salonLock;
     private List<TurnoInstructorAsignacion> asignacionesGuardadas;
 
     private Salon salon;
@@ -92,6 +97,7 @@ class TurnoInstructorServiceCaracterizacionTest {
         tipoActividadRepository = mock(TipoActividadRepository.class);
         salonHorarioExcepcionRepository = mock(SalonHorarioExcepcionRepository.class);
         autorizadorSalon = mock(AutorizadorSalon.class);
+        salonLock = mock(SalonLock.class);
 
         salon = salon(SALON_ID, "Juriquilla");
         reformer = actividad(REFORMER_ID, "Reformer");
@@ -132,6 +138,7 @@ class TurnoInstructorServiceCaracterizacionTest {
                 tipoActividadRepository,
                 horarioEfectivoSalon,
                 autorizadorSalon,
+                salonLock,
                 RELOJ);
     }
 
@@ -703,6 +710,62 @@ class TurnoInstructorServiceCaracterizacionTest {
         ArgumentCaptor<String[]> permisos = ArgumentCaptor.forClass(String[].class);
         verify(autorizadorSalon).verificarAccesoSalon(eq(ACTOR_ID), eq(SALON_ID), permisos.capture());
         assertThat(permisos.getValue()).containsExactly("calendario.gestionar", "calendario.cancelar");
+    }
+
+    /**
+     * F2B.3b.1: un turno RECURRENTE es programacion abierta al futuro que puede volverse
+     * incompatible con el horario del salon, asi que participa en el protocolo de lock compartido.
+     * El lock debe preceder a la LECTURA del horario, no seguirla: validar primero y bloquear
+     * despues no serializa nada frente a un versionado concurrente.
+     */
+    @Test
+    void crearRecurrenteTomaElLockDeSalonAntesDeLeerElHorario() {
+        service.crear(ACTOR_ID, recurrente(9, 0, 10, 0));
+
+        InOrder orden = inOrder(autorizadorSalon, salonLock, horarioOperacionRepository, turnoRepository);
+        // La autorizacion va antes del lock: no se retiene un lock por peticiones sin permiso.
+        orden.verify(autorizadorSalon).verificarAccesoSalon(eq(ACTOR_ID), eq(SALON_ID), any(String[].class));
+        orden.verify(salonLock).adquirir(SALON_ID);
+        orden.verify(horarioOperacionRepository).findVersionesQueIntersectan(
+                eq(SALON_ID), anyShort(), any(), nullable(LocalDate.class));
+        orden.verify(turnoRepository).save(any(TurnoInstructor.class));
+    }
+
+    @Test
+    void actualizarTurnoRecurrenteTomaElLockDeSalonAntesDeValidarElHorario() {
+        TurnoInstructor existente = turnoExistente(8, 0, 12, 0);
+        when(turnoRepository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        when(turnoRepository.buscarRecurrentesPorSalonYDia(SALON_ID, (short) 1))
+                .thenReturn(List.of(existente));
+
+        service.actualizarTurno(ACTOR_ID, existente.getId(), new ActualizarTurnoRequest(
+                (short) 1, LocalTime.of(9, 0), LocalTime.of(12, 0),
+                List.of(asignacion(ARIADNA_ID, REFORMER_ID, null, null))));
+
+        InOrder orden = inOrder(salonLock, horarioOperacionRepository, turnoRepository);
+        orden.verify(salonLock).adquirir(SALON_ID);
+        orden.verify(horarioOperacionRepository).findVersionesQueIntersectan(
+                eq(SALON_ID), anyShort(), any(), nullable(LocalDate.class));
+        orden.verify(turnoRepository).save(any(TurnoInstructor.class));
+    }
+
+    /**
+     * EXCEPCION y CANCELACION NO entran en el protocolo: EXCEPCION esta fuera de la Politica A y
+     * CANCELACION ni siquiera valida horario. Tomar el lock ahi daria falsa sensacion de
+     * proteccion, porque el resultado serie y el concurrente serian identicos.
+     */
+    @Test
+    void crearExcepcionNoTomaElLockDeSalon() {
+        service.crear(ACTOR_ID, excepcion(9, 0, 10, 0));
+
+        verify(salonLock, never()).adquirir(any());
+    }
+
+    @Test
+    void crearCancelacionNoTomaElLockDeSalon() {
+        service.crear(ACTOR_ID, cancelacion(9, 0, 10, 0));
+
+        verify(salonLock, never()).adquirir(any());
     }
 
     private TurnoInstructorRequest recurrente(int horaInicio, int minutoInicio, int horaFin, int minutoFin) {

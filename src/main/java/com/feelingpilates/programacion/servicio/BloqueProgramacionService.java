@@ -14,6 +14,7 @@ import com.feelingpilates.ubicaciones.entidad.TipoActividad;
 import com.feelingpilates.ubicaciones.repositorio.HorarioOperacionRepository;
 import com.feelingpilates.ubicaciones.repositorio.SalonRepository;
 import com.feelingpilates.ubicaciones.repositorio.TipoActividadRepository;
+import com.feelingpilates.ubicaciones.servicio.SalonLock;
 import com.feelingpilates.usuarios.entidad.Rol;
 import com.feelingpilates.usuarios.entidad.Usuario;
 import com.feelingpilates.usuarios.repositorio.UsuarioRepository;
@@ -36,6 +37,7 @@ public class BloqueProgramacionService {
     private final HorarioOperacionRepository horarioOperacionRepository;
     private final UsuarioRepository usuarioRepository;
     private final TipoActividadRepository tipoActividadRepository;
+    private final SalonLock salonLock;
 
     public BloqueProgramacionService(
             BloqueProgramacionRepository bloqueRepository,
@@ -43,17 +45,30 @@ public class BloqueProgramacionService {
             SalonRepository salonRepository,
             HorarioOperacionRepository horarioOperacionRepository,
             UsuarioRepository usuarioRepository,
-            TipoActividadRepository tipoActividadRepository) {
+            TipoActividadRepository tipoActividadRepository,
+            SalonLock salonLock) {
         this.bloqueRepository = bloqueRepository;
         this.asignacionRepository = asignacionRepository;
         this.salonRepository = salonRepository;
         this.horarioOperacionRepository = horarioOperacionRepository;
         this.usuarioRepository = usuarioRepository;
         this.tipoActividadRepository = tipoActividadRepository;
+        this.salonLock = salonLock;
     }
 
+    /**
+     * Unico entry point que crea un bloque activo, es decir que vuelve visible programacion nueva
+     * capaz de volverse incompatible con el horario del salon. Por eso participa en el protocolo
+     * de lock compartido: {@link SalonLock} se adquiere <b>antes</b> de leer el horario contra el
+     * que se valida, en la misma transaccion que el {@code save}.
+     *
+     * <p>El orden importa. Validar primero y bloquear despues no serializaria nada: un versionado
+     * concurrente del horario y este alta habrian leido el estado viejo y podrian commitear ambos,
+     * dejando un bloque fuera del horario que acaba de entrar en vigor.
+     */
     public BloqueProgramacion crearBloque(CrearBloque comando) {
         validarComandoBloque(comando);
+        salonLock.adquirir(comando.salonId());
         Salon salon = salonRepository.findById(comando.salonId())
                 .orElseThrow(() -> new ResourceNotFoundException("Salón no encontrado"));
         if (!salon.isActivo()) {

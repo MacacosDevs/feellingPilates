@@ -22,6 +22,7 @@ import com.feelingpilates.ubicaciones.repositorio.HorarioOperacionRepository;
 import com.feelingpilates.ubicaciones.repositorio.SalonRepository;
 import com.feelingpilates.ubicaciones.repositorio.TipoActividadRepository;
 import com.feelingpilates.ubicaciones.servicio.HorarioEfectivoSalon;
+import com.feelingpilates.ubicaciones.servicio.SalonLock;
 import com.feelingpilates.usuarios.entidad.Rol;
 import com.feelingpilates.usuarios.entidad.Usuario;
 import com.feelingpilates.usuarios.repositorio.UsuarioRepository;
@@ -57,6 +58,7 @@ public class TurnoInstructorService {
     private final TipoActividadRepository tipoActividadRepository;
     private final HorarioEfectivoSalon horarioEfectivoSalon;
     private final AutorizadorSalon autorizadorSalon;
+    private final SalonLock salonLock;
     private final Clock reloj;
 
     public TurnoInstructorService(
@@ -68,6 +70,7 @@ public class TurnoInstructorService {
             TipoActividadRepository tipoActividadRepository,
             HorarioEfectivoSalon horarioEfectivoSalon,
             AutorizadorSalon autorizadorSalon,
+            SalonLock salonLock,
             Clock reloj) {
         this.turnoRepository = turnoRepository;
         this.asignacionRepository = asignacionRepository;
@@ -77,6 +80,7 @@ public class TurnoInstructorService {
         this.tipoActividadRepository = tipoActividadRepository;
         this.horarioEfectivoSalon = horarioEfectivoSalon;
         this.autorizadorSalon = autorizadorSalon;
+        this.salonLock = salonLock;
         this.reloj = reloj;
     }
 
@@ -110,6 +114,17 @@ public class TurnoInstructorService {
             case CANCELACION -> new String[]{"calendario.gestionar", "calendario.cancelar"};
         };
         autorizadorSalon.verificarAccesoSalon(actorId, request.salonId(), permisos);
+        // Protocolo de lock compartido: un turno RECURRENTE es programacion abierta al futuro que
+        // puede volverse incompatible con el horario del salon, asi que se serializa contra los
+        // writers de horario ANTES de leer/validar nada de ese horario. La autorizacion va primero
+        // a proposito: no se retiene un lock por peticiones que no tienen permiso.
+        //
+        // EXCEPCION y CANCELACION NO lo toman: EXCEPCION esta fuera de la Politica A (su invariante
+        // ya no la mantiene el sistema hoy, ver ImpactoTurnosRecurrentesEnHorario) y CANCELACION ni
+        // siquiera valida horario. Tomar el lock ahi daria falsa sensacion de proteccion.
+        if (request.tipo() == TurnoInstructor.Tipo.RECURRENTE) {
+            salonLock.adquirir(request.salonId());
+        }
         Map<Usuario, AsignacionResuelta> asignaciones = resolverAsignaciones(request.asignaciones());
         Set<Usuario> instructores = new LinkedHashSet<>(asignaciones.keySet());
         Salon salon = salonRepository.findById(request.salonId())
@@ -192,6 +207,11 @@ public class TurnoInstructorService {
         instructores.forEach(usuario -> validarEsInstructorDelSalon(usuario, turno.getSalon().getId()));
         validarRangosDeAsignaciones(asignaciones, request.horaInicio(), request.horaFin());
 
+        // Lock ANTES de validar contra el horario. Cargar el turno antes del lock es correcto: el
+        // salon de un turno no puede cambiarse (el request no lo lleva), asi que esa lectura es de
+        // identidad, no del estado sobre el que se decide. Como el lock es por salon, una sola
+        // adquisicion cubre tanto el dia de origen como el de destino del movimiento.
+        salonLock.adquirir(turno.getSalon().getId());
         validarDentroDeHorarioSalon(turno.getSalon().getId(), diaSemana, null, request.horaInicio(), request.horaFin());
         validarSinTraslape(
                 turno.getSalon().getId(), TurnoInstructor.Tipo.RECURRENTE, diaSemana, null,

@@ -10,6 +10,7 @@ import com.feelingpilates.calendario.repositorio.TurnoInstructorRepository;
 import com.feelingpilates.calendario.servicio.TurnoInstructorService;
 import com.feelingpilates.exception.ValidacionException;
 import com.feelingpilates.seguridad.AutorizadorSalon;
+import com.feelingpilates.ubicaciones.servicio.SalonLock;
 import com.feelingpilates.ubicaciones.entidad.HorarioOperacion;
 import com.feelingpilates.ubicaciones.entidad.Salon;
 import com.feelingpilates.ubicaciones.entidad.SalonHorarioExcepcion;
@@ -77,6 +78,7 @@ class TurnoInstructorServiceHorarioVersionadoTest {
     private HorarioOperacionRepository horarioOperacionRepository;
     private SalonHorarioExcepcionRepository salonHorarioExcepcionRepository;
     private TurnoInstructorService service;
+    private SalonLock salonLock;
 
     private Salon salon;
 
@@ -90,6 +92,7 @@ class TurnoInstructorServiceHorarioVersionadoTest {
         TipoActividadRepository tipoActividadRepository = mock(TipoActividadRepository.class);
         salonHorarioExcepcionRepository = mock(SalonHorarioExcepcionRepository.class);
         AutorizadorSalon autorizadorSalon = mock(AutorizadorSalon.class);
+        salonLock = mock(SalonLock.class);
 
         salon = new Salon();
         salon.setId(SALON_ID);
@@ -135,6 +138,7 @@ class TurnoInstructorServiceHorarioVersionadoTest {
                 new HorarioEfectivoSalon(
                         salonHorarioExcepcionRepository, new HorarioOperacionResolver(horarioOperacionRepository)),
                 autorizadorSalon,
+                salonLock,
                 RELOJ);
     }
 

@@ -9,10 +9,12 @@ import com.feelingpilates.calendario.repositorio.TurnoInstructorRepository;
 import com.feelingpilates.calendario.servicio.ReservaService;
 import com.feelingpilates.exception.ValidacionException;
 import com.feelingpilates.seguridad.AutorizadorSalon;
+import com.feelingpilates.ubicaciones.dominio.HorarioEfectivo;
 import com.feelingpilates.ubicaciones.entidad.Salon;
 import com.feelingpilates.ubicaciones.entidad.TipoActividad;
-import com.feelingpilates.ubicaciones.repositorio.SalonRepository;
 import com.feelingpilates.ubicaciones.repositorio.TipoActividadRepository;
+import com.feelingpilates.ubicaciones.servicio.HorarioEfectivoSalon;
+import com.feelingpilates.ubicaciones.servicio.SalonLock;
 import com.feelingpilates.usuarios.entidad.Usuario;
 import com.feelingpilates.usuarios.repositorio.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +29,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -45,6 +48,8 @@ class ReservaServiceCaracterizacionTest {
     private ReservaRepository reservaRepository;
     private TurnoInstructorRepository turnoRepository;
     private UsuarioRepository usuarioRepository;
+    private SalonLock salonLock;
+    private HorarioEfectivoSalon horarioEfectivoSalon;
     private ReservaService service;
 
     private Salon salon;
@@ -58,9 +63,10 @@ class ReservaServiceCaracterizacionTest {
         reservaRepository = mock(ReservaRepository.class);
         turnoRepository = mock(TurnoInstructorRepository.class);
         usuarioRepository = mock(UsuarioRepository.class);
-        SalonRepository salonRepository = mock(SalonRepository.class);
         TipoActividadRepository tipoActividadRepository = mock(TipoActividadRepository.class);
         AutorizadorSalon autorizadorSalon = mock(AutorizadorSalon.class);
+        salonLock = mock(SalonLock.class);
+        horarioEfectivoSalon = mock(HorarioEfectivoSalon.class);
 
         salon = new Salon();
         salon.setId(SALON_ID);
@@ -76,7 +82,9 @@ class ReservaServiceCaracterizacionTest {
         cliente = usuario(CLIENTE_ID, "Cliente");
         recurrente = turno(TurnoInstructor.Tipo.RECURRENTE, null, 8, 0, 12, 0);
 
-        when(salonRepository.findById(SALON_ID)).thenReturn(Optional.of(salon));
+        when(salonLock.adquirir(SALON_ID)).thenReturn(salon);
+        when(horarioEfectivoSalon.resolver(eq(SALON_ID), any(LocalDate.class)))
+                .thenReturn(HorarioEfectivo.abiertoPorHorarioSemanal(LocalTime.MIN, LocalTime.of(23, 59)));
         when(usuarioRepository.findById(INSTRUCTOR_ID)).thenReturn(Optional.of(instructor));
         when(usuarioRepository.findById(CLIENTE_ID)).thenReturn(Optional.of(cliente));
         when(tipoActividadRepository.findById(ACTIVIDAD_ID)).thenReturn(Optional.of(reformer));
@@ -97,9 +105,10 @@ class ReservaServiceCaracterizacionTest {
                 reservaRepository,
                 turnoRepository,
                 usuarioRepository,
-                salonRepository,
                 tipoActividadRepository,
-                autorizadorSalon);
+                autorizadorSalon,
+                salonLock,
+                horarioEfectivoSalon);
     }
 
     @Test
@@ -115,6 +124,47 @@ class ReservaServiceCaracterizacionTest {
         assertThat(resultado.horaInicio()).isEqualTo(LocalTime.of(9, 0));
         assertThat(resultado.horaFin()).isEqualTo(LocalTime.of(10, 0));
         assertThat(resultado.estado()).isEqualTo(Reserva.Estado.CONFIRMADA);
+    }
+
+    /** Safety net F2C.2 (mutacion M): si el writer dejara de tomar el lock, este test lo detecta. */
+    @Test
+    void crearReservaAdquiereElSalonLockAntesDePersistir() {
+        service.crear(ACTOR_ID, request(LUNES, LocalTime.of(9, 0)));
+
+        verify(salonLock).adquirir(SALON_ID);
+    }
+
+    /** Safety net F2C.2 (mutacion M): si el writer dejara de consultar HorarioEfectivoSalon. */
+    @Test
+    void crearReservaResuelveHorarioEfectivoDeLaFechaSolicitada() {
+        service.crear(ACTOR_ID, request(LUNES, LocalTime.of(9, 0)));
+
+        verify(horarioEfectivoSalon).resolver(SALON_ID, LUNES);
+    }
+
+    /** Safety net F2C.2: una excepcion de salon CERRADO rechaza la reserva aunque el turno la admita. */
+    @Test
+    void rechazaReservaFueraDelHorarioEfectivoPorCerrado() {
+        when(horarioEfectivoSalon.resolver(SALON_ID, LUNES)).thenReturn(HorarioEfectivo.cerrado());
+
+        assertThatThrownBy(() -> service.crear(ACTOR_ID, request(LUNES, LocalTime.of(9, 0))))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("fuera del horario");
+        verify(reservaRepository, never()).save(any());
+    }
+
+    /**
+     * Safety net F2C.2: un horario especial mas estrecho que el turno del instructor rechaza la
+     * reserva. NO basta con el semanal: debe ser HorarioEfectivoSalon el que decide.
+     */
+    @Test
+    void rechazaReservaFueraDelHorarioEfectivoPorHorarioEspecialMasEstrecho() {
+        when(horarioEfectivoSalon.resolver(SALON_ID, LUNES)).thenReturn(
+                HorarioEfectivo.abiertoPorExcepcion(LocalTime.of(8, 0), LocalTime.of(8, 30)));
+
+        assertThatThrownBy(() -> service.crear(ACTOR_ID, request(LUNES, LocalTime.of(9, 0))))
+                .isInstanceOf(ValidacionException.class)
+                .hasMessageContaining("fuera del horario");
     }
 
     @Test

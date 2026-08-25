@@ -23,8 +23,11 @@ import java.util.List;
  *
  * <p><b>Turno EXCEPCION queda fuera de la Politica A</b> y no se consulta aqui: vive en una fecha
  * concreta y la invariante "todo EXCEPCION activo cabe en el horario efectivo de su fecha" ya no
- * la mantiene el sistema hoy ({@code SalonHorarioExcepcionService.guardar} puede cerrar un dia sin
- * mirar los turnos). Incluirlo daria falsa sensacion de proteccion; es hueco conocido, no defecto.
+ * la mantenia el sistema antes de F2C.2 ({@code SalonHorarioExcepcionService.guardar} podia cerrar un
+ * dia sin mirar los turnos). Desde F2C.2 esa invariante la mantiene el protocolo propio de
+ * {@code SalonHorarioExcepcionService} ({@code SalonLock} compartido + validacion inversa puntual en
+ * {@code ImpactoPuntualEnExcepcionHorario}), no este validador: incluirlo aqui duplicaria la
+ * proteccion sobre el camino equivocado (el versionado semanal, no la excepcion puntual).
  */
 @Component
 public class ImpactoTurnosRecurrentesEnHorario implements ValidadorImpactoCambioHorarioOperacion {

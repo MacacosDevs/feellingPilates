@@ -137,7 +137,7 @@ class ReservaControllerSecurityTest {
         private final List<UUID> consultas = new ArrayList<>();
 
         ReservaServiceDoble() {
-            super(null, null, null, null, null, null);
+            super(null, null, null, null, null, null, null);
         }
 
         void preparar(UUID clienteId, ReservaResponse reserva) {

@@ -1,5 +1,6 @@
 package com.feelingpilates.ubicaciones.controlador;
 
+import com.feelingpilates.ubicaciones.dto.GuardarExcepcionSalonPorFechaRequest;
 import com.feelingpilates.ubicaciones.dto.GuardarExcepcionSalonRequest;
 import com.feelingpilates.ubicaciones.dto.SalonHorarioExcepcionResponse;
 import com.feelingpilates.ubicaciones.servicio.SalonHorarioExcepcionService;
@@ -56,5 +57,26 @@ public class SalonHorarioExcepcionController {
             @PathVariable UUID salonId,
             @PathVariable UUID id) {
         excepcionService.eliminar(actor.id(), salonId, id);
+    }
+
+    /** La fecha del path es autoritativa; el body no la repite. Converge con el PUT legacy. */
+    @PutMapping("/por-fecha/{fecha}")
+    @PreAuthorize("hasAuthority('salon.administrar')")
+    public SalonHorarioExcepcionResponse guardarPorFecha(
+            @AuthenticationPrincipal UsuarioAutenticado actor,
+            @PathVariable UUID salonId,
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @Valid @RequestBody GuardarExcepcionSalonPorFechaRequest request) {
+        return excepcionService.guardarPorFecha(actor.id(), salonId, fecha, request);
+    }
+
+    /** No colisiona con {@code DELETE /{id}}: prefijo literal {@code /por-fecha/}. Converge con el DELETE legacy. */
+    @DeleteMapping("/por-fecha/{fecha}")
+    @PreAuthorize("hasAuthority('salon.administrar')")
+    public void eliminarPorFecha(
+            @AuthenticationPrincipal UsuarioAutenticado actor,
+            @PathVariable UUID salonId,
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+        excepcionService.eliminarPorFecha(actor.id(), salonId, fecha);
     }
 }

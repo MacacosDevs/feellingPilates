@@ -750,16 +750,23 @@ class TurnoInstructorServiceCaracterizacionTest {
     }
 
     /**
-     * EXCEPCION y CANCELACION NO entran en el protocolo: EXCEPCION esta fuera de la Politica A y
-     * CANCELACION ni siquiera valida horario. Tomar el lock ahi daria falsa sensacion de
-     * proteccion, porque el resultado serie y el concurrente serian identicos.
+     * F2C.2: un turno EXCEPCION es un objeto puntual que participa de la misma invariante que
+     * {@code SalonHorarioExcepcionService} (mutacion N del checkpoint de implementacion). Antes de
+     * F2C.2 quedaba fuera del protocolo porque nadie mantenia esa invariante; ahora el lock debe
+     * preceder a la resolucion del horario efectivo, igual que para RECURRENTE.
      */
     @Test
-    void crearExcepcionNoTomaElLockDeSalon() {
+    void crearExcepcionTomaElLockDeSalonAntesDeLeerElHorario() {
         service.crear(ACTOR_ID, excepcion(9, 0, 10, 0));
 
-        verify(salonLock, never()).adquirir(any());
+        InOrder orden = inOrder(autorizadorSalon, salonLock, salonHorarioExcepcionRepository, turnoRepository);
+        orden.verify(autorizadorSalon).verificarAccesoSalon(eq(ACTOR_ID), eq(SALON_ID), any(String[].class));
+        orden.verify(salonLock).adquirir(SALON_ID);
+        orden.verify(salonHorarioExcepcionRepository).findBySalonIdAndFechaAndActivoTrue(eq(SALON_ID), any());
+        orden.verify(turnoRepository).save(any(TurnoInstructor.class));
     }
+
+    /** CANCELACION NO entra en el protocolo: ni siquiera valida horario, asi que tomar el lock daria falsa proteccion. */
 
     @Test
     void crearCancelacionNoTomaElLockDeSalon() {

@@ -137,11 +137,11 @@ class HorarioOperacionWritersPersistenciaTest {
     }
 
     /**
-     * Politica A cubre TurnoInstructor RECURRENTE y no EXCEPCION. Un turno EXCEPCION cuyo rango no
-     * cabe en el horario nuevo NO bloquea el versionado: su invariante ya no la mantiene el sistema
-     * hoy (una {@code SalonHorarioExcepcion} puede cerrar el dia sin mirar los turnos), asi que
-     * meterlo aqui seria ampliar la politica, no cerrar un hueco. Si alguien lo hiciera, este test
-     * lo detecta.
+     * Politica A del versionado semanal cubre TurnoInstructor RECURRENTE y no EXCEPCION. Un turno
+     * EXCEPCION cuyo rango no cabe en el horario nuevo NO bloquea el versionado: es un objeto
+     * puntual de una fecha, no una regla recurrente, y su propia invariante la protege (desde
+     * F2C.2) el protocolo de {@code SalonHorarioExcepcionService}, no este. Meterlo aqui seria
+     * ampliar esta politica, no cerrar un hueco. Si alguien lo hiciera, este test lo detecta.
      */
     @Test
     void unTurnoExcepcionIncompatibleNoBloqueaElVersionado() {

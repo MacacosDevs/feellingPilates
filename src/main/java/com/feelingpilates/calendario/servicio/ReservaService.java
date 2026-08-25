@@ -9,10 +9,12 @@ import com.feelingpilates.calendario.repositorio.TurnoInstructorRepository;
 import com.feelingpilates.exception.ResourceNotFoundException;
 import com.feelingpilates.exception.ValidacionException;
 import com.feelingpilates.seguridad.AutorizadorSalon;
+import com.feelingpilates.ubicaciones.dominio.HorarioEfectivo;
 import com.feelingpilates.ubicaciones.entidad.Salon;
 import com.feelingpilates.ubicaciones.entidad.TipoActividad;
-import com.feelingpilates.ubicaciones.repositorio.SalonRepository;
 import com.feelingpilates.ubicaciones.repositorio.TipoActividadRepository;
+import com.feelingpilates.ubicaciones.servicio.HorarioEfectivoSalon;
+import com.feelingpilates.ubicaciones.servicio.SalonLock;
 import com.feelingpilates.usuarios.entidad.Usuario;
 import com.feelingpilates.usuarios.repositorio.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -32,23 +34,26 @@ public class ReservaService {
     private final ReservaRepository reservaRepository;
     private final TurnoInstructorRepository turnoRepository;
     private final UsuarioRepository usuarioRepository;
-    private final SalonRepository salonRepository;
     private final TipoActividadRepository tipoActividadRepository;
     private final AutorizadorSalon autorizadorSalon;
+    private final SalonLock salonLock;
+    private final HorarioEfectivoSalon horarioEfectivoSalon;
 
     public ReservaService(
             ReservaRepository reservaRepository,
             TurnoInstructorRepository turnoRepository,
             UsuarioRepository usuarioRepository,
-            SalonRepository salonRepository,
             TipoActividadRepository tipoActividadRepository,
-            AutorizadorSalon autorizadorSalon) {
+            AutorizadorSalon autorizadorSalon,
+            SalonLock salonLock,
+            HorarioEfectivoSalon horarioEfectivoSalon) {
         this.reservaRepository = reservaRepository;
         this.turnoRepository = turnoRepository;
         this.usuarioRepository = usuarioRepository;
-        this.salonRepository = salonRepository;
         this.tipoActividadRepository = tipoActividadRepository;
         this.autorizadorSalon = autorizadorSalon;
+        this.salonLock = salonLock;
+        this.horarioEfectivoSalon = horarioEfectivoSalon;
     }
 
     @Transactional(readOnly = true)
@@ -68,8 +73,11 @@ public class ReservaService {
 
     public ReservaResponse crear(UUID actorId, ReservaRequest request) {
         autorizadorSalon.verificarAccesoSalon(actorId, "reserva.administrar", request.salonId());
-        Salon salon = salonRepository.findById(request.salonId())
-                .orElseThrow(() -> new ResourceNotFoundException("Salón no encontrado"));
+        // SalonLock ANTES de leer: serializa esta reserva contra crear/modificar/cancelar una
+        // excepcion de horario del mismo salon (F2C.2), para que no puedan commitear a la vez una
+        // reserva y un cierre que la deja fuera de horario. Sustituye al findById redundante: el
+        // lock ya comprueba existencia.
+        Salon salon = salonLock.adquirir(request.salonId());
         Usuario instructor = usuarioRepository.findById(request.instructorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Instructor no encontrado"));
         Usuario cliente = usuarioRepository.findById(request.clienteId())
@@ -77,12 +85,19 @@ public class ReservaService {
         TipoActividad tipoActividad = tipoActividadRepository.findById(request.tipoActividadId())
                 .orElseThrow(() -> new ResourceNotFoundException("Tipo de actividad no encontrado"));
 
+        LocalTime horaInicio = request.horaInicio();
+        LocalTime horaFin = horaInicio.plusMinutes(tipoActividad.getDuracionMinutos());
+
+        // NO basta con el horario semanal: HorarioEfectivoSalon ya considera la excepcion de la
+        // fecha. Cobertura COMPLETA, no solape; CERRADO y NO_OPERATIVO rechazan cualquier reserva.
+        HorarioEfectivo horarioEfectivo = horarioEfectivoSalon.resolver(salon.getId(), request.fecha());
+        if (!horarioEfectivo.contiene(horaInicio, horaFin)) {
+            throw new ValidacionException("La reserva queda fuera del horario de atención del salón ese día");
+        }
+
         if (instructor.getEspecialidades().stream().noneMatch(t -> t.getId().equals(tipoActividad.getId()))) {
             throw new ValidacionException("El instructor no está capacitado para impartir esa actividad");
         }
-
-        LocalTime horaInicio = request.horaInicio();
-        LocalTime horaFin = horaInicio.plusMinutes(tipoActividad.getDuracionMinutos());
 
         List<TurnoInstructor> turnosVigentes = turnosVigentes(instructor.getId(), salon.getId(), request.fecha());
         boolean cabeEnTurno = turnosVigentes.stream()

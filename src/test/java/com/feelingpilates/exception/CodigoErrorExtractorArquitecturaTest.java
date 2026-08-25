@@ -23,6 +23,8 @@ class CodigoErrorExtractorArquitecturaTest {
             "src/main/java/com/feelingpilates/exception/GlobalExceptionHandler.java";
     private static final String HORARIO_OPERACION_ERRORES =
             "src/main/java/com/feelingpilates/ubicaciones/servicio/HorarioOperacionErrores.java";
+    private static final String SALON_HORARIO_EXCEPCION_ERRORES =
+            "src/main/java/com/feelingpilates/ubicaciones/servicio/SalonHorarioExcepcionErrores.java";
 
     private static final String[] MARCADORES_DE_PARSER_LOCAL = {
             "java.util.regex.Pattern",
@@ -31,7 +33,7 @@ class CodigoErrorExtractorArquitecturaTest {
     };
 
     @ParameterizedTest
-    @ValueSource(strings = {GLOBAL_EXCEPTION_HANDLER, HORARIO_OPERACION_ERRORES})
+    @ValueSource(strings = {GLOBAL_EXCEPTION_HANDLER, HORARIO_OPERACION_ERRORES, SALON_HORARIO_EXCEPCION_ERRORES})
     void noImplementaUnParserLocalDeCodigo(String rutaRelativa) {
         String contenido = leer(rutaRelativa);
         for (String marcador : MARCADORES_DE_PARSER_LOCAL) {
@@ -43,7 +45,7 @@ class CodigoErrorExtractorArquitecturaTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {GLOBAL_EXCEPTION_HANDLER, HORARIO_OPERACION_ERRORES})
+    @ValueSource(strings = {GLOBAL_EXCEPTION_HANDLER, HORARIO_OPERACION_ERRORES, SALON_HORARIO_EXCEPCION_ERRORES})
     void delegaEnCodigoErrorExtractor(String rutaRelativa) {
         String contenido = leer(rutaRelativa);
         assertThat(contenido)

@@ -115,14 +115,16 @@ public class TurnoInstructorService {
         };
         autorizadorSalon.verificarAccesoSalon(actorId, request.salonId(), permisos);
         // Protocolo de lock compartido: un turno RECURRENTE es programacion abierta al futuro que
-        // puede volverse incompatible con el horario del salon, asi que se serializa contra los
-        // writers de horario ANTES de leer/validar nada de ese horario. La autorizacion va primero
-        // a proposito: no se retiene un lock por peticiones que no tienen permiso.
+        // puede volverse incompatible con el horario del salon, y un turno EXCEPCION es un objeto
+        // puntual que participa de la misma invariante que SalonHorarioExcepcionService (F2C.2): un
+        // turno EXCEPCION incompatible con la excepcion de salon de esa fecha, o viceversa, debe
+        // serializarse para que el que llega segundo vea el estado del primero. En ambos casos el
+        // lock se toma ANTES de leer/validar nada del horario. La autorizacion va primero a
+        // proposito: no se retiene un lock por peticiones que no tienen permiso.
         //
-        // EXCEPCION y CANCELACION NO lo toman: EXCEPCION esta fuera de la Politica A (su invariante
-        // ya no la mantiene el sistema hoy, ver ImpactoTurnosRecurrentesEnHorario) y CANCELACION ni
-        // siquiera valida horario. Tomar el lock ahi daria falsa sensacion de proteccion.
-        if (request.tipo() == TurnoInstructor.Tipo.RECURRENTE) {
+        // CANCELACION NO lo toma: ni siquiera valida horario (cubre el dia completo como marcador de
+        // "no atiende"). Tomar el lock ahi daria falsa sensacion de proteccion.
+        if (request.tipo() == TurnoInstructor.Tipo.RECURRENTE || request.tipo() == TurnoInstructor.Tipo.EXCEPCION) {
             salonLock.adquirir(request.salonId());
         }
         Map<Usuario, AsignacionResuelta> asignaciones = resolverAsignaciones(request.asignaciones());

@@ -290,13 +290,27 @@ class SalonHorarioExcepcionServiceTest {
 
     // ---------- W10: Clock.fixed, nunca el reloj real ----------
 
+    /**
+     * AYER (2026-08-19) ya es pasado tanto para el reloj fijo como para el reloj real del sistema
+     * en cualquier fecha de ejecucion posterior a 2026-08-19: si production reemplazara el reloj
+     * inyectado por {@code LocalDate.now()}, este caso seguiria rechazando por casualidad y el test
+     * no detectaria la mutacion. Se usa en su lugar un reloj deliberadamente MUY alejado de "hoy" y
+     * una fecha que solo es pasada relativa a ESE reloj: PASADA para {@code relojLejano} (2035-06-15)
+     * pero FUTURA para el reloj real de cualquier maquina hasta bien entrado 2035. Si el writer usara
+     * {@code LocalDate.now()} en vez del reloj inyectado, aceptaria la fecha por error y este test
+     * fallaria de forma estable durante todo el horizonte razonable del proyecto.
+     */
     @Test
     void usaElRelojFijoNoElRelojDelSistema() {
-        // "Hoy" real de ejecucion es muy anterior a HOY(2026-08-20): si el writer usara
-        // LocalDate.now() directo, MANANA se leeria como futura igualmente (falso positivo debil).
-        // Se fuerza el caso inverso: una fecha que es PASADA segun el reloj fijo pero FUTURA segun
-        // el reloj real del sistema (2026-08-20 es futuro en cualquier maquina real de hoy).
-        assertThatThrownBy(() -> service.guardar(ACTOR_ID, SALON_ID, cerrado(AYER)))
+        Clock relojLejano = Clock.fixed(
+                LocalDate.of(2035, 6, 15).atStartOfDay(ZoneId.of("UTC")).toInstant(), ZoneId.of("UTC"));
+        LocalDate fechaPasadaSoloParaElRelojLejano = LocalDate.of(2035, 6, 14);
+        SalonHorarioExcepcionService servicioConRelojLejano = new SalonHorarioExcepcionService(
+                excepcionRepository, salonLock, autorizadorSalon, horarioOperacionResolver,
+                List.of(validador), relojLejano);
+
+        assertThatThrownBy(() -> servicioConRelojLejano.guardar(
+                ACTOR_ID, SALON_ID, cerrado(fechaPasadaSoloParaElRelojLejano)))
                 .isInstanceOf(ValidacionException.class)
                 .hasMessageContaining("EXCEPCION_HORARIO_EN_EL_PASADO");
     }
@@ -334,6 +348,91 @@ class SalonHorarioExcepcionServiceTest {
                 .isInstanceOf(ConflictException.class)
                 .hasMessageContaining("PROGRAMACION_PUNTUAL_INCOMPATIBLE_CON_EXCEPCION");
         assertThat(activa.isActivo()).isTrue();
+    }
+
+    /**
+     * Sin ninguna version semanal aplicable (default del {@code @BeforeEach}:
+     * {@code horarioOperacionResolver.resolver} devuelve vacio), cancelar dejaria
+     * {@code CERRADO}, equivalente a NO_OPERATIVO: ningun intervalo cabe. Un turno EXCEPCION que
+     * hoy cabe en la excepcion activa (10-16) quedaria huerfano, asi que la cancelacion se
+     * rechaza y la fila sigue activa.
+     */
+    @Test
+    void cancelacionSinHorarioSemanalQueDejaNoOperativoEsRechazadaSiHayPuntualDependiente() {
+        SalonHorarioExcepcion activa = excepcionActiva(MANANA, false, DIEZ, DIECISEIS);
+        when(excepcionRepository.findById(activa.getId())).thenReturn(Optional.of(activa));
+        when(validador.evaluar(any())).thenAnswer(inv -> {
+            CambioExcepcionHorario cambio = inv.getArgument(0);
+            return cambio.admite(LocalTime.of(11, 0), LocalTime.of(12, 0))
+                    ? List.of()
+                    : List.of(ConflictoProgramacionPuntual.turnoExcepcion(UUID.randomUUID(), "11:00-12:00"));
+        });
+
+        assertThatThrownBy(() -> service.eliminar(ACTOR_ID, SALON_ID, activa.getId()))
+                .isInstanceOf(ConflictException.class)
+                .hasMessageContaining("PROGRAMACION_PUNTUAL_INCOMPATIBLE_CON_EXCEPCION");
+        assertThat(activa.isActivo()).isTrue();
+        verify(excepcionRepository, never()).save(any());
+    }
+
+    /**
+     * El semanal resultante (08-18) es MAS AMPLIO que la excepcion que se cancela (10-16): toda
+     * programacion puntual que cabia en la excepcion sigue cabiendo despues. La cancelacion se
+     * permite y persiste como soft delete.
+     */
+    @Test
+    void cancelacionHaciaUnHorarioSemanalMasAmplioEsPermitida() {
+        SalonHorarioExcepcion activa = excepcionActiva(MANANA, false, LocalTime.of(10, 0), LocalTime.of(16, 0));
+        when(excepcionRepository.findById(activa.getId())).thenReturn(Optional.of(activa));
+        HorarioOperacion semanal = new HorarioOperacion();
+        semanal.setHoraApertura(LocalTime.of(8, 0));
+        semanal.setHoraCierre(LocalTime.of(18, 0));
+        when(horarioOperacionResolver.resolver(SALON_ID, MANANA)).thenReturn(Optional.of(semanal));
+        when(validador.evaluar(any())).thenAnswer(inv -> {
+            CambioExcepcionHorario cambio = inv.getArgument(0);
+            return cambio.admite(LocalTime.of(11, 0), LocalTime.of(12, 0))
+                    ? List.of()
+                    : List.of(ConflictoProgramacionPuntual.reservaConfirmada(UUID.randomUUID(), "11:00-12:00"));
+        });
+
+        service.eliminar(ACTOR_ID, SALON_ID, activa.getId());
+
+        assertThat(activa.isActivo()).isFalse();
+        verify(excepcionRepository).save(activa);
+    }
+
+    // ---------- CambioExcepcionHorario.admite: fin > inicio, contencion completa ----------
+
+    @ParameterizedTest
+    @CsvSource({
+            "08:00,16:00,true",
+            "10:00,12:00,true",
+            "07:00,09:00,false",
+            "15:00,17:00,false",
+            "08:00,08:00,false",
+            "10:00,09:00,false",
+    })
+    void horarioEspecialAdmiteSoloContencionCompletaConFinPosteriorAInicio(
+            String inicio, String fin, boolean debeAdmitir) {
+        CambioExcepcionHorario especial = CambioExcepcionHorario.horarioEspecial(
+                SALON_ID, MANANA, LocalTime.of(8, 0), LocalTime.of(16, 0));
+
+        assertThat(especial.admite(LocalTime.parse(inicio), LocalTime.parse(fin))).isEqualTo(debeAdmitir);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "08:00,16:00",
+            "10:00,12:00",
+            "07:00,09:00",
+            "15:00,17:00",
+            "08:00,08:00",
+            "10:00,09:00",
+    })
+    void cerradoNuncaAdmiteNingunIntervalo(String inicio, String fin) {
+        CambioExcepcionHorario cerrado = CambioExcepcionHorario.cerrado(SALON_ID, MANANA);
+
+        assertThat(cerrado.admite(LocalTime.parse(inicio), LocalTime.parse(fin))).isFalse();
     }
 
     // ---------- helpers ----------

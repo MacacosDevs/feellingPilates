@@ -55,11 +55,15 @@ public record CambioExcepcionHorario(
     }
 
     /**
-     * {@code [inicio, fin]} cabe en el estado resultante. Siempre falso si {@link Estado#CERRADO}:
-     * un dia cerrado no admite ningun intervalo. No es solape: exige contencion completa, igual que
-     * {@link HorarioEfectivo#contiene} y {@link CambioHorarioOperacion#admite}.
+     * {@code [inicio, fin]} cabe en el estado resultante. Siempre falso si {@code fin <= inicio}
+     * (intervalo vacio o invertido) o si {@link Estado#CERRADO}: un dia cerrado no admite ningun
+     * intervalo. No es solape: exige contencion completa, igual que {@link HorarioEfectivo#contiene}
+     * y {@link CambioHorarioOperacion#admite}.
      */
     public boolean admite(LocalTime inicio, LocalTime fin) {
+        if (inicio == null || fin == null || !fin.isAfter(inicio)) {
+            return false;
+        }
         return estado == Estado.HORARIO_ESPECIAL && !inicio.isBefore(horaApertura) && !fin.isAfter(horaCierre);
     }
 }

@@ -32,23 +32,36 @@ class ConflictoExcepcionHorarioTranslatorTest {
                 .hasMessageContaining("CONFLICTO_EXCEPCION_HORARIO");
     }
 
+    /**
+     * Sin nombre de constraint no hay evidencia inequivoca de que el 23505 sea el indice unico
+     * parcial: podria ser cualquier otra violacion de unicidad. Se relanza intacta.
+     */
     @Test
-    void traduce23505AunSiElDriverNoReportaElNombreDelConstraint() {
+    void noTraduce23505SiElDriverNoReportaElNombreDelConstraint() {
+        DataIntegrityViolationException error = violacion("23505", null);
+
         assertThatThrownBy(() -> traduciendoConflictoDeExcepcion(() -> {
-            throw violacion("23505", null);
+            throw error;
         }))
-                .isInstanceOf(ConflictException.class);
+                .isSameAs(error)
+                .isNotInstanceOf(ConflictException.class);
     }
 
+    /**
+     * Un {@code SQLException} crudo, sin envoltorio de {@link ConstraintViolationException} de
+     * Hibernate, no expone metadata estructurada del constraint: no es evidencia suficiente,
+     * aunque el SQLSTATE sea {@code 23505}. Se relanza intacta.
+     */
     @Test
-    void traduce23505AnidadoEnUnaSQLExceptionSinEnvoltorioDeHibernate() {
+    void noTraduce23505CrudoSinEnvoltorioDeHibernate() {
         DataIntegrityViolationException error = new DataIntegrityViolationException(
                 "fallo", new SQLException("unique violation", "23505"));
 
         assertThatThrownBy(() -> traduciendoConflictoDeExcepcion(() -> {
             throw error;
         }))
-                .isInstanceOf(ConflictException.class);
+                .isSameAs(error)
+                .isNotInstanceOf(ConflictException.class);
     }
 
     /** Mutacion F: cualquier DataIntegrityViolationException traducida como conflicto de excepcion. */

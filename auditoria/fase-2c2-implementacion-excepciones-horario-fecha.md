@@ -109,11 +109,14 @@ SIN CAMBIOS. Ni firma, ni comportamiento, ni precedencia.
 
 ## 23505
 `ConflictoExcepcionHorarioTranslator`, análogo exacto de `ConflictoVigenciaHorarioTranslator`:
-`saveAndFlush` dentro del bloque `try`, clasificación estricta por SQLSTATE `23505` +
-`idx_salon_horario_excepcion_unica` (o evidencia inequívoca si el driver no reporta el nombre).
-Confirmado contra PostgreSQL real (Testcontainers) que Hibernate SÍ reporta el nombre del índice
-único parcial. Cualquier otra violación de integridad se relanza intacta (verificado con FK a
-salón inexistente).
+`saveAndFlush` dentro del bloque `try`, clasificación estricta por SQLSTATE `23505` **y**
+`getConstraintName().equals("idx_salon_horario_excepcion_unica")` de la misma
+`ConstraintViolationException` de Hibernate. **Corregido en F2C.2.1** (ver esa sección más abajo):
+la versión original de esta clasificación todavía traducía por error un `constraintName == null` y
+un `SQLException` crudo sin envoltorio de Hibernate con solo SQLSTATE `23505`; ninguno de los dos
+es evidencia suficiente y ambos se relanzan intactos ahora. Confirmado contra PostgreSQL real
+(Testcontainers) que Hibernate SÍ reporta el nombre del índice único parcial. Cualquier otra
+violación de integridad se relanza intacta (verificado con FK a salón inexistente).
 
 ## Errores
 `SalonHorarioExcepcionErrores`: seis códigos (`EXCEPCION_HORARIO_EN_EL_PASADO`,
@@ -156,9 +159,10 @@ traducción de otra violación de integridad (FK), y que cerrar un día con `Blo
 `TurnoInstructor` RECURRENTE existentes los deja bit-a-bit idénticos.
 
 ## Concurrencia
-PASS (5/5). C4 y C5 confirman que el lock añadido a `TurnoInstructorService.crear(EXCEPCION)` y a
-`ReservaService.crear` sí serializa contra el writer de excepción (fallarían si el lock solo
-viviera en un lado).
+PASS (5/5) en F2C.2. C4 y C5 confirman que el lock añadido a `TurnoInstructorService.crear(EXCEPCION)`
+y a `ReservaService.crear` sí serializa contra el writer de excepción (fallarían si el lock solo
+viviera en un lado). **Ampliado en F2C.2.1** (ver esa sección) con C4/C5 en orden inverso: PASS (7/7
+en total) — la serialización protege en ambos sentidos, no solo cuando la excepción llega primero.
 
 ## Mutaciones A-N
 TODAS DETECTADAS POR TEST:
@@ -166,7 +170,7 @@ TODAS DETECTADAS POR TEST:
 | # | Mutación | Detectada por |
 |---|---|---|
 | A | Writer sin `SalonLock` | `SalonHorarioExcepcionServiceTest.protocoloCompletoEnOrdenAutorizarLockLeer` (W9, `InOrder`), `SalonHorarioExcepcionConcurrenciaTest` (C1) |
-| B | `LocalDate.now()` directo | `SalonHorarioExcepcionServiceTest.usaElRelojFijoNoElRelojDelSistema` (W10) |
+| B | `LocalDate.now()` directo | `SalonHorarioExcepcionServiceTest.usaElRelojFijoNoElRelojDelSistema` (W10). **F2C.2.1**: el W10 original (`AYER = 2026-08-19`) dejó de ser una protección estable una vez esa fecha quedó en el pasado real; reescrito con reloj fijo lejano (2035-06-15) y fecha (2035-06-14) pasada solo para ese reloj, futura para el reloj real — detecta la mutación de forma estable, no atado al día de ejecución. |
 | C | Editar/cancelar pasado | `temporalidadDeAlta`, `temporalidadDeModificacion`, `temporalidadDeCancelacion` (W1, W5) |
 | D | `CERRADO` con horas | `cerradoConHorasSeNormalizaANull` (W8), `SalonHorarioExcepcionPersistenciaTest.checkRechazaCerradoConHoras` (P1) |
 | E | `cierre <= apertura` | `cierreIgualAAperturaLanzaHoraCierreDebeSerPosterior`/`cierreAnteriorA...` (W8), P1 |
@@ -186,3 +190,77 @@ PASS (`./mvnw package -DskipTests`, exit 0).
 ## Scope
 Solo `ubicaciones`, `calendario` (backend) y sus tests. Sin migraciones. Sin cambios en `pom.xml`.
 Sin frontend. Sin mobile.
+
+## F2C.2.1 — Correcciones post-review
+
+Review independiente de F2C.2: APROBADO CON AJUSTES. Un P1 (clasificación demasiado amplia de
+23505 en el traductor) y cinco P2. Esta sección corrige la afirmación de "clasificación estricta"
+de la sección **23505** de arriba, que en realidad describía todavía el fallback amplio (constraint
+`null` traducido, y `SQLException` cruda por SQLSTATE solo).
+
+**23505**: ESTRICTO. `esViolacionDelIndiceUnico` ya no recorre nada más que
+`ConstraintViolationException` de Hibernate; se eliminó el fallback a `SQLException` cruda por
+SQLSTATE solo. Traduce únicamente si `getSQLState() == "23505"` **y**
+`getConstraintName().equals("idx_salon_horario_excepcion_unica")`, ambos de la misma excepción. Sin
+parseo de texto del mensaje del driver, sin regex — solo la metadata estructurada que ya exponía
+Hibernate.
+
+**Constraint exacto**: `idx_salon_horario_excepcion_unica`.
+
+**23505 sin constraint** (`constraintName == null`): RETHROW. Test:
+`ConflictoExcepcionHorarioTranslatorTest.noTraduce23505SiElDriverNoReportaElNombreDelConstraint`.
+
+**23505 constraint distinto**: RETHROW (sin cambios de comportamiento; ya estaba cubierto).
+
+**23505 crudo sin envoltorio de Hibernate** (`SQLException`/`DataIntegrityViolationException` sin
+`ConstraintViolationException` en la cadena): RETHROW. Test:
+`ConflictoExcepcionHorarioTranslatorTest.noTraduce23505CrudoSinEnvoltorioDeHibernate` (reemplaza el
+test anterior que codificaba la traducción genérica incorrecta).
+
+**PostgreSQL real**: PASS (9/9, `SalonHorarioExcepcionPersistenciaTest`). P5 confirma que Hibernate
+sí reporta `idx_salon_horario_excepcion_unica` como `getConstraintName()` contra PostgreSQL 16 real;
+P6 confirma que una violación de integridad distinta (FK, SQLSTATE `23503`) no se traduce.
+
+**`CambioExcepcionHorario.admite` valida `fin > inicio`**: VALIDADO. Antes de evaluar
+`CERRADO`/`HORARIO_ESPECIAL`, rechaza `inicio == null`, `fin == null` o `fin <= inicio` (intervalo
+vacío o invertido). Tests parametrizados en `SalonHorarioExcepcionServiceTest`
+(`horarioEspecialAdmiteSoloContencionCompletaConFinPosteriorAInicio`,
+`cerradoNuncaAdmiteNingunIntervalo`), casos 08-16/10-12/07-09/15-17/08-08/10-09.
+
+**Cancelación sin semanal**: PROBADA
+(`cancelacionSinHorarioSemanalQueDejaNoOperativoEsRechazadaSiHayPuntualDependiente`). Sin versión
+semanal aplicable, cancelar dejaría `CERRADO` (NO_OPERATIVO); un turno EXCEPCION que cabía en la
+excepción activa queda huérfano → `ConflictException` `PROGRAMACION_PUNTUAL_INCOMPATIBLE_CON_EXCEPCION`,
+la fila sigue activa.
+
+**Cancelación compatible**: PROBADA (`cancelacionHaciaUnHorarioSemanalMasAmplioEsPermitida`).
+Semanal resultante más amplio que la excepción cancelada → sin conflicto → soft delete permitido.
+
+**Cancelación más estrecha**: PROBADA (ya existía, sin cambios de lógica):
+`cancelacionValidaImpactoContraElHorarioResultanteNoContraLaExcepcion`.
+
+**C4 inverso**: PASS. `SalonHorarioExcepcionConcurrenciaTest.turnoExcepcionPrimeroHaceQueLaExcepcionDeCierreSeaRechazada`:
+el turno EXCEPCION gana la carrera y commitea primero; el writer de excepción, al adquirir el lock,
+observa el turno y rechaza el cierre. Estado final: turno existe, excepción incompatible no aplicada.
+
+**C5 inverso**: PASS. `SalonHorarioExcepcionConcurrenciaTest.reservaPrimeroHaceQueLaExcepcionDeCierreSeaRechazada`:
+la reserva CONFIRMADA gana la carrera y commitea primero; el writer de excepción la observa al
+adquirir el lock y rechaza el cierre. Estado final: reserva existe, excepción incompatible no aplicada.
+
+**Clock mutation (W10)**: ESTABLE. El caso anterior (`AYER = 2026-08-19`) dejó de ser una protección
+real: para cualquier fecha de ejecución posterior a esa fecha, `AYER` es pasado tanto para el reloj
+fijo como para `LocalDate.now()` real, así que la mutación B (`LocalDate.now()` directo) dejaría de
+detectarse en silencio. Rediseñado con un reloj fijo deliberadamente lejano (2035-06-15) y una fecha
+(2035-06-14) que es pasada solo relativo a ESE reloj — futura para cualquier reloj real hasta bien
+entrado 2035. Detecta la mutación B de forma estable durante todo el horizonte razonable del
+proyecto, no solo el día del review.
+
+**Tests finales**: 493/493 PASS (477 + 16: 2 renombrados sin cambio neto de conteo, 12 casos
+parametrizados de `admite`, 2 de cancelación, 2 de concurrencia inversa).
+
+**Build**: PASS (`./mvnw package -DskipTests`, exit 0).
+
+**Scope**: solo los archivos señalados por el review (`ConflictoExcepcionHorarioTranslator`,
+`ConflictoExcepcionHorarioTranslatorTest`, `CambioExcepcionHorario`,
+`SalonHorarioExcepcionServiceTest`, `SalonHorarioExcepcionConcurrenciaTest`) y este checkpoint. Sin
+migraciones, sin cambios en `pom.xml`, sin frontend, sin mobile.

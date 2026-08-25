@@ -3,8 +3,6 @@ package com.feelingpilates.ubicaciones.servicio;
 import com.feelingpilates.exception.ConflictException;
 import org.hibernate.exception.ConstraintViolationException;
 
-import java.sql.SQLException;
-
 /**
  * Traduccion <b>defensiva</b> de la violacion del indice unico parcial
  * {@code idx_salon_horario_excepcion_unica} (PostgreSQL SQLSTATE {@code 23505}) a un error de
@@ -16,9 +14,12 @@ import java.sql.SQLException;
  * el camino normal produce errores de dominio legibles y este traductor no llega a dispararse.
  *
  * <p>Regla estricta: <b>nunca</b> se traduce un {@code DataIntegrityViolationException} generico.
- * Solo se traduce cuando en la cadena de causas se identifica SQLSTATE {@code 23505} y, cuando el
- * driver lo reporta, el constraint esperado. Cualquier otra violacion de integridad se relanza
- * intacta: ocultarla detras de "conflicto de excepcion" haria indiagnosticable un bug distinto.
+ * Solo se traduce cuando la cadena de causas contiene un {@link ConstraintViolationException} de
+ * Hibernate cuyo SQLSTATE es {@code 23505} <b>y</b> cuyo {@code getConstraintName()} es exactamente
+ * el esperado. Un SQLSTATE {@code 23505} sin ese constraint exacto (constraint distinto, ausente, o
+ * un {@code SQLException} crudo sin envoltorio de Hibernate) no es evidencia suficiente: se relanza
+ * intacta, igual que cualquier otra violacion de integridad. Ocultar esos casos detras de
+ * "conflicto de excepcion" haria indiagnosticable un bug distinto.
  */
 public final class ConflictoExcepcionHorarioTranslator {
 
@@ -51,24 +52,20 @@ public final class ConflictoExcepcionHorarioTranslator {
 
     /**
      * Recorre la cadena de causas buscando la violacion del indice unico parcial. Se inspecciona
-     * primero el {@link ConstraintViolationException} de Hibernate y no la {@code PSQLException}
-     * del driver, para no acoplar {@code ubicaciones} a PostgreSQL.
+     * el {@link ConstraintViolationException} de Hibernate (no la {@code PSQLException} del
+     * driver, para no acoplar {@code ubicaciones} a PostgreSQL) y unicamente esa fuente: es la
+     * unica que expone {@code getConstraintName()} como metadata estructurada, sin parsear texto
+     * del mensaje del driver.
      *
-     * <p>Si Hibernate identifico el constraint y NO es el esperado, la respuesta es firme: no se
-     * traduce, y no se cae al barrido de {@link SQLException}. Ese respaldo existe solo para el
-     * caso en que Hibernate no envolvio el error y por tanto no hay nombre de constraint que
-     * consultar.
+     * <p>Evidencia insuficiente para traducir: SQLSTATE {@code 23505} sin
+     * {@link ConstraintViolationException} en la cadena (p. ej. un {@code SQLException} crudo),
+     * con {@code getConstraintName() == null}, o con un nombre de constraint distinto al esperado.
+     * En todos esos casos se relanza la excepcion original.
      */
     static boolean esViolacionDelIndiceUnico(Throwable error) {
         for (Throwable causa = error; causa != null && causa.getCause() != causa; causa = causa.getCause()) {
             if (causa instanceof ConstraintViolationException cve) {
-                if (!SQLSTATE_UNIQUE_VIOLATION.equals(cve.getSQLState())) {
-                    return false;
-                }
-                return cve.getConstraintName() == null || CONSTRAINT.equals(cve.getConstraintName());
-            }
-            if (causa instanceof SQLException sqlException) {
-                return SQLSTATE_UNIQUE_VIOLATION.equals(sqlException.getSQLState());
+                return SQLSTATE_UNIQUE_VIOLATION.equals(cve.getSQLState()) && CONSTRAINT.equals(cve.getConstraintName());
             }
         }
         return false;

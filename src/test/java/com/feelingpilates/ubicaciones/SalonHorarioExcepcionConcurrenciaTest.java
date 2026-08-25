@@ -7,6 +7,7 @@ import com.feelingpilates.calendario.dto.TurnoInstructorRequest;
 import com.feelingpilates.calendario.entidad.TurnoInstructor;
 import com.feelingpilates.calendario.servicio.ReservaService;
 import com.feelingpilates.calendario.servicio.TurnoInstructorService;
+import com.feelingpilates.exception.ConflictException;
 import com.feelingpilates.exception.ValidacionException;
 import com.feelingpilates.seguridad.AutorizadorSalon;
 import com.feelingpilates.ubicaciones.dominio.HorarioEfectivo;
@@ -230,6 +231,67 @@ class SalonHorarioExcepcionConcurrenciaTest {
         assertThat(contarTurnos()).isZero();
     }
 
+    // ================= C4-inverso: TurnoInstructor.EXCEPCION gana primero =================
+
+    /**
+     * Orden inverso de C4. Con el semanal abierto (08-20 lunes), el turno EXCEPCION gana la
+     * carrera y commitea primero; el writer de excepcion, al fin adquirir el lock, debe ver ese
+     * turno puntual y rechazar el cierre. No basta con que las dos operaciones "terminen": el
+     * estado final exige que el turno exista y la excepcion incompatible NO haya quedado aplicada.
+     */
+    @Test
+    void turnoExcepcionPrimeroHaceQueLaExcepcionDeCierreSeaRechazada() {
+        versionar.ejecutar(new VersionarHorarioOperacion.VersionarHorario(
+                salonId, LUNES, d, LocalTime.of(8, 0), LocalTime.of(20, 0)));
+
+        Carrera carrera = correr(
+                () -> turnoService.crear(instructorId, turnoExcepcion(d, LocalTime.of(9, 0), LocalTime.of(10, 0))),
+                () -> excepcionService.guardar(actorId, salonId,
+                        new GuardarExcepcionSalonRequest(d, true, null, null)));
+
+        assertThat(carrera.errorPrimero()).isNull();
+        assertThat(carrera.segundoTerminoBajoElLock()).isFalse();
+        assertThat(carrera.errorSegundo())
+                .isInstanceOf(ConflictException.class)
+                .hasMessageContaining("PROGRAMACION_PUNTUAL_INCOMPATIBLE_CON_EXCEPCION");
+
+        assertThat(contarTurnos()).isEqualTo(1);
+        assertThat(filasActivas()).isZero();
+    }
+
+    // ================= C5-inverso: ReservaService.crear gana primero =================
+
+    /**
+     * Orden inverso de C5. Con el semanal abierto y un turno RECURRENTE del instructor ya
+     * vigente, la reserva gana la carrera y commitea CONFIRMADA primero; el writer de excepcion,
+     * al fin adquirir el lock, debe ver esa reserva y rechazar el cierre. Demuestra serializacion
+     * verdadera: la reserva valida existe y la excepcion incompatible NO queda aplicada.
+     */
+    @Test
+    void reservaPrimeroHaceQueLaExcepcionDeCierreSeaRechazada() {
+        // El turno RECURRENTE exige cobertura semanal SIN huecos desde hoy en adelante (no solo en
+        // "d"): se versiona desde hoy, no desde "d", para que
+        // validarContraHorarioSemanalVigenteHaciaElFuturo encuentre la version vigente hoy mismo.
+        versionar.ejecutar(new VersionarHorarioOperacion.VersionarHorario(
+                salonId, LUNES, LocalDate.now(reloj), LocalTime.of(8, 0), LocalTime.of(20, 0)));
+        turnoService.crear(instructorId, turnoRecurrente(LUNES, LocalTime.of(8, 0), LocalTime.of(20, 0)));
+
+        Carrera carrera = correr(
+                () -> reservaService.crear(actorId, new ReservaRequest(
+                        salonId, instructorId, clienteId, actividadId, d, LocalTime.of(9, 0))),
+                () -> excepcionService.guardar(actorId, salonId,
+                        new GuardarExcepcionSalonRequest(d, true, null, null)));
+
+        assertThat(carrera.errorPrimero()).isNull();
+        assertThat(carrera.segundoTerminoBajoElLock()).isFalse();
+        assertThat(carrera.errorSegundo())
+                .isInstanceOf(ConflictException.class)
+                .hasMessageContaining("PROGRAMACION_PUNTUAL_INCOMPATIBLE_CON_EXCEPCION");
+
+        assertThat(contarReservas()).isEqualTo(1);
+        assertThat(filasActivas()).isZero();
+    }
+
     // ================= C5: excepcion vs. ReservaService.crear =================
 
     @Test
@@ -332,6 +394,17 @@ class SalonHorarioExcepcionConcurrenciaTest {
                 TurnoInstructor.Tipo.EXCEPCION,
                 null,
                 fecha,
+                inicio,
+                fin);
+    }
+
+    private TurnoInstructorRequest turnoRecurrente(short diaSemana, LocalTime inicio, LocalTime fin) {
+        return new TurnoInstructorRequest(
+                List.of(new AsignacionInstructorRequest(instructorId, List.of(actividadId), null, null)),
+                salonId,
+                TurnoInstructor.Tipo.RECURRENTE,
+                diaSemana,
+                null,
                 inicio,
                 fin);
     }

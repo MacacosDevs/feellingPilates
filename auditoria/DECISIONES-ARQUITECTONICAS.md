@@ -5,7 +5,7 @@ Last updated: 2026-08-25
 Repository verification: VERIFIED
 Last verified against commit:
 8c40594d2caf8b5230b364cb76cd8f48fe5ed98a
-Verification scope: decisiones aceptadas hasta F2C; F2D.1 todavía no aprobada
+Verification scope: decisiones aceptadas hasta el cierre documental de F2D.1
 
 ## Estados
 
@@ -367,21 +367,49 @@ Se consideró que el mecanismo legacy podría cubrir ajustes puntuales.
 
 F2D.1 demostró que su semántica no permite expresar de forma adecuada el modelo futuro de reemplazo individual.
 
-Esto no significa que el diseño sustituto F2D esté aprobado.
+El diseño sustituto F2D fue aprobado posteriormente por el gate final de F2D.1. Su materialización no ha iniciado.
 
 ---
 
-# Decisiones no incorporadas por falta de aprobación
+# DA-013 — Ajustes F2D y F2D.2 como dark launch aislado
 
-Las siguientes ideas aparecieron en F2D.1/review, pero **NO están registradas como decisiones aceptadas** porque F2D.1.1 no ha sido ejecutada ni aprobada:
+**Estado de decisión:** ACEPTADA
+**Estado de materialización:** NO_INICIADA
 
-- `AjusteProgramacionFecha` como diseño definitivo;
-- `InstructorLock`;
-- helpers multi-lock;
-- F2D.2 como dark launch definitivo;
-- EXCLUDE temporal adicional de `Asignacion`;
-- Policy A inversa para ajustes;
-- nuevo algoritmo de programación efectiva;
-- fence `LEGACY/MIGRANDO/NUEVA`.
+**Decisión**
 
-Su trazabilidad permanece en el checkpoint/review F2D.1 hasta superar el gate correspondiente.
+F2D.2 materializará internamente el diseño aprobado de ajustes puntuales como dark launch. Ningún estado exclusivo de `programacion_*` puede permitir, rechazar, modificar, ocultar o transformar un flujo productivo legacy durante F2D.2.
+
+Por tanto, F2D.2 excluye controllers públicos, consumers productivos, adapters sobre writers legacy, `ImpactoAjustesEnExcepcionHorario`, `Reserva` legacy, frontend/mobile, cutover y fence persistido. `ImpactoAjustesEnExcepcionHorario` queda diferido a una futura fase de activación/cutover con fence efectivo.
+
+La identidad y composición aprobadas son:
+
+- target de `CANCELACION`/`REEMPLAZO`: `serieId + fecha` sobre la ocurrencia nominal;
+- identidad recurrente/reemplazo: `serieId + fecha`;
+- identidad de adición: `ajusteId + fecha`;
+- `ProgramacionEfectiva`: `NOMINAL → AJUSTES → OPERATIVO FINAL`, aplicando el horario del salón resultado y validación fail-closed de maestros vigentes.
+
+La futura V47 debe incluir el EXCLUDE temporal por serie requerido y no debe introducir una FK directa desde el ajuste a `serieId`.
+
+La concurrencia aprobada exige:
+
+- Policy A inversa;
+- `SalonLocks` deduplicados y ordenados;
+- `InstructorLocks` deduplicados y ordenados;
+- orden global `SALONES → INSTRUCTORES`;
+- participación de todos los writers recurrentes competidores;
+- relectura bajo locks y comparación del lock set para cerrar TOCTOU.
+
+`Reserva` legacy permanece fuera de F2D.2. Se prohíben la doble autoridad productiva y cualquier activación implícita de la programación nueva.
+
+**Motivo breve**
+
+Permitir la materialización interna y verificable del modelo nuevo sin que datos dark-launch alteren la autoridad legacy antes de una activación controlada.
+
+**Impacta a**
+
+F2D.2, programación efectiva, persistencia futura, concurrencia y futura activación/cutover.
+
+**Origen**
+
+Checkpoint F2D.1, F2D.1.1, F2D.1.2 y gate final `P0=0 / P1=0 / P2=0`.

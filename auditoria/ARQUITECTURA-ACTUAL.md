@@ -5,7 +5,7 @@ Last updated: 2026-08-25
 Repository verification: VERIFIED
 Last verified against commit:
 8c40594d2caf8b5230b364cb76cd8f48fe5ed98a
-Verification scope: arquitectura reconstruida hasta el cierre de F2C; F2D no materializada
+Verification scope: arquitectura actual y diseño F2D aprobado; F2D no materializada
 
 ## 1. Visión general
 
@@ -264,9 +264,9 @@ dentro de programación.
 
 Dispone de conceptos de serie y vigencia.
 
-F2D.1 detectó riesgos pendientes alrededor de la unicidad temporal de las versiones de una serie.
+F2D.1 cerró documentalmente el diseño del futuro hardening de unicidad temporal de las versiones de una serie.
 
-Esos riesgos todavía no han sido corregidos porque F2D.1.1 no ha sido ejecutada.
+Ese hardening todavía no está materializado.
 
 ## Autoridad
 
@@ -280,21 +280,25 @@ Consultar `contexto/MAPA-LEGACY-Y-MIGRACION.md` para la autoridad de la transici
 
 Estado:
 
-**DISEÑADO\_NO\_IMPLEMENTADO / DISEÑO REQUIERE AJUSTE**
+**DISEÑADO\_NO\_IMPLEMENTADO**
 
-F2D.1 estudió una futura capa de ajustes puntuales.
+El diseño de la futura capa de ajustes puntuales fue aprobado y F2D.1 quedó cerrada después de un gate final `P0=0 / P1=0 / P2=0`.
+
+F2D.2 está definida como dark launch aislado, pero su materialización **NO HA INICIADO**. Durante esa fase ningún estado exclusivo de la programación nueva puede alterar flujos productivos legacy.
 
 No existen como implementación confirmada a este corte:
 
 - `AjusteProgramacionFecha`;
-- persistencia F2D;
-- `InstructorLock`;
-- multi-locks nuevos;
-- nuevo resolver efectivo;
+- V47 F2D;
+- persistencia de ajustes F2D;
+- `InstructorLocks` F2D;
+- multi-locks F2D;
+- `ProgramacionEfectiva` F2D;
 - API F2D;
-- tests F2D.
+- controllers o consumers F2D productivos;
+- cutover o fence F2D.
 
-Las correcciones propuestas por F2D.1.1 son todavía trabajo pendiente.
+`TurnoInstructor` continúa como autoridad productiva única. `BloqueProgramacion + Asignacion` permanece `IMPLEMENTADO_NO_PRODUCTIVO`.
 
 ---
 
@@ -404,7 +408,7 @@ Programación nueva:
 BloqueProgramacion + Asignacion — IMPLEMENTADO_NO_PRODUCTIVO
 
 Ajustes F2D:
-DISEÑADO_NO_IMPLEMENTADO
+DISEÑADO_NO_IMPLEMENTADO — diseño aprobado
 
 Reservas:
 modelo legacy actual — PRODUCTIVO

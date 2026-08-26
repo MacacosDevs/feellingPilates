@@ -140,11 +140,11 @@ no se convierte automáticamente en:
 
 La ocurrencia es incompatible para esa fecha.
 
-## PENDIENTE — Ajustes puntuales de programación
+## Ajustes puntuales de programación
 
 Se requiere funcionalmente soportar cambios de una fecha concreta sin modificar la recurrencia.
 
-F2D estudia:
+Los ajustes puntuales deben poder expresar:
 
 - cancelación puntual;
 - reemplazo;
@@ -153,7 +153,7 @@ F2D estudia:
 - cambio de actividad;
 - cambio de salón.
 
-El diseño definitivo todavía no está aprobado.
+El estado de diseño y materialización de la arquitectura que implementa estas reglas se consulta en `auditoria/ESTADO-ACTUAL.md` y `auditoria/DECISIONES-ARQUITECTONICAS.md`.
 
 ---
 

@@ -5,7 +5,7 @@ Last updated: 2026-08-25
 Repository verification: VERIFIED
 Last verified against commit:
 8c40594d2caf8b5230b364cb76cd8f48fe5ed98a
-Verification scope: autoridad productiva reconstruida hasta F2C; F2D pendiente
+Verification scope: autoridad productiva y transición después del cierre documental de F2D.1
 
 ## Propósito
 
@@ -52,9 +52,9 @@ El frontend web consume esos contratos.
 
 ### Nuevo
 
-Existe infraestructura interna para el nuevo modelo, pero no constituye la autoridad productiva.
+Existe infraestructura interna para `BloqueProgramacion + Asignacion`, pero no constituye la autoridad productiva.
 
-El estado exacto debe volver a verificarse contra repositorio y datos antes de cualquier activación.
+El diseño F2D está aprobado y su implementación no ha iniciado. El estado exacto debe volver a verificarse contra repositorio y datos antes de cualquier materialización o activación.
 
 ## Readers activos conocidos
 
@@ -66,7 +66,7 @@ El estado exacto debe volver a verificarse contra repositorio y datos antes de c
 
 ### Nuevo
 
-Uso interno limitado conocido, incluido impacto sobre horarios.
+Uso interno limitado del modelo recurrente ya implementado; no incluye ajustes F2D ni consumers productivos nuevos.
 
 No existe evidencia de que frontend/reservas sean consumers productivos de `BloqueProgramacion + Asignacion`.
 
@@ -84,13 +84,14 @@ No existe un cutover ejecutado que permita considerar ambos modelos equivalentes
 
 ## Estado de migración
 
-**EN\_PREPARACION**
+**DISEÑO F2D APROBADO / IMPLEMENTACIÓN F2D NO INICIADA**
+
+F2D.2 es el dark launch pendiente inmediato. No representa estado `MIGRANDO` ni autoridad `NUEVA`.
 
 ## Condiciones de cutover
 
-Todavía deben cerrarse y materializarse, como mínimo:
+El diseño F2D ya fue aprobado. Antes del cutover todavía deben cerrarse y materializarse, como mínimo:
 
-- diseño F2D aprobado;
 - identidad inequívoca de programación futura;
 - estrategia sobre reservas;
 - auditoría de datos;
@@ -99,19 +100,19 @@ Todavía deben cerrarse y materializarse, como mínimo:
 
 ## Fence / estrategia
 
-**NO IMPLEMENTADO**
+**FUTURO / NO IMPLEMENTADO**
 
-F2D.1 fue revisada y requiere ajustes.
+F2D.2 será dark launch: sin controllers públicos, consumers productivos, adapters sobre writers legacy, `ImpactoAjustesEnExcepcionHorario`, `Reserva` legacy, frontend/mobile, cutover ni fence persistido.
 
-Se discutieron estrategias futuras de aislamiento/cutover, pero ninguna debe tratarse como implementada o aprobada hasta ejecutar F2D.1.1 y su gate.
+El fence y el cutover permanecen futuros. `TurnoInstructor` sigue siendo la autoridad productiva única.
 
 ## Bloqueadores / deuda
 
 - dualidad legacy/nuevo;
-- F2D.1 todavía no aprobada;
+- implementación F2D no iniciada;
 - programación nueva no es autoridad;
 - relación de reservas con la fuente nueva no resuelta;
-- potenciales invariantes de serie/concurrencia pendientes.
+- materialización futura de invariantes de serie/concurrencia.
 
 ## Fase relacionada
 
@@ -288,7 +289,7 @@ No implementado.
 
 ## Bloqueadores / deuda
 
-F2D no cerrada.
+Implementación F2D, activación controlada y migración de consumers todavía no iniciadas.
 
 ## Fase relacionada
 

@@ -4,7 +4,8 @@
 
 Artifact type: INTERVENTION
 Materialization status: MATERIALIZED
-Execution status: PREPARADA
+Execution status: EJECUTADA
+Historical status: PRESERVED
 Repository verification: VERIFIED
 Last verified against commit:
 8c40594d2caf8b5230b364cb76cd8f48fe5ed98a
@@ -16,13 +17,18 @@ Intervención:
 F2D.1.1
 
 Estado:
-PREPARADA
-NO EJECUTADA
+EJECUTADA
 ```
 
-Este documento conserva la intervención operativa preparada después del review adversarial F2D.1.
+Este documento conserva la intervención operativa ejecutada después del review adversarial F2D.1.
 
-No demuestra que sus instrucciones hayan sido aplicadas.
+El cuerpo posterior se preserva como instrucción histórica y no representa el estado operativo actual.
+
+Evidencia posterior:
+
+`auditoria/reviews/F2D.1.1-RE-REVIEW-POST-CORRECCION.md`
+
+Resultado del re-review posterior: `P0=0 / P1=1 / P2=0`, lo que condujo a F2D.1.2.
 
 ---
 

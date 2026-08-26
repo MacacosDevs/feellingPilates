@@ -5,7 +5,7 @@ Last updated: 2026-08-25
 Repository verification: VERIFIED
 Last verified against commit:
 8c40594d2caf8b5230b364cb76cd8f48fe5ed98a
-Verification scope: estado operativo reconstruido; repositorio verificado durante 3B.0
+Verification scope: estado operativo reconstruido y cierre documental F2D.1
 
 ## Snapshot del repositorio verificado en 3B.0
 
@@ -119,11 +119,33 @@ Es la última fase de implementación confirmada como cerrada.
 
 ### F2D.1 — Diseño de ajustes puntuales de programación
 
-**REQUIERE\_AJUSTE**
+**DISEÑO\_APROBADO / CERRADA**
 
-Fue diseñada y revisada.
+El gate final posterior a F2D.1.2 reportó:
 
-El review adversarial reportó:
+```text
+P0: 0
+P1: 0
+P2: 0
+```
+
+Checkpoint aprobado:
+
+`auditoria/fase-2d1-diseno-ajustes-programacion-fecha.md`
+
+SHA-256 aprobado:
+
+`58af39f41b3bc089ebbd4ec67f684e270087ddf4eb695f2c7b55276d0aff352e`
+
+La cadena histórica completa queda preservada en el checkpoint, el review original y las intervenciones/re-reviews F2D.1.1 y F2D.1.2.
+
+`DISEÑO_APROBADO` no significa implementación. La arquitectura F2D continúa **NO IMPLEMENTADA**.
+
+### F2D.1.1 — Corrección post-review
+
+**EJECUTADA**
+
+El review original que motivó la intervención reportó:
 
 ```text
 P0: 0
@@ -131,52 +153,47 @@ P1: 8
 P2: 3
 ```
 
-No está aprobada.
+El re-review posterior reportó:
 
-### F2D.1.1 — Corrección post-review
+```text
+P0: 0
+P1: 1
+P2: 0
+```
 
-**PREPARADA**
+Evidencia:
 
-**NO EJECUTADA**
+`auditoria/reviews/F2D.1.1-RE-REVIEW-POST-CORRECCION.md`
 
-No se puede afirmar que:
+### F2D.1.2 — Aislamiento dark-launch
 
-- el checkpoint F2D.1 haya sido corregido;
-- los P1 estén resueltos;
-- exista un re-review aprobado;
-- F2D.1 esté cerrada;
-- exista un commit de cierre de F2D.1;
-- F2D.2 pueda comenzar.
+**EJECUTADA**
 
-## Bloqueo actual
+La intervención retiró `ImpactoAjustesEnExcepcionHorario` del alcance F2D.2 y lo difirió a una futura fase de activación/cutover.
 
-La reestructuración técnica está detenida antes de F2D.1.1.
+El re-review final reportó `P0=0 / P1=0 / P2=0`, con `8/8` P1 cerrados y `15/15` mutaciones detectadas.
 
-F2D.2 no debe iniciarse hasta que:
+Evidencia:
 
-1. se recupere y verifique el repositorio;
-2. F2D.1.1 sea realmente ejecutada;
-3. el checkpoint corregido pase review;
-4. el gate de diseño cierre los P1 correspondientes.
+`auditoria/reviews/F2D.1.2-RE-REVIEW-FINAL.md`
+
+### F2D.2
+
+**NO INICIADA**
+
+La decisión arquitectónica aprobada define F2D.2 como dark launch aislado. Su materialización todavía no comenzó.
 
 ## Próximo paso
 
-**No ejecutar inmediatamente F2D.1.1.**
+**Preparar la intervención concreta de F2D.2 y realizar un pre-flight real.**
 
-Primero:
+F2D.2 no se ejecuta automáticamente desde el cierre ni desde el handoff.
 
-1. recuperar la laptop/repositorio;
-2. ejecutar pre-flight real;
-3. comprobar branch, HEAD y working tree;
-4. confirmar existencia y estado del checkpoint F2D.1;
-5. reproducir el baseline;
-6. reconciliar cualquier diferencia respecto al último estado reportado.
-
-Sólo si el estado real es compatible podrá retomarse la intervención F2D.1.1.
+La preparación debe seguir `auditoria/REGLAS-DE-TRABAJO-IA.md`, verificar la base real y mantener la separación entre diseño aprobado e implementación inexistente.
 
 ## Handoff activo
 
-`auditoria/handoffs/HANDOFF-F2D1-1.md`
+`auditoria/handoffs/HANDOFF-F2D2.md`
 
 ## Advertencias inmediatas
 
@@ -185,4 +202,6 @@ Sólo si el estado real es compatible podrá retomarse la intervención F2D.1.1.
 - No existe V47 de F2D confirmada.
 - No existe nuevo resolver de programación efectiva confirmado.
 - No existe fence de cutover F2D implementado.
-- `TurnoInstructor` sigue siendo autoridad productiva de programación según el último estado conocido.
+- No existe cutover F2D implementado.
+- `TurnoInstructor` sigue siendo la autoridad productiva actual de programación.
+- `BloqueProgramacion + Asignacion` permanece `IMPLEMENTADO_NO_PRODUCTIVO`.

@@ -1,14 +1,15 @@
 # FeelingPilates — Handoff F2D.1.1
 
-Handoff status: ACTIVE
+Handoff status: ARCHIVED
 Materialization status: MATERIALIZED
+Succeeded by: `auditoria/handoffs/HANDOFF-F2D2.md`
 Repository verification: VERIFIED
 Last verified against commit:
 8c40594d2caf8b5230b364cb76cd8f48fe5ed98a
 
 > `auditoria/ESTADO-ACTUAL.md` es la autoridad documental sobre el estado operativo.
 >
-> Este handoff sólo conserva la continuidad específica de F2D.1.1.
+> Este handoff archivado conserva la continuidad histórica específica de F2D.1.1. Las afirmaciones operativas de su cuerpo corresponden a su corte original y fueron sucedidas por `auditoria/handoffs/HANDOFF-F2D2.md`.
 
 ## Proyecto
 

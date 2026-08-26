@@ -1,11 +1,13 @@
 # FeelingPilates — Estado actual de la reestructuración
 
 Status: CANONICAL
-Last updated: 2026-08-25
+Last updated: 2026-08-26
 Repository verification: VERIFIED
 Last verified against commit:
-8c40594d2caf8b5230b364cb76cd8f48fe5ed98a
-Verification scope: estado operativo reconstruido y cierre documental F2D.1
+6a8ffaa104de9a6b707982e679e78cda8aeb433c
+Verification scope: pre-flight y materialización documental de la intervención F2D.2 aprobada
+
+La referencia anterior identifica la base histórica de esta materialización documental. No sustituye el `HEAD` operativo, que debe obtenerse mediante pre-flight en cada intervención.
 
 ## Snapshot del repositorio verificado en 3B.0
 
@@ -119,7 +121,7 @@ Es la última fase de implementación confirmada como cerrada.
 
 ### F2D.1 — Diseño de ajustes puntuales de programación
 
-**DISEÑO\_APROBADO / CERRADA**
+**DISEÑO\_APROBADO / CERRADA / PUBLICADA**
 
 El gate final posterior a F2D.1.2 reportó:
 
@@ -181,15 +183,39 @@ Evidencia:
 
 **NO INICIADA**
 
-La decisión arquitectónica aprobada define F2D.2 como dark launch aislado. Su materialización todavía no comenzó.
+La decisión arquitectónica aprobada define F2D.2 como dark launch aislado. Su ejecución todavía no comenzó.
+
+Intervención F2D.2:
+
+**DISEÑADA / APROBADA POR GATE FINAL / MATERIALIZADA DOCUMENTALMENTE**
+
+Gate final de la intervención:
+
+```text
+P0: 0
+P1: 0
+P2: 0
+```
+
+Única intervención autorizada para futura ejecución:
+
+`auditoria/intervenciones/F2D.2.2-CIERRE-CARRERA-AJUSTE-ID.md`
+
+Review final:
+
+`auditoria/reviews/F2D.2.2-RE-REVIEW-FINAL.md`
+
+Las intervenciones F2D.2 original y F2D.2.1 se conservan exclusivamente como historia del gate y no son ejecutables.
+
+La aprobación y materialización documental de la intervención no significa que F2D.2 haya sido ejecutada: no se creó V47, no se modificó Java y no se escribieron tests F2D.2. Tampoco existe una autoridad productiva nueva ni un estado `IMPLEMENTADA_EN_REVIEW`.
 
 ## Próximo paso
 
-**Preparar la intervención concreta de F2D.2 y realizar un pre-flight real.**
+**Auditar independientemente la materialización documental de la intervención F2D.2.**
 
-F2D.2 no se ejecuta automáticamente desde el cierre ni desde el handoff.
+F2D.2 no se ejecuta automáticamente desde la aprobación, la materialización documental ni el handoff.
 
-La preparación debe seguir `auditoria/REGLAS-DE-TRABAJO-IA.md`, verificar la base real y mantener la separación entre diseño aprobado e implementación inexistente.
+Sólo después de auditoría documental `PASS`, commit, push y verificación de repositorio limpio/remoto sincronizado podrá abrirse un ejecutor nuevo. Ese ejecutor deberá realizar un pre-flight real y seguir exclusivamente la intervención F2D.2.2 autorizada.
 
 ## Handoff activo
 

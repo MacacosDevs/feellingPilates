@@ -20,6 +20,10 @@ siendo `TurnoInstructor`; la infraestructura nueva permanece en dark launch.
 - Pre-flight: branch, HEAD local/remoto, ahead/behind, working tree inicial, migraciones y ausencia
   de implementación F2D.2 previa conformes.
 - Baseline inicial: `493 tests`, `0 failures`, `0 errors`, `0 skipped`, `BUILD SUCCESS`.
+- Commit Git posterior verificado: `95900d8a1d787a24aff4ee4e10f69d540ce81339`,
+  branch y upstream `operacion/excepciones-horario-fecha` sincronizados, staging vacío y working
+  tree limpio. Este hecho no completa el review documental, no realiza cutover y no altera la
+  autoridad productiva.
 
 ## V47 y persistencia
 
@@ -177,12 +181,20 @@ Los `118 errors` corresponden a clases que requieren el contexto PostgreSQL/Test
 pudieron abrir el socket Docker en el sandbox; los tests que sí pudieron arrancar no reportaron
 failures. Este resultado es `BUILD FAILURE` ambiental y no sustituye una corrida PostgreSQL.
 
+La evidencia anterior describe exclusivamente la ejecución histórica del sandbox Codex, donde
+Docker no estaba disponible. En una ejecución posterior y distinta, realizada desde terminal host
+con Docker disponible, se validaron `28/28 PASS` focalizados y `553/553 PASS` en la suite completa
+(`0 failures`, `0 errors`, `0 skipped`). Esta validación host cerró el gate de tests; no convierte
+retrospectivamente la corrida del sandbox en verde ni altera su carácter de `BUILD FAILURE`
+ambiental.
+
 La safety net física añadida cubre mismo target, mismo instructor mismo salón y cross-salon,
 recurrente contra ajuste, cambio de salón/instructor, swap sin deadlock y requests en orden
 inverso. También se ampliaron casos de resolver, fail-closed y todas las formas inválidas de los
-CHECKs. La suite completa posterior a esta corrección no puede declararse verde hasta reejecutar
-con PostgreSQL disponible; el claim histórico `529/529 PASS` queda sustituido por la evidencia real
-anterior.
+CHECKs. La corrida histórica del sandbox no podía declararse verde sin reejecución con PostgreSQL
+disponible; la validación host posterior descrita arriba proporcionó esa ejecución. El claim
+histórico `529/529 PASS` queda sustituido por la evidencia real del sandbox y la validación host
+posterior, que son ejecuciones distintas.
 
 La matriz A–O permanece materializada `15/15 DETECTADAS`, pendiente de revalidación PostgreSQL en
 este working tree. Test A/B/C son regresiones adicionales; G continúa siendo evidencia documental
@@ -211,6 +223,7 @@ Archivos modificados:
 - `ProgramacionPersistenciaTest.java`;
 - `BloqueProgramacionServiceTest.java`.
 
-No se modificaron canónicos para declarar cierre. El working tree se deja deliberadamente sin
-stage y sin commit para auditoría adversarial independiente. No se ejecutó `git add`, `commit` ni
-`push`.
+No se modificaron canónicos para declarar cierre. La afirmación anterior de working tree sin stage,
+commit ni push describe el corte histórico de materialización. Posteriormente, el commit Git
+manual fue verificado como `95900d8a1d787a24aff4ee4e10f69d540ce81339`; F2D.2 continúa
+`IMPLEMENTADA_EN_REVIEW`, en dark launch, sin cutover ni cambio de autoridad productiva.

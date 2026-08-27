@@ -9,16 +9,16 @@ F2C: CERRADA
 F2D.1: DISEÑO_APROBADO / CERRADA / PUBLICADA
 F2D.1.1: EJECUTADA
 F2D.1.2: EJECUTADA
-F2D.2: IMPLEMENTADA_EN_REVIEW / PENDIENTE_DE_DOCUMENTACION_Y_PUBLICACION
+F2D.2: IMPLEMENTADA_EN_REVIEW / COMMIT_GIT_VERIFICADO / DOCUMENTACION_EN_REVISION
 ```
 
-El estado máximo autorizado de F2D.2 es `IMPLEMENTADA_EN_REVIEW`. La implementación dark launch fue aprobada técnicamente, pero no está cerrada, publicada, productiva ni activa.
+El estado máximo autorizado de F2D.2 es `IMPLEMENTADA_EN_REVIEW`. La implementación dark launch fue aprobada técnicamente y quedó materializada en un commit Git verificado, pero no está cerrada, productiva ni activa; la documentación permanece en revisión.
 
 ## Autoridad productiva
 
 - `TurnoInstructor`: `LEGACY_VIVO / PRODUCTIVO`; autoridad actual de programación.
 - `BloqueProgramacion + Asignacion`: `IMPLEMENTADO_NO_PRODUCTIVO`.
-- Ajustes F2D: implementados sólo en dark launch; pendientes de documentación/publicación.
+- Ajustes F2D: implementados sólo en dark launch, en commit Git verificado y en revisión documental.
 - Cutover y fence F2D: no implementados.
 
 No existe doble autoridad productiva.
@@ -64,7 +64,7 @@ La cadena preserva el review original `P0=0 / P1=2 / P2=2`, el re-review de F2D.
 
 Las intervenciones F2D.2 original y F2D.2.1 son históricas y **NO ejecutables**.
 
-La intervención F2D.2.2 está aprobada y ejecutada; la evidencia de implementación queda en `auditoria/fase-2d2-implementacion-dark-launch-ajustes-programacion-fecha.md` y en el baseline dirty autorizado. El estado sigue siendo **IMPLEMENTADA_EN_REVIEW** y está pendiente de documentación/publicación; no implica cierre, publicación ni activación.
+La intervención F2D.2.2 está aprobada y ejecutada; su implementación quedó materializada manualmente en Git como `95900d8a1d787a24aff4ee4e10f69d540ce81339`, con `HEAD` local/upstream sincronizados, staging vacío y working tree limpio. La evidencia permanece en `auditoria/fase-2d2-implementacion-dark-launch-ajustes-programacion-fecha.md` y en el baseline autorizado. El estado sigue siendo **IMPLEMENTADA_EN_REVIEW** y la documentación continúa en revisión; no implica cierre ni activación.
 
 ## Reglas obligatorias de F2D.2
 
@@ -89,10 +89,10 @@ F2D.2 **NO debe reejecutarse ni reinterpretarse desde este handoff**.
 Antes de cualquier siguiente handoff, un futuro agente debe:
 
 1. verificar el checkpoint de implementación F2D.2 y esta reconciliación documental;
-2. completar el review documental y la publicación controlada;
+2. completar el review documental;
 3. realizar un pre-flight real y verificar `HEAD`, remoto y working tree;
 4. preservar la autoridad productiva legacy y el dark launch;
-5. no declarar F2D.2 cerrada, publicada o activa sin la autoridad correspondiente.
+5. no declarar F2D.2 cerrada o activa sin la autoridad correspondiente; el commit Git verificado no equivale a activación.
 
 ## STOP
 
@@ -103,6 +103,6 @@ Detenerse y reportar si:
 - el estado Git diverge materialmente;
 - la documentación contradice este corte;
 - el baseline deja de corresponder a la implementación F2D.2 aprobada técnicamente;
-- se pretende convertir el estado `IMPLEMENTADA_EN_REVIEW` en cerrado, publicado o activo sin autorización.
+- se pretende convertir el estado `IMPLEMENTADA_EN_REVIEW` en cerrado o activo sin autorización, o equiparar el commit Git verificado con activación.
 
 Este handoff es autocontenido y no depende de conversaciones anteriores.

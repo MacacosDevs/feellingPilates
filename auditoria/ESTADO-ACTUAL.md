@@ -1,11 +1,11 @@
 # FeelingPilates — Estado actual de la reestructuración
 
 Status: CANONICAL
-Last updated: 2026-08-26
+Last updated: 2026-08-27
 Repository verification: VERIFIED
 Last verified against commit:
-6a8ffaa104de9a6b707982e679e78cda8aeb433c
-Verification scope: reconciliación documental de F2D.2 implementada en dark launch y aprobada técnicamente
+95900d8a1d787a24aff4ee4e10f69d540ce81339
+Verification scope: publicación Git manual verificada de F2D.2 en dark launch; revisión documental en curso
 
 La referencia anterior identifica la base histórica de esta materialización documental. No sustituye el `HEAD` operativo, que debe obtenerse mediante pre-flight en cada intervención.
 
@@ -181,9 +181,9 @@ Evidencia:
 
 ### F2D.2
 
-**IMPLEMENTADA_EN_REVIEW / PENDIENTE_DE_DOCUMENTACION_Y_PUBLICACION**
+**IMPLEMENTADA_EN_REVIEW / COMMIT_GIT_VERIFICADO / DOCUMENTACION_EN_REVISION**
 
-La implementación dark launch está presente como baseline dirty autorizado y cuenta con aprobación técnica: gate de implementación, scope y tests `PASS`; la re-auditoría técnica sólo dejó un P2 documental, que se reconcilia en este corte. F2D.2 no está cerrada, publicada, productiva ni activa.
+La implementación dark launch quedó materializada en el commit Git verificado `95900d8a1d787a24aff4ee4e10f69d540ce81339` y cuenta con aprobación técnica. El checkpoint conserva, como evidencia histórica, una corrida en el sandbox Codex que descubrió `553` tests y terminó con `118` errores ambientales de Docker/Testcontainers (`BUILD FAILURE`). En una ejecución posterior y distinta, realizada en terminal host con Docker disponible, la validación reportó `28/28 PASS` focalizados y `553/553 PASS` en la suite completa; esa validación host cerró el gate de tests. El commit fue verificado con `HEAD` local y upstream iguales, staging vacío y working tree limpio. La documentación continúa en revisión. F2D.2 no está cerrada, productiva ni activa.
 
 Intervención F2D.2:
 
@@ -205,17 +205,17 @@ Review final:
 
 `auditoria/reviews/F2D.2.2-RE-REVIEW-FINAL.md`
 
-Las intervenciones F2D.2 original y F2D.2.1 se conservan exclusivamente como historia del gate y no son ejecutables. La evidencia de la implementación está en el checkpoint `auditoria/fase-2d2-implementacion-dark-launch-ajustes-programacion-fecha.md` y en el baseline dirty autorizado, usado sólo como evidencia física.
+Las intervenciones F2D.2 original y F2D.2.1 se conservan exclusivamente como historia del gate y no son ejecutables. La evidencia de la implementación está en el checkpoint `auditoria/fase-2d2-implementacion-dark-launch-ajustes-programacion-fecha.md`, en la intervención F2D.2.2 y en el commit Git verificado; el baseline autorizado se usa sólo como evidencia física histórica.
 
 La implementación incluye V47, código interno y tests F2D.2, pero esto no crea una autoridad productiva nueva. `TurnoInstructor` sigue siendo la autoridad productiva; no hay cutover ni fence implementados.
 
 ## Próximo paso
 
-**Completar el review documental y la publicación controlada de F2D.2.**
+**Completar el review documental de F2D.2.**
 
 No debe ejecutarse ni reinterpretarse la implementación desde este documento. El checkpoint declara el máximo estado autorizado `IMPLEMENTADA_EN_REVIEW`.
 
-Sólo después de review documental `PASS`, publicación y verificación de repositorio limpio/remoto sincronizado podrá considerarse un siguiente handoff; ello no declara F2D.2 cerrada ni activa.
+El commit Git ya fue verificado; sólo después de review documental `PASS` y la verificación aplicable podrá considerarse un siguiente handoff. Ello no declara F2D.2 cerrada ni activa.
 
 ## Handoff activo
 
@@ -223,7 +223,7 @@ Sólo después de review documental `PASS`, publicación y verificación de repo
 
 ## Advertencias inmediatas
 
-- `AjusteProgramacionFecha`, `InstructorLocks`, V47 y el resolver de programación efectiva están implementados únicamente en dark launch y pendientes de documentación/publicación.
+- `AjusteProgramacionFecha`, `InstructorLocks`, V47 y el resolver de programación efectiva están implementados únicamente en dark launch, en el commit Git verificado y en revisión documental.
 - No existe fence de cutover F2D implementado.
 - No existe cutover F2D implementado.
 - `TurnoInstructor` sigue siendo la autoridad productiva actual de programación.

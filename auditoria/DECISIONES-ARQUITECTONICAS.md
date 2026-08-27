@@ -4,8 +4,8 @@ Status: CANONICAL
 Last updated: 2026-08-27
 Repository verification: VERIFIED
 Last verified against commit:
-6db7d5fd7be12384b111b84bd19291e2ee515944
-Verification scope: decisiones aceptadas, incluida la materialización dark launch de F2D.2 en revisión documental
+95900d8a1d787a24aff4ee4e10f69d540ce81339
+Verification scope: decisiones aceptadas, incluida la materialización en commit Git verificado de F2D.2 en dark launch y en revisión documental
 
 ## Estados
 

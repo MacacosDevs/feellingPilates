@@ -1,11 +1,11 @@
 # FeelingPilates — Decisiones arquitectónicas
 
 Status: CANONICAL
-Last updated: 2026-08-25
+Last updated: 2026-08-27
 Repository verification: VERIFIED
 Last verified against commit:
-8c40594d2caf8b5230b364cb76cd8f48fe5ed98a
-Verification scope: decisiones aceptadas hasta el cierre documental de F2D.1
+6db7d5fd7be12384b111b84bd19291e2ee515944
+Verification scope: decisiones aceptadas, incluida la materialización dark launch de F2D.2 en revisión documental
 
 ## Estados
 
@@ -367,18 +367,18 @@ Se consideró que el mecanismo legacy podría cubrir ajustes puntuales.
 
 F2D.1 demostró que su semántica no permite expresar de forma adecuada el modelo futuro de reemplazo individual.
 
-El diseño sustituto F2D fue aprobado posteriormente por el gate final de F2D.1. Su materialización no ha iniciado.
+El diseño sustituto F2D fue aprobado posteriormente por el gate final de F2D.1. La afirmación histórica de que su materialización no había iniciado corresponde al corte anterior: F2D.2 ya está implementada internamente en dark launch y permanece en revisión documental.
 
 ---
 
 # DA-013 — Ajustes F2D y F2D.2 como dark launch aislado
 
 **Estado de decisión:** ACEPTADA
-**Estado de materialización:** NO_INICIADA
+**Estado de materialización:** IMPLEMENTADA (F2D.2 `IMPLEMENTADA_EN_REVIEW`)
 
 **Decisión**
 
-F2D.2 materializará internamente el diseño aprobado de ajustes puntuales como dark launch. Ningún estado exclusivo de `programacion_*` puede permitir, rechazar, modificar, ocultar o transformar un flujo productivo legacy durante F2D.2.
+F2D.2 materializa internamente el diseño aprobado de ajustes puntuales como dark launch. Su estado vigente es `IMPLEMENTADA_EN_REVIEW`: la implementación cuenta con aprobación técnica, pero la documentación sigue en revisión. Ningún estado exclusivo de `programacion_*` puede permitir, rechazar, modificar, ocultar o transformar un flujo productivo legacy durante F2D.2.
 
 Por tanto, F2D.2 excluye controllers públicos, consumers productivos, adapters sobre writers legacy, `ImpactoAjustesEnExcepcionHorario`, `Reserva` legacy, frontend/mobile, cutover y fence persistido. `ImpactoAjustesEnExcepcionHorario` queda diferido a una futura fase de activación/cutover con fence efectivo.
 
@@ -389,7 +389,7 @@ La identidad y composición aprobadas son:
 - identidad de adición: `ajusteId + fecha`;
 - `ProgramacionEfectiva`: `NOMINAL → AJUSTES → OPERATIVO FINAL`, aplicando el horario del salón resultado y validación fail-closed de maestros vigentes.
 
-La futura V47 debe incluir el EXCLUDE temporal por serie requerido y no debe introducir una FK directa desde el ajuste a `serieId`.
+V47 incluye el EXCLUDE temporal por serie requerido y no introduce una FK directa desde el ajuste a `serieId`.
 
 La concurrencia aprobada exige:
 
@@ -412,4 +412,4 @@ F2D.2, programación efectiva, persistencia futura, concurrencia y futura activa
 
 **Origen**
 
-Checkpoint F2D.1, F2D.1.1, F2D.1.2 y gate final `P0=0 / P1=0 / P2=0`.
+Checkpoint F2D.1, F2D.1.1, F2D.1.2, intervención F2D.2.2, checkpoint de implementación F2D.2 y gate final `P0=0 / P1=0 / P2=0`.

@@ -2,20 +2,26 @@ package com.feelingpilates.programacion.servicio;
 
 import com.feelingpilates.exception.ValidacionException;
 import com.feelingpilates.programacion.entidad.Asignacion;
+import com.feelingpilates.programacion.entidad.AjusteProgramacionFecha;
 import com.feelingpilates.programacion.entidad.BloqueProgramacion;
+import com.feelingpilates.programacion.dominio.ProgramacionInvarianteException;
+import com.feelingpilates.programacion.repositorio.AjusteProgramacionFechaRepository;
 import com.feelingpilates.programacion.repositorio.AsignacionRepository;
 import com.feelingpilates.programacion.repositorio.BloqueProgramacionRepository;
 import com.feelingpilates.ubicaciones.entidad.HorarioOperacion;
+import com.feelingpilates.ubicaciones.dominio.HorarioEfectivo;
 import com.feelingpilates.ubicaciones.entidad.Salon;
 import com.feelingpilates.ubicaciones.entidad.TipoActividad;
 import com.feelingpilates.ubicaciones.repositorio.HorarioOperacionRepository;
 import com.feelingpilates.ubicaciones.repositorio.SalonRepository;
 import com.feelingpilates.ubicaciones.repositorio.TipoActividadRepository;
-import com.feelingpilates.ubicaciones.servicio.SalonLock;
+import com.feelingpilates.ubicaciones.servicio.SalonLocks;
+import com.feelingpilates.ubicaciones.servicio.HorarioEfectivoSalon;
 import com.feelingpilates.usuarios.entidad.Rol;
 import com.feelingpilates.usuarios.entidad.Usuario;
 import com.feelingpilates.usuarios.entidad.UsuarioRol;
 import com.feelingpilates.usuarios.repositorio.UsuarioRepository;
+import com.feelingpilates.usuarios.servicio.InstructorLocks;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -38,8 +44,8 @@ import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -68,7 +74,14 @@ class BloqueProgramacionServiceTest {
     private HorarioOperacionRepository horarioOperacionRepository;
     private UsuarioRepository usuarioRepository;
     private TipoActividadRepository tipoActividadRepository;
-    private SalonLock salonLock;
+    private SalonLocks salonLocks;
+    private InstructorLocks instructorLocks;
+    private ProgramacionPolicyA policyA;
+    private AjusteProgramacionFechaRepository ajusteRepository;
+    private AjusteProgramacionFechaPersistence ajustePersistence;
+    private ProgramacionNominal nominal;
+    private AplicadorAjustesProgramacion aplicador;
+    private ProgramacionValidador programacionValidador;
     private BloqueProgramacionService service;
 
     private Salon salon;
@@ -86,7 +99,14 @@ class BloqueProgramacionServiceTest {
         horarioOperacionRepository = mock(HorarioOperacionRepository.class);
         usuarioRepository = mock(UsuarioRepository.class);
         tipoActividadRepository = mock(TipoActividadRepository.class);
-        salonLock = mock(SalonLock.class);
+        salonLocks = mock(SalonLocks.class);
+        instructorLocks = mock(InstructorLocks.class);
+        policyA = mock(ProgramacionPolicyA.class);
+        ajusteRepository = mock(AjusteProgramacionFechaRepository.class);
+        ajustePersistence = mock(AjusteProgramacionFechaPersistence.class);
+        nominal = mock(ProgramacionNominal.class);
+        aplicador = mock(AplicadorAjustesProgramacion.class);
+        programacionValidador = mock(ProgramacionValidador.class);
 
         reformer = actividad(REFORMER_ID, "Reformer");
         mat = actividad(MAT_ID, "Mat");
@@ -133,7 +153,14 @@ class BloqueProgramacionServiceTest {
                 horarioOperacionRepository,
                 usuarioRepository,
                 tipoActividadRepository,
-                salonLock);
+                salonLocks,
+                instructorLocks,
+                policyA,
+                ajusteRepository,
+                ajustePersistence,
+                nominal,
+                aplicador,
+                programacionValidador);
     }
 
     /**
@@ -146,19 +173,22 @@ class BloqueProgramacionServiceTest {
     void crearBloqueTomaElLockDeSalonAntesDeLeerElHorario() {
         service.crearBloque(crearBloque(9, 12, ENERO, DICIEMBRE));
 
-        InOrder orden = inOrder(salonLock, horarioOperacionRepository, bloqueRepository);
-        orden.verify(salonLock).adquirir(SALON_ID);
+        InOrder orden = inOrder(salonLocks, horarioOperacionRepository, bloqueRepository);
+        orden.verify(salonLocks).adquirirOrdenados(List.of(SALON_ID));
         orden.verify(horarioOperacionRepository).findVersionesQueIntersectan(
                 eq(SALON_ID), anyShort(), any(), nullable(LocalDate.class));
         orden.verify(bloqueRepository).save(any(BloqueProgramacion.class));
     }
 
-    /** {@code crearAsignacion} no toca el horario: su contencion es transitiva via el bloque. */
+    /** El writer recurrente comparte el orden global SALONES -> INSTRUCTORES. */
     @Test
-    void crearAsignacionNoTomaElLockDeSalon() {
+    void crearAsignacionTomaSalonEInstructorAntesDePersistir() {
         service.crearAsignacion(crearAsignacion(ARIADNA_ID, REFORMER_ID, 9, 12, ENERO, DICIEMBRE));
 
-        verify(salonLock, never()).adquirir(any());
+        InOrder orden = inOrder(salonLocks, instructorLocks, asignacionRepository);
+        orden.verify(salonLocks).adquirirOrdenados(List.of(SALON_ID));
+        orden.verify(instructorLocks).adquirirOrdenados(List.of(ARIADNA_ID));
+        orden.verify(asignacionRepository).save(any(Asignacion.class));
     }
 
     @Test
@@ -432,6 +462,38 @@ class BloqueProgramacionServiceTest {
     }
 
     @Test
+    void recurrenteContraAdicionMismoInstructorYMismoSalonSeValidaEfectivamente() {
+        rechazaRecurrenteContraAdicion(SALON_ID);
+    }
+
+    @Test
+    void recurrenteContraAdicionMismoInstructorCrossSalonSeValidaGlobalmente() {
+        rechazaRecurrenteContraAdicion(OTRO_SALON_ID);
+    }
+
+    @Test
+    void cambioConcurrenteDeSalonEInstructorEnAjusteAbortaElWriterRecurrente() {
+        AjusteProgramacionFecha adicion = AjusteProgramacionFecha.nuevaAdicion(
+                UUID.randomUUID(), fechaLunes(), OTRO_SALON_ID, ARIADNA_ID, REFORMER_ID,
+                LocalTime.of(10, 0), LocalTime.of(11, 0));
+        when(ajusteRepository.buscarActivosEnRango(ENERO, DICIEMBRE))
+                .thenReturn(List.of(adicion));
+        doAnswer(invocacion -> {
+            adicion.actualizarResultado(
+                    SALON_ID, ALBERTO_ID, REFORMER_ID,
+                    LocalTime.of(10, 0), LocalTime.of(11, 0));
+            return null;
+        }).when(ajustePersistence).refrescar(adicion);
+
+        assertThatThrownBy(() -> service.crearAsignacion(crearAsignacion(
+                ARIADNA_ID, REFORMER_ID, 10, 12, ENERO, DICIEMBRE)))
+                .isInstanceOf(com.feelingpilates.exception.ConflictException.class)
+                .hasMessageContaining(ProgramacionErrores.CONFLICTO_LOCK_SET_DESACTUALIZADO);
+
+        verify(asignacionRepository, org.mockito.Mockito.never()).save(any());
+    }
+
+    @Test
     void permiteMismoInstructorYHorarioGlobalConVigenciasDisjuntas() {
         LocalDate febrero = LocalDate.of(2028, 2, 1);
         LocalDate finFebrero = LocalDate.of(2028, 2, 29);
@@ -635,6 +697,41 @@ class BloqueProgramacionServiceTest {
         assertThatThrownBy(() -> service.crearBloque(comando))
                 .isInstanceOf(ValidacionException.class)
                 .hasMessageContaining("horario de operación");
+    }
+
+    private void rechazaRecurrenteContraAdicion(UUID salonAjuste) {
+        LocalDate fecha = fechaLunes();
+        AjusteProgramacionFecha adicion = AjusteProgramacionFecha.nuevaAdicion(
+                UUID.randomUUID(), fecha, salonAjuste, ARIADNA_ID, REFORMER_ID,
+                LocalTime.of(10, 0), LocalTime.of(11, 0));
+        when(ajusteRepository.buscarActivosEnRango(ENERO, DICIEMBRE))
+                .thenReturn(List.of(adicion));
+        when(ajusteRepository.findAllByFechaAndActivoTrueOrderById(fecha))
+                .thenReturn(List.of(adicion));
+        when(nominal.todasEnFecha(fecha)).thenReturn(List.of());
+        when(salonRepository.findById(OTRO_SALON_ID))
+                .thenReturn(Optional.of(salon(OTRO_SALON_ID, reformer, mat)));
+        HorarioEfectivoSalon horario = mock(HorarioEfectivoSalon.class);
+        when(horario.resolver(any(), eq(fecha))).thenReturn(
+                HorarioEfectivo.abiertoPorHorarioSemanal(
+                        LocalTime.of(8, 0), LocalTime.of(20, 0)));
+        ProgramacionValidador validadorReal = new ProgramacionValidador(
+                horario, salonRepository, usuarioRepository, tipoActividadRepository,
+                mock(ProgramacionDiagnostico.class));
+        BloqueProgramacionService serviceReal = new BloqueProgramacionService(
+                bloqueRepository, asignacionRepository, salonRepository,
+                horarioOperacionRepository, usuarioRepository, tipoActividadRepository,
+                salonLocks, instructorLocks, policyA, ajusteRepository, ajustePersistence,
+                nominal, new AplicadorAjustesProgramacion(), validadorReal);
+
+        assertThatThrownBy(() -> serviceReal.crearAsignacion(crearAsignacion(
+                ARIADNA_ID, REFORMER_ID, 10, 12, ENERO, DICIEMBRE)))
+                .isInstanceOf(ProgramacionInvarianteException.class)
+                .hasMessageContaining(ProgramacionErrores.INSTRUCTOR_CON_PROGRAMACION_TRASLAPADA);
+    }
+
+    private LocalDate fechaLunes() {
+        return LocalDate.of(2027, 2, 1);
     }
 
     private void hayVersiones(HorarioOperacion... versiones) {

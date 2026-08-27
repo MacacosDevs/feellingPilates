@@ -1,11 +1,11 @@
 # FeelingPilates — Arquitectura actual
 
 Status: CANONICAL
-Last updated: 2026-08-25
+Last updated: 2026-08-26
 Repository verification: VERIFIED
 Last verified against commit:
-8c40594d2caf8b5230b364cb76cd8f48fe5ed98a
-Verification scope: arquitectura actual y diseño F2D aprobado; F2D no materializada
+6db7d5fd7be12384b111b84bd19291e2ee515944
+Verification scope: arquitectura actual; F2D.2 implementada en dark launch y en revisión documental
 
 ## 1. Visión general
 
@@ -84,7 +84,8 @@ En las fases cerradas se utiliza también para proteger invariantes como:
 
 Flyway es la autoridad sobre la evolución del esquema versionado.
 
-No existe una migración F2D confirmada en el punto actual.
+La migración V47 de F2D.2 está presente únicamente como infraestructura de dark launch; no cambia la
+autoridad productiva ni implica integración con flujos legacy.
 
 ---
 
@@ -264,9 +265,9 @@ dentro de programación.
 
 Dispone de conceptos de serie y vigencia.
 
-F2D.1 cerró documentalmente el diseño del futuro hardening de unicidad temporal de las versiones de una serie.
-
-Ese hardening todavía no está materializado.
+F2D.1 cerró documentalmente el diseño del hardening de unicidad temporal de las versiones de una
+serie. F2D.2 lo materializa internamente en dark launch; `Asignacion` sigue sin ser autoridad
+productiva.
 
 ## Autoridad
 
@@ -280,23 +281,20 @@ Consultar `contexto/MAPA-LEGACY-Y-MIGRACION.md` para la autoridad de la transici
 
 Estado:
 
-**DISEÑADO\_NO\_IMPLEMENTADO**
+**IMPLEMENTADA_EN_REVIEW / PENDIENTE_DE_DOCUMENTACION**
 
 El diseño de la futura capa de ajustes puntuales fue aprobado y F2D.1 quedó cerrada después de un gate final `P0=0 / P1=0 / P2=0`.
 
-F2D.2 está definida como dark launch aislado, pero su materialización **NO HA INICIADO**. Durante esa fase ningún estado exclusivo de la programación nueva puede alterar flujos productivos legacy.
+F2D.2 está implementada como dark launch aislado y su implementación cuenta con aprobación
+técnica; la documentación permanece en revisión. Durante esta fase ningún estado exclusivo de la
+programación nueva puede alterar flujos productivos legacy.
 
-No existen como implementación confirmada a este corte:
+La afirmación anterior de que la materialización «NO HA INICIADO» corresponde al corte anterior y
+queda obsoleta. La evidencia física autorizada confirma exclusivamente la implementación interna
+de `AjusteProgramacionFecha`, V47, persistencia de ajustes, `InstructorLocks`, multi-locks y
+`ProgramacionEfectiva`.
 
-- `AjusteProgramacionFecha`;
-- V47 F2D;
-- persistencia de ajustes F2D;
-- `InstructorLocks` F2D;
-- multi-locks F2D;
-- `ProgramacionEfectiva` F2D;
-- API F2D;
-- controllers o consumers F2D productivos;
-- cutover o fence F2D.
+No existen API, controllers ni consumers F2D productivos, ni cutover o fence F2D.
 
 `TurnoInstructor` continúa como autoridad productiva única. `BloqueProgramacion + Asignacion` permanece `IMPLEMENTADO_NO_PRODUCTIVO`.
 
@@ -408,7 +406,7 @@ Programación nueva:
 BloqueProgramacion + Asignacion — IMPLEMENTADO_NO_PRODUCTIVO
 
 Ajustes F2D:
-DISEÑADO_NO_IMPLEMENTADO — diseño aprobado
+IMPLEMENTADA_EN_REVIEW — dark launch interno; documentación en revisión
 
 Reservas:
 modelo legacy actual — PRODUCTIVO

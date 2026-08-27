@@ -5,7 +5,7 @@ Last updated: 2026-08-26
 Repository verification: VERIFIED
 Last verified against commit:
 6a8ffaa104de9a6b707982e679e78cda8aeb433c
-Verification scope: pre-flight y materialización documental de la intervención F2D.2 aprobada
+Verification scope: reconciliación documental de F2D.2 implementada en dark launch y aprobada técnicamente
 
 La referencia anterior identifica la base histórica de esta materialización documental. No sustituye el `HEAD` operativo, que debe obtenerse mediante pre-flight en cada intervención.
 
@@ -141,7 +141,7 @@ SHA-256 aprobado:
 
 La cadena histórica completa queda preservada en el checkpoint, el review original y las intervenciones/re-reviews F2D.1.1 y F2D.1.2.
 
-`DISEÑO_APROBADO` no significa implementación. La arquitectura F2D continúa **NO IMPLEMENTADA**.
+`DISEÑO_APROBADO` describe exclusivamente el cierre de diseño F2D.1; no declara por sí solo implementación. El estado de la implementación F2D.2 se documenta separadamente como `IMPLEMENTADA_EN_REVIEW`.
 
 ### F2D.1.1 — Corrección post-review
 
@@ -181,9 +181,9 @@ Evidencia:
 
 ### F2D.2
 
-**NO INICIADA**
+**IMPLEMENTADA_EN_REVIEW / PENDIENTE_DE_DOCUMENTACION_Y_PUBLICACION**
 
-La decisión arquitectónica aprobada define F2D.2 como dark launch aislado. Su ejecución todavía no comenzó.
+La implementación dark launch está presente como baseline dirty autorizado y cuenta con aprobación técnica: gate de implementación, scope y tests `PASS`; la re-auditoría técnica sólo dejó un P2 documental, que se reconcilia en este corte. F2D.2 no está cerrada, publicada, productiva ni activa.
 
 Intervención F2D.2:
 
@@ -197,7 +197,7 @@ P1: 0
 P2: 0
 ```
 
-Única intervención autorizada para futura ejecución:
+Intervención ejecutada:
 
 `auditoria/intervenciones/F2D.2.2-CIERRE-CARRERA-AJUSTE-ID.md`
 
@@ -205,17 +205,17 @@ Review final:
 
 `auditoria/reviews/F2D.2.2-RE-REVIEW-FINAL.md`
 
-Las intervenciones F2D.2 original y F2D.2.1 se conservan exclusivamente como historia del gate y no son ejecutables.
+Las intervenciones F2D.2 original y F2D.2.1 se conservan exclusivamente como historia del gate y no son ejecutables. La evidencia de la implementación está en el checkpoint `auditoria/fase-2d2-implementacion-dark-launch-ajustes-programacion-fecha.md` y en el baseline dirty autorizado, usado sólo como evidencia física.
 
-La aprobación y materialización documental de la intervención no significa que F2D.2 haya sido ejecutada: no se creó V47, no se modificó Java y no se escribieron tests F2D.2. Tampoco existe una autoridad productiva nueva ni un estado `IMPLEMENTADA_EN_REVIEW`.
+La implementación incluye V47, código interno y tests F2D.2, pero esto no crea una autoridad productiva nueva. `TurnoInstructor` sigue siendo la autoridad productiva; no hay cutover ni fence implementados.
 
 ## Próximo paso
 
-**Auditar independientemente la materialización documental de la intervención F2D.2.**
+**Completar el review documental y la publicación controlada de F2D.2.**
 
-F2D.2 no se ejecuta automáticamente desde la aprobación, la materialización documental ni el handoff.
+No debe ejecutarse ni reinterpretarse la implementación desde este documento. El checkpoint declara el máximo estado autorizado `IMPLEMENTADA_EN_REVIEW`.
 
-Sólo después de auditoría documental `PASS`, commit, push y verificación de repositorio limpio/remoto sincronizado podrá abrirse un ejecutor nuevo. Ese ejecutor deberá realizar un pre-flight real y seguir exclusivamente la intervención F2D.2.2 autorizada.
+Sólo después de review documental `PASS`, publicación y verificación de repositorio limpio/remoto sincronizado podrá considerarse un siguiente handoff; ello no declara F2D.2 cerrada ni activa.
 
 ## Handoff activo
 
@@ -223,10 +223,7 @@ Sólo después de auditoría documental `PASS`, commit, push y verificación de 
 
 ## Advertencias inmediatas
 
-- `AjusteProgramacionFecha` NO está implementado.
-- `InstructorLock` NO está implementado.
-- No existe V47 de F2D confirmada.
-- No existe nuevo resolver de programación efectiva confirmado.
+- `AjusteProgramacionFecha`, `InstructorLocks`, V47 y el resolver de programación efectiva están implementados únicamente en dark launch y pendientes de documentación/publicación.
 - No existe fence de cutover F2D implementado.
 - No existe cutover F2D implementado.
 - `TurnoInstructor` sigue siendo la autoridad productiva actual de programación.

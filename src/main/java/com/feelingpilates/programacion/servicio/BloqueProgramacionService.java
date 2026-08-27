@@ -2,8 +2,14 @@ package com.feelingpilates.programacion.servicio;
 
 import com.feelingpilates.exception.ResourceNotFoundException;
 import com.feelingpilates.exception.ValidacionException;
+import com.feelingpilates.exception.ConflictException;
+import com.feelingpilates.programacion.dominio.OcurrenciaEfectiva;
+import com.feelingpilates.programacion.dominio.OcurrenciaNominal;
+import com.feelingpilates.programacion.dominio.ReferenciaOcurrencia;
+import com.feelingpilates.programacion.entidad.AjusteProgramacionFecha;
 import com.feelingpilates.programacion.entidad.Asignacion;
 import com.feelingpilates.programacion.entidad.BloqueProgramacion;
+import com.feelingpilates.programacion.repositorio.AjusteProgramacionFechaRepository;
 import com.feelingpilates.programacion.repositorio.AsignacionRepository;
 import com.feelingpilates.programacion.repositorio.BloqueProgramacionRepository;
 import com.feelingpilates.ubicaciones.dominio.CoberturaVigencia;
@@ -14,16 +20,21 @@ import com.feelingpilates.ubicaciones.entidad.TipoActividad;
 import com.feelingpilates.ubicaciones.repositorio.HorarioOperacionRepository;
 import com.feelingpilates.ubicaciones.repositorio.SalonRepository;
 import com.feelingpilates.ubicaciones.repositorio.TipoActividadRepository;
-import com.feelingpilates.ubicaciones.servicio.SalonLock;
+import com.feelingpilates.ubicaciones.servicio.SalonLocks;
 import com.feelingpilates.usuarios.entidad.Rol;
 import com.feelingpilates.usuarios.entidad.Usuario;
 import com.feelingpilates.usuarios.repositorio.UsuarioRepository;
+import com.feelingpilates.usuarios.servicio.InstructorLocks;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /** Escritura acotada del modelo recurrente base de Programacion. */
@@ -37,7 +48,14 @@ public class BloqueProgramacionService {
     private final HorarioOperacionRepository horarioOperacionRepository;
     private final UsuarioRepository usuarioRepository;
     private final TipoActividadRepository tipoActividadRepository;
-    private final SalonLock salonLock;
+    private final SalonLocks salonLocks;
+    private final InstructorLocks instructorLocks;
+    private final ProgramacionPolicyA policyA;
+    private final AjusteProgramacionFechaRepository ajusteRepository;
+    private final AjusteProgramacionFechaPersistence ajustePersistence;
+    private final ProgramacionNominal nominal;
+    private final AplicadorAjustesProgramacion aplicador;
+    private final ProgramacionValidador programacionValidador;
 
     public BloqueProgramacionService(
             BloqueProgramacionRepository bloqueRepository,
@@ -46,14 +64,28 @@ public class BloqueProgramacionService {
             HorarioOperacionRepository horarioOperacionRepository,
             UsuarioRepository usuarioRepository,
             TipoActividadRepository tipoActividadRepository,
-            SalonLock salonLock) {
+            SalonLocks salonLocks,
+            InstructorLocks instructorLocks,
+            ProgramacionPolicyA policyA,
+            AjusteProgramacionFechaRepository ajusteRepository,
+            AjusteProgramacionFechaPersistence ajustePersistence,
+            ProgramacionNominal nominal,
+            AplicadorAjustesProgramacion aplicador,
+            ProgramacionValidador programacionValidador) {
         this.bloqueRepository = bloqueRepository;
         this.asignacionRepository = asignacionRepository;
         this.salonRepository = salonRepository;
         this.horarioOperacionRepository = horarioOperacionRepository;
         this.usuarioRepository = usuarioRepository;
         this.tipoActividadRepository = tipoActividadRepository;
-        this.salonLock = salonLock;
+        this.salonLocks = salonLocks;
+        this.instructorLocks = instructorLocks;
+        this.policyA = policyA;
+        this.ajusteRepository = ajusteRepository;
+        this.ajustePersistence = ajustePersistence;
+        this.nominal = nominal;
+        this.aplicador = aplicador;
+        this.programacionValidador = programacionValidador;
     }
 
     /**
@@ -68,7 +100,7 @@ public class BloqueProgramacionService {
      */
     public BloqueProgramacion crearBloque(CrearBloque comando) {
         validarComandoBloque(comando);
-        salonLock.adquirir(comando.salonId());
+        salonLocks.adquirirOrdenados(List.of(comando.salonId()));
         Salon salon = salonRepository.findById(comando.salonId())
                 .orElseThrow(() -> new ResourceNotFoundException("Salón no encontrado"));
         if (!salon.isActivo()) {
@@ -97,10 +129,42 @@ public class BloqueProgramacionService {
 
     public Asignacion crearAsignacion(CrearAsignacion comando) {
         validarComandoAsignacion(comando);
-        BloqueProgramacion bloque = bloqueRepository.findById(comando.bloqueId())
+        BloqueProgramacion discovery = bloqueRepository.findById(comando.bloqueId())
                 .orElseThrow(() -> new ResourceNotFoundException("Bloque de programación no encontrado"));
-        if (!bloque.isActivo()) {
+        if (!discovery.isActivo()) {
             throw new ValidacionException("El bloque de programación no está activo");
+        }
+
+        List<AjusteProgramacionFecha> ajustesDiscovery =
+                ajustesRelevantes(comando, discovery, false);
+        List<SnapshotAjuste> snapshotsDiscovery = ajustesDiscovery.stream()
+                .map(this::snapshot)
+                .toList();
+        Set<UUID> salones = new LinkedHashSet<>(List.of(discovery.getSalonId()));
+        Set<UUID> instructores = new LinkedHashSet<>(List.of(comando.instructorId()));
+        agregarRecursosDeAjustes(ajustesDiscovery, salones, instructores);
+        agregarRecursosNominalesDeTargets(
+                comando, ajustesDiscovery, salones, instructores);
+
+        salonLocks.adquirirOrdenados(List.copyOf(salones));
+        instructorLocks.adquirirOrdenados(List.copyOf(instructores));
+
+        BloqueProgramacion bloque = bloqueRepository.findById(comando.bloqueId())
+                .orElseThrow(() -> new ConflictException(ProgramacionErrores.mensaje(
+                        ProgramacionErrores.CONFLICTO_LOCK_SET_DESACTUALIZADO,
+                        "El bloque desapareció durante el discovery")));
+        if (!mismoBloqueDescubierto(discovery, bloque)) {
+            throw new ConflictException(ProgramacionErrores.mensaje(
+                    ProgramacionErrores.CONFLICTO_LOCK_SET_DESACTUALIZADO,
+                    "El bloque o el salón cambiaron durante el discovery"));
+        }
+
+        List<AjusteProgramacionFecha> ajustesReleidos =
+                ajustesRelevantes(comando, bloque, true);
+        if (!snapshotsDiscovery.equals(ajustesReleidos.stream().map(this::snapshot).toList())) {
+            throw new ConflictException(ProgramacionErrores.mensaje(
+                    ProgramacionErrores.CONFLICTO_LOCK_SET_DESACTUALIZADO,
+                    "Los ajustes efectivos cambiaron durante el discovery"));
         }
 
         Usuario instructor = usuarioRepository.findById(comando.instructorId())
@@ -125,6 +189,8 @@ public class BloqueProgramacionService {
         validarContencionEnBloque(comando, bloque);
         validarSinTraslapeDentroDelBloque(comando);
         validarSinConflictoGlobal(comando, bloque.getDiaSemana());
+        policyA.validarNuevaAsignacion(comando, bloque, ajustesReleidos);
+        validarContraAjustesEfectivos(comando, bloque, ajustesReleidos);
 
         Asignacion asignacion = new Asignacion();
         asignacion.setSerieId(comando.serieId());
@@ -137,6 +203,18 @@ public class BloqueProgramacionService {
         asignacion.setVigenteHasta(comando.vigenteHasta());
         asignacion.setActivo(true);
         return asignacionRepository.save(asignacion);
+    }
+
+    private boolean mismoBloqueDescubierto(BloqueProgramacion a, BloqueProgramacion b) {
+        return Objects.equals(a.getId(), b.getId())
+                && Objects.equals(a.getSerieId(), b.getSerieId())
+                && Objects.equals(a.getSalonId(), b.getSalonId())
+                && a.getDiaSemana() == b.getDiaSemana()
+                && Objects.equals(a.getHoraInicio(), b.getHoraInicio())
+                && Objects.equals(a.getHoraFin(), b.getHoraFin())
+                && Objects.equals(a.getVigenteDesde(), b.getVigenteDesde())
+                && Objects.equals(a.getVigenteHasta(), b.getVigenteHasta())
+                && a.isActivo() == b.isActivo();
     }
 
     private void validarComandoBloque(CrearBloque comando) {
@@ -266,6 +344,91 @@ public class BloqueProgramacionService {
         }
     }
 
+    private List<AjusteProgramacionFecha> ajustesRelevantes(
+            CrearAsignacion comando, BloqueProgramacion bloque, boolean refrescar) {
+        List<AjusteProgramacionFecha> ajustes = ajusteRepository.buscarActivosEnRango(
+                comando.vigenteDesde(), comando.vigenteHasta());
+        if (refrescar) {
+            ajustes.forEach(ajustePersistence::refrescar);
+        }
+        return ajustes.stream()
+                .filter(a -> aplicaEnDia(a.getFecha(), bloque.getDiaSemana()))
+                .filter(a -> comando.serieId().equals(a.getAsignacionSerieId())
+                        || comando.instructorId().equals(a.getInstructorResultadoId()))
+                .toList();
+    }
+
+    private void agregarRecursosDeAjustes(
+            List<AjusteProgramacionFecha> ajustes,
+            Set<UUID> salones,
+            Set<UUID> instructores) {
+        ajustes.stream()
+                .filter(a -> a.getSalonResultadoId() != null)
+                .forEach(a -> {
+                    salones.add(a.getSalonResultadoId());
+                    instructores.add(a.getInstructorResultadoId());
+                });
+    }
+
+    private void agregarRecursosNominalesDeTargets(
+            CrearAsignacion comando,
+            List<AjusteProgramacionFecha> ajustes,
+            Set<UUID> salones,
+            Set<UUID> instructores) {
+        ajustes.stream()
+                .filter(a -> comando.serieId().equals(a.getAsignacionSerieId()))
+                .flatMap(a -> nominal.porSerieYFecha(comando.serieId(), a.getFecha()).stream())
+                .forEach(n -> {
+                    salones.add(n.salonId());
+                    instructores.add(n.instructorId());
+                });
+    }
+
+    private void validarContraAjustesEfectivos(
+            CrearAsignacion comando,
+            BloqueProgramacion bloque,
+            List<AjusteProgramacionFecha> ajustesReleidos) {
+        ajustesReleidos.stream()
+                .map(AjusteProgramacionFecha::getFecha)
+                .distinct()
+                .sorted()
+                .forEach(fecha -> validarFechaEfectiva(comando, bloque, fecha));
+    }
+
+    private void validarFechaEfectiva(
+            CrearAsignacion comando, BloqueProgramacion bloque, LocalDate fecha) {
+        List<OcurrenciaNominal> nominales = new ArrayList<>(nominal.todasEnFecha(fecha));
+        nominales.add(new OcurrenciaNominal(
+                fecha, comando.serieId(), comando.serieId(), bloque.getId(), bloque.getSalonId(),
+                comando.instructorId(), comando.tipoActividadId(),
+                comando.horaInicio(), comando.horaFin()));
+        List<AjusteProgramacionFecha> ajustes =
+                ajusteRepository.findAllByFechaAndActivoTrueOrderById(fecha);
+        ajustes.forEach(ajustePersistence::refrescar);
+        List<OcurrenciaEfectiva> efectivas = aplicador.aplicar(nominales, ajustes);
+        ReferenciaOcurrencia referencia = ajustes.stream()
+                .filter(a -> comando.serieId().equals(a.getAsignacionSerieId()))
+                .filter(a -> a.getTipo() == AjusteProgramacionFecha.Tipo.CANCELACION)
+                .findAny()
+                .isPresent()
+                ? null
+                : new ReferenciaOcurrencia(
+                        ReferenciaOcurrencia.Tipo.SERIE_ASIGNACION, comando.serieId(), fecha);
+        programacionValidador.validarMutacion(efectivas, referencia);
+    }
+
+    private boolean aplicaEnDia(LocalDate fecha, short diaSemana) {
+        return (short) (fecha.getDayOfWeek().getValue() % 7) == diaSemana;
+    }
+
+    private SnapshotAjuste snapshot(AjusteProgramacionFecha ajuste) {
+        return new SnapshotAjuste(
+                ajuste.getId(), ajuste.getTipo(), ajuste.getFecha(), ajuste.getAsignacionSerieId(),
+                ajuste.getSalonResultadoId(), ajuste.getInstructorResultadoId(),
+                ajuste.getTipoActividadResultadoId(), ajuste.getHoraInicioResultado(),
+                ajuste.getHoraFinResultado(), ajuste.isActivo());
+    }
+
     static boolean rangosSeTraslapan(LocalTime aInicio, LocalTime aFin, LocalTime bInicio, LocalTime bFin) {
         return aInicio.isBefore(bFin) && bInicio.isBefore(aFin);
     }
@@ -304,5 +467,18 @@ public class BloqueProgramacionService {
             LocalTime horaFin,
             LocalDate vigenteDesde,
             LocalDate vigenteHasta) {
+    }
+
+    private record SnapshotAjuste(
+            UUID id,
+            AjusteProgramacionFecha.Tipo tipo,
+            LocalDate fecha,
+            UUID serieId,
+            UUID salonId,
+            UUID instructorId,
+            UUID actividadId,
+            LocalTime horaInicio,
+            LocalTime horaFin,
+            boolean activo) {
     }
 }

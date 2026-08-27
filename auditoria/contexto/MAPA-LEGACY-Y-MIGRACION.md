@@ -1,11 +1,11 @@
 # FeelingPilates — Mapa legacy y migración
 
 Status: CANONICAL
-Last updated: 2026-08-25
+Last updated: 2026-08-27
 Repository verification: VERIFIED
 Last verified against commit:
-8c40594d2caf8b5230b364cb76cd8f48fe5ed98a
-Verification scope: autoridad productiva y transición después del cierre documental de F2D.1
+6db7d5fd7be12384b111b84bd19291e2ee515944
+Verification scope: autoridad productiva y transición con F2D.2 implementada en dark launch y en revisión documental
 
 ## Propósito
 
@@ -52,9 +52,9 @@ El frontend web consume esos contratos.
 
 ### Nuevo
 
-Existe infraestructura interna para `BloqueProgramacion + Asignacion`, pero no constituye la autoridad productiva.
+Existe infraestructura interna para `BloqueProgramacion + Asignacion` y para los ajustes F2D.2, pero no constituye la autoridad productiva.
 
-El diseño F2D está aprobado y su implementación no ha iniciado. El estado exacto debe volver a verificarse contra repositorio y datos antes de cualquier materialización o activación.
+El diseño F2D está aprobado y F2D.2 está `IMPLEMENTADA_EN_REVIEW` como dark launch interno, con aprobación técnica y documentación todavía en revisión. La afirmación histórica de que su implementación no había iniciado queda obsoleta. El estado exacto debe volver a verificarse contra repositorio y datos antes de cualquier activación.
 
 ## Readers activos conocidos
 
@@ -66,7 +66,7 @@ El diseño F2D está aprobado y su implementación no ha iniciado. El estado exa
 
 ### Nuevo
 
-Uso interno limitado del modelo recurrente ya implementado; no incluye ajustes F2D ni consumers productivos nuevos.
+Uso interno limitado del modelo recurrente y de los ajustes F2D.2 implementados en dark launch; no incluye consumers productivos nuevos.
 
 No existe evidencia de que frontend/reservas sean consumers productivos de `BloqueProgramacion + Asignacion`.
 
@@ -84,13 +84,13 @@ No existe un cutover ejecutado que permita considerar ambos modelos equivalentes
 
 ## Estado de migración
 
-**DISEÑO F2D APROBADO / IMPLEMENTACIÓN F2D NO INICIADA**
+**F2D.2 IMPLEMENTADA_EN_REVIEW / DARK LAUNCH INTERNO**
 
-F2D.2 es el dark launch pendiente inmediato. No representa estado `MIGRANDO` ni autoridad `NUEVA`.
+F2D.2 no representa estado `MIGRANDO` ni autoridad `NUEVA`; permanece pendiente de revisión documental y de cualquier activación autorizada.
 
 ## Condiciones de cutover
 
-El diseño F2D ya fue aprobado. Antes del cutover todavía deben cerrarse y materializarse, como mínimo:
+El diseño F2D ya fue aprobado y su implementación interna F2D.2 está materializada. Antes del cutover todavía deben resolverse, como mínimo:
 
 - identidad inequívoca de programación futura;
 - estrategia sobre reservas;
@@ -102,17 +102,17 @@ El diseño F2D ya fue aprobado. Antes del cutover todavía deben cerrarse y mate
 
 **FUTURO / NO IMPLEMENTADO**
 
-F2D.2 será dark launch: sin controllers públicos, consumers productivos, adapters sobre writers legacy, `ImpactoAjustesEnExcepcionHorario`, `Reserva` legacy, frontend/mobile, cutover ni fence persistido.
+F2D.2 está en dark launch: sin controllers públicos, consumers productivos, adapters sobre writers legacy, `ImpactoAjustesEnExcepcionHorario`, `Reserva` legacy, frontend/mobile, cutover ni fence persistido.
 
 El fence y el cutover permanecen futuros. `TurnoInstructor` sigue siendo la autoridad productiva única.
 
 ## Bloqueadores / deuda
 
 - dualidad legacy/nuevo;
-- implementación F2D no iniciada;
+- F2D.2 implementada internamente, pendiente de revisión documental y de activación autorizada;
 - programación nueva no es autoridad;
 - relación de reservas con la fuente nueva no resuelta;
-- materialización futura de invariantes de serie/concurrencia.
+- activación futura de las invariantes de serie/concurrencia ya materializadas internamente.
 
 ## Fase relacionada
 
@@ -289,7 +289,7 @@ No implementado.
 
 ## Bloqueadores / deuda
 
-Implementación F2D, activación controlada y migración de consumers todavía no iniciadas.
+La implementación interna F2D.2 ya existe, pero la activación controlada y la migración de consumers no han iniciado.
 
 ## Fase relacionada
 

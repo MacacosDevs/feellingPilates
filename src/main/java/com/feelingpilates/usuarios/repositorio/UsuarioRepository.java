@@ -1,10 +1,12 @@
 package com.feelingpilates.usuarios.repositorio;
 
 import com.feelingpilates.usuarios.entidad.Usuario;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -13,6 +15,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select u from Usuario u where u.id = :usuarioId")
+    Optional<Usuario> bloquearParaActualizar(@Param("usuarioId") UUID usuarioId);
 
     @EntityGraph(attributePaths = {"roles", "roles.rol", "roles.rol.permisos"})
     Optional<Usuario> findByCorreo(String correo);

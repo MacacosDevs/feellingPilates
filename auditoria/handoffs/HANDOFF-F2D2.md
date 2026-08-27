@@ -9,16 +9,16 @@ F2C: CERRADA
 F2D.1: DISEÑO_APROBADO / CERRADA / PUBLICADA
 F2D.1.1: EJECUTADA
 F2D.1.2: EJECUTADA
-F2D.2: NO INICIADA
+F2D.2: IMPLEMENTADA_EN_REVIEW / PENDIENTE_DE_DOCUMENTACION_Y_PUBLICACION
 ```
 
-`DISEÑO_APROBADO` no significa implementación. F2D continúa diseñada y aprobada, pero **NO IMPLEMENTADA**.
+El estado máximo autorizado de F2D.2 es `IMPLEMENTADA_EN_REVIEW`. La implementación dark launch fue aprobada técnicamente, pero no está cerrada, publicada, productiva ni activa.
 
 ## Autoridad productiva
 
 - `TurnoInstructor`: `LEGACY_VIVO / PRODUCTIVO`; autoridad actual de programación.
 - `BloqueProgramacion + Asignacion`: `IMPLEMENTADO_NO_PRODUCTIVO`.
-- Ajustes F2D: diseñados y aprobados; no implementados.
+- Ajustes F2D: implementados sólo en dark launch; pendientes de documentación/publicación.
 - Cutover y fence F2D: no implementados.
 
 No existe doble autoridad productiva.
@@ -58,13 +58,13 @@ La cadena preserva el review original `P0=0 / P1=8 / P2=3`, el re-review post F2
 
 La cadena preserva el review original `P0=0 / P1=2 / P2=2`, el re-review de F2D.2.1 `P0=0 / P1=1 / P2=0` y el gate final de F2D.2.2 `P0=0 / P1=0 / P2=0`.
 
-**INTERVENCIÓN AUTORIZADA PARA FUTURA EJECUCIÓN:**
+**INTERVENCIÓN EJECUTADA:**
 
 `auditoria/intervenciones/F2D.2.2-CIERRE-CARRERA-AJUSTE-ID.md`
 
 Las intervenciones F2D.2 original y F2D.2.1 son históricas y **NO ejecutables**.
 
-La intervención está aprobada y materializada documentalmente. F2D.2 permanece **NO INICIADA**.
+La intervención F2D.2.2 está aprobada y ejecutada; la evidencia de implementación queda en `auditoria/fase-2d2-implementacion-dark-launch-ajustes-programacion-fecha.md` y en el baseline dirty autorizado. El estado sigue siendo **IMPLEMENTADA_EN_REVIEW** y está pendiente de documentación/publicación; no implica cierre, publicación ni activación.
 
 ## Reglas obligatorias de F2D.2
 
@@ -82,19 +82,17 @@ F2D.2 será **DARK LAUNCH**:
 
 Durante F2D.2 ningún estado exclusivo de `programacion_*` puede alterar el resultado observable de un flujo productivo legacy.
 
-## Arranque de F2D.2
+## Continuidad documental de F2D.2
 
-F2D.2 **NO se ejecuta directamente desde este handoff**.
+F2D.2 **NO debe reejecutarse ni reinterpretarse desde este handoff**.
 
-Antes de ejecutar F2D.2 un futuro agente debe:
+Antes de cualquier siguiente handoff, un futuro agente debe:
 
-1. verificar que esta materialización documental fue auditada y publicada;
-2. realizar un pre-flight real;
-3. verificar `HEAD`, remoto y working tree;
-4. verificar el checkpoint F2D.1;
-5. verificar que V47 siga libre;
-6. ejecutar el baseline;
-7. sólo entonces seguir exclusivamente F2D.2.2.
+1. verificar el checkpoint de implementación F2D.2 y esta reconciliación documental;
+2. completar el review documental y la publicación controlada;
+3. realizar un pre-flight real y verificar `HEAD`, remoto y working tree;
+4. preservar la autoridad productiva legacy y el dark launch;
+5. no declarar F2D.2 cerrada, publicada o activa sin la autoridad correspondiente.
 
 ## STOP
 
@@ -104,6 +102,7 @@ Detenerse y reportar si:
 - F2D.1 fue modificado posteriormente;
 - el estado Git diverge materialmente;
 - la documentación contradice este corte;
-- existe implementación F2D.2 inesperada.
+- el baseline deja de corresponder a la implementación F2D.2 aprobada técnicamente;
+- se pretende convertir el estado `IMPLEMENTADA_EN_REVIEW` en cerrado, publicado o activo sin autorización.
 
 Este handoff es autocontenido y no depende de conversaciones anteriores.

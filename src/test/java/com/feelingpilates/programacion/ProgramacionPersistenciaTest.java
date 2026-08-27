@@ -2,6 +2,7 @@ package com.feelingpilates.programacion;
 
 import com.feelingpilates.TestcontainersConfiguration;
 import com.feelingpilates.programacion.entidad.Asignacion;
+import com.feelingpilates.programacion.entidad.AjusteProgramacionFecha;
 import com.feelingpilates.programacion.entidad.BloqueProgramacion;
 import com.feelingpilates.programacion.repositorio.AsignacionRepository;
 import com.feelingpilates.programacion.repositorio.BloqueProgramacionRepository;
@@ -42,15 +43,16 @@ class ProgramacionPersistenciaTest {
     private AsignacionRepository asignacionRepository;
 
     @Test
-    void flywayMigraDesdeV1HastaV46() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("46");
-        assertThat(flyway.info().applied()).hasSize(49);
+    void flywayMigraDesdeV1HastaV47() {
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("47");
+        assertThat(flyway.info().applied()).hasSize(50);
     }
 
     @Test
     void jpaValidaYRegistraLasEntidadesDeProgramacion() {
         assertThat(entityManagerFactory.getMetamodel().entity(BloqueProgramacion.class)).isNotNull();
         assertThat(entityManagerFactory.getMetamodel().entity(Asignacion.class)).isNotNull();
+        assertThat(entityManagerFactory.getMetamodel().entity(AjusteProgramacionFecha.class)).isNotNull();
     }
 
     @Test

@@ -1,11 +1,11 @@
 # FeelingPilates — Arquitectura actual
 
 Status: CANONICAL
-Last updated: 2026-08-26
+Last updated: 2026-08-27
 Repository verification: VERIFIED
 Last verified against commit:
-95900d8a1d787a24aff4ee4e10f69d540ce81339
-Verification scope: arquitectura actual; F2D.2 materializada en commit Git verificado, en dark launch y en revisión documental
+f6456310454a297397a63dac0c7b4c418bde9f5c
+Verification scope: arquitectura actual; F2D.2 cerrada documentalmente y preservada como dark launch no productivo
 
 ## 1. Visión general
 
@@ -281,13 +281,13 @@ Consultar `contexto/MAPA-LEGACY-Y-MIGRACION.md` para la autoridad de la transici
 
 Estado:
 
-**IMPLEMENTADA_EN_REVIEW / PENDIENTE_DE_DOCUMENTACION**
+**IMPLEMENTADO_NO_PRODUCTIVO / DARK_LAUNCH**
 
 El diseño de la futura capa de ajustes puntuales fue aprobado y F2D.1 quedó cerrada después de un gate final `P0=0 / P1=0 / P2=0`.
 
-F2D.2 está implementada como dark launch aislado y su implementación cuenta con aprobación
-técnica; la documentación permanece en revisión. Durante esta fase ningún estado exclusivo de la
-programación nueva puede alterar flujos productivos legacy.
+F2D.2 está cerrada documentalmente, materializada como dark launch aislado y cuenta con aprobación
+técnica y documental. Su publicación y cierre de publicación están verificados. Ningún estado
+exclusivo de la programación nueva puede alterar flujos productivos legacy.
 
 La afirmación anterior de que la materialización «NO HA INICIADO» corresponde al corte anterior y
 queda obsoleta. La evidencia física autorizada confirma exclusivamente la implementación interna
@@ -406,7 +406,7 @@ Programación nueva:
 BloqueProgramacion + Asignacion — IMPLEMENTADO_NO_PRODUCTIVO
 
 Ajustes F2D:
-IMPLEMENTADA_EN_REVIEW — dark launch interno; documentación en revisión
+IMPLEMENTADO_NO_PRODUCTIVO — F2D.2 cerrada documentalmente; dark launch interno
 
 Reservas:
 modelo legacy actual — PRODUCTIVO

@@ -4,8 +4,8 @@ Status: CANONICAL
 Last updated: 2026-08-27
 Repository verification: VERIFIED
 Last verified against commit:
-95900d8a1d787a24aff4ee4e10f69d540ce81339
-Verification scope: autoridad productiva y transición con F2D.2 materializada en commit Git verificado, en dark launch y en revisión documental
+f6456310454a297397a63dac0c7b4c418bde9f5c
+Verification scope: autoridad productiva y transición con F2D.2 cerrada documentalmente en dark launch no productivo
 
 ## Propósito
 
@@ -54,7 +54,7 @@ El frontend web consume esos contratos.
 
 Existe infraestructura interna para `BloqueProgramacion + Asignacion` y para los ajustes F2D.2, pero no constituye la autoridad productiva.
 
-El diseño F2D está aprobado y F2D.2 está `IMPLEMENTADA_EN_REVIEW` como dark launch interno, con aprobación técnica y documentación todavía en revisión. La afirmación histórica de que su implementación no había iniciado queda obsoleta. El estado exacto debe volver a verificarse contra repositorio y datos antes de cualquier activación.
+El diseño F2D está aprobado y F2D.2 está `CERRADA` como dark launch interno, con aprobación técnica y documental, publicación verificada y cierre de publicación `PASS`. La afirmación histórica de que su implementación no había iniciado queda obsoleta. El estado exacto debe volver a verificarse contra repositorio y datos antes de cualquier activación.
 
 ## Readers activos conocidos
 
@@ -84,9 +84,9 @@ No existe un cutover ejecutado que permita considerar ambos modelos equivalentes
 
 ## Estado de migración
 
-**F2D.2 IMPLEMENTADA_EN_REVIEW / DARK LAUNCH INTERNO**
+**F2D.2 CERRADA / DARK LAUNCH INTERNO / NOT_PRODUCTIVE**
 
-F2D.2 no representa estado `MIGRANDO` ni autoridad `NUEVA`; permanece pendiente de revisión documental y de cualquier activación autorizada.
+F2D.2 no representa estado `MIGRANDO` ni autoridad `NUEVA`. Su documentación está cerrada, pero cualquier activación continúa pendiente de autoridad expresa.
 
 ## Condiciones de cutover
 
@@ -109,7 +109,7 @@ El fence y el cutover permanecen futuros. `TurnoInstructor` sigue siendo la auto
 ## Bloqueadores / deuda
 
 - dualidad legacy/nuevo;
-- F2D.2 implementada internamente, pendiente de revisión documental y de activación autorizada;
+- F2D.2 cerrada documentalmente e implementada internamente, pendiente exclusivamente de cualquier activación futura que llegue a autorizarse;
 - programación nueva no es autoridad;
 - relación de reservas con la fuente nueva no resuelta;
 - activación futura de las invariantes de serie/concurrencia ya materializadas internamente.

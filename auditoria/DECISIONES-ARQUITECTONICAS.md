@@ -4,8 +4,8 @@ Status: CANONICAL
 Last updated: 2026-08-27
 Repository verification: VERIFIED
 Last verified against commit:
-95900d8a1d787a24aff4ee4e10f69d540ce81339
-Verification scope: decisiones aceptadas, incluida la materialización en commit Git verificado de F2D.2 en dark launch y en revisión documental
+f6456310454a297397a63dac0c7b4c418bde9f5c
+Verification scope: decisiones aceptadas, incluido el cierre documental de F2D.2 en dark launch no productivo
 
 ## Estados
 
@@ -367,18 +367,18 @@ Se consideró que el mecanismo legacy podría cubrir ajustes puntuales.
 
 F2D.1 demostró que su semántica no permite expresar de forma adecuada el modelo futuro de reemplazo individual.
 
-El diseño sustituto F2D fue aprobado posteriormente por el gate final de F2D.1. La afirmación histórica de que su materialización no había iniciado corresponde al corte anterior: F2D.2 ya está implementada internamente en dark launch y permanece en revisión documental.
+El diseño sustituto F2D fue aprobado posteriormente por el gate final de F2D.1. La afirmación histórica de que su materialización no había iniciado corresponde al corte anterior: F2D.2 ya está implementada internamente en dark launch y cerrada documentalmente.
 
 ---
 
 # DA-013 — Ajustes F2D y F2D.2 como dark launch aislado
 
 **Estado de decisión:** ACEPTADA
-**Estado de materialización:** IMPLEMENTADA (F2D.2 `IMPLEMENTADA_EN_REVIEW`)
+**Estado de materialización:** VERIFICADA (F2D.2 `CERRADA / DARK_LAUNCH`)
 
 **Decisión**
 
-F2D.2 materializa internamente el diseño aprobado de ajustes puntuales como dark launch. Su estado vigente es `IMPLEMENTADA_EN_REVIEW`: la implementación cuenta con aprobación técnica, pero la documentación sigue en revisión. Ningún estado exclusivo de `programacion_*` puede permitir, rechazar, modificar, ocultar o transformar un flujo productivo legacy durante F2D.2.
+F2D.2 materializa internamente el diseño aprobado de ajustes puntuales como dark launch. Su estado vigente es `CERRADA`: la implementación cuenta con aprobación técnica y documental, publicación verificada y cierre de publicación `PASS`. Este cierre no cambia runtime, productividad, cutover ni autoridad. Ningún estado exclusivo de `programacion_*` puede permitir, rechazar, modificar, ocultar o transformar un flujo productivo legacy durante F2D.2.
 
 Por tanto, F2D.2 excluye controllers públicos, consumers productivos, adapters sobre writers legacy, `ImpactoAjustesEnExcepcionHorario`, `Reserva` legacy, frontend/mobile, cutover y fence persistido. `ImpactoAjustesEnExcepcionHorario` queda diferido a una futura fase de activación/cutover con fence efectivo.
 
@@ -412,4 +412,4 @@ F2D.2, programación efectiva, persistencia futura, concurrencia y futura activa
 
 **Origen**
 
-Checkpoint F2D.1, F2D.1.1, F2D.1.2, intervención F2D.2.2, checkpoint de implementación F2D.2 y gate final `P0=0 / P1=0 / P2=0`.
+Checkpoint F2D.1, F2D.1.1, F2D.1.2, intervención F2D.2.2, checkpoint de implementación F2D.2, gate técnico final `P0=0 / P1=0 / P2=0` y review documental F2D.2 `P0=0 / P1=0 / P2=1 editorial` con ambos gates documentales en `PASS`.

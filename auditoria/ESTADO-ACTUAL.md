@@ -4,8 +4,8 @@ Status: CANONICAL
 Last updated: 2026-08-27
 Repository verification: VERIFIED
 Last verified against commit:
-95900d8a1d787a24aff4ee4e10f69d540ce81339
-Verification scope: publicación Git manual verificada de F2D.2 en dark launch; revisión documental en curso
+f6456310454a297397a63dac0c7b4c418bde9f5c
+Verification scope: cierre documental y de publicación de F2D.2; dark launch y autoridad productiva preservados
 
 La referencia anterior identifica la base histórica de esta materialización documental. No sustituye el `HEAD` operativo, que debe obtenerse mediante pre-flight en cada intervención.
 
@@ -141,7 +141,7 @@ SHA-256 aprobado:
 
 La cadena histórica completa queda preservada en el checkpoint, el review original y las intervenciones/re-reviews F2D.1.1 y F2D.1.2.
 
-`DISEÑO_APROBADO` describe exclusivamente el cierre de diseño F2D.1; no declara por sí solo implementación. El estado de la implementación F2D.2 se documenta separadamente como `IMPLEMENTADA_EN_REVIEW`.
+`DISEÑO_APROBADO` describe exclusivamente el cierre de diseño F2D.1; no declara por sí solo implementación. El cierre posterior de F2D.2 se documenta separadamente.
 
 ### F2D.1.1 — Corrección post-review
 
@@ -181,9 +181,31 @@ Evidencia:
 
 ### F2D.2
 
-**IMPLEMENTADA_EN_REVIEW / COMMIT_GIT_VERIFICADO / DOCUMENTACION_EN_REVISION**
+**CERRADA / MATERIALIZADA / APROBADA_TECNICA_Y_DOCUMENTALMENTE / PUBLICADA_Y_VERIFICADA**
 
-La implementación dark launch quedó materializada en el commit Git verificado `95900d8a1d787a24aff4ee4e10f69d540ce81339` y cuenta con aprobación técnica. El checkpoint conserva, como evidencia histórica, una corrida en el sandbox Codex que descubrió `553` tests y terminó con `118` errores ambientales de Docker/Testcontainers (`BUILD FAILURE`). En una ejecución posterior y distinta, realizada en terminal host con Docker disponible, la validación reportó `28/28 PASS` focalizados y `553/553 PASS` en la suite completa; esa validación host cerró el gate de tests. El commit fue verificado con `HEAD` local y upstream iguales, staging vacío y working tree limpio. La documentación continúa en revisión. F2D.2 no está cerrada, productiva ni activa.
+La implementación dark launch quedó materializada en el commit Git verificado `95900d8a1d787a24aff4ee4e10f69d540ce81339`; la documentación de cierre publicada quedó en `5c5d67e590260476372e5c8166062c0fb7429da1`. Una auditoría documental fresh e independiente, READ-ONLY, sobre la branch `operacion/excepciones-horario-fecha` y el HEAD `f6456310454a297397a63dac0c7b4c418bde9f5c` reportó `P0=0 / P1=0 / P2=1 editorial`, `DOCUMENTATION_GATE=PASS`, `PUBLICATION_CLOSURE_GATE=PASS` y `F2D2_DOCUMENTATION_STATUS=CLOSED`.
+
+Evidencia persistente del audit:
+
+`auditoria/reviews/F2D.2-REVIEW-DOCUMENTAL.md`
+
+El P2 editorial se limitó a una frase stale del checkpoint sobre revalidación PostgreSQL. La frase describía el corte histórico del sandbox; la validación host posterior y distinta ya había resuelto el pendiente con `28/28 PASS` focalizados y `553/553 PASS` en la suite completa. El cierre documental no modifica el resultado histórico `BUILD FAILURE` ambiental del sandbox.
+
+Los ejes vigentes son:
+
+```text
+F2D.2: CERRADA
+design: DISEÑO_APROBADO
+materialization: MATERIALIZADA
+technical gate: PASS
+documentation gate: PASS
+publication: PUBLICADA / VERIFICADA
+publication closure: PASS
+runtime: DARK_LAUNCH
+productive: NOT_PRODUCTIVE
+cutover: false
+authority: UNCHANGED — TurnoInstructor / LEGACY_VIVO / PRODUCTIVO
+```
 
 Intervención F2D.2:
 
@@ -211,20 +233,21 @@ La implementación incluye V47, código interno y tests F2D.2, pero esto no crea
 
 ## Próximo paso
 
-**Completar el review documental de F2D.2.**
+**PREPARAR EL SIGUIENTE HANDOFF DESDE LOS CANÓNICOS.**
 
-No debe ejecutarse ni reinterpretarse la implementación desde este documento. El checkpoint declara el máximo estado autorizado `IMPLEMENTADA_EN_REVIEW`.
-
-El commit Git ya fue verificado; sólo después de review documental `PASS` y la verificación aplicable podrá considerarse un siguiente handoff. Ello no declara F2D.2 cerrada ni activa.
+No debe ejecutarse ni reinterpretarse la implementación desde este documento. El audit documental no autoriza F2E, no define su scope y no inicia una fase nueva. La siguiente unidad sólo puede determinarse y prepararse desde autoridad canónica expresa.
 
 ## Handoff activo
 
-`auditoria/handoffs/HANDOFF-F2D2.md`
+`NINGUNO`
+
+`auditoria/handoffs/HANDOFF-F2D2.md` queda preservado como handoff histórico, cerrado y superseded. No se creó un handoff sucesor.
 
 ## Advertencias inmediatas
 
-- `AjusteProgramacionFecha`, `InstructorLocks`, V47 y el resolver de programación efectiva están implementados únicamente en dark launch, en el commit Git verificado y en revisión documental.
+- `AjusteProgramacionFecha`, `InstructorLocks`, V47 y el resolver de programación efectiva están materializados y documentados únicamente como dark launch no productivo.
 - No existe fence de cutover F2D implementado.
 - No existe cutover F2D implementado.
 - `TurnoInstructor` sigue siendo la autoridad productiva actual de programación.
 - `BloqueProgramacion + Asignacion` permanece `IMPLEMENTADO_NO_PRODUCTIVO`.
+- El cierre de F2D.2 no inicia ni autoriza F2E.

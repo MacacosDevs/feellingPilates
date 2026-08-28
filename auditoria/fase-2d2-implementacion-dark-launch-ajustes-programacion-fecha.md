@@ -9,6 +9,26 @@ F2D.2: IMPLEMENTADA_EN_REVIEW
 Este checkpoint no declara F2D.2 cerrada, productiva ni activa. La autoridad productiva sigue
 siendo `TurnoInstructor`; la infraestructura nueva permanece en dark launch.
 
+La declaración anterior conserva el estado máximo autorizado en el corte de materialización técnica de este checkpoint. Posteriormente, una auditoría documental fresh e independiente cerró la documentación y el cierre de publicación sin cambiar runtime, productividad, cutover ni autoridad.
+
+## Cierre documental posterior
+
+- Audit persistido: `auditoria/reviews/F2D.2-REVIEW-DOCUMENTAL.md`.
+- Rol del audit: `DOCUMENT_AUDITOR`, fresh e independiente.
+- Modo: `READ_ONLY`.
+- Branch auditada: `operacion/excepciones-horario-fecha`.
+- HEAD auditado: `f6456310454a297397a63dac0c7b4c418bde9f5c`.
+- Resultado: `P0=0 / P1=0 / P2=1 editorial`.
+- Documentation gate: `PASS`.
+- Publication closure gate: `PASS`.
+- Estado documental F2D.2: `CLOSED`.
+- Runtime: `DARK_LAUNCH`.
+- Productive: `NOT_PRODUCTIVE`.
+- Cutover: `false`.
+- Autoridad: `TurnoInstructor / LEGACY_VIVO / PRODUCTIVO`, sin cambios.
+
+El audit no autoriza F2E. El delta que materializa este cierre documental requiere su propio audit fresh y no queda autoaprobado por este checkpoint.
+
 ## Trazabilidad
 
 - Base commit: `6db7d5fd7be12384b111b84bd19291e2ee515944`.
@@ -22,8 +42,14 @@ siendo `TurnoInstructor`; la infraestructura nueva permanece en dark launch.
 - Baseline inicial: `493 tests`, `0 failures`, `0 errors`, `0 skipped`, `BUILD SUCCESS`.
 - Commit Git posterior verificado: `95900d8a1d787a24aff4ee4e10f69d540ce81339`,
   branch y upstream `operacion/excepciones-horario-fecha` sincronizados, staging vacío y working
-  tree limpio. Este hecho no completa el review documental, no realiza cutover y no altera la
-  autoridad productiva.
+  tree limpio. Por sí solo, este hecho no completaba el review documental, no realizaba cutover y
+  no alteraba la autoridad productiva.
+- Commit de documentación de cierre publicado:
+  `5c5d67e590260476372e5c8166062c0fb7429da1`.
+- Ancestry verificada:
+  `95900d8a1d787a24aff4ee4e10f69d540ce81339` →
+  `5c5d67e590260476372e5c8166062c0fb7429da1` →
+  `f6456310454a297397a63dac0c7b4c418bde9f5c`.
 
 ## V47 y persistencia
 
@@ -196,9 +222,7 @@ disponible; la validación host posterior descrita arriba proporcionó esa ejecu
 histórico `529/529 PASS` queda sustituido por la evidencia real del sandbox y la validación host
 posterior, que son ejecuciones distintas.
 
-La matriz A–O permanece materializada `15/15 DETECTADAS`, pendiente de revalidación PostgreSQL en
-este working tree. Test A/B/C son regresiones adicionales; G continúa siendo evidencia documental
-y blocker futuro de cutover, no un test runtime simulado.
+La matriz A–O permanece materializada `15/15 DETECTADAS`. La frase histórica «pendiente de revalidación PostgreSQL en este working tree» describía el corte previo del sandbox Codex, donde Docker no estaba disponible. La ejecución posterior y distinta en terminal host resolvió ese pendiente con `28/28 PASS` focalizados y `553/553 PASS` en la suite completa. No queda revalidación PostgreSQL pendiente por esa evidencia; el `BUILD FAILURE` ambiental del sandbox conserva su significado histórico. Test A/B/C son regresiones adicionales; G continúa siendo evidencia documental y blocker futuro de cutover, no un test runtime simulado.
 
 ## Archivos
 
@@ -223,7 +247,9 @@ Archivos modificados:
 - `ProgramacionPersistenciaTest.java`;
 - `BloqueProgramacionServiceTest.java`.
 
-No se modificaron canónicos para declarar cierre. La afirmación anterior de working tree sin stage,
-commit ni push describe el corte histórico de materialización. Posteriormente, el commit Git
-manual fue verificado como `95900d8a1d787a24aff4ee4e10f69d540ce81339`; F2D.2 continúa
-`IMPLEMENTADA_EN_REVIEW`, en dark launch, sin cutover ni cambio de autoridad productiva.
+En el corte técnico original no se modificaron canónicos para declarar cierre. La afirmación
+anterior de working tree sin stage, commit ni push describe ese corte histórico de materialización. Posteriormente, el commit Git
+manual fue verificado como `95900d8a1d787a24aff4ee4e10f69d540ce81339` y la documentación de
+cierre publicada como `5c5d67e590260476372e5c8166062c0fb7429da1`. En ese corte F2D.2 continuaba
+`IMPLEMENTADA_EN_REVIEW`; el audit documental posterior la cerró como documentación `CLOSED`,
+siempre en dark launch, `NOT_PRODUCTIVE`, `cutover=false` y sin cambio de autoridad productiva.

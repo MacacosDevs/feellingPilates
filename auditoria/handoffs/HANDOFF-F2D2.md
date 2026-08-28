@@ -1,8 +1,10 @@
 # FeelingPilates — Handoff F2D.2
 
-Handoff status: ACTIVE
+Handoff status: HISTORICAL / CLOSED / SUPERSEDED
 
-## Estado de arranque
+Este handoff ya no está activo. Se conserva sin borrar ni reescribir su función histórica. El cierre posterior está persistido en `auditoria/reviews/F2D.2-REVIEW-DOCUMENTAL.md` y en los canónicos vigentes. No se creó un handoff sucesor.
+
+## Estado de arranque histórico
 
 ```text
 F2C: CERRADA
@@ -12,13 +14,13 @@ F2D.1.2: EJECUTADA
 F2D.2: IMPLEMENTADA_EN_REVIEW / COMMIT_GIT_VERIFICADO / DOCUMENTACION_EN_REVISION
 ```
 
-El estado máximo autorizado de F2D.2 es `IMPLEMENTADA_EN_REVIEW`. La implementación dark launch fue aprobada técnicamente y quedó materializada en un commit Git verificado, pero no está cerrada, productiva ni activa; la documentación permanece en revisión.
+Mientras este handoff estuvo activo, el estado máximo autorizado de F2D.2 era `IMPLEMENTADA_EN_REVIEW`. La implementación dark launch estaba aprobada técnicamente y materializada en un commit Git verificado, pero la documentación permanecía en revisión. Este párrafo conserva el corte histórico; el cierre posterior no vuelve productiva ni activa la implementación.
 
 ## Autoridad productiva
 
 - `TurnoInstructor`: `LEGACY_VIVO / PRODUCTIVO`; autoridad actual de programación.
 - `BloqueProgramacion + Asignacion`: `IMPLEMENTADO_NO_PRODUCTIVO`.
-- Ajustes F2D: implementados sólo en dark launch, en commit Git verificado y en revisión documental.
+- Ajustes F2D: implementados sólo en dark launch; su documentación cerró posteriormente sin activación productiva.
 - Cutover y fence F2D: no implementados.
 
 No existe doble autoridad productiva.
@@ -64,11 +66,11 @@ La cadena preserva el review original `P0=0 / P1=2 / P2=2`, el re-review de F2D.
 
 Las intervenciones F2D.2 original y F2D.2.1 son históricas y **NO ejecutables**.
 
-La intervención F2D.2.2 está aprobada y ejecutada; su implementación quedó materializada manualmente en Git como `95900d8a1d787a24aff4ee4e10f69d540ce81339`, con `HEAD` local/upstream sincronizados, staging vacío y working tree limpio. La evidencia permanece en `auditoria/fase-2d2-implementacion-dark-launch-ajustes-programacion-fecha.md` y en el baseline autorizado. El estado sigue siendo **IMPLEMENTADA_EN_REVIEW** y la documentación continúa en revisión; no implica cierre ni activación.
+La intervención F2D.2.2 está aprobada y ejecutada; su implementación quedó materializada manualmente en Git como `95900d8a1d787a24aff4ee4e10f69d540ce81339`, con `HEAD` local/upstream sincronizados, staging vacío y working tree limpio. La documentación de cierre publicada quedó en `5c5d67e590260476372e5c8166062c0fb7429da1`. La evidencia permanece en `auditoria/fase-2d2-implementacion-dark-launch-ajustes-programacion-fecha.md` y en el baseline autorizado. En el corte de este handoff el estado seguía siendo **IMPLEMENTADA_EN_REVIEW**; posteriormente el audit documental fresh lo cerró sin activación.
 
 ## Reglas obligatorias de F2D.2
 
-F2D.2 será **DARK LAUNCH**:
+F2D.2 permanece **DARK LAUNCH**:
 
 - implementación interna únicamente;
 - sin controllers públicos;
@@ -86,23 +88,24 @@ Durante F2D.2 ningún estado exclusivo de `programacion_*` puede alterar el resu
 
 F2D.2 **NO debe reejecutarse ni reinterpretarse desde este handoff**.
 
-Antes de cualquier siguiente handoff, un futuro agente debe:
+El audit documental fresh e independiente sobre `f6456310454a297397a63dac0c7b4c418bde9f5c` reportó `P0=0 / P1=0 / P2=1 editorial`, `DOCUMENTATION_GATE=PASS`, `PUBLICATION_CLOSURE_GATE=PASS` y `F2D2_DOCUMENTATION_STATUS=CLOSED`. La acción posterior queda limitada a preparar el siguiente handoff desde los canónicos.
 
-1. verificar el checkpoint de implementación F2D.2 y esta reconciliación documental;
-2. completar el review documental;
-3. realizar un pre-flight real y verificar `HEAD`, remoto y working tree;
-4. preservar la autoridad productiva legacy y el dark launch;
-5. no declarar F2D.2 cerrada o activa sin la autoridad correspondiente; el commit Git verificado no equivale a activación.
+Este cierre:
 
-## STOP
+- no autoriza ni inicia F2E;
+- no crea un handoff nuevo;
+- preserva `DARK_LAUNCH`, `NOT_PRODUCTIVE` y `cutover=false`;
+- preserva a `TurnoInstructor` como autoridad `LEGACY_VIVO / PRODUCTIVO`.
 
-Detenerse y reportar si:
+## STOP histórico
+
+Mientras este handoff estuvo activo, exigía detenerse y reportar si:
 
 - el checkpoint no coincide con el SHA-256 aprobado;
 - F2D.1 fue modificado posteriormente;
 - el estado Git diverge materialmente;
 - la documentación contradice este corte;
 - el baseline deja de corresponder a la implementación F2D.2 aprobada técnicamente;
-- se pretende convertir el estado `IMPLEMENTADA_EN_REVIEW` en cerrado o activo sin autorización, o equiparar el commit Git verificado con activación.
+- se pretendía convertir el estado `IMPLEMENTADA_EN_REVIEW` en cerrado o activo sin autorización, o equiparar el commit Git verificado con activación.
 
 Este handoff es autocontenido y no depende de conversaciones anteriores.

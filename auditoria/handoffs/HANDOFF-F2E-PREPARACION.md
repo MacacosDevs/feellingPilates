@@ -479,4 +479,3 @@ nuevo handoff o intervención
 ```
 
 Ni este handoff, ni su aprobación, ni el futuro cierre documental de F2E confieren esa autoridad.
-

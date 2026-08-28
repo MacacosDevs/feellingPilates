@@ -1,15 +1,16 @@
 # FeelingPilates — Handoff F2E / preparación
 
-Handoff status: `MATERIALIZED / READY_FOR_FRESH_INDEPENDENT_AUDIT / NOT_ACTIVE`
+Handoff status: `APPROVED / ACTIVE / AUTHORIZED_FOR_F2E_PREPARATION`
 
 Target unit: `F2E / preparación`
 
 Type: `PREPARATION / DESIGN`
 
 Este handoff materializa autoridad persistente exclusivamente para preparar y cerrar el diseño
-verificable de una futura transición controlada desde el dark launch F2D.2. No inicia F2E por su
-sola existencia y no está aprobado por quien lo documentó. Antes de usarse requiere una auditoría
-fresh e independiente de diseño/documentación.
+verificable de una futura transición controlada desde el dark launch F2D.2. Una auditoría fresh e
+independiente de diseño/documentación lo aprobó con `P0=0 / P1=0 / P2=0`; su resultado queda
+persistido en `auditoria/reviews/HANDOFF-F2E-PREPARACION-REVIEW-DOCUMENTAL.md`. El estado `ACTIVE`
+autoriza iniciar exclusivamente `F2E / preparación` dentro del scope de este documento.
 
 La unidad autorizada no implementa, migra, activa ni ejecuta cutover. Su producto es evidencia y
 contratos de preparación que permitan decidir, mediante otra intervención y otro gate, si existe
@@ -133,9 +134,17 @@ DESIGN/DOCUMENTATION GATE: APPLICABLE / PENDING
 seguridad no pueden omitirse. Cualquier publicación o cierre de publicación de outputs de F2E
 requiere autoridad y profile propios; no se infiere desde este handoff.
 
-Gate inmediato del handoff y gate de cierre de la unidad:
+Gate de aprobación del handoff:
 
-`FRESH_INDEPENDENT_DESIGN_DOCUMENT_AUDIT`
+```text
+HANDOFF_CONTRACT: PASS
+CANONICAL_CONSISTENCY: PASS
+SECURITY_SCOPE: PASS
+```
+
+Siguiente gate de F2E / preparación:
+
+`FRESH_INDEPENDENT_DESIGN_DOCUMENT_AUDIT: PENDING`
 
 La aprobación del handoff sólo habilita la unidad preparatoria aquí delimitada. No autoriza
 implementación. La aprobación posterior del diseño F2E tampoco autoriza automáticamente una fase

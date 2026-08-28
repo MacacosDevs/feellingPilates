@@ -4,8 +4,8 @@ Status: CANONICAL
 Last updated: 2026-08-27
 Repository verification: VERIFIED
 Last verified against commit:
-f6456310454a297397a63dac0c7b4c418bde9f5c
-Verification scope: cierre documental y de publicación de F2D.2; dark launch y autoridad productiva preservados
+a971f8b9d56ffe901a2c6a07c4e757628686ad85
+Verification scope: base física para activar canónicamente el handoff F2E; dark launch y autoridad productiva preservados
 
 La referencia anterior identifica la base histórica de esta materialización documental. No sustituye el `HEAD` operativo, que debe obtenerse mediante pre-flight en cada intervención.
 
@@ -231,17 +231,53 @@ Las intervenciones F2D.2 original y F2D.2.1 se conservan exclusivamente como his
 
 La implementación incluye V47, código interno y tests F2D.2, pero esto no crea una autoridad productiva nueva. `TurnoInstructor` sigue siendo la autoridad productiva; no hay cutover ni fence implementados.
 
+### F2E — Preparación
+
+**HANDOFF_APROBADO / ACTIVO / INICIO_DE_PREPARACION_AUTORIZADO**
+
+El handoff `auditoria/handoffs/HANDOFF-F2E-PREPARACION.md` tiene autoridad persistida para iniciar
+exclusivamente el diseño y la preparación F2E dentro de su scope. Su auditoría fresh e independiente
+reportó `P0=0 / P1=0 / P2=0` y queda persistida en
+`auditoria/reviews/HANDOFF-F2E-PREPARACION-REVIEW-DOCUMENTAL.md`.
+
+Estado de la unidad:
+
+```text
+handoff: APPROVED / ACTIVE
+target: F2E / preparación
+checkpoint F2E: NO CREADO / PENDING
+design/documentation gate F2E: PENDING
+implementation: NOT_AUTHORIZED
+migration: NOT_AUTHORIZED
+cutover: false
+authority: TurnoInstructor / LEGACY_VIVO / PRODUCTIVO
+runtime: DARK_LAUNCH
+productive: NOT_PRODUCTIVE
+```
+
+La aprobación del handoff no aprueba por anticipado el diseño F2E ni autoriza implementación,
+migración productiva, cutover o cambio de autoridad.
+
 ## Próximo paso
 
-**PREPARAR EL SIGUIENTE HANDOFF DESDE LOS CANÓNICOS.**
+**EJECUTAR F2E / PREPARACIÓN SEGÚN `HANDOFF-F2E-PREPARACION.md`.**
 
-No debe ejecutarse ni reinterpretarse la implementación desde este documento. El audit documental no autoriza F2E, no define su scope y no inicia una fase nueva. La siguiente unidad sólo puede determinarse y prepararse desde autoridad canónica expresa.
+El primer trabajo autorizado es `pre-flight + inventario + checkpoint/diseño F2E`. Esta acción
+es exclusivamente documental y preparatoria: no autoriza implementar, migrar, activar, ejecutar
+cutover ni cambiar la autoridad productiva.
 
 ## Handoff activo
 
-`NINGUNO`
+`auditoria/handoffs/HANDOFF-F2E-PREPARACION.md`
 
-`auditoria/handoffs/HANDOFF-F2D2.md` queda preservado como handoff histórico, cerrado y superseded. No se creó un handoff sucesor.
+```text
+Target: F2E / preparación
+Status: APPROVED / ACTIVE
+Authority: AUTHORIZED_FOR_F2E_PREPARATION
+Next gate: FRESH_INDEPENDENT_DESIGN_DOCUMENT_AUDIT / PENDING
+```
+
+`auditoria/handoffs/HANDOFF-F2D2.md` queda preservado como handoff histórico, cerrado y superseded.
 
 ## Advertencias inmediatas
 
@@ -250,4 +286,5 @@ No debe ejecutarse ni reinterpretarse la implementación desde este documento. E
 - No existe cutover F2D implementado.
 - `TurnoInstructor` sigue siendo la autoridad productiva actual de programación.
 - `BloqueProgramacion + Asignacion` permanece `IMPLEMENTADO_NO_PRODUCTIVO`.
-- El cierre de F2D.2 no inicia ni autoriza F2E.
+- El cierre de F2D.2 no autorizó por sí mismo F2E; el handoff F2E aprobado y activo autoriza ahora
+  sólo su preparación/diseño y preserva todos los límites anteriores.

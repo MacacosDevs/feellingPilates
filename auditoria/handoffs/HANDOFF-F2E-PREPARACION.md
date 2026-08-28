@@ -1,16 +1,18 @@
 # FeelingPilates — Handoff F2E / preparación
 
-Handoff status: `APPROVED / ACTIVE / AUTHORIZED_FOR_F2E_PREPARATION`
+Handoff status: `CLOSED / HISTORICAL / SUPERSEDED_BY_F2E1_DESIGN_CLOSURE`
 
 Target unit: `F2E / preparación`
 
 Type: `PREPARATION / DESIGN`
 
-Este handoff materializa autoridad persistente exclusivamente para preparar y cerrar el diseño
-verificable de una futura transición controlada desde el dark launch F2D.2. Una auditoría fresh e
-independiente de diseño/documentación lo aprobó con `P0=0 / P1=0 / P2=0`; su resultado queda
-persistido en `auditoria/reviews/HANDOFF-F2E-PREPARACION-REVIEW-DOCUMENTAL.md`. El estado `ACTIVE`
-autoriza iniciar exclusivamente `F2E / preparación` dentro del scope de este documento.
+Este handoff materializó autoridad persistente exclusivamente para preparar y cerrar el diseño
+verificable de una futura transición controlada desde el dark launch F2D.2. Su auditoría fresh e
+independiente de contrato reportó `P0=0 / P1=0 / P2=0` y queda persistida en
+`auditoria/reviews/HANDOFF-F2E-PREPARACION-REVIEW-DOCUMENTAL.md`. Sus exit conditions fueron
+satisfechas por el checkpoint F2E.1 y su audit final independiente `P0=0 / P1=0 / P2=0`, persistido
+en `auditoria/reviews/F2E.1-REVIEW-DISENO-PREPARACION.md`; por ello este handoff queda cerrado e
+histórico. No existe handoff activo derivado de este cierre.
 
 La unidad autorizada no implementa, migra, activa ni ejecuta cutover. Su producto es evidencia y
 contratos de preparación que permitan decidir, mediante otra intervención y otro gate, si existe
@@ -488,3 +490,12 @@ nuevo handoff o intervención
 ```
 
 Ni este handoff, ni su aprobación, ni el futuro cierre documental de F2E confieren esa autoridad.
+
+## 23. Cierre histórico
+
+Las exit conditions de la sección 21 quedaron satisfechas por F2E.1: existe checkpoint
+autocontenido, no hubo mutaciones productivas, `TurnoInstructor` y los ejes
+`DARK_LAUNCH / NOT_PRODUCTIVE / cutover=false` permanecen, y el audit fresh e independiente final
+reportó `P0=0 / P1=0 / P2=0`. Este cierre consume únicamente la autoridad preparatoria de este
+handoff. No autoriza implementación, migración, F2E.2, cutover ni cambio de autoridad, y no crea
+un handoff siguiente.

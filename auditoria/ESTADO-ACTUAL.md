@@ -5,7 +5,7 @@ Last updated: 2026-08-27
 Repository verification: VERIFIED
 Last verified against commit:
 a971f8b9d56ffe901a2c6a07c4e757628686ad85
-Verification scope: base física para activar canónicamente el handoff F2E; dark launch y autoridad productiva preservados
+Verification scope: cierre documental materializado de F2E.1 desde el audit independiente final; dark launch y autoridad productiva preservados
 
 La referencia anterior identifica la base histórica de esta materialización documental. No sustituye el `HEAD` operativo, que debe obtenerse mediante pre-flight en cada intervención.
 
@@ -231,22 +231,27 @@ Las intervenciones F2D.2 original y F2D.2.1 se conservan exclusivamente como his
 
 La implementación incluye V47, código interno y tests F2D.2, pero esto no crea una autoridad productiva nueva. `TurnoInstructor` sigue siendo la autoridad productiva; no hay cutover ni fence implementados.
 
-### F2E — Preparación
+### F2E.1 — Preparación/diseño de migración controlada
 
-**HANDOFF_APROBADO / ACTIVO / INICIO_DE_PREPARACION_AUTORIZADO**
+**DISEÑO/PREPARACIÓN APROBADO / CERRADO**
 
-El handoff `auditoria/handoffs/HANDOFF-F2E-PREPARACION.md` tiene autoridad persistida para iniciar
-exclusivamente el diseño y la preparación F2E dentro de su scope. Su auditoría fresh e independiente
-reportó `P0=0 / P1=0 / P2=0` y queda persistida en
-`auditoria/reviews/HANDOFF-F2E-PREPARACION-REVIEW-DOCUMENTAL.md`.
+El diseño materializado en `auditoria/fase-2e-preparacion-migracion-controlada.md` fue auditado
+fresh e independientemente en modo `READ_ONLY`. El resultado `P0=0 / P1=0 / P2=0`,
+`F2E1_DESIGN_DOCUMENT_GATE=PASS` y `READY_FOR_F2E1_CLOSURE=SI` queda persistido en
+`auditoria/reviews/F2E.1-REVIEW-DISENO-PREPARACION.md`. El handoff que autorizó exclusivamente
+esta preparación queda `CLOSED / HISTORICAL` en `auditoria/handoffs/HANDOFF-F2E-PREPARACION.md`.
 
 Estado de la unidad:
 
 ```text
-handoff: APPROVED / ACTIVE
 target: F2E / preparación
-checkpoint F2E: NO CREADO / PENDING
-design/documentation gate F2E: PENDING
+checkpoint F2E.1: PERSISTIDO / DESIGN_APPROVED / CLOSED
+design/documentation gate F2E.1: PASS
+P0=0 / P1=0 / P2=0
+requires human decision: NO
+data audit design: APPROVED
+data audit material execution: NOT_PERFORMED
+data source: DATA_SOURCE_NOT_AVAILABLE
 implementation: NOT_AUTHORIZED
 migration: NOT_AUTHORIZED
 cutover: false
@@ -255,29 +260,27 @@ runtime: DARK_LAUNCH
 productive: NOT_PRODUCTIVE
 ```
 
-La aprobación del handoff no aprueba por anticipado el diseño F2E ni autoriza implementación,
-migración productiva, cutover o cambio de autoridad.
+El cierre de F2E.1 no autoriza implementación, migración productiva, F2E.2, cutover ni cambio de
+autoridad. `D03/D04` siguen `BLOCKING_FOR_NEXT_GATE`; `D08-D11` y los demás blockers/deferred
+decisions preservan exactamente su clasificación final en el checkpoint.
 
 ## Próximo paso
 
-**EJECUTAR F2E / PREPARACIÓN SEGÚN `HANDOFF-F2E-PREPARACION.md`.**
+**READ-NEXT / DETERMINAR EL SIGUIENTE SCOPE Y HANDOFF DESDE F2E.1 CERRADA.**
 
-El primer trabajo autorizado es `pre-flight + inventario + checkpoint/diseño F2E`. Esta acción
-es exclusivamente documental y preparatoria: no autoriza implementar, migrar, activar, ejecutar
-cutover ni cambiar la autoridad productiva.
+El candidate next scope no equivale a una fase autorizada. Cualquier trabajo posterior requiere
+nuevo handoff o intervención, scope explícito, pre-flight fresh, evidencia requerida y gate
+independiente. No autoriza implementar, migrar, activar, ejecutar cutover ni cambiar la autoridad
+productiva.
 
 ## Handoff activo
 
-`auditoria/handoffs/HANDOFF-F2E-PREPARACION.md`
-
 ```text
-Target: F2E / preparación
-Status: APPROVED / ACTIVE
-Authority: AUTHORIZED_FOR_F2E_PREPARATION
-Next gate: FRESH_INDEPENDENT_DESIGN_DOCUMENT_AUDIT / PENDING
+NINGUNO
 ```
 
-`auditoria/handoffs/HANDOFF-F2D2.md` queda preservado como handoff histórico, cerrado y superseded.
+`auditoria/handoffs/HANDOFF-F2D2.md` y `auditoria/handoffs/HANDOFF-F2E-PREPARACION.md` quedan
+preservados como handoffs históricos, cerrados y superseded.
 
 ## Advertencias inmediatas
 
@@ -286,5 +289,5 @@ Next gate: FRESH_INDEPENDENT_DESIGN_DOCUMENT_AUDIT / PENDING
 - No existe cutover F2D implementado.
 - `TurnoInstructor` sigue siendo la autoridad productiva actual de programación.
 - `BloqueProgramacion + Asignacion` permanece `IMPLEMENTADO_NO_PRODUCTIVO`.
-- El cierre de F2D.2 no autorizó por sí mismo F2E; el handoff F2E aprobado y activo autoriza ahora
-  sólo su preparación/diseño y preserva todos los límites anteriores.
+- F2E.1 cerrada no autoriza por sí misma F2E.2 ni ninguna implementación posterior; preserva todos
+  los límites anteriores y exige nuevo scope/handoff.

@@ -88,6 +88,15 @@ public class AltaUsuarioService {
     }
 
     @Transactional
+    public Usuario crearClienteGoogle(String correo, String nombre, String fotoUrl) {
+        Usuario usuario = crearUsuarioBase(correo, nombre, null, Rol.CLIENTE, null);
+        usuario.setProveedorAuth(Usuario.ProveedorAuth.google);
+        usuario.setFotoUrl(fotoUrl);
+        usuarioRepository.save(usuario);
+        return usuario;
+    }
+
+    @Transactional
     public AltaPersonalResponse crearPersonalSalon(CrearPersonalRequest request) {
         Usuario usuario = crearUsuarioBase(
                 request.correo(), request.nombre(), request.telefono(), request.rol(), request.salonIds());

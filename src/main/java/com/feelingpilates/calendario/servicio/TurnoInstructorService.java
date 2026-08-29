@@ -353,6 +353,25 @@ public class TurnoInstructorService {
         return dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue();
     }
 
+    /**
+     * De los turnos puntuales (EXCEPCION/CANCELACION) y recurrentes de un mismo dia exacto,
+     * resuelve cuales aplican realmente ese dia: si hay una CANCELACION, ninguno; si hay una o mas
+     * EXCEPCION, esas reemplazan al recurrente; si no hay nada puntual, aplica el recurrente.
+     * Compartido entre {@code ReservaService} (turnos de un instructor especifico) y
+     * {@code ClaseGeneracionService} (turnos de todo un salon, filtrados por instructor en memoria)
+     * para no duplicar esta regla de precedencia una tercera vez.
+     */
+    public List<TurnoInstructor> resolverVigentes(List<TurnoInstructor> puntualesDelDia, List<TurnoInstructor> recurrentesDelDia) {
+        boolean cancelado = puntualesDelDia.stream().anyMatch(t -> t.getTipo() == TurnoInstructor.Tipo.CANCELACION);
+        if (cancelado) {
+            return List.of();
+        }
+        List<TurnoInstructor> excepciones = puntualesDelDia.stream()
+                .filter(t -> t.getTipo() == TurnoInstructor.Tipo.EXCEPCION)
+                .toList();
+        return !excepciones.isEmpty() ? excepciones : recurrentesDelDia;
+    }
+
     private TurnoInstructorResponse aResponse(TurnoInstructor t) {
         return aResponse(t, t.getAsignaciones());
     }

@@ -44,6 +44,16 @@ public interface TurnoInstructorRepository extends JpaRepository<TurnoInstructor
     List<TurnoInstructor> buscarExcepcionesPorSalonYFecha(@Param("salonId") UUID salonId, @Param("fecha") LocalDate fecha);
 
     /**
+     * Todos los bloques puntuales (EXCEPCION y CANCELACION) de ese salón/fecha, sin importar el
+     * instructor — para materializar clases hace falta ver también las CANCELACION, a diferencia
+     * de {@link #buscarExcepcionesPorSalonYFecha} que solo trae EXCEPCION.
+     */
+    @Query("select distinct t from TurnoInstructor t "
+            + "where t.salon.id = :salonId and t.activo = true "
+            + "and t.fecha = :fecha and t.tipo <> 'RECURRENTE'")
+    List<TurnoInstructor> buscarPuntualesPorSalonYFecha(@Param("salonId") UUID salonId, @Param("fecha") LocalDate fecha);
+
+    /**
      * Bloques EXCEPCION/CANCELACION (con fecha) de un salon, paginados. El dia de la semana no
      * existe como columna para estos bloques (solo aplica a RECURRENTE), asi que se deriva de la
      * fecha con EXTRACT(DOW ...), que ya coincide con la convencion 0=domingo del resto del

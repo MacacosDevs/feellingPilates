@@ -36,13 +36,14 @@ public class AuthService {
 
     public AuthService(UsuarioRepository usuarioRepository, InvitacionUsuarioRepository invitacionRepository,
                        PermisoResolver permisoResolver, PasswordEncoder passwordEncoder, JwtService jwtService,
-                       AltaUsuarioService altaUsuarioService) {
+                       AltaUsuarioService altaUsuarioService, GoogleTokenVerifier googleTokenVerifier) {
         this.usuarioRepository = usuarioRepository;
         this.invitacionRepository = invitacionRepository;
         this.permisoResolver = permisoResolver;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.altaUsuarioService = altaUsuarioService;
+        this.googleTokenVerifier = googleTokenVerifier;
     }
 
     @Transactional

@@ -30,6 +30,7 @@ public class ReservaService {
 
     private final ReservaRepository reservaRepository;
     private final TurnoInstructorRepository turnoRepository;
+    private final TurnoInstructorService turnoInstructorService;
     private final UsuarioRepository usuarioRepository;
     private final SalonRepository salonRepository;
     private final TipoActividadRepository tipoActividadRepository;
@@ -37,11 +38,13 @@ public class ReservaService {
     public ReservaService(
             ReservaRepository reservaRepository,
             TurnoInstructorRepository turnoRepository,
+            TurnoInstructorService turnoInstructorService,
             UsuarioRepository usuarioRepository,
             SalonRepository salonRepository,
             TipoActividadRepository tipoActividadRepository) {
         this.reservaRepository = reservaRepository;
         this.turnoRepository = turnoRepository;
+        this.turnoInstructorService = turnoInstructorService;
         this.usuarioRepository = usuarioRepository;
         this.salonRepository = salonRepository;
         this.tipoActividadRepository = tipoActividadRepository;
@@ -117,21 +120,10 @@ public class ReservaService {
     private List<TurnoInstructor> turnosVigentes(UUID instructorId, UUID salonId, LocalDate fecha) {
         List<TurnoInstructor> paraFecha = turnoRepository
                 .buscarPuntualesPorInstructorSalonYFecha(instructorId, salonId, fecha);
-
-        boolean cancelado = paraFecha.stream().anyMatch(t -> t.getTipo() == TurnoInstructor.Tipo.CANCELACION);
-        if (cancelado) {
-            return List.of();
-        }
-
-        List<TurnoInstructor> excepciones = paraFecha.stream()
-                .filter(t -> t.getTipo() == TurnoInstructor.Tipo.EXCEPCION)
-                .toList();
-        if (!excepciones.isEmpty()) {
-            return excepciones;
-        }
-
         short diaSemana = (short) diaSemanaIso(fecha.getDayOfWeek());
-        return turnoRepository.buscarRecurrentesPorInstructorSalonYDia(instructorId, salonId, diaSemana);
+        List<TurnoInstructor> recurrentes =
+                turnoRepository.buscarRecurrentesPorInstructorSalonYDia(instructorId, salonId, diaSemana);
+        return turnoInstructorService.resolverVigentes(paraFecha, recurrentes);
     }
 
     private int diaSemanaIso(DayOfWeek dayOfWeek) {

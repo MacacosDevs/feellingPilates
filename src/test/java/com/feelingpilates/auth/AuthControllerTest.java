@@ -9,8 +9,14 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -27,6 +33,9 @@ class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockitoBean
+    private GoogleTokenVerifier googleTokenVerifier;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -126,12 +135,40 @@ class AuthControllerTest {
     }
 
     @Test
-    void googleStubDevuelve501() throws Exception {
+    void loginConGoogleTokenInvalidoDevuelve401() throws Exception {
+        when(googleTokenVerifier.verificar(any())).thenReturn(Optional.empty());
+
         mockMvc.perform(post("/api/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"idToken": "fake-token"}
                                 """))
-                .andExpect(status().isNotImplemented());
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void loginConGoogleUsuarioNuevoLoCreaConRolCliente() throws Exception {
+        when(googleTokenVerifier.verificar(any())).thenReturn(Optional.of(
+                new GoogleTokenVerifier.GooglePerfil("nueva-google@test.com", "Nueva Usuaria", "https://foto.test/x.png")));
+
+        String body = mockMvc.perform(post("/api/auth/google")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"idToken": "token-valido-simulado"}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").isNotEmpty())
+                .andReturn().getResponse().getContentAsString();
+
+        String token = objectMapper.readTree(body).get("token").asText();
+        String payload = new String(java.util.Base64.getUrlDecoder().decode(token.split("\\.")[1]));
+        JsonNode claims = objectMapper.readTree(payload);
+        assertThat(claims.get("roles").toString()).contains("CLIENTE");
+
+        mockMvc.perform(get("/api/usuarios/me")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.correo").value("nueva-google@test.com"))
+                .andExpect(jsonPath("$.fotoUrl").value("https://foto.test/x.png"));
     }
 }

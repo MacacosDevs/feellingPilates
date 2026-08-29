@@ -24,6 +24,8 @@ public interface SalonRepository extends JpaRepository<Salon, UUID> {
 
     long countByIdInAndActivoTrue(List<UUID> ids);
 
+    List<Salon> findByActivoTrue();
+
     interface SalonProjection {
         UUID getId();
         String getNombre();

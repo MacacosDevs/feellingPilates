@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class PagoService {
@@ -68,7 +69,10 @@ public class PagoService {
     }
 
     @Transactional
-    public CrearPagoResponse crearIntentoPago(UUID usuarioId, UUID paqueteId, String idempotencyKey) {
+    public CrearPagoResponse crearIntentoPago(UUID usuarioId, List<UUID> paqueteIds, String idempotencyKey) {
+        if (paqueteIds == null || paqueteIds.isEmpty()) {
+            throw new ValidacionException("Debes seleccionar al menos un paquete");
+        }
         if (idempotencyKey != null && !idempotencyKey.isBlank()) {
             Optional<CrearPagoResponse> existente = reusarSiExiste(idempotencyKey);
             if (existente.isPresent()) {
@@ -76,24 +80,34 @@ public class PagoService {
             }
         }
 
-        Paquete paquete = paqueteRepository.findById(paqueteId)
-                .filter(Paquete::isActivo)
-                .orElseThrow(() -> new ResourceNotFoundException("Paquete no encontrado"));
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        Compra compra = new Compra();
-        compra.setUsuario(usuario);
-        compra.setPaquete(paquete);
-        compra.setMontoCentavos(paquete.getPrecioCentavos());
-        compra.setIdempotencyKey(idempotencyKey);
-        compra = compraRepository.save(compra);
+        // Un carrito genera una Compra por paquete elegido; todas comparten
+        // idempotencyKey y, más abajo, el mismo PaymentIntent.
+        List<Compra> compras = new ArrayList<>();
+        for (UUID paqueteId : paqueteIds) {
+            Paquete paquete = paqueteRepository.findById(paqueteId)
+                    .filter(Paquete::isActivo)
+                    .orElseThrow(() -> new ResourceNotFoundException("Paquete no encontrado"));
+            Compra compra = new Compra();
+            compra.setUsuario(usuario);
+            compra.setPaquete(paquete);
+            compra.setMontoCentavos(paquete.getPrecioCentavos());
+            compra.setIdempotencyKey(idempotencyKey);
+            compras.add(compraRepository.save(compra));
+        }
+
+        long totalCentavos = compras.stream().mapToLong(Compra::getMontoCentavos).sum();
+        String moneda = compras.get(0).getMoneda();
 
         try {
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
-                    .setAmount((long) paquete.getPrecioCentavos())
-                    .setCurrency(compra.getMoneda())
-                    .putMetadata("compraId", compra.getId().toString())
+                    .setAmount(totalCentavos)
+                    .setCurrency(moneda)
+                    .putMetadata("compraIds", compras.stream()
+                            .map(c -> c.getId().toString())
+                            .collect(Collectors.joining(",")))
                     .setAutomaticPaymentMethods(
                             PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
                                     .setEnabled(true)
@@ -112,28 +126,33 @@ public class PagoService {
                     ? RequestOptions.getDefault()
                     : RequestOptions.builder().setIdempotencyKey(idempotencyKey).build();
             PaymentIntent intent = PaymentIntent.create(params, requestOptions);
-            compra.setStripePaymentIntentId(intent.getId());
-            compraRepository.save(compra);
-            return new CrearPagoResponse(compra.getId(), intent.getClientSecret(), publishableKey);
+            compras.forEach(c -> c.setStripePaymentIntentId(intent.getId()));
+            compraRepository.saveAll(compras);
+            List<UUID> compraIds = compras.stream().map(Compra::getId).toList();
+            return new CrearPagoResponse(compraIds, intent.getClientSecret(), publishableKey);
         } catch (StripeException e) {
-            log.error("Stripe rechazó la creación del PaymentIntent para compra {}: {}", compra.getId(), e.toString());
+            log.error("Stripe rechazó la creación del PaymentIntent para compras {}: {}",
+                    compras.stream().map(c -> c.getId().toString()).collect(Collectors.joining(",")), e.toString());
             throw new ValidacionException("No se pudo iniciar el pago: " + e.getMessage());
         }
     }
 
-    // Si ya existe una Compra con esta clave (reintento tras timeout, doble
-    // tap), se reutiliza su PaymentIntent en vez de crear uno nuevo.
+    // Si ya existe un grupo de Compra con esta clave (reintento tras timeout,
+    // doble tap), se reutiliza su PaymentIntent en vez de crear uno nuevo.
     private Optional<CrearPagoResponse> reusarSiExiste(String idempotencyKey) {
-        return compraRepository.findByIdempotencyKey(idempotencyKey).map(compra -> {
-            try {
-                PaymentIntent intent = PaymentIntent.retrieve(compra.getStripePaymentIntentId());
-                return new CrearPagoResponse(compra.getId(), intent.getClientSecret(), publishableKey);
-            } catch (StripeException e) {
-                log.error("No se pudo recuperar el PaymentIntent existente para la clave {}: {}",
-                        idempotencyKey, e.toString());
-                throw new ValidacionException("No se pudo continuar el pago: " + e.getMessage());
-            }
-        });
+        List<Compra> existentes = compraRepository.findAllByIdempotencyKey(idempotencyKey);
+        if (existentes.isEmpty()) {
+            return Optional.empty();
+        }
+        try {
+            PaymentIntent intent = PaymentIntent.retrieve(existentes.get(0).getStripePaymentIntentId());
+            List<UUID> compraIds = existentes.stream().map(Compra::getId).toList();
+            return Optional.of(new CrearPagoResponse(compraIds, intent.getClientSecret(), publishableKey));
+        } catch (StripeException e) {
+            log.error("No se pudo recuperar el PaymentIntent existente para la clave {}: {}",
+                    idempotencyKey, e.toString());
+            throw new ValidacionException("No se pudo continuar el pago: " + e.getMessage());
+        }
     }
 
     // No existe todavía un sistema de reservas que descuente clases usadas de una
@@ -217,13 +236,16 @@ public class PagoService {
     }
 
     private void marcarComoPagada(PaymentIntent intent) {
-        compraRepository.findByStripePaymentIntentId(intent.getId())
-                .ifPresentOrElse(this::aplicarPagada,
-                        () -> log.warn("payment_intent.succeeded para {} sin Compra asociada", intent.getId()));
+        List<Compra> compras = compraRepository.findAllByStripePaymentIntentId(intent.getId());
+        if (compras.isEmpty()) {
+            log.warn("payment_intent.succeeded para {} sin Compra asociada", intent.getId());
+            return;
+        }
+        compras.forEach(this::aplicarPagada);
     }
 
     private void marcarComoFallida(PaymentIntent intent) {
-        compraRepository.findByStripePaymentIntentId(intent.getId()).ifPresent(this::aplicarFallida);
+        compraRepository.findAllByStripePaymentIntentId(intent.getId()).forEach(this::aplicarFallida);
     }
 
     private void aplicarPagada(Compra compra) {
@@ -250,7 +272,10 @@ public class PagoService {
         if (paymentIntentId == null) {
             return;
         }
-        compraRepository.findByStripePaymentIntentId(paymentIntentId).ifPresent(compra -> {
+        // Coherente con reembolsarCompra: un reembolso siempre es de carrito
+        // completo, así que se marcan todas las Compra que comparten el
+        // PaymentIntent, no solo una.
+        compraRepository.findAllByStripePaymentIntentId(paymentIntentId).forEach(compra -> {
             if (compra.getEstado() == EstadoCompra.reembolsada) {
                 return;
             }
@@ -261,6 +286,13 @@ public class PagoService {
 
     // Solo se puede reembolsar una compra que de verdad se cobró; el permiso
     // 'pagos.reembolsar' (solo ADMIN) evita que un cliente se autoreembolse.
+    //
+    // El reembolso es siempre de carrito completo: como varias Compra pueden
+    // compartir un mismo PaymentIntent (una por paquete elegido en el
+    // carrito), reembolsar solo la línea pedida dejaría cobrado el resto del
+    // carrito en Stripe pero sin forma confiable de correlacionar, desde el
+    // webhook charge.refunded, qué línea corresponde a qué reembolso parcial.
+    // Se prefiere reembolsar y marcar todo el grupo junto.
     @Transactional
     public ReembolsoResponse reembolsarCompra(UUID compraId) {
         Compra compra = compraRepository.findById(compraId)
@@ -269,13 +301,19 @@ public class PagoService {
             throw new ValidacionException("Solo se puede reembolsar una compra pagada");
         }
 
+        List<Compra> grupo = compraRepository.findAllByStripePaymentIntentId(compra.getStripePaymentIntentId());
+        boolean todasPagadas = grupo.stream().allMatch(c -> c.getEstado() == EstadoCompra.pagada);
+        if (!todasPagadas) {
+            throw new ValidacionException("El carrito tiene compras en un estado inconsistente para reembolsar");
+        }
+
         try {
             Refund refund = Refund.create(RefundCreateParams.builder()
                     .setPaymentIntent(compra.getStripePaymentIntentId())
                     .build());
-            compra.setEstado(EstadoCompra.reembolsada);
-            compraRepository.save(compra);
-            return new ReembolsoResponse(compra.getId(), compra.getEstado().name(), refund.getAmount().intValue());
+            grupo.forEach(c -> c.setEstado(EstadoCompra.reembolsada));
+            compraRepository.saveAll(grupo);
+            return new ReembolsoResponse(compra.getId(), EstadoCompra.reembolsada.name(), refund.getAmount().intValue());
         } catch (StripeException e) {
             log.error("Stripe rechazó el reembolso de la compra {}: {}", compra.getId(), e.toString());
             throw new ValidacionException("No se pudo procesar el reembolso: " + e.getMessage());

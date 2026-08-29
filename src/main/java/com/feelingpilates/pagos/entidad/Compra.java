@@ -41,7 +41,9 @@ public class Compra extends EntidadBase {
     @Column(nullable = false)
     private EstadoCompra estado = EstadoCompra.pendiente;
 
-    @Column(name = "stripe_payment_intent_id", unique = true)
+    // Ya no es unico: un carrito con varios paquetes genera una Compra por
+    // paquete, todas comparten el mismo PaymentIntent.
+    @Column(name = "stripe_payment_intent_id")
     private String stripePaymentIntentId;
 
     @Column(name = "fecha_expiracion")
@@ -49,8 +51,10 @@ public class Compra extends EntidadBase {
 
     // La app la genera una vez por intento de compra (no por cada tap), para
     // que un reintento tras un timeout de red reutilice el PaymentIntent en
-    // vez de crear uno duplicado.
-    @Column(name = "idempotency_key", unique = true)
+    // vez de crear uno duplicado. Tampoco es unica por el mismo motivo que
+    // stripePaymentIntentId: todas las Compra de un mismo carrito comparten
+    // la clave del intento de checkout que las generó.
+    @Column(name = "idempotency_key")
     private String idempotencyKey;
 
     public enum EstadoCompra { pendiente, pagada, fallida, cancelada, reembolsada }

@@ -5,12 +5,14 @@ import com.feelingpilates.pagos.entidad.Compra.EstadoCompra;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface CompraRepository extends JpaRepository<Compra, UUID> {
 
-    Optional<Compra> findByStripePaymentIntentId(String stripePaymentIntentId);
+    // Varias filas de un mismo carrito comparten stripePaymentIntentId /
+    // idempotencyKey (una Compra por paquete elegido), por eso ambas
+    // devuelven List en vez de Optional.
+    List<Compra> findAllByStripePaymentIntentId(String stripePaymentIntentId);
 
     List<Compra> findByUsuarioIdAndEstadoOrderByFechaExpiracionDesc(UUID usuarioId, EstadoCompra estado);
 
@@ -18,5 +20,5 @@ public interface CompraRepository extends JpaRepository<Compra, UUID> {
 
     List<Compra> findByEstado(EstadoCompra estado);
 
-    Optional<Compra> findByIdempotencyKey(String idempotencyKey);
+    List<Compra> findAllByIdempotencyKey(String idempotencyKey);
 }

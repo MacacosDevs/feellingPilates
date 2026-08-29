@@ -26,4 +26,8 @@ public class TipoActividad extends EntidadBase {
     /** Duracion de una clase de este tipo; define el tamano del bloque al reservar. */
     @Column(name = "duracion_minutos", nullable = false)
     private Short duracionMinutos = 60;
+
+    /** Cupo por defecto de una clase de este tipo; se copia a Clase.capacidad al materializarla. */
+    @Column(name = "capacidad_predeterminada", nullable = false)
+    private Short capacidadPredeterminada = 8;
 }

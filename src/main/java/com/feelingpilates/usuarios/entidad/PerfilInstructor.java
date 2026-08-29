@@ -36,4 +36,16 @@ public class PerfilInstructor extends EntidadBase {
 
     @Column(name = "calificacion_promedio")
     private BigDecimal calificacionPromedio;
+
+    @Column(name = "instagram_url")
+    private String instagramUrl;
+
+    @Column(name = "facebook_url")
+    private String facebookUrl;
+
+    @Column(name = "tiktok_url")
+    private String tiktokUrl;
+
+    @Column(name = "whatsapp_url")
+    private String whatsappUrl;
 }

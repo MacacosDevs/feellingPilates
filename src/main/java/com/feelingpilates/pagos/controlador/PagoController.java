@@ -31,12 +31,10 @@ public class PagoController {
         this.pagoService = pagoService;
     }
 
-    @PostMapping("/paquetes/{paqueteId}/intento")
+    @PostMapping("/paquetes/intento")
     public CrearPagoResponse crearIntento(@AuthenticationPrincipal UsuarioAutenticado usuario,
-                                           @PathVariable UUID paqueteId,
-                                           @RequestBody(required = false) CrearPagoRequest request) {
-        String idempotencyKey = request != null ? request.idempotencyKey() : null;
-        return pagoService.crearIntentoPago(usuario.id(), paqueteId, idempotencyKey);
+                                           @RequestBody CrearPagoRequest request) {
+        return pagoService.crearIntentoPago(usuario.id(), request.paqueteIds(), request.idempotencyKey());
     }
 
     @GetMapping("/mis-paquetes")

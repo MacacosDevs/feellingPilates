@@ -266,18 +266,38 @@ decisions preservan exactamente su clasificación final en el checkpoint.
 
 ## Próximo paso
 
-**READ-NEXT / DETERMINAR EL SIGUIENTE SCOPE Y HANDOFF DESDE F2E.1 CERRADA.**
+**EJECUTAR LA UNIDAD `DESIGN / RESEARCH` AUTORIZADA POR
+`auditoria/handoffs/HANDOFF-F2E-IDENTIDAD-DETECTOR-READ-ONLY.md`.**
 
-El candidate next scope no equivale a una fase autorizada. Cualquier trabajo posterior requiere
-nuevo handoff o intervención, scope explícito, pre-flight fresh, evidencia requerida y gate
-independiente. No autoriza implementar, migrar, activar, ejecutar cutover ni cambiar la autoridad
-productiva.
+El primer trabajo queda limitado a pre-flight, lectura de autoridad F2D/F2E, research de identidad,
+semántica legacy, D03 detector-only, D04, D09, D10, D11 detector-only y un checkpoint documental.
+No ordena implementación, migración, cutover ni cambio de autoridad.
 
 ## Handoff activo
 
 ```text
-NINGUNO
+HANDOFF: HANDOFF-F2E-IDENTIDAD-DETECTOR-READ-ONLY.md
+STATUS: APPROVED / ACTIVE
+TARGET: F2E / cierre de identidad, semántica legacy y contrato detector-only
+TYPE: DESIGN / RESEARCH
+CHECKPOINT: NOT_CREATED / PENDING
+DESIGN/DOCUMENT GATE: PENDING
+IMPLEMENTATION: NOT_AUTHORIZED
+MIGRATION: NOT_AUTHORIZED
+CUTOVER: false
+RUNTIME: DARK_LAUNCH
+PRODUCTIVE: NOT_PRODUCTIVE
+AUTHORITY: TurnoInstructor / LEGACY_VIVO / PRODUCTIVO
 ```
+
+La activación fue precedida por un audit fresh e independiente `READ_ONLY` con `P0=0 / P1=0 /
+P2=0`, persistido en
+`auditoria/reviews/HANDOFF-F2E-IDENTIDAD-DETECTOR-READ-ONLY-REVIEW.md`. La activación permite
+iniciar sólo el scope de diseño/investigación; no equivale a diseño aprobado ni a checkpoint creado.
+
+`D04` sigue pendiente de resolución por la unidad activa. `D03`, `D09`, `D10` y `D11` se autorizan
+sólo dentro de sus límites detector-only/semántica observable; `D08` permanece diferida. La fuente
+de datos sigue `DATA_SOURCE_NOT_AVAILABLE` y las queries requieren autorización explícita.
 
 `auditoria/handoffs/HANDOFF-F2D2.md` y `auditoria/handoffs/HANDOFF-F2E-PREPARACION.md` quedan
 preservados como handoffs históricos, cerrados y superseded.

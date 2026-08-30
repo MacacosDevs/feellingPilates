@@ -313,23 +313,26 @@ diseño: no implementa detector, crosswalk, resolver o fence y no autoriza migra
 
 ## Próximo paso
 
-**DETERMINAR / PREPARAR EL SIGUIENTE SCOPE Y HANDOFF DESDE LOS CANÓNICOS FRESH.**
+**EXECUTE ACTIVE HANDOFF — IMPLEMENTATION_READ_ONLY DEL NÚCLEO PURO.**
 
-`IMPLEMENTATION_READ_ONLY` permanece sólo como candidate future scope. No es una unidad autorizada
-ni el siguiente paso automático. Cualquier continuidad requiere un nuevo handoff específico,
-auditado y activado; no se ordena implementación, migración, fence, cutover ni cambio de autoridad.
+La única ejecución autorizada es `F2E / detector read-only — materialización mínima del núcleo puro`,
+con el type `IMPLEMENTATION_READ_ONLY` y el contrato de
+`auditoria/handoffs/HANDOFF-F2E-DETECTOR-READ-ONLY-NUCLEO-PURO.md`. No autoriza adapters, DB,
+migración, crosswalk, resolver, fence, cutover ni cambio de autoridad.
 
 ## Handoff activo
 
 ```text
-HANDOFF: NINGUNO
-STATUS: NO ACTIVE HANDOFF
-LAST CLOSED: HANDOFF-F2E-IDENTIDAD-DETECTOR-READ-ONLY.md
-LAST TARGET: F2E / cierre de identidad, semántica legacy y contrato detector-only
-LAST TYPE: DESIGN / RESEARCH
-CHECKPOINT: PERSISTED / DESIGN_APPROVED / CLOSED
-DESIGN/DOCUMENT GATE: PASS
-IMPLEMENTATION: NOT_AUTHORIZED
+HANDOFF: HANDOFF-F2E-DETECTOR-READ-ONLY-NUCLEO-PURO.md
+STATUS: APPROVED / ACTIVE / AUTHORIZED_FOR_IMPLEMENTATION_READ_ONLY
+TARGET: F2E / detector read-only — materialización mínima del núcleo puro
+TYPE: IMPLEMENTATION_READ_ONLY
+HANDOFF AUDIT: PERSISTED — auditoria/reviews/HANDOFF-F2E-DETECTOR-READ-ONLY-NUCLEO-PURO-REVIEW.md
+IMPLEMENTATION: AUTHORIZED_TO_START (THIS EXACT UNIT ONLY)
+IMPLEMENTATION CHECKPOINT: NOT_CREATED / PENDING
+IMPLEMENTATION TESTS: PENDING / NOT_EXECUTED
+TECHNICAL IMPLEMENTATION GATE: PENDING / NOT_PERFORMED
+TECHNICAL IMPLEMENTATION AUDIT: PENDING / NOT_PERFORMED
 MIGRATION: NOT_AUTHORIZED
 FENCE: NOT_AUTHORIZED
 CUTOVER: false
@@ -339,8 +342,24 @@ AUTHORITY: TurnoInstructor / LEGACY_VIVO / PRODUCTIVO
 ```
 
 El handoff de identidad/detector queda `CLOSED / HISTORICAL` tras satisfacer sus exit conditions.
-No existe siguiente handoff. La fuente de datos sigue `DATA_SOURCE_NOT_AVAILABLE`, la ejecución de
-data audit sigue `NOT_PERFORMED` y cualquier query material requiere autorización explícita.
+`ACTIVE` no significa implementación completa, código existente, tests PASS, technical gate PASS,
+technical audit PASS, checkpoint creado, publicación, productividad, migración ni cutover. La fuente
+de datos sigue `DATA_SOURCE_NOT_AVAILABLE`, la ejecución de data audit sigue `NOT_PERFORMED` y
+cualquier query material requiere autorización explícita.
+
+La ejecución autorizada sólo puede crear nuevos archivos, sin modificar archivos productivos
+existentes, dentro de:
+
+```text
+main:  src/main/java/com/feelingpilates/transicion/programacion/detector/**
+tests: src/test/java/com/feelingpilates/transicion/programacion/detector/**
+```
+
+El alcance sigue siendo `PURE JAVA / IMMUTABLE / IN-MEMORY / READ-ONLY`: Spring, Spring Boot,
+Spring Data, JPA/Jakarta Persistence, JDBC, repositories, entities productivas, services,
+controllers, configuration, scheduler/listeners, DB, filesystem/network I/O y runtime wiring están
+prohibidos. Adapters, coordinator y metrics/report runtime permanecen `OUT_OF_SCOPE`; D08,
+crosswalk persistido, resolver y fence permanecen `DEFERRED` o `NOT_AUTHORIZED` según su decisión.
 
 `auditoria/handoffs/HANDOFF-F2D2.md` y `auditoria/handoffs/HANDOFF-F2E-PREPARACION.md` quedan
 preservados como handoffs históricos, cerrados y superseded.
@@ -354,5 +373,5 @@ preservados como handoffs históricos, cerrados y superseded.
 - `BloqueProgramacion + Asignacion` permanece `IMPLEMENTADO_NO_PRODUCTIVO`.
 - F2E.1 cerrada no autoriza por sí misma F2E.2 ni ninguna implementación posterior; preserva todos
   los límites anteriores y exige nuevo scope/handoff.
-- El cierre de identidad/semántica/detector-only tampoco autoriza `IMPLEMENTATION_READ_ONLY`; ese
-  candidate scope requiere un nuevo handoff específico, auditado y activado.
+- El handoff activo autoriza exclusivamente el núcleo puro detector-only dentro de la allowlist;
+  ninguna otra unidad ni activación queda autorizada.

@@ -1,11 +1,11 @@
 # FeelingPilates — Estado actual de la reestructuración
 
 Status: CANONICAL
-Last updated: 2026-08-27
+Last updated: 2026-08-29
 Repository verification: VERIFIED
 Last verified against commit:
 a971f8b9d56ffe901a2c6a07c4e757628686ad85
-Verification scope: cierre documental materializado de F2E.1 desde el audit independiente final; dark launch y autoridad productiva preservados
+Verification scope: cierre documental materializado de identidad/semántica/detector-only desde el audit independiente final; dark launch y autoridad productiva preservados
 
 La referencia anterior identifica la base histórica de esta materialización documental. No sustituye el `HEAD` operativo, que debe obtenerse mediante pre-flight en cada intervención.
 
@@ -260,44 +260,87 @@ runtime: DARK_LAUNCH
 productive: NOT_PRODUCTIVE
 ```
 
-El cierre de F2E.1 no autoriza implementación, migración productiva, F2E.2, cutover ni cambio de
-autoridad. `D03/D04` siguen `BLOCKING_FOR_NEXT_GATE`; `D08-D11` y los demás blockers/deferred
-decisions preservan exactamente su clasificación final en el checkpoint.
+El cierre de F2E.1 no autorizó implementación, migración productiva, F2E.2, cutover ni cambio de
+autoridad. En ese corte histórico, `D03/D04` seguían `BLOCKING_FOR_NEXT_GATE`; `D08-D11` y los
+demás blockers/deferred decisions conservaron la clasificación final de aquel checkpoint. La
+unidad posterior de identidad/semántica/detector-only documentada a continuación cerró
+`D03/D04/D09/D10/D11` sólo dentro de su scope aprobado y mantuvo `D08` diferida.
+
+### F2E — Identidad, semántica legacy y detector-only
+
+**DESIGN APPROVED / CLOSED**
+
+La unidad `DESIGN / RESEARCH` materializada en
+`auditoria/fase-2e-identidad-semantica-detector-read-only.md` fue auditada fresh e
+independientemente en modo `READ_ONLY`. El resultado final queda persistido en
+`auditoria/reviews/F2E-IDENTIDAD-DETECTOR-REVIEW-DISENO.md`:
+
+```text
+P0: 0
+P1: 0
+P2: 0
+IDENTITY_LEGACY_DETECTOR_DESIGN_GATE: PASS
+READY_FOR_DESIGN_CLOSURE: SI
+requires human decision: NO
+```
+
+Estado de la unidad:
+
+```text
+checkpoint: PERSISTED / DESIGN_APPROVED / CLOSED
+D03 detector-only: CLOSED
+D04: CLOSED
+D09 detector-only: CLOSED
+D10 detector-only: CLOSED
+D11 detector-only: CLOSED
+D08: DEFERRED
+data source: DATA_SOURCE_NOT_AVAILABLE
+data audit execution: NOT_PERFORMED
+implementation: NOT_AUTHORIZED
+migration: NOT_AUTHORIZED
+fence: NOT_AUTHORIZED
+cutover: false
+runtime: DARK_LAUNCH
+productive: NOT_PRODUCTIVE
+authority: TurnoInstructor / LEGACY_VIVO / PRODUCTIVO
+```
+
+D04 separa canónicamente `programming_target_identity` (referencia de occurrence efectiva),
+`reservation_identity` (`reserva.id`) y `reservation_consumption_snapshot`
+(`[horaInicio,horaFin)`). D03/D11 cierran sólo generación `0..N`, evidencia, clasificación,
+ambigüedad, provenance y reporte sin selección ni persistencia. El cierre es exclusivamente de
+diseño: no implementa detector, crosswalk, resolver o fence y no autoriza migración ni cutover.
 
 ## Próximo paso
 
-**EJECUTAR LA UNIDAD `DESIGN / RESEARCH` AUTORIZADA POR
-`auditoria/handoffs/HANDOFF-F2E-IDENTIDAD-DETECTOR-READ-ONLY.md`.**
+**DETERMINAR / PREPARAR EL SIGUIENTE SCOPE Y HANDOFF DESDE LOS CANÓNICOS FRESH.**
 
-El primer trabajo queda limitado a pre-flight, lectura de autoridad F2D/F2E, research de identidad,
-semántica legacy, D03 detector-only, D04, D09, D10, D11 detector-only y un checkpoint documental.
-No ordena implementación, migración, cutover ni cambio de autoridad.
+`IMPLEMENTATION_READ_ONLY` permanece sólo como candidate future scope. No es una unidad autorizada
+ni el siguiente paso automático. Cualquier continuidad requiere un nuevo handoff específico,
+auditado y activado; no se ordena implementación, migración, fence, cutover ni cambio de autoridad.
 
 ## Handoff activo
 
 ```text
-HANDOFF: HANDOFF-F2E-IDENTIDAD-DETECTOR-READ-ONLY.md
-STATUS: APPROVED / ACTIVE
-TARGET: F2E / cierre de identidad, semántica legacy y contrato detector-only
-TYPE: DESIGN / RESEARCH
-CHECKPOINT: NOT_CREATED / PENDING
-DESIGN/DOCUMENT GATE: PENDING
+HANDOFF: NINGUNO
+STATUS: NO ACTIVE HANDOFF
+LAST CLOSED: HANDOFF-F2E-IDENTIDAD-DETECTOR-READ-ONLY.md
+LAST TARGET: F2E / cierre de identidad, semántica legacy y contrato detector-only
+LAST TYPE: DESIGN / RESEARCH
+CHECKPOINT: PERSISTED / DESIGN_APPROVED / CLOSED
+DESIGN/DOCUMENT GATE: PASS
 IMPLEMENTATION: NOT_AUTHORIZED
 MIGRATION: NOT_AUTHORIZED
+FENCE: NOT_AUTHORIZED
 CUTOVER: false
 RUNTIME: DARK_LAUNCH
 PRODUCTIVE: NOT_PRODUCTIVE
 AUTHORITY: TurnoInstructor / LEGACY_VIVO / PRODUCTIVO
 ```
 
-La activación fue precedida por un audit fresh e independiente `READ_ONLY` con `P0=0 / P1=0 /
-P2=0`, persistido en
-`auditoria/reviews/HANDOFF-F2E-IDENTIDAD-DETECTOR-READ-ONLY-REVIEW.md`. La activación permite
-iniciar sólo el scope de diseño/investigación; no equivale a diseño aprobado ni a checkpoint creado.
-
-`D04` sigue pendiente de resolución por la unidad activa. `D03`, `D09`, `D10` y `D11` se autorizan
-sólo dentro de sus límites detector-only/semántica observable; `D08` permanece diferida. La fuente
-de datos sigue `DATA_SOURCE_NOT_AVAILABLE` y las queries requieren autorización explícita.
+El handoff de identidad/detector queda `CLOSED / HISTORICAL` tras satisfacer sus exit conditions.
+No existe siguiente handoff. La fuente de datos sigue `DATA_SOURCE_NOT_AVAILABLE`, la ejecución de
+data audit sigue `NOT_PERFORMED` y cualquier query material requiere autorización explícita.
 
 `auditoria/handoffs/HANDOFF-F2D2.md` y `auditoria/handoffs/HANDOFF-F2E-PREPARACION.md` quedan
 preservados como handoffs históricos, cerrados y superseded.
@@ -311,3 +354,5 @@ preservados como handoffs históricos, cerrados y superseded.
 - `BloqueProgramacion + Asignacion` permanece `IMPLEMENTADO_NO_PRODUCTIVO`.
 - F2E.1 cerrada no autoriza por sí misma F2E.2 ni ninguna implementación posterior; preserva todos
   los límites anteriores y exige nuevo scope/handoff.
+- El cierre de identidad/semántica/detector-only tampoco autoriza `IMPLEMENTATION_READ_ONLY`; ese
+  candidate scope requiere un nuevo handoff específico, auditado y activado.

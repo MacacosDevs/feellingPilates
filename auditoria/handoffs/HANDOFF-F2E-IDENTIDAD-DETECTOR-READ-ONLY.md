@@ -1,6 +1,6 @@
 # FeelingPilates — Handoff F2E / identidad, semántica legacy y detector-only
 
-Handoff status: `APPROVED / ACTIVE / AUTHORIZED_FOR_DESIGN_RESEARCH`
+Handoff status: `CLOSED / HISTORICAL / SUPERSEDED_BY_IDENTITY_LEGACY_DETECTOR_DESIGN_CLOSURE`
 
 Target unit: `F2E / cierre de identidad, semántica legacy y contrato detector-only`
 
@@ -10,13 +10,14 @@ Execution profile: `DESIGN / READ_ONLY_RESEARCH`
 
 Materialization role: `DESIGN_EXECUTOR / RESEARCHER`
 
-Este handoff materializa el contrato documental para una unidad mínima de investigación y diseño
+Este handoff materializó el contrato documental para una unidad mínima de investigación y diseño
 read-only. El audit fresh e independiente, persistido en
 `auditoria/reviews/HANDOFF-F2E-IDENTIDAD-DETECTOR-READ-ONLY-REVIEW.md`, reportó
-`P0=0 / P1=0 / P2=0` y aprobó su activación. Por tanto, la unidad está activa únicamente para
-iniciar su trabajo `DESIGN / RESEARCH`; esa activación no inicia ni aprueba el diseño de la unidad,
-no crea su checkpoint, no autoriza implementación y no sustituye el audit fresh e independiente
-del output documental futuro.
+`P0=0 / P1=0 / P2=0` y aprobó su activación histórica. La unidad completó su trabajo
+`DESIGN / RESEARCH` y el audit final fresh e independiente, persistido en
+`auditoria/reviews/F2E-IDENTIDAD-DETECTOR-REVIEW-DISENO.md`, reportó
+`P0=0 / P1=0 / P2=0` y `IDENTITY_LEGACY_DETECTOR_DESIGN_GATE=PASS`. Al quedar satisfechas las exit
+conditions de la sección 26, este handoff deja de estar activo y se conserva cerrado e histórico.
 
 La unidad futura, sólo después de la aprobación y activación documental competente de este
 handoff, podrá observar evidencia física, diseñar generación de candidatos `0..N`, clasificar
@@ -955,9 +956,9 @@ autoridad.
 ## 28. No-activaciones y no-autorizaciones
 
 ```text
-This handoff approved: YES
-This handoff active: YES
-Target unit active: YES — DESIGN / RESEARCH ONLY
+This handoff approved: YES — HISTORICAL
+This handoff active: NO — CLOSED
+Target unit active: NO — DESIGN / RESEARCH CLOSED
 Implementation authorized: NO
 Test code authorized: NO
 Migration code authorized: NO
@@ -975,7 +976,9 @@ Product authority change authorized: NO
 
 El estado vigente de este artefacto es:
 
-`HANDOFF APPROVED / ACTIVE / AUTHORIZED FOR DESIGN RESEARCH`
+`HANDOFF CLOSED / HISTORICAL / SUPERSEDED BY IDENTITY-LEGACY-DETECTOR DESIGN CLOSURE`
 
-El diseño de la unidad sigue `PENDING`; su checkpoint no existe y requiere un audit fresh e
-independiente antes de cualquier aprobación posterior.
+El checkpoint existe y la unidad de diseño está `DESIGN_APPROVED / CLOSED` por el audit final
+fresh e independiente. Este cierre no autoriza implementación, detector, crosswalk, resolver,
+fence, migración, `MIGRANDO`, `NUEVA`, cutover ni cambio de autoridad. No se deriva ni crea un
+handoff siguiente.

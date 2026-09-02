@@ -1,6 +1,6 @@
 # FeelingPilates — Handoff F2E / detector read-only — materialización mínima del núcleo puro
 
-Handoff status: `HANDOFF_MATERIALIZED / HANDOFF_AUDIT_PERSISTED / APPROVED / ACTIVE / AUTHORIZED_FOR_IMPLEMENTATION_READ_ONLY`
+Handoff status: `HANDOFF_MATERIALIZED / HANDOFF_AUDIT_PERSISTED / IMPLEMENTATION_MATERIALIZED / TECHNICAL_IMPLEMENTATION_AUDIT_PERSISTED / COMPLETED / CLOSED / HISTORICAL`
 
 Target unit: `F2E / detector read-only — materialización mínima del núcleo puro`
 
@@ -8,11 +8,11 @@ Type: `IMPLEMENTATION_READ_ONLY`
 
 Execution profile: `PURE_JAVA_IN_MEMORY_READ_ONLY_DETECTOR_CORE`
 
-Materialization role: `EXECUTOR`, autorizado a iniciar exclusivamente después de la aprobación y activación competentes registradas en este handoff.
+Materialization role: `EXECUTOR`; ejecución materializada y technical audit fresh e independiente persistido.
 
-Este artefacto materializa el contrato de ejecución futura para el núcleo puro del detector. El audit fresh e independiente final queda persistido en `auditoria/reviews/HANDOFF-F2E-DETECTOR-READ-ONLY-NUCLEO-PURO-REVIEW.md`; con ese resultado se registra aquí su aprobación y activación. El executor de la unidad nunca puede autoauditarse.
+Este artefacto conserva el contrato que autorizó el núcleo puro. El audit de handoff permanece en `auditoria/reviews/HANDOFF-F2E-DETECTOR-READ-ONLY-NUCLEO-PURO-REVIEW.md`; el audit técnico final queda en `auditoria/reviews/F2E-DETECTOR-READ-ONLY-NUCLEO-PURO-REVIEW-IMPLEMENTACION.md`. El executor nunca se autoauditó.
 
-`ACTIVE` autoriza solamente iniciar esta unidad exacta dentro de la allowlist. No significa que exista código, que la implementación esté completa, que los tests hayan pasado, que exista un technical gate o audit `PASS`, que haya checkpoint de implementación, publicación, migración, cutover o cambio de autoridad productiva.
+La implementación cerrada cumple el scope: 21 archivos production y 7 test/helper nuevos, tests focalizados `37/37 PASS`, `P0=0/P1=0/P2=0` y gates técnicos aplicables `PASS`. El handoff deja de estar `ACTIVE`. El cierre no autoriza publicación, runtime, productividad, adapters, DB, migración, cutover ni cambio de autoridad.
 
 ## 1. Autoridad, derivación y baseline
 
@@ -57,7 +57,7 @@ D11 detector-only: CLOSED
 D08: DEFERRED
 Data source: DATA_SOURCE_NOT_AVAILABLE
 Data audit execution: NOT_PERFORMED
-Implementation of this exact unit: AUTHORIZED_TO_START
+Implementation of this exact unit: CLOSED
 Migration: NOT_AUTHORIZED
 Fence: NOT_AUTHORIZED
 Runtime: DARK_LAUNCH
@@ -107,12 +107,12 @@ No hay bean discovery, component scanning effect ni runtime reachability. `Impac
 
 ```text
 handoff materialized: SI
-implementation materialized: NO
-implementation performed: NO
-implementation checkpoint: NOT_CREATED / PENDING
-implementation tests: PENDING / NOT_EXECUTED
-technical implementation audit: PENDING / NOT_PERFORMED
-implementation status: AUTHORIZED_TO_START
+implementation materialized: SI
+implementation performed: SI
+implementation checkpoint: NOT_REQUIRED
+implementation tests: 37/37 PASS
+technical implementation audit: PASS / P0=0 / P1=0 / P2=0
+implementation status: CLOSED
 runtime reachable: NO
 productively consumed: NO
 Spring discovered: NO
@@ -267,9 +267,9 @@ Antes de implementar deben comprobarse fresh:
 
 El audit persistido verificó estas entry conditions sobre el HEAD indicado. El executor posterior debe repetir su pre-flight físico y no inicia ni reconcilia por inferencia si una precondición material falla.
 
-## 11. Exit conditions de la futura unidad
+## 11. Exit conditions de la unidad cerrada
 
-Sólo puede presentarse a technical closure si:
+Las condiciones verificadas para su technical closure fueron:
 
 - todos los cambios pertenecen a la allowlist y son nuevos detector/tests; no se modifica archivo productivo existente;
 - núcleo puro, contratos equivalentes al diseño, generator `0..N`, classifier fail-closed, guard F2D y separación D04 están materializados;
@@ -278,7 +278,7 @@ Sólo puede presentarse a technical closure si:
 - permanecen `DARK_LAUNCH`, `NOT_PRODUCTIVE`, autoridad `TurnoInstructor` y `cutover=false`;
 - un `FRESH_INDEPENDENT_IMPLEMENTATION_AUDIT` de otro agente reporta `P0=0 / P1=0`.
 
-Ese audit es el siguiente gate de la implementación. No hay publication ni cutover antes de su PASS y cierre competente.
+El audit fresh e independiente reportó `P0=0/P1=0`; por tanto estas exit conditions quedaron satisfechas. No hay publication ni cutover autorizados por este cierre.
 
 ## 12. Lifecycle, autoridad de inicio y no-activaciones
 
@@ -288,18 +288,21 @@ Handoff audit persisted: YES
 Audit artifact: auditoria/reviews/HANDOFF-F2E-DETECTOR-READ-ONLY-NUCLEO-PURO-REVIEW.md
 Audited lifecycle before this activation: HANDOFF_MATERIALIZED / READY_FOR_FRESH_INDEPENDENT_HANDOFF_DOCUMENT_AUDIT / NOT_APPROVED / NOT_ACTIVE
 Handoff approved: YES
-Handoff active: YES
-Implementation of this exact unit authorized to start: YES
-Implementation materialized: NO
-Implementation started: NO
-Implementation performed: NO
-Tests performed: NO
-Technical implementation gate: PENDING / NOT_PERFORMED
-Technical implementation audit: PENDING / NOT_PERFORMED
-Implementation checkpoint: NOT_CREATED / PENDING
-Product code modified: NO
+Handoff active: NO — COMPLETED / CLOSED / HISTORICAL
+Implementation of this exact unit authorized to start: historical authorization consumed
+Implementation materialized: YES — 21 production files in the allowlist
+Implementation started: YES
+Implementation performed: YES
+Tests performed: YES — 37/37 PASS
+Technical implementation gate: PASS
+Technical implementation audit: PASS — P0=0 / P1=0 / P2=0
+Implementation checkpoint: NOT_REQUIRED
+Product code modified: NO — no existing product file was modified
 Migrations/data modified: NO
-Implementation review or checkpoint created: NO
+Implementation technical review created: auditoria/reviews/F2E-DETECTOR-READ-ONLY-NUCLEO-PURO-REVIEW-IMPLEMENTACION.md
+
+El presente lifecycle materializado por DOCUMENTER no se autoaudita. Antes de `git add`, commit o
+push, el delta documental requiere una auditoría fresh e independiente de cierre documental.
 ```
 
-La aprobación/activación no sustituye ninguna exit condition de la futura implementación. Sólo después de materializar código y tests dentro de la allowlist corresponde un `FRESH_INDEPENDENT_IMPLEMENTATION_AUDIT`; antes no se ejecutan `git add`, commit ni push.
+La aprobación/activación histórica no sustituyó las exit conditions: éstas se satisficieron mediante la materialización allowlisted, los tests y el `FRESH_INDEPENDENT_IMPLEMENTATION_AUDIT` persistido. El cierre tampoco autoriza `git add`, commit ni push.

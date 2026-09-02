@@ -1,11 +1,11 @@
 # FeelingPilates — Estado actual de la reestructuración
 
 Status: CANONICAL
-Last updated: 2026-08-29
+Last updated: 2026-09-02
 Repository verification: VERIFIED
 Last verified against commit:
-a971f8b9d56ffe901a2c6a07c4e757628686ad85
-Verification scope: cierre documental materializado de identidad/semántica/detector-only desde el audit independiente final; dark launch y autoridad productiva preservados
+1ebf0010e7376719627ecff9bdf592b8c2aa2f6f
+Verification scope: persistencia documental del technical implementation audit final F2E detector read-only; dark launch y autoridad productiva preservados
 
 La referencia anterior identifica la base histórica de esta materialización documental. No sustituye el `HEAD` operativo, que debe obtenerse mediante pre-flight en cada intervención.
 
@@ -311,58 +311,69 @@ D04 separa canónicamente `programming_target_identity` (referencia de occurrenc
 ambigüedad, provenance y reporte sin selección ni persistencia. El cierre es exclusivamente de
 diseño: no implementa detector, crosswalk, resolver o fence y no autoriza migración ni cutover.
 
+### F2E — Detector read-only / materialización mínima del núcleo puro
+
+**IMPLEMENTATION CLOSED / TECHNICAL IMPLEMENTATION GATE PASS / DARK_LAUNCH / NOT_PRODUCTIVE**
+
+La unidad quedó materializada exclusivamente con 21 archivos production y 7 test/helper nuevos en
+`src/**/com/feelingpilates/transicion/programacion/detector/**`; ningún archivo productivo tracked
+existente fue modificado.
+
+El technical audit fresh e independiente queda persistido en
+`auditoria/reviews/F2E-DETECTOR-READ-ONLY-NUCLEO-PURO-REVIEW-IMPLEMENTACION.md`:
+
+```text
+Targeted tests: 37; Failures: 0; Errors: 0; Skipped: 0; Result: PASS / BUILD SUCCESS
+P0=0 / P1=0 / P2=0
+SCOPE_GATE / SEMANTIC_CONTRACT_GATE / IMMUTABILITY_GATE / RUNTIME_ISOLATION_GATE / TEST_GATE: PASS
+TECHNICAL_IMPLEMENTATION_GATE: PASS
+READY_FOR_IMPLEMENTATION_CLOSURE: SI
+Implementation materialized: SI
+Implementation performed: SI
+Implementation: CLOSED
+```
+
+La suite más amplia permanece `OPTIONAL_ATTEMPT`: la última evidencia fresh disponible registró
+118 errores ambientales Docker/Testcontainers, sin fallos conocidos del detector. No equivale a
+PASS de suite global ni bloquea este slice, cuyo host validation no era requerido.
+
+El checkpoint específico de implementación no es requerido por el workflow profile ni por las exit
+conditions del handoff; `ESTADO-ACTUAL` y el review técnico son la evidencia competente.
+
 ## Próximo paso
 
-**EXECUTE ACTIVE HANDOFF — IMPLEMENTATION_READ_ONLY DEL NÚCLEO PURO.**
-
-La única ejecución autorizada es `F2E / detector read-only — materialización mínima del núcleo puro`,
-con el type `IMPLEMENTATION_READ_ONLY` y el contrato de
-`auditoria/handoffs/HANDOFF-F2E-DETECTOR-READ-ONLY-NUCLEO-PURO.md`. No autoriza adapters, DB,
-migración, crosswalk, resolver, fence, cutover ni cambio de autoridad.
+**READ_NEXT / NEXT_HANDOFF_SCOPE.** No hay handoff activo ni unidad posterior autorizada. Un
+posible slice de adapters read-only sigue siendo sólo candidato y requiere nuevo scope, handoff y
+audit competentes.
 
 ## Handoff activo
 
 ```text
-HANDOFF: HANDOFF-F2E-DETECTOR-READ-ONLY-NUCLEO-PURO.md
-STATUS: APPROVED / ACTIVE / AUTHORIZED_FOR_IMPLEMENTATION_READ_ONLY
-TARGET: F2E / detector read-only — materialización mínima del núcleo puro
-TYPE: IMPLEMENTATION_READ_ONLY
-HANDOFF AUDIT: PERSISTED — auditoria/reviews/HANDOFF-F2E-DETECTOR-READ-ONLY-NUCLEO-PURO-REVIEW.md
-IMPLEMENTATION: AUTHORIZED_TO_START (THIS EXACT UNIT ONLY)
-IMPLEMENTATION CHECKPOINT: NOT_CREATED / PENDING
-IMPLEMENTATION TESTS: PENDING / NOT_EXECUTED
-TECHNICAL IMPLEMENTATION GATE: PENDING / NOT_PERFORMED
-TECHNICAL IMPLEMENTATION AUDIT: PENDING / NOT_PERFORMED
-MIGRATION: NOT_AUTHORIZED
-FENCE: NOT_AUTHORIZED
-CUTOVER: false
-RUNTIME: DARK_LAUNCH
-PRODUCTIVE: NOT_PRODUCTIVE
-AUTHORITY: TurnoInstructor / LEGACY_VIVO / PRODUCTIVO
+ACTIVE HANDOFF: NINGUNO
+LAST HANDOFF: HANDOFF-F2E-DETECTOR-READ-ONLY-NUCLEO-PURO.md
+LAST HANDOFF STATUS: COMPLETED / CLOSED / HISTORICAL
 ```
 
-El handoff de identidad/detector queda `CLOSED / HISTORICAL` tras satisfacer sus exit conditions.
-`ACTIVE` no significa implementación completa, código existente, tests PASS, technical gate PASS,
-technical audit PASS, checkpoint creado, publicación, productividad, migración ni cutover. La fuente
-de datos sigue `DATA_SOURCE_NOT_AVAILABLE`, la ejecución de data audit sigue `NOT_PERFORMED` y
-cualquier query material requiere autorización explícita.
-
-La ejecución autorizada sólo puede crear nuevos archivos, sin modificar archivos productivos
-existentes, dentro de:
+`IMPLEMENTATION CLOSED` significa núcleo puro materializado, tests aplicables PASS y technical audit
+PASS; no significa runtime activo, consumer productivo, adapters, DB, datos auditados, crosswalk,
+resolver, fence, migración ni cutover.
 
 ```text
-main:  src/main/java/com/feelingpilates/transicion/programacion/detector/**
-tests: src/test/java/com/feelingpilates/transicion/programacion/detector/**
+PURE JAVA / IMMUTABLE / IN-MEMORY / READ-ONLY: PRESERVED
+Spring/JPA/DB/runtime wiring: NONE
+Adapters: NOT_IMPLEMENTED / OUT_OF_SCOPE
+Persisted crosswalk / resolver / fence: NOT_AUTHORIZED
+D08: DEFERRED
+Migration: NOT_AUTHORIZED
+MIGRANDO: NO
+NUEVA: NO
+Cutover: false
+Data source: DATA_SOURCE_NOT_AVAILABLE
+Data audit: NOT_PERFORMED
+Runtime: DARK_LAUNCH
+Productive: NOT_PRODUCTIVE
+Authority: TurnoInstructor / LEGACY_VIVO / PRODUCTIVO
 ```
-
-El alcance sigue siendo `PURE JAVA / IMMUTABLE / IN-MEMORY / READ-ONLY`: Spring, Spring Boot,
-Spring Data, JPA/Jakarta Persistence, JDBC, repositories, entities productivas, services,
-controllers, configuration, scheduler/listeners, DB, filesystem/network I/O y runtime wiring están
-prohibidos. Adapters, coordinator y metrics/report runtime permanecen `OUT_OF_SCOPE`; D08,
-crosswalk persistido, resolver y fence permanecen `DEFERRED` o `NOT_AUTHORIZED` según su decisión.
-
-`auditoria/handoffs/HANDOFF-F2D2.md` y `auditoria/handoffs/HANDOFF-F2E-PREPARACION.md` quedan
-preservados como handoffs históricos, cerrados y superseded.
 
 ## Advertencias inmediatas
 
@@ -373,5 +384,5 @@ preservados como handoffs históricos, cerrados y superseded.
 - `BloqueProgramacion + Asignacion` permanece `IMPLEMENTADO_NO_PRODUCTIVO`.
 - F2E.1 cerrada no autoriza por sí misma F2E.2 ni ninguna implementación posterior; preserva todos
   los límites anteriores y exige nuevo scope/handoff.
-- El handoff activo autoriza exclusivamente el núcleo puro detector-only dentro de la allowlist;
-  ninguna otra unidad ni activación queda autorizada.
+- El handoff del núcleo puro detector-only está `COMPLETED / CLOSED / HISTORICAL`; ninguna otra
+  unidad ni activación queda autorizada.

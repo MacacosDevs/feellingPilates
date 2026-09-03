@@ -5,7 +5,7 @@ Last updated: 2026-09-02
 Repository verification: VERIFIED
 Last verified against commit:
 f6b5ed7c5729502e856f0d088cddc52de5662527
-Verification scope: persistencia del audit PASS y activación documental del handoff correctivo F2E adapters/snapshot design — authority gap R1; dark launch y autoridad productiva preservados
+Verification scope: cierre documental del corrective design F2E adapters/snapshot — authority gap R1; audit final PASS persistido, dark launch y autoridad productiva preservados
 
 La referencia anterior identifica la base histórica de esta materialización documental. No sustituye el `HEAD` operativo, que debe obtenerse mediante pre-flight en cada intervención.
 
@@ -340,122 +340,68 @@ PASS de suite global ni bloquea este slice, cuyo host validation no era requerid
 El checkpoint específico de implementación no es requerido por el workflow profile ni por las exit
 conditions del handoff; `ESTADO-ACTUAL` y el review técnico son la evidencia competente.
 
-## Próximo paso
-
-**EXECUTE_ACTIVE_CORRECTIVE_DESIGN_RESEARCH_HANDOFF.** Sólo autoriza modificar el diseño canónico
-permitido para cerrar el authority gap; no autoriza corregir/activar R1, implementación Java,
-tests, HostValidator, Docker, DB access, data audit, migración, cambio de consumers, cambio de
-autoridad ni cutover.
-
-## Handoff activo — corrective design authority gap R1
+## Última unidad cerrada — F2E adapters/snapshot design authority gap R1
 
 ```text
-ACTIVE HANDOFF: HANDOFF-F2E-ADAPTERS-SNAPSHOT-DESIGN-AUTHORITY-GAP-R1.md
-HANDOFF LIFECYCLE: MATERIALIZED / APPROVED / ACTIVE
-TARGET: F2E / adapters-snapshot design — authority gap R1
+LAST CLOSED UNIT: F2E / adapters-snapshot design — authority gap R1
 TYPE: DESIGN / RESEARCH — CORRECTIVE AMENDMENT
-TARGET STATUS: AUTHORIZED_TO_START
-TARGET STARTED: NO
-TARGET MATERIALIZED: NO
-CORRECTIVE DESIGN AMENDMENT: NOT_PERFORMED
-FRESH DESIGN AUDIT: NOT_PERFORMED
-AUTHORITY GAP: OPEN / CORRECTIVE TARGET
-HANDOFF REVIEW: auditoria/reviews/HANDOFF-F2E-ADAPTERS-SNAPSHOT-DESIGN-AUTHORITY-GAP-R1-REVIEW.md
+STATUS: COMPLETED / CLOSED
+ACTIVE HANDOFF: NINGUNO
+AUTHORITY GAP: RESOLVED_BY_CORRECTIVE_DESIGN / CLOSED
+DESIGN CANONICAL: auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md
+CORRECTIVE DESIGN AMENDMENT: MATERIALIZED
+FRESH DESIGN AUDIT: PASS
 P0 / P1 / P2: 0 / 0 / 0
-READY_TO_APPROVE_AND_ACTIVATE: SI
+DESIGN_GATE: PASS
+READY_FOR_CORRECTIVE_DESIGN_CLOSURE: SI
 REQUIRES HUMAN DECISION: NO
+FINAL REVIEW: auditoria/reviews/F2E-ADAPTERS-SNAPSHOT-AUTHORITY-GAP-R1-DESIGN-REVIEW.md
+CORRECTIVE HANDOFF: COMPLETED / CLOSED / HISTORICAL / NOT_ACTIVE
 ```
 
-`ACTIVE` permite comenzar exclusivamente esta unidad de corrective design/research. No significa
-que el authority gap esté resuelto, que el diseño anterior haya sido corregido, que el amendment
-haya pasado audit, que R1 sea active, ni que Java, DB o implementación estén autorizados.
-
-El diseño adapters/snapshot anterior conserva su historia:
-
-```text
-HISTORICAL HANDOFF: HANDOFF-F2E-DISENO-ADAPTERS-READ-ONLY-SNAPSHOT-CONSISTENCY.md
-LIFECYCLE: COMPLETED / CLOSED / HISTORICAL
-TARGET: F2E / boundary de readers JPA hacia detector puro
-DESIGN CHECKPOINT: auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md / MATERIALIZED
-DESIGN GATE: PASS
-FRESH TARGET DESIGN AUDIT: PASS
-FINAL REVIEW: auditoria/reviews/F2E-ADAPTERS-SNAPSHOT-DESIGN-REVIEW.md
-```
-
-El authority gap residual fue descubierto posteriormente durante la preparación downstream R1;
-por ello se abrió esta corrective amendment unit. No reescribe el PASS histórico del diseño
-original.
+El diseño adapters/snapshot original conserva su `PASS` histórico. El authority gap fue descubierto
+después por la preparación downstream R1, se corrigió en el mismo diseño canónico y recibió un
+fresh independent re-audit `PASS`; por tanto, la autoridad de diseño está restaurada. Esto no
+aprueba ni activa R1.
 
 ## Downstream R1 preservado
 
 ```text
-R1 draft: MATERIALIZED / NOT_APPROVED / NOT_ACTIVE / BLOCKED_BY_AUTHORITY_GAP
-R1 active: NO
+R1 draft physical content: PREEXISTING / UNCHANGED
+R1 SHA-256: b3d4131c9ac0d7fc594dea7a7c002c68d90ca14e95750afdb2006bb4a12ee25a
+R1 lifecycle: MATERIALIZED / NOT_APPROVED / NOT_ACTIVE
 R1 implementation: NOT_STARTED / NOT_AUTHORIZED
-R1 P1 allowlist: PENDING_AFTER_AUTHORITY_FIX
-R1 P1 JPA topology: PENDING_AFTER_AUTHORITY_FIX
-R1 authorized preexisting baseline SHA-256: b3d4131c9ac0d7fc594dea7a7c002c68d90ca14e95750afdb2006bb4a12ee25a
+R1 handoff correction: REQUIRED
+R1 next required action: HANDOFF_DOCUMENT_CORRECTION
+R1 P1 exact/fail-closed allowlist: PENDING
+R1 P1 test-only JPA topology: PENDING
+R1 authority-dependent context/provenance/failure contract: PENDING_HANDOFF_CORRECTION
+R1 authority-dependent SQL/checksum canonicalization: PENDING_HANDOFF_CORRECTION
+R2-R6: NOT_AUTHORIZED
 ```
 
-La unidad activa debe cerrar sólo en el diseño la distinción `INPUT_INVALID` versus
-`ADAPTER_INPUT_INVALID`, `SOURCE_RECORD_NOT_FOUND`, `SOURCE_ACCESS_FAILURE`,
-`ReservationReadException`, normalización/versionado e identidad de catálogo SQL, catálogo SQL
-exhaustivo, canonicalización de checksum, hashes row/table/slice y golden vectors. Todos siguen
-pendientes; no se resuelven en esta activación.
+The resolved design authority removes the former design-level block only. R1 remains an unapproved,
+inactive draft until its handoff document is corrected from that restored authority and then passes
+its own fresh independent audit.
 
-`IMPLEMENTATION CLOSED` significa núcleo puro materializado, tests aplicables PASS y technical audit
-PASS; no significa runtime activo, consumer productivo, adapters, DB, datos auditados, crosswalk,
-resolver, fence, migración ni cutover.
+## Próximo paso
+
+**RETURN_TO_R1_HANDOFF_DOCUMENT_CORRECTION.** No `READ_NEXT` nuevo es necesario: the lifecycle
+already determines the return to the preserved R1 draft. This does not authorize correcting R1 in
+this closure, approving or activating it, or starting implementation.
+
+## Autoridad y límites preservados
 
 ```text
-PURE JAVA / IMMUTABLE / IN-MEMORY / READ-ONLY: PRESERVED
-Spring/JPA/DB/runtime wiring: NONE
+TurnoInstructor: PRODUCTIVE AUTHORITY
+Pure detector: DARK_LAUNCH / NOT_PRODUCTIVE
 Adapters: NOT_IMPLEMENTED
-Persisted crosswalk / resolver / fence: NOT_AUTHORIZED
+Data source: DATA_SOURCE_NOT_AVAILABLE
+Data audit: NOT_PERFORMED / NOT_AUTHORIZED
 D08: DEFERRED
-Migration: NOT_AUTHORIZED
+Crosswalk / Resolver / Fence / Migration: NOT_AUTHORIZED
 MIGRANDO: NO
 NUEVA: NO
 Cutover: false
-Data source: DATA_SOURCE_NOT_AVAILABLE
-Data audit: NOT_PERFORMED
-Runtime: DARK_LAUNCH
-Productive: NOT_PRODUCTIVE
-Authority: TurnoInstructor / LEGACY_VIVO / PRODUCTIVO
+Java / DB / tests / HostValidator: NOT_AUTHORIZED_BY_THIS_CLOSURE
 ```
-
-## Diseño F2E cerrado — decisiones y límites preservados
-
-El diseño/research cerró contracts de readers, queries/projections, frontera managed/lazy, mapping inmutable, snapshot/transaction/isolation, fail-closed, non-mutation, runtime isolation, slicing R1–R6, coordinator, tests, HostValidator y prerrequisitos de data audit. La autoridad detallada permanece exclusivamente en el checkpoint.
-
-```text
-Queries/projections / readers / snapshot / transactions: CLOSED BY DESIGN
-Managed/lazy / immutable / no-write / runtime isolation: CLOSED BY DESIGN
-Slicing R1–R6 / future tests / data-audit prerequisites: CLOSED BY DESIGN
-Current DESIGN unit HostValidator: NOT_REQUIRED
-Future JPA implementation HostValidator: REQUIRED
-R1 / R2 / R3 / R4 / R5 / R6 implementation: CANDIDATE / NOT_AUTHORIZED
-DB connection: NOT_AUTHORIZED
-Data source: DATA_SOURCE_NOT_AVAILABLE
-Data audit: NOT_PERFORMED / NOT_AUTHORIZED_BY_THIS_HANDOFF
-D08: DEFERRED
-Crosswalk / resolver / fence: NOT_AUTHORIZED
-Migration: NOT_AUTHORIZED
-MIGRANDO: NO
-NUEVA: NO
-Cutover: false
-TurnoInstructor authority: PRESERVED / PRODUCTIVE
-Runtime: DARK_LAUNCH
-Productive: NOT_PRODUCTIVE
-```
-
-## Advertencias inmediatas
-
-- `AjusteProgramacionFecha`, `InstructorLocks`, V47 y el resolver de programación efectiva están materializados y documentados únicamente como dark launch no productivo.
-- No existe fence de cutover F2D implementado.
-- No existe cutover F2D implementado.
-- `TurnoInstructor` sigue siendo la autoridad productiva actual de programación.
-- `BloqueProgramacion + Asignacion` permanece `IMPLEMENTADO_NO_PRODUCTIVO`.
-- F2E.1 cerrada no autoriza por sí misma F2E.2 ni ninguna implementación posterior; preserva todos
-  los límites anteriores y exige nuevo scope/handoff.
-- El handoff F2E de adapters/snapshot original quedó `COMPLETED / CLOSED / HISTORICAL` tras el audit de diseño `PASS`. El handoff activo es únicamente el corrective design authority-gap R1; R1–R6 siguen sin autorización para implementation, DB access, data audit, migration ni cutover.

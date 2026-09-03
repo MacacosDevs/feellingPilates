@@ -7,6 +7,7 @@ Unidad: F2E / boundary de readers JPA hacia detector puro
 Tipo: DESIGN / RESEARCH
 Role: DESIGN_EXECUTOR / RESEARCHER
 Correction role F2E-ADAPTERS-SNAPSHOT-DESIGN.1.2: DESIGN_CORRECTOR / DOCUMENT_CORRECTOR
+Correction role F2E-ADAPTERS-SNAPSHOT-AUTHORITY-GAP-R1: DESIGN_CORRECTOR / AUTHORITY_GAP_RESOLVER
 Execution profile: DOCUMENTAL / READ_ONLY_RESEARCH
 Checkpoint: auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md
 Estado máximo de este output: ADAPTERS / SNAPSHOT CONSISTENCY DESIGN MATERIALIZED
@@ -265,7 +266,7 @@ target histórico demostrado -> HistoricalProgrammingTargetSnapshot desde eviden
                                autorizada, nunca desde ReservaReader
 ```
 
-Shape inválida, enum desconocido, null físico inesperado o rango no positivo es `INPUT_INVALID`,
+Shape inválida, enum desconocido, null físico inesperado o rango no positivo es `ADAPTER_INPUT_INVALID`,
 no `MISSING` y no un snapshot parcial.
 
 ## 8. Contratos exactos de TurnoInstructor legacy
@@ -382,7 +383,7 @@ añade los campos exactos siguientes. Orden: `a.serie_id, a.id`.
 Los únicos null permitidos son `a.vigente_hasta` y `b.vigente_hasta`, que significan extremo
 superior abierto. Cualquier otro null, rango no positivo, asignación fuera del rango de bloque,
 fecha fuera de vigencia, día distinto o duplicidad de `serieId` para la fecha es
-`INPUT_INVALID`/invariante rota y aborta la unidad afectada.
+`ADAPTER_INPUT_INVALID`/invariante rota y aborta la unidad afectada.
 
 Mapping nominal:
 
@@ -542,11 +543,11 @@ no son opcionales.
 
 | Reader | Port operation | Input exacto | Binding contract | Output exacto | Cardinalidad | Semántica de ausencia | Ordering | Owner físico de lectura | Tecnología | Future allowed production files | ¿Modificar tracked existente? |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| R1 Reserva | `readByReservationIds` | `ReadSnapshotContext` + `Set<UUID> reservationIds` no null/no vacío, sin elementos null | `r.id IN (:reservationIds)` + `NativeQuery.setParameterList("reservationIds", sortedIds, UUID.class)`; 12.2 | lista inmutable de `ReservationSourceSnapshot` | exactamente una por ID pedido | set vacío/null/elemento null=`INPUT_INVALID` antes de SQL; si falta cualquier ID=`SOURCE_RECORD_NOT_FOUND`, aborta batch sin parciales | `r.id`; output por `reservationId` | nuevo `ReservaProjectionQueryExecutor` | SQL nativa + `EntityManager`, unwrap `NativeQuery`, `ReservaProjectionRow` | nuevos tipos bajo `transicion/programacion/read/**`, `adapter/jpa/projection/**`, `adapter/jpa/mapper/**`, `adapter/jpa/**` | NO |
-| R1 Reserva | `readByScope` | context + `ReservationScope(Set<UUID> salonIds, LocalDate desde, LocalDate hasta)`; set no null/no vacío, extremos no null e inclusivos, `desde <= hasta`, ventana bounded | `r.salon_id IN (:salonIds)` por `setParameterList(..., UUID.class)`; fechas escalares tipadas; 12.2 | lista inmutable de `ReservationSourceSnapshot` | 0..N | salon set vacío/null/elemento null o rango null/invertido=`INPUT_INVALID` antes de SQL; cero filas es válido | `r.id`; output por `reservationId` | el mismo executor | igual | los mismos paths | NO |
-| R2 legacy | `readForDate` | context + `LegacyTurnScope(Set<UUID> salonIds, LocalDate fecha)`; set no null/no vacío y fecha no null | members: `t.salon_id IN (:salonIds)`; assignments: `turno_id IN (:turnIds)`; ambas por `setParameterList(..., UUID.class)` y escalares tipados; si `turnIds` derivado queda vacío no se ejecuta query 2; 12.2 | `LegacyTurnReadSet(sources)` inmutable o fallo `LegacyAdapterInputInvalid` con lista no vacía de `LegacyAdapterRejection`; nunca ambos | 0..N según 12.3; una evaluación por source publicado | scope vacío/null=`INPUT_INVALID` antes de SQL; cero turnos tras query 1 produce read set vacío; mitad incoherente/malformed aborta sin parciales | members `turnId,memberId NULLS FIRST`; assignments `turnId,instructorId,activityId`; sources `turnId/member/activity/evidenceKey` | nuevo `LegacyTurnProjectionQueryExecutor` | dos SQL nativas + `EntityManager`, unwrap `NativeQuery`, records concretos | nuevos tipos en los mismos cuatro packages; no repository bajo `calendario` | NO |
-| R3 nominal | `readNominalOnDate` | context + `LocalDate fecha` no null; `dayOfWeek` se deriva determinísticamente 0=domingo | named scalar binding de `fecha`, `dayOfWeek`, `assignmentActive=true`, `blockActive=true`; 12.2 | `NominalProgrammingReadSet(candidates,backing)` inmutable | 0..N; máximo una nominal por serie/fecha | fecha null=`INPUT_INVALID` antes de SQL; cero es válido para universe; cuando otro claim exige target, el classifier decide `MISSING` | ambos por `serieId,asignacionVersionId` | nuevo `NominalProjectionQueryExecutor` | SQL nativa + `EntityManager`, unwrap `NativeQuery`, `NominalProjectionRow` | nuevos ports/executor/row/mapper/adapter en packages de transición | NO; no se cambia `AsignacionRepository` |
-| R4 ajustes | `readActiveAdjustmentsOnDate` | context + `LocalDate fecha` no null | named scalar binding de `fecha` y `active=true`; 12.2; no existe collection/range parameter | `AdjustmentReadSet(sources,backing)` inmutable | 0..N | fecha null=`INPUT_INVALID` antes de SQL; cero es válido | ambos por `fecha,adjustmentId` | nuevo `AdjustmentProjectionQueryExecutor` | SQL nativa + `EntityManager`, unwrap `NativeQuery`, `AdjustmentProjectionRow` | nuevos ports/executor/row/mapper/adapter en packages de transición | NO; no se cambia `AjusteProgramacionFechaRepository` |
+| R1 Reserva | `readByReservationIds` | `ReadSnapshotContext` + `Set<UUID> reservationIds` no null/no vacío, sin elementos null | `r.id IN (:reservationIds)` + `NativeQuery.setParameterList("reservationIds", sortedIds, UUID.class)`; 12.2 | lista inmutable de `ReservationSourceSnapshot` | exactamente una por ID pedido | set vacío/null/elemento null=`ADAPTER_INPUT_INVALID` antes de SQL; si falta cualquier ID=`SOURCE_RECORD_NOT_FOUND`, aborta batch sin parciales | `r.id`; output por `reservationId` | nuevo `ReservaProjectionQueryExecutor` | SQL nativa + `EntityManager`, unwrap `NativeQuery`, `ReservaProjectionRow` | nuevos tipos bajo `transicion/programacion/read/**`, `adapter/jpa/projection/**`, `adapter/jpa/mapper/**`, `adapter/jpa/**` | NO |
+| R1 Reserva | `readByScope` | context + `ReservationScope(Set<UUID> salonIds, LocalDate desde, LocalDate hasta)`; set no null/no vacío, extremos no null e inclusivos, `desde <= hasta`, ventana bounded | `r.salon_id IN (:salonIds)` por `setParameterList(..., UUID.class)`; fechas escalares tipadas; 12.2 | lista inmutable de `ReservationSourceSnapshot` | 0..N | salon set vacío/null/elemento null o rango null/invertido=`ADAPTER_INPUT_INVALID` antes de SQL; cero filas es válido | `r.id`; output por `reservationId` | el mismo executor | igual | los mismos paths | NO |
+| R2 legacy | `readForDate` | context + `LegacyTurnScope(Set<UUID> salonIds, LocalDate fecha)`; set no null/no vacío y fecha no null | members: `t.salon_id IN (:salonIds)`; assignments: `turno_id IN (:turnIds)`; ambas por `setParameterList(..., UUID.class)` y escalares tipados; si `turnIds` derivado queda vacío no se ejecuta query 2; 12.2 | `LegacyTurnReadSet(sources)` inmutable o fallo `LegacyAdapterInputInvalid` con lista no vacía de `LegacyAdapterRejection`; nunca ambos | 0..N según 12.3; una evaluación por source publicado | scope vacío/null=`ADAPTER_INPUT_INVALID` antes de SQL; cero turnos tras query 1 produce read set vacío; mitad incoherente/malformed aborta sin parciales | members `turnId,memberId NULLS FIRST`; assignments `turnId,instructorId,activityId`; sources `turnId/member/activity/evidenceKey` | nuevo `LegacyTurnProjectionQueryExecutor` | dos SQL nativas + `EntityManager`, unwrap `NativeQuery`, records concretos | nuevos tipos en los mismos cuatro packages; no repository bajo `calendario` | NO |
+| R3 nominal | `readNominalOnDate` | context + `LocalDate fecha` no null; `dayOfWeek` se deriva determinísticamente 0=domingo | named scalar binding de `fecha`, `dayOfWeek`, `assignmentActive=true`, `blockActive=true`; 12.2 | `NominalProgrammingReadSet(candidates,backing)` inmutable | 0..N; máximo una nominal por serie/fecha | fecha null=`ADAPTER_INPUT_INVALID` antes de SQL; cero es válido para universe; cuando otro claim exige target, el classifier decide `MISSING` | ambos por `serieId,asignacionVersionId` | nuevo `NominalProjectionQueryExecutor` | SQL nativa + `EntityManager`, unwrap `NativeQuery`, `NominalProjectionRow` | nuevos ports/executor/row/mapper/adapter en packages de transición | NO; no se cambia `AsignacionRepository` |
+| R4 ajustes | `readActiveAdjustmentsOnDate` | context + `LocalDate fecha` no null | named scalar binding de `fecha` y `active=true`; 12.2; no existe collection/range parameter | `AdjustmentReadSet(sources,backing)` inmutable | 0..N | fecha null=`ADAPTER_INPUT_INVALID` antes de SQL; cero es válido | ambos por `fecha,adjustmentId` | nuevo `AdjustmentProjectionQueryExecutor` | SQL nativa + `EntityManager`, unwrap `NativeQuery`, `AdjustmentProjectionRow` | nuevos ports/executor/row/mapper/adapter en packages de transición | NO; no se cambia `AjusteProgramacionFechaRepository` |
 | R5 efectiva | `readEffectiveOnDate` | context + `LocalDate fecha` | fuera de R1–R4 native binding; usa APIs F2D y los ports R3/R4 ya fijados | `EffectiveProgrammingReadSet(candidates, backingByReference, omissions)` inmutable | 0..N; cada referencia presente máximo una | cero global es válido; faltas respecto de R3/R4 se clasifican conforme a secciones 10–11 y nunca como éxito implícito | orden F2D existente | nuevo adapter R5 y graph factory, usando el grafo exacto de 12.4 | APIs F2D existentes + repositories existentes sólo dentro del grafo; R3/R4 para backing | nuevos adapter/collector/factory/mapper/read-set bajo packages de transición | NO; ningún tipo F2D se modifica |
 
 Los cuatro executors R1–R4 son clases plain con constructor injection de `EntityManager`; no son
@@ -626,7 +627,7 @@ siguen enlazando y nunca se interpolan.
 | enum/status lógico | `varchar` | scalar | nombre canónico y `setParameter(name, value, String.class)` | prohibido; valores R2 son constantes del executor |
 | `Boolean`/`boolean` | `boolean` | scalar | boxing a `Boolean` y `setParameter(name, value, Boolean.class)` | prohibido; `true` de R2–R4 es constante del executor |
 
-No existe filtro nullable en R1–R4. Todo input null o incoherente produce `INPUT_INVALID` antes
+No existe filtro nullable en R1–R4. Todo input null o incoherente produce `ADAPTER_INPUT_INVALID` antes
 de crear/ejecutar SQL; queda prohibido `(:x IS NULL OR column = :x)`. Los null permitidos en
 projections (horas raw legacy, vigencias abiertas y campos de ajuste por forma) son datos leídos,
 no parámetros de filtro.
@@ -635,20 +636,20 @@ no parámetros de filtro.
 
 | Port/query | Parameter | Java/lógico | PostgreSQL | Scalar/multi | Binding | Empty semantics | Null semantics |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| R1 `readByReservationIds` | `reservationIds` | `Set<UUID>` → lista canónica | `uuid` | multi | `r.id IN (:reservationIds)` + `setParameterList(..., UUID.class)` | caller vacío=`INPUT_INVALID`, cero SQL | set/elemento null=`INPUT_INVALID`, cero SQL |
-| R1 `readByScope` | `salonIds` | `Set<UUID>` → lista canónica | `uuid` | multi | `r.salon_id IN (:salonIds)` + `setParameterList(..., UUID.class)` | caller vacío=`INPUT_INVALID`, cero SQL | set/elemento null=`INPUT_INVALID`, cero SQL |
-| R1 `readByScope` | `desde` | `LocalDate` | `date` | scalar | `r.fecha >= :desde`; typed scalar | no aplica | null=`INPUT_INVALID`, cero SQL |
-| R1 `readByScope` | `hasta` | `LocalDate` | `date` | scalar | `r.fecha <= :hasta`; typed scalar | no aplica; `desde > hasta` inválido | null=`INPUT_INVALID`, cero SQL |
-| R2 members | `salonIds` | `Set<UUID>` → lista canónica | `uuid` | multi | `t.salon_id IN (:salonIds)` + `setParameterList(..., UUID.class)` | caller vacío=`INPUT_INVALID`, ninguna de las dos SQL | set/elemento null=`INPUT_INVALID`, ninguna SQL |
-| R2 members | `fecha` | `LocalDate` | `date` | scalar | comparación puntual; typed scalar | no aplica | null=`INPUT_INVALID`, ninguna SQL |
-| R2 members | `dayOfWeek` | `Short` derivado, 0=domingo | `smallint` | scalar | rama recurrente; typed scalar | no aplica | imposible tras fecha válida; si falla derivación=`INPUT_INVALID` |
+| R1 `readByReservationIds` | `reservationIds` | `Set<UUID>` → lista canónica | `uuid` | multi | `r.id IN (:reservationIds)` + `setParameterList(..., UUID.class)` | caller vacío=`ADAPTER_INPUT_INVALID`, cero SQL | set/elemento null=`ADAPTER_INPUT_INVALID`, cero SQL |
+| R1 `readByScope` | `salonIds` | `Set<UUID>` → lista canónica | `uuid` | multi | `r.salon_id IN (:salonIds)` + `setParameterList(..., UUID.class)` | caller vacío=`ADAPTER_INPUT_INVALID`, cero SQL | set/elemento null=`ADAPTER_INPUT_INVALID`, cero SQL |
+| R1 `readByScope` | `desde` | `LocalDate` | `date` | scalar | `r.fecha >= :desde`; typed scalar | no aplica | null=`ADAPTER_INPUT_INVALID`, cero SQL |
+| R1 `readByScope` | `hasta` | `LocalDate` | `date` | scalar | `r.fecha <= :hasta`; typed scalar | no aplica; `desde > hasta` inválido | null=`ADAPTER_INPUT_INVALID`, cero SQL |
+| R2 members | `salonIds` | `Set<UUID>` → lista canónica | `uuid` | multi | `t.salon_id IN (:salonIds)` + `setParameterList(..., UUID.class)` | caller vacío=`ADAPTER_INPUT_INVALID`, ninguna de las dos SQL | set/elemento null=`ADAPTER_INPUT_INVALID`, ninguna SQL |
+| R2 members | `fecha` | `LocalDate` | `date` | scalar | comparación puntual; typed scalar | no aplica | null=`ADAPTER_INPUT_INVALID`, ninguna SQL |
+| R2 members | `dayOfWeek` | `Short` derivado, 0=domingo | `smallint` | scalar | rama recurrente; typed scalar | no aplica | imposible tras fecha válida; si falla derivación=`ADAPTER_INPUT_INVALID` |
 | R2 members | `active` | constante `Boolean.TRUE` | `boolean` | scalar | `t.activo = :active`; typed scalar | no aplica | prohibido |
 | R2 members | `recurrentType`, `exceptionType`, `cancellationType` | constantes `String` con nombres del enum | `varchar` | tres scalars | comparaciones `t.tipo = :...`; typed scalar individual, no list | no aplica | prohibido |
 | R2 assignments | `turnIds` | set derivado de query members → lista canónica | `uuid` | multi | `a.turno_id IN (:turnIds)` + `setParameterList(..., UUID.class)` | vacío derivado=cero turnos: omitir SQL 2 y devolver read set vacío | null/elemento null=invariante rota, `LegacyAdapterInputInvalid`, sin read set |
-| R3 `readNominalOnDate` | `fecha` | `LocalDate` | `date` | scalar | cuatro comparaciones de vigencia; mismo named typed scalar | no aplica | null=`INPUT_INVALID`, cero SQL |
-| R3 `readNominalOnDate` | `dayOfWeek` | `Short` derivado, 0=domingo | `smallint` | scalar | `b.dia_semana = :dayOfWeek`; typed scalar | no aplica | imposible tras fecha válida; fallo=`INPUT_INVALID` |
+| R3 `readNominalOnDate` | `fecha` | `LocalDate` | `date` | scalar | cuatro comparaciones de vigencia; mismo named typed scalar | no aplica | null=`ADAPTER_INPUT_INVALID`, cero SQL |
+| R3 `readNominalOnDate` | `dayOfWeek` | `Short` derivado, 0=domingo | `smallint` | scalar | `b.dia_semana = :dayOfWeek`; typed scalar | no aplica | imposible tras fecha válida; fallo=`ADAPTER_INPUT_INVALID` |
 | R3 `readNominalOnDate` | `assignmentActive`, `blockActive` | constantes `Boolean.TRUE` | `boolean` | dos scalars | predicados `= :...`; typed scalar | no aplica | prohibido |
-| R4 `readActiveAdjustmentsOnDate` | `fecha` | `LocalDate` | `date` | scalar | `a.fecha = :fecha`; typed scalar | no aplica | null=`INPUT_INVALID`, cero SQL |
+| R4 `readActiveAdjustmentsOnDate` | `fecha` | `LocalDate` | `date` | scalar | `a.fecha = :fecha`; typed scalar | no aplica | null=`ADAPTER_INPUT_INVALID`, cero SQL |
 | R4 `readActiveAdjustmentsOnDate` | `active` | constante `Boolean.TRUE` | `boolean` | scalar | `a.activo = :active`; typed scalar | no aplica | prohibido |
 
 `ReadSnapshotContext` no es parámetro SQL: fija provenance y se valida completo antes de toda
@@ -1142,6 +1143,11 @@ SOURCE_ACCESS_FAILURE
 NO_WRITE_GUARD_VIOLATION
 ```
 
+La lista anterior es el catálogo operacional cross-slice histórico, no el enum exhaustivo de R1.
+Para R1, 36.2 fija exactamente cuatro valores e incorpora `SOURCE_RECORD_NOT_FOUND`; los guards
+transaccionales/no-write permanecen errores del owner/harness y no se convierten en
+`ReservationReadException`.
+
 Cualquiera produce:
 
 ```text
@@ -1222,7 +1228,8 @@ después de Flyway y fixture setup, conserva cada statement normalizado y exige 
 2. statement class allowlisted;
 3. ausencia de cualquier token denylisted.
 
-Permitidos:
+Clases candidatas globales para slices futuros; para R1 la sección 36.6 sustituye esta lista por
+un catálogo exhaustivo de cuatro statements y no permite ninguna categoría abierta:
 
 ```text
 SELECT ordinario sin lock y las SQL exactas catalogadas de R1–R5, incluidos backing y grafo F2D
@@ -1270,6 +1277,10 @@ tabla completa dentro del container; el checksum nunca es global y se restringe 
 del fixture.
 
 ### 20.4 Canonicalización y orden before/read/after
+
+Esta subsección conserva el resumen histórico del diseño. Para R1, la gramática, versiones,
+column set, row/table/slice hashes y golden vectors exactos de 36.8–36.9 son la autoridad
+normativa y sustituyen cualquier formulación aquí que sólo diga `length:value` o `SHA-256`.
 
 Para cada tabla se seleccionan **todas** sus columnas persistidas, en orden de ordinal de schema,
 no sólo los campos usados por el reader. Las filas se ordenan por PK física: UUID simple; o tupla
@@ -1674,7 +1685,7 @@ NOT_PRODUCTIVE: PRESERVED
 | AD-13 | ¿Transaction owner? | R6 `REQUIRES_NEW/RR`; readers proxied `MANDATORY`; test-only owner explícito | Spring propagation semantics | cada adapter abre TX / depender de R6 para test | misma TX y R1 independiente | R1-R6 | CLOSED |
 | AD-14 | ¿Serializable/locks? | No; RR read-only, sin locks | observational dark launch | serializable/table locks | menos bloqueo/overhead | R6 | CLOSED |
 | AD-15 | ¿Snapshot failure? | ABORTED operational, discard all | core error separation | map a MISSING/UNSUPPORTED | fail-closed real | R6 | CLOSED |
-| AD-16 | ¿`readOnly=true` basta? | No; StatementInspector exact-hash policy + rol SELECT-only + scoped canonical checksum + architecture/statistics | Spring lo trata como hint/optimization | sólo annotation/rollback/global checksum | evidencia 0 writes acotada | all implementation slices | CLOSED |
+| AD-16 | ¿`readOnly=true` basta? | No; StatementInspector exact-hash policy + rol SELECT-only + scoped canonical checksum + architecture/statistics; R1 usa las versiones y catálogo exactos de 36.4–36.9 | Spring lo trata como hint/optimization | sólo annotation/rollback/global checksum | evidencia 0 writes acotada | all implementation slices | CLOSED / AMENDED_FOR_R1 |
 | AD-17 | ¿Beans antes de composition? | No; plain adapters/executors con `EntityManager` y unwrap `NativeQuery`, test-only import | runtime isolation requirement + binding Hibernate explícito | scanned internal bean / Spring Data repository | ausencia verificable sin volver opcional el query contract | R1-R5 | CLOSED |
 | AD-18 | ¿Beans en R6? | sólo profile + disabled-by-default property | dark launch | unconditional bean | explicit opt-in no productivo | R6 | CLOSED |
 | AD-19 | ¿Primer slice? | Reserva reader | mapping directo/one table/high lazy risk | combined readers | menor riesgo y reusable harness | R1 | CLOSED |
@@ -1682,11 +1693,11 @@ NOT_PRODUCTIVE: PRESERVED
 | AD-21 | ¿HostValidator? | design no; every JPA slice yes | PostgreSQL/Testcontainers physical behavior | sandbox-only | evidence real | R1-R6 | CLOSED |
 | AD-22 | ¿Data audit ahora? | No; source/custodian/credential material separados del rol efímero de implementation | source unavailable/no authority | Testcontainers/local config como source | no fabricated results | future data-audit handoff | CLOSED |
 | AD-23 | ¿Report? | immutable file artifact outside read TX | no DB/crosswalk writes | DB report table | nonproductive/auditable | future audit | CLOSED |
-| AD-24 | ¿Firmas/ausencia de read ports? | Tabla 12.1; missing requested Reserva aborta, filtro collection vacío es inválido, resultado de scope/universe sin filas es válido por claim | core + source cardinality | dejarlo al executor / quitar filtro vacío | handoff R1–R5 sin decisión residual | R1-R5 | CLOSED |
+| AD-24 | ¿Firmas/ausencia de read ports? | Tabla 12.1; missing requested Reserva=`SOURCE_RECORD_NOT_FOUND`, abort total/cero parciales; filtro collection vacío=`ADAPTER_INPUT_INVALID`; resultado de scope/universe sin filas es válido por claim | core + source cardinality + 36.2 | dejarlo al executor / quitar filtro vacío / mapear a semantic `MISSING` | handoff R1–R5 sin decisión residual | R1-R5 | CLOSED / AMENDED_FOR_R1 |
 | AD-25 | ¿Átomo e incompletos R2? | assignment PK; gaps con evidence key; fórmula exacta; representable vs pre-core rejection y counts 12.3 | PKs V19/V20/V22 + core real | dedupe / divergent universal | mismo estado produce mismo count y scenario legal | R2 | CLOSED |
 | AD-26 | ¿Provenance depende de R6? | `ReadSnapshotContext`; R6 o test harness lo suministra; MVCC, run y read-set son IDs separados | single reader no debe inventar pg snapshot | global clock/random/fingerprint falso | R1 independiente | R1-R6 | CLOSED |
 | AD-27 | ¿Diagnóstico R5? | collector adapter-local in-memory dentro de graph dedicado | interface `ProgramacionDiagnostico` inyectable | SLF4J callback/no diagnostics | omissions transportables sin I/O | R5 | CLOSED |
-| AD-28 | ¿Checksum/no-write scope? | tablas/rows 20.3, canonicalización 20.4 y orden before/read/after | schema físico y concurrencia | checksum global/no DML genérico | proof reproducible por slice | R1-R6 | CLOSED |
+| AD-28 | ¿Checksum/no-write scope? | tablas/rows 20.3 y orden before/read/after; R1 usa `public.reserva`, todas sus columns y `F2E_CHECKSUM_*_V1` de 36.8–36.9 | schema físico V15 y concurrencia | checksum global/no DML genérico/hash sin table o scope | proof reproducible por slice | R1-R6 | CLOSED / AMENDED_FOR_R1 |
 | AD-29 | ¿Cómo se inyectan readers/executors? | plain constructor injection; test config antes de R6 y conditional config en R6 | no autodetection requirement | stereotypes/repository scan | runtime reachability cerrada | R1-R6 | CLOSED |
 | AD-30 | ¿Profile/property/consumer? | future new config; doble condition; absent by default; coordinator sin trigger, test lo invoca | keys no existen hoy | fingir config o scheduler | materialización aislada verificable | R6 | CLOSED |
 | AD-31 | ¿Binding nativo R1–R4? | named scalars tipados y UUID multivaluado exclusivamente con `IN (:ids)` + Hibernate `NativeQuery.setParameterList(..., UUID.class)`; vacíos/null según 12.2 antes de SQL | Boot 4.1.0, Hibernate ORM 7.4.1.Final y API `CommonQueryContract` física; PostgreSQL uuid/date/time/smallint/varchar/boolean | `ANY(uuid[])`, arrays JDBC, temporary table, string interpolation, placeholder expansion manual, nullable filters | una estrategia segura y determinista; executor no decide | R1-R4 | CLOSED |
@@ -1729,8 +1740,9 @@ Tests: unit mapping, PostgreSQL projection, no-write, lazy/architecture/runtime 
 El documenter de ese handoff debe copiar, no decidir: dedicated native executor/row y repository
 productivo intacto (7.1/12.1); fields/mapping (7.2); dos firmas y ausencia (12.1); reader proxied
 `MANDATORY` + single-statement test owner (18.1–18.2); `ReadSnapshotContext` sin PG fingerprint
-inventado (13); constructor/test wiring (12.1/21); role, StatementInspector y checksum de `reserva`
-(20); binding, vacíos y nulls exactos (12.2); HostValidator (24.1/27); y allowlist R1 (24.1). No
+inventado (13); constructor/test wiring (12.1/21); role, StatementInspector, failure contract,
+catálogo SQL y checksum de `public.reserva` (20 y 36.2–36.9); binding, vacíos y nulls exactos
+(12.2); HostValidator (24.1/27); y allowlist R1 (24.1). No
 queda decisión arquitectónica de R1 para el executor.
 
 ### 33.2 R2 Turno legacy reader
@@ -1828,4 +1840,633 @@ DATA MODIFIED: NO
 DATA AUDIT AUTHORIZED: NO
 MIGRATION AUTHORIZED: NO
 CUTOVER: false
+```
+
+## 36. AUTHORITY GAP R1 — CORRECTIVE AMENDMENT
+
+### 36.1 Historia, alcance y precedencia
+
+El audit final registrado en
+`auditoria/reviews/F2E-ADAPTERS-SNAPSHOT-DESIGN-REVIEW.md` conserva su resultado histórico
+`PASS`. La preparación downstream de R1 demostró después que ese diseño no daba autoridad
+suficiente para implementar mecánicamente el vocabulario de fallos, la identidad del catálogo SQL
+ni los hashes de no-write. Esta sección corrige esa deuda sin reescribir el audit histórico.
+
+Las decisiones 36.2–36.10 son normativas y sustituyen, sólo donde exista diferencia, cualquier
+formulación anterior menos precisa de este mismo documento. Se mantienen sin cambios:
+
+```text
+projection-first
+reader role SELECT-only
+privileged setup/observer plane separado
+StatementInspector durante la ventana medida
+unknown SQL -> FAIL, incluido unknown SELECT
+checksum limitado al slice
+fixture aislado y quiescent para no-write
+test concurrente separado del checksum
+JPA/transaction/runtime isolation ya diseñados
+pure detector core sin cambios
+R1 draft y R1 implementation no autorizados por este amendment
+```
+
+Estado máximo de esta corrección:
+
+```text
+CORRECTIVE DESIGN AMENDMENT MATERIALIZED
+READY FOR FRESH INDEPENDENT DESIGN DOCUMENT AUDIT
+DESIGN_GATE del amendment: PENDING / NOT_PERFORMED
+AUTHORITY_GAP CLOSED por auto-declaración: NO
+R1: NOT_APPROVED / NOT_ACTIVE / NOT_IMPLEMENTED
+```
+
+### 36.2 Vocabulario normativo de fallos R1
+
+El nombre canónico de invalidación del boundary de adapters es
+`ADAPTER_INPUT_INVALID`. `INPUT_INVALID` no es alias ni valor permitido de
+`ReservationReadFailureCode`; el vocabulario del detector puro conserva su independencia y no se
+modifica. El mismo código R1 cubre dos stages que se distinguen en `safeContext`: input inválido
+del caller antes de SQL y valor físico proyectado imposible de convertir después de SQL. No se crea
+un quinto código sólo por el stage.
+
+El enum futuro `ReservationReadFailureCode` contiene exactamente, para R1:
+
+```text
+ADAPTER_INPUT_INVALID
+SOURCE_RECORD_NOT_FOUND
+READ_SET_INVARIANT_VIOLATION
+SOURCE_ACCESS_FAILURE
+```
+
+No contiene códigos de estados semánticos del detector. Los fallos de proxy/owner transaccional,
+HostValidator, Docker, container, Flyway/setup, datasource startup o control de credenciales que
+ocurren antes de entrar al read semántico son `PRE_SEMANTIC / ENVIRONMENT_FAILURE` y no se
+convierten en `SOURCE_ACCESS_FAILURE`. `TRANSACTION_NOT_READ_ONLY`, SQL policy y
+`NO_WRITE_GUARD_VIOLATION` pertenecen al owner/harness/gate operacional, no a
+`ReservationReadFailureCode`.
+
+| Code | Trigger | Layer/stage | SQL executed? | Batch behavior | Partial results? | Retry semantics | Cause | Safe context | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `ADAPTER_INPUT_INVALID` | `context`/colección/scope/scalar null; colección vacía o con null; ventana no bounded o invertida; UUID/scalar requerido inválido; o null/estado/tipo/rango físico proyectado imposible de mapear | validación public port; o projection mapper | NO para caller input; SÍ para row inválida | abort total de la operación | NONE | NON_RETRYABLE con mismo input/snapshot | null antes de SQL; cause original permitido para mapping | operación, scope seguro, counts; para row, ordinal/column name sin valor | Nunca se traduce a resultado del detector. |
+| `SOURCE_RECORD_NOT_FOUND` | en `readByReservationIds`, `requestedIds - returnedIds` no vacío tras una query válida | validación de completitud post-query | SÍ | abort del batch completo | NONE | NON_RETRYABLE dentro del mismo snapshot | null | operación, IDs pedidos/faltantes ordenados, requested/returned count, statement ID | Es código propio. Cero filas de `readByScope` no lo dispara. |
+| `READ_SET_INVARIANT_VIOLATION` | ID no pedido, ID duplicado, cardinalidad imposible o correlación interna contradictoria después de obtener rows válidas | assembly/completitud post-query | SÍ | abort total | NONE | NON_RETRYABLE con mismo snapshot | nullable; se preserva si existe | operación, IDs inesperados/duplicados, counts, statement ID | No se deduplica ni elige una fila. |
+| `SOURCE_ACCESS_FAILURE` | `jakarta.persistence.PersistenceException`, `org.hibernate.HibernateException`, `java.sql.SQLException` o subtype en la cause chain durante create/bind/execute/materialize, siempre que la chain no contenga `F2eSqlPolicyViolationException`; también fallo del driver/conexión observable dentro del reader | adapter JPA/physical read | NO si falla create/bind; MAY_HAVE_STARTED si falla execute/materialize | abort total | NONE | CONDITIONAL_WHOLE_ATTEMPT_ONLY por policy externa; nunca retry interno ni parcial | non-null y preservada | operación, scope/counts, statement ID si ya se conoce, SQLState class/vendor code si existen | El código por sí solo no autoriza retry; SQL policy tiene precedencia y queda fuera de este code. |
+
+Reglas de `readByReservationIds`:
+
+```text
+requested ID absent
+-> SOURCE_RECORD_NOT_FOUND
+-> SQL ya ejecutada
+-> batch ABORTED
+-> returned snapshots = NONE
+-> retry interno = NO
+```
+
+### 36.3 Shape y cause policy de `ReservationReadException`
+
+`ReservationReadException` es una `RuntimeException` adapter-local con shape conceptual exacto:
+
+```text
+ReservationReadException
+  failureCode: ReservationReadFailureCode, required
+  message: stable message selected only from failureCode, required
+  safeContext: immutable Map<String,String>, required, never null
+  cause: Throwable nullable according to the table above
+```
+
+Mensajes permitidos, sin interpolación:
+
+```text
+ADAPTER_INPUT_INVALID          -> "Reservation read input or projected row is invalid"
+SOURCE_RECORD_NOT_FOUND        -> "One or more requested reservation records were not found"
+READ_SET_INVARIANT_VIOLATION   -> "Reservation read-set invariant was violated"
+SOURCE_ACCESS_FAILURE          -> "Reservation source access failed"
+```
+
+Keys exhaustivas de `safeContext`; toda key no listada se rechaza:
+
+```text
+operation = READ_BY_RESERVATION_IDS | READ_BY_SCOPE
+projectionContractId
+scopeKind = BY_RESERVATION_IDS | BY_SCOPE
+reservationIds
+salonIds
+fromDate
+toDate
+requestedCount
+returnedCount
+missingReservationIds
+unexpectedReservationIds
+duplicateReservationIds
+physicalRowOrdinal
+physicalColumn
+sqlCatalogStatementId
+sqlStateClass
+vendorErrorCode
+```
+
+Las listas UUID se serializan lower-case, ordenadas por sus 16 octetos unsigned y separadas por
+coma; fechas usan `yyyy-MM-dd`; counts/ordinal/vendor code usan decimal ASCII. Se omite una key no
+aplicable: no se inserta null. `sqlStateClass` contiene como máximo los primeros dos caracteres
+ASCII de SQLState. `physicalColumn` contiene sólo el nombre catalogado, nunca su valor.
+
+Prohibido en `message`, `safeContext`, output/report y logging normal: `cliente_id`, nombres,
+correo/teléfono, credentials/URL, valores raw proyectados, bind values, SQL raw/canónica o
+parámetros expandidos. Los UUID de reserva/salón y las fechas de scope son identificadores
+técnicos permitidos por este contrato. La cause y su stack existen sólo para diagnóstico interno
+restringido; nunca se serializan ni se copian a mensaje/context/report.
+
+Wrapping normativo:
+
+1. una `ReservationReadException` ya construida se relanza intacta;
+2. validación deliberada del caller crea `ADAPTER_INPUT_INVALID` sin cause;
+3. conversión/mapping deliberada de una row inválida crea `ADAPTER_INPUT_INVALID` y conserva como
+   cause la excepción original si existe;
+4. ausencia e invariantes esperables se crean con cause null, salvo que la invariante haya sido
+   detectada por una excepción interna concreta, que se conserva;
+5. si cualquier elemento de la cause chain es `PersistenceException`, `HibernateException` o
+   `SQLException`, y la chain no contiene el fallo de policy definido a continuación, se envuelve
+   una sola vez como `SOURCE_ACCESS_FAILURE` preservando como cause la excepción externa capturada
+   y, con ella, toda la chain;
+6. `READ_SET_INVARIANT_VIOLATION` se crea sólo en el punto de detección de uno de sus triggers
+   exhaustivos; no existe un `catch RuntimeException` que lo use como fallback semántico;
+7. cualquier otro `RuntimeException` no clasificado por estas reglas se propaga intacto como
+   defecto operacional/de implementación y aborta el run; nunca se convierte por descarte en un
+   `ReservationReadFailureCode`; `Error` tampoco se envuelve;
+8. `IllegalTransactionStateException` lanzada por el proxy antes de entrar al método y fallos
+   pre-semánticos del environment no se envuelven como `ReservationReadException`.
+
+#### 36.3.1 Frontera normativa de SQL policy
+
+El tipo operacional concreto es
+`com.feelingpilates.transicion.programacion.adapter.jpa.policy.F2eSqlPolicyViolationException`,
+una `RuntimeException` final de la policy layer. No hereda de `ReservationReadException`,
+`PersistenceException` ni `HibernateException`, y no implementa ni expone
+`ReservationReadFailureCode`. Se declara como boundary type del adapter para que production code
+pueda preservar su identidad sin depender del source set de tests; no es domain vocabulary, no es
+un bean y no crea reachability productiva. En R1, únicamente el
+`F2eStatementPolicyInspector` test-only crea y lanza instancias durante el integration/no-write
+gate.
+
+La excepción contiene un `reason` obligatorio del vocabulario cerrado siguiente y, cuando pudo
+calcularse sin revelar SQL, el `catalogStatementId` SHA-256; nunca contiene SQL raw/canónica, bind
+values, credentials, URL ni datos proyectados:
+
+```text
+NORMALIZATION_REJECTED
+CATALOG_MISS
+STATEMENT_CLASS_DENIED
+DENYLIST_VIOLATION
+```
+
+`unknown SQL` y `unknown SELECT` son ambos `CATALOG_MISS`; no se crea una categoría permisiva para
+SELECT. El stage normativo dentro de `StatementInspector.inspect` es:
+
+```text
+SQL recibida por StatementInspector
+-> F2E_SQL_CANON_V1
+-> cálculo de F2E_SQL_CATALOG_ID_V1 cuando la normalización fue válida
+-> validación statement-class + denylist + catálogo exhaustivo de 36.6
+-> si falla cualquier control: lanzar F2eSqlPolicyViolationException y NO retornar la SQL
+-> sólo si todos pasan: retornar la SQL a Hibernate/JDBC
+```
+
+Por contrato, lanzar antes de retornar impide preparar/ejecutar el statement rechazado. El
+statement inválido no puede llegar a JDBC; statements válidos anteriores, si los hubiera en otra
+operación futura, no cambian esa afirmación por-statement.
+
+La frontera de `ReservaJpaReader` aplica esta precedencia sobre la excepción capturada y toda su
+cause chain:
+
+```text
+1. ReservationReadException
+   -> rethrow de la misma instancia
+2. primera F2eSqlPolicyViolationException de la chain
+   -> extraer y relanzar exactamente esa misma instancia
+3. PersistenceException | HibernateException | SQLException en la chain
+   -> ReservationReadException(SOURCE_ACCESS_FAILURE), una sola envoltura
+4. cualquier otro RuntimeException
+   -> rethrow de la misma instancia, sin reclasificación
+```
+
+La regla 2 precede a la 3 incluso si Hibernate envolviera el fallo del inspector en una excepción
+de persistence. Así, SQL policy no puede convertirse en `SOURCE_ACCESS_FAILURE` ni en
+`READ_SET_INVARIANT_VIOLATION`. La inspección de cause chain debe ser cycle-safe; extrae la
+instancia concreta de policy, no fabrica otra y no copia el wrapper externo a su message/context.
+
+Los triggers exhaustivos de `READ_SET_INVARIANT_VIOLATION` para R1 son únicamente:
+
+1. `readByReservationIds` devuelve un `reservationId` fuera del set pedido;
+2. `readByScope` devuelve una row válida cuyo `salonId` o `fecha` queda fuera del scope solicitado;
+3. cualquiera de las dos operaciones observa más de una row física con el mismo
+   `reservationId`;
+4. después de mapear rows individualmente válidas, el número de snapshots ensamblados difiere del
+   número de rows físicas válidas, o el ID de un snapshot no coincide con el ID de su row origen.
+
+Cada trigger se comprueba explícitamente y crea `ReservationReadException` con
+`READ_SET_INVARIANT_VIOLATION`. La ausencia de IDs pedidos tiene precedencia propia
+`SOURCE_RECORD_NOT_FOUND`; row inválida usa `ADAPTER_INPUT_INVALID`; fallos JPA/driver usan
+`SOURCE_ACCESS_FAILURE`; SQL policy, host/environment y transaction/no-write guards quedan fuera.
+La lista es cerrada: una excepción inesperada no añade implícitamente un quinto trigger.
+
+Tabla normativa de propagación:
+
+| Failure origin | Concrete exception/type | ¿Caught by `ReservaJpaReader`? | ¿Mapped to `ReservationReadFailureCode`? | ¿Propagated unchanged? | ¿SQL executed? | Owner/gate |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| caller input o projected row inválida | `ReservationReadException(ADAPTER_INPUT_INVALID)` | NO catch; se crea deliberadamente | SÍ, `ADAPTER_INPUT_INVALID` | NO APLICA | NO para caller; SÍ para row inválida | R1 adapter/mapper contract |
+| ID pedido ausente | `ReservationReadException(SOURCE_RECORD_NOT_FOUND)` | NO catch; se crea deliberadamente | SÍ, `SOURCE_RECORD_NOT_FOUND` | NO APLICA | SÍ | R1 completeness check |
+| uno de los cuatro triggers exhaustivos del read set | `ReservationReadException(READ_SET_INVARIANT_VIOLATION)` | NO catch; se crea deliberadamente | SÍ, `READ_SET_INVARIANT_VIOLATION` | NO APLICA | SÍ | R1 assembly/invariant check |
+| fallo físico JPA/Hibernate/JDBC sin policy failure en la chain | `PersistenceException`, `HibernateException` o chain con `SQLException` | SÍ | SÍ, `SOURCE_ACCESS_FAILURE` | NO; wrapper único preserva cause | NO o MAY_HAVE_STARTED según 36.2 | R1 physical-read boundary |
+| normalization reject, catalog miss, denylist o statement-class violation | la misma instancia `F2eSqlPolicyViolationException` | SÍ, sólo para precedencia/extracción | NO | SÍ, misma instancia | NO para el statement rechazado | `F2eStatementPolicyInspector` / integration-no-write gate |
+| proxy, `HostValidator`, Docker, container, Flyway/setup, datasource startup o credential preflight | `IllegalTransactionStateException` o `PRE_SEMANTIC_OPERATIONAL_FAILURE` del harness/environment | NO; ocurre antes/fuera del método semántico | NO | SÍ, por su owner operacional | NO | transaction owner / HostValidator / environment gate |
+
+Los tests futuros R1 deben comprobar al menos: cada `reason` de policy; unknown SQL y unknown
+SELECT como `CATALOG_MISS`; identidad exacta de la instancia directa y de la extraída de una chain
+envolvente; ausencia de `ReservationReadException`; ausencia de
+`READ_SET_INVARIANT_VIOLATION` y `SOURCE_ACCESS_FAILURE`; y evidencia JDBC de que el statement
+rechazado no fue preparado ni ejecutado. También deben probar que los cuatro statements
+catalogados sí atraviesan el inspector, para no obtener un guard que falle todo indiscriminadamente.
+
+### 36.4 SQL canonicalization `F2E_SQL_CANON_V1`
+
+Input exacto: la `String` que Hibernate entrega a `StatementInspector.inspect(String)` antes de
+execution. Contiene SQL renderizada por Hibernate/dialect y bind markers, incluida la expansión de
+un `IN`; no contiene valores bound y el normalizer nunca intenta reconstruirlos.
+
+Algoritmo determinista sobre code points Java, emitiendo UTF-8:
+
+1. rechazar input null, vacío, NUL, quote/dollar-quote sin cierre, comment opener fuera de quote
+   o cualquier `;` fuera de quote;
+2. reconocer regiones de single quote `'...'` con escape `''`, double quote `"..."` con escape
+   `""`, y dollar quote PostgreSQL `$$...$$` o `$tag$...$tag$`, con tag
+   `[A-Za-z_][A-Za-z0-9_]*`; preservar exactamente sus code points y emitirlos luego en UTF-8;
+3. fuera de esas regiones, colapsar cada run no vacío de ASCII whitespace
+   `U+0009..U+000D` o `U+0020` a un solo `U+0020`; eliminar el run inicial/final; whitespace
+   Unicode distinto no se transforma;
+4. preservar exactamente casing de keywords, identificadores no quoted, quoted identifiers y
+   literals; no hay upper/lower folding ni Unicode NFC/NFD;
+5. fuera de quotes, convertir cada marker `?`, `?` seguido de uno o más dígitos, o `$` seguido de
+   uno o más dígitos a `?`; el texto quoted no cambia; `:name`, `@p1` y cualquier otro marker no
+   observado en este stack se preservan y por ello no pueden coincidir con el catálogo R1;
+6. después de esa tokenización, convertir todo paréntesis cuyo contenido completo sea uno o más
+   markers separados sólo por comas/whitespace, por ejemplo `(?)`, `(?, ?, ?)` o `($1,$2)`, en
+   `(?*)`; no se colapsa una lista con expresiones, literals u otros tokens;
+7. serializar el resultado como UTF-8. No se elimina comment: `--`, `/*...*/`, Hibernate comment
+   o hint causan rechazo. No se elimina semicolon: causa rechazo.
+
+El esquema no es un parser SQL general. Es suficiente para las cuatro SQL R1 exactas de 36.6;
+cualquier construcción distinta normaliza a otra identidad o falla normalización y, en ambos
+casos, el inspector falla cerrado.
+
+### 36.5 Framing e identidad del catálogo SQL
+
+Para una SQL canónica `C`, sea `n` su longitud en bytes UTF-8, no chars/code points. La preimage
+exacta es:
+
+```text
+UTF8("F2E_SQL_CATALOG_ID_V1\n")
+|| ASCII(decimal(n), sin signo y sin leading zero salvo "0")
+|| UTF8(":")
+|| UTF8(C)
+```
+
+`catalogStatementId = lowercaseHex(SHA-256(preimage))`, exactamente 64 caracteres. El ID siempre
+queda asociado a `F2E_SQL_CANON_V1`; cambiar normalización o framing exige otra versión y otros
+IDs. No se hashea SQL raw ni values bound.
+
+### 36.6 Catálogo exhaustivo permitido para R1
+
+El `StatementInspector` de R1 permite exactamente estos cuatro IDs durante la ventana medida:
+
+| Logical ID | Canonical SQL | Catalog statement ID |
+| --- | --- | --- |
+| `R1_RESERVA_BY_IDS_V1` | `SELECT r.id, r.estado, r.fecha, r.salon_id, r.instructor_id, r.tipo_actividad_id, r.hora_inicio, r.hora_fin, r.creado_en, r.actualizado_en FROM public.reserva r WHERE r.id IN (?*) ORDER BY r.id` | `dfa84c5db84f44c41adb82b0a58a2f080fc05a0612df15ababbd5dc064192a5b` |
+| `R1_RESERVA_BY_SCOPE_V1` | `SELECT r.id, r.estado, r.fecha, r.salon_id, r.instructor_id, r.tipo_actividad_id, r.hora_inicio, r.hora_fin, r.creado_en, r.actualizado_en FROM public.reserva r WHERE r.salon_id IN (?*) AND r.fecha >= ? AND r.fecha <= ? ORDER BY r.id` | `c04cd40e2e3b991de845e73df65b6c9988be10c21cc1ee71474ab848b1e8eb9a` |
+| `R1_TX_ISOLATION_V1` | `SELECT current_setting('transaction_isolation')` | `4a669a2f628e12468e0d532889e0bcafd38c09a5aadfb27f2f20f56159c1671e` |
+| `R1_TX_READ_ONLY_V1` | `SELECT current_setting('transaction_read_only')` | `9963ea856cdf9bfb3e9c440b1c3a6c062fd375a906f465cbe7a7ac88878716c7` |
+
+No se permite para R1 `pg_current_snapshot()`, `SHOW`, `SET`, metadata de schema, sequence SQL ni
+otro statement. El harness ejecuta los dos probes mediante el mismo SessionFactory inspeccionado.
+Preparación JDBC de isolation/read-only que no atraviese `StatementInspector` se verifica por los
+probes y por el rol SELECT-only, pero no se finge como SQL observada. Flyway, fixture, creación del
+rol, negative write control, checksum observer y cleanup usan conexiones separadas fuera de la
+ventana/SessionFactory inspeccionada.
+
+```text
+normalization failure -> FAIL
+normalized/hash not present in the four-entry catalog -> FAIL
+unknown SQL -> FAIL
+unknown SELECT -> FAIL
+statement-class/denylist failure, aun con hash presente -> FAIL
+```
+
+Cada `FAIL` de este bloque lanza la misma clase operacional
+`F2eSqlPolicyViolationException` con el `reason` correspondiente de 36.3.1 antes de retornar desde
+`StatementInspector`; el statement rechazado no se prepara ni ejecuta y la excepción no se adapta
+a `ReservationReadException`.
+
+### 36.7 Golden vectors SQL
+
+Cada `framed input` siguiente muestra exactamente los bytes UTF-8 antes de SHA-256; el salto tras
+`V1` es un byte LF `0a`.
+
+| Vector | Raw observed input | Canonical / framed input | Expected SHA-256 |
+| --- | --- | --- | --- |
+| SQL-A by IDs | `  SELECT\n r.id, r.estado, r.fecha, r.salon_id, r.instructor_id, r.tipo_actividad_id, r.hora_inicio, r.hora_fin, r.creado_en, r.actualizado_en\tFROM public.reserva r WHERE r.id IN (?, ?, ?) ORDER BY r.id  ` | canonical = catalog row `R1_RESERVA_BY_IDS_V1`; framed = `F2E_SQL_CATALOG_ID_V1\n193:` + canonical | `dfa84c5db84f44c41adb82b0a58a2f080fc05a0612df15ababbd5dc064192a5b` |
+| SQL-B by scope | `SELECT r.id, r.estado, r.fecha, r.salon_id, r.instructor_id, r.tipo_actividad_id, r.hora_inicio, r.hora_fin, r.creado_en, r.actualizado_en FROM public.reserva r WHERE r.salon_id IN ($1,$2) AND r.fecha >= $3 AND r.fecha <= $4 ORDER BY r.id` | canonical = catalog row `R1_RESERVA_BY_SCOPE_V1`; framed = `F2E_SQL_CATALOG_ID_V1\n233:` + canonical | `c04cd40e2e3b991de845e73df65b6c9988be10c21cc1ee71474ab848b1e8eb9a` |
+| SQL-C whitespace equivalent | `SELECT  r.id,\r\n\tr.estado, r.fecha, r.salon_id, r.instructor_id, r.tipo_actividad_id, r.hora_inicio, r.hora_fin, r.creado_en, r.actualizado_en FROM public.reserva r WHERE r.id IN (?1) ORDER BY r.id` | misma canonical/framed/hash de SQL-A | `dfa84c5db84f44c41adb82b0a58a2f080fc05a0612df15ababbd5dc064192a5b` |
+| SQL-D unknown SELECT | `SELECT r.id FROM public.reserva r ORDER BY r.id` | `F2E_SQL_CATALOG_ID_V1\n47:SELECT r.id FROM public.reserva r ORDER BY r.id` | `8a4c3fcfd898385d6344056818c3f24628fb96f1acc1f2f9d327bb45371fec37` → catalog miss / FAIL |
+
+### 36.8 Checksum canonicalization `F2E_CHECKSUM_*_V1`
+
+#### Primitive framing
+
+Para byte string `x`, `LP(x) = ASCII(byteLength(x)) || ":" || x`. Para una lista ordenada,
+`SEQ(x1..xN) = ASCII(N) || ":" || LP(x1) || ... || LP(xN)`. N y longitudes son decimales sin
+signo, sin whitespace ni leading zero salvo `0`; toda longitud mide bytes, y todo texto se codifica
+UTF-8. `||` concatena bytes. Estas reglas eliminan colisiones de fronteras.
+
+#### Scope, tabla, row y columns R1
+
+R1 protege exactamente `public.reserva`. El row scope se congela antes del baseline:
+
+```text
+readByReservationIds -> rows cuyo id pertenece al set pedido
+readByScope          -> rows cuyo salon_id pertenece al set y fecha está BETWEEN desde AND hasta
+```
+
+No se incluyen filas externas. Se leen las once columnas persistidas, incluida `cliente_id` para
+demostrar no-mutación de la fila completa; ese UUID sólo entra al byte stream privado del hash y
+nunca al snapshot, context, error o reporte:
+
+```text
+1 id                  U
+2 salon_id            U
+3 instructor_id       U
+4 cliente_id          U
+5 tipo_actividad_id   U
+6 fecha               D
+7 hora_inicio         T
+8 hora_fin            T
+9 estado              S
+10 creado_en          Z
+11 actualizado_en     Z
+```
+
+Este orden es fijo por contrato V15, no reflection ni orden incidental de `ResultSet`. Todas son
+`NOT NULL` físicamente; el scheme define null para reutilización/verificación defensiva.
+
+Tags y valores canónicos:
+
+| Tag | Tipo | Canonical value bytes |
+| --- | --- | --- |
+| `U` | UUID | RFC-4122 textual lower-case `8-4-4-4-12` |
+| `S` | enum/text | bytes raw devueltos por DB en UTF-8, sin trim, case fold ni NFC/NFD; `estado` usa string DB exacta |
+| `D` | PostgreSQL `DATE` | `uuuu-MM-dd`, locale-free |
+| `T` | PostgreSQL `TIME` | `HH:mm:ss.SSSSSS`, seis dígitos; nanosegundos no divisibles por 1000 son inválidos |
+| `Z` | PostgreSQL `TIMESTAMPTZ` | normalizado a UTC, `uuuu-MM-dd'T'HH:mm:ss.SSSSSS'Z'`, seis dígitos; nunca timezone default |
+| `B` | boolean | `true` o `false` ASCII |
+| `I` | integer/short | decimal base 10 con `-` sólo si negativo, sin `+` ni padding |
+| `Q` | exact numeric | plain decimal sin exponente; cero=`0`; sin trailing fractional zero ni decimal point final; negative zero=`0` |
+
+`B`, `I` y `Q` son `NOT_APPLICABLE` al column set R1. No se admite float/double. Para cada field:
+
+```text
+non-null = SEQ("F2E_CHECKSUM_FIELD_V1", columnName, declaredTypeTag, "V", canonicalValue)
+NULL     = SEQ("F2E_CHECKSUM_FIELD_V1", columnName, declaredTypeTag, "N", empty-byte-string)
+```
+
+Así NULL difiere de empty string, texto `"null"`, cero y false; el type tag permanece incluso en
+NULL.
+
+#### Row hash
+
+`field1..fieldN` sigue el orden de columns anterior:
+
+```text
+rowPreimage = SEQ("F2E_CHECKSUM_ROW_V1", ASCII(N), field1, ..., fieldN)
+rowHash = lowercaseHex(SHA-256(rowPreimage))
+```
+
+La table identity no entra al row hash: entra obligatoriamente en el nivel table. Rows se ordenan
+por PK, para `reserva` por los 16 octetos UUID unsigned ascending; equivale al orden lexicográfico
+de su forma canonical lower-case de longitud fija.
+
+#### Table hash
+
+```text
+tableIdentity = "public.reserva"
+tablePreimage = SEQ("F2E_CHECKSUM_TABLE_V1", tableIdentity, ASCII(rowCount),
+                    rowHash1, ..., rowHashN)
+tableHash = lowercaseHex(SHA-256(tablePreimage))
+```
+
+Los row hashes son sus 64 bytes ASCII lower-case y siguen PK order. Empty table:
+`SEQ("F2E_CHECKSUM_TABLE_V1","public.reserva","0")`; no hay sentinel implícito.
+
+#### Scope identity y slice hash
+
+UUIDs se ordenan como arriba. La scope identity son bytes, no detector snapshot identity:
+
+```text
+IDs scope = SEQ("F2E_CHECKSUM_SCOPE_V1", "BY_RESERVATION_IDS", ASCII(idCount), id1..idN)
+range scope = SEQ("F2E_CHECKSUM_SCOPE_V1", "BY_SCOPE", ASCII(salonCount),
+                  salonId1..salonIdN, desde, hasta)
+```
+
+`desde/hasta` usan `D`. Para cada tabla:
+
+```text
+entry = SEQ("F2E_CHECKSUM_SLICE_TABLE_ENTRY_V1", tableIdentity, tableHash)
+slicePreimage = SEQ("F2E_CHECKSUM_SLICE_V1", scopeIdentityBytes,
+                    ASCII(tableCount), entry1, ..., entryN)
+sliceHash = lowercaseHex(SHA-256(slicePreimage))
+```
+
+Entries se ordenan por bytes UTF-8 unsigned de `tableIdentity`; nunca por map iteration. R1 tiene
+siempre una entry `public.reserva`, aun con cero rows. El empty-slice general de cero tablas es
+la misma fórmula con `tableCount="0"` y cero entries. Los domains `FIELD`, `ROW`, `TABLE`,
+`SCOPE`, `SLICE_TABLE_ENTRY` y `SLICE` separan niveles y evitan equivalencia accidental.
+
+### 36.9 Golden vectors checksum/hashes
+
+Las expresiones `SEQ`/`LP` son bytes exactos según 36.8. Los valores no mostrados como hex son
+UTF-8 ASCII en estos vectores.
+
+**A — una row R1.** Fields en orden:
+
+```text
+id=U:00000000-0000-0000-0000-000000000001
+salon_id=U:00000000-0000-0000-0000-000000000002
+instructor_id=U:00000000-0000-0000-0000-000000000003
+cliente_id=U:00000000-0000-0000-0000-000000000004
+tipo_actividad_id=U:00000000-0000-0000-0000-000000000005
+fecha=D:2026-09-02
+hora_inicio=T:08:30:00.000000
+hora_fin=T:09:15:30.123456
+estado=S:CONFIRMADA
+creado_en=Z:2026-09-02T14:00:00.000000Z
+actualizado_en=Z:2026-09-02T14:05:06.000007Z
+rowPreimage=SEQ("F2E_CHECKSUM_ROW_V1","11",FIELD(id)...FIELD(actualizado_en))
+rowHash=7f2438b5698a3d3ed9aec57674c64834da4aba252c08828768dbd148fa60006c
+```
+
+**B — fronteras de concatenación.** Con columns `left,right`, ambas `S`:
+
+```text
+ROW("ab","c") preimage =
+4:19:F2E_CHECKSUM_ROW_V11:242:5:21:F2E_CHECKSUM_FIELD_V14:left1:S1:V2:ab42:5:21:F2E_CHECKSUM_FIELD_V15:right1:S1:V1:c
+hash = f3a481c27a51936e546068c1d24bf8014fbcb6b03e9fc44a4004b49d1bea8c95
+
+ROW("a","bc") preimage =
+4:19:F2E_CHECKSUM_ROW_V11:241:5:21:F2E_CHECKSUM_FIELD_V14:left1:S1:V1:a43:5:21:F2E_CHECKSUM_FIELD_V15:right1:S1:V2:bc
+hash = 7b3ae77aa7da771cc416c0863408ead4f483d21d35ba3a47d06155e05fe12ae1
+```
+
+**C — table con la row A.**
+
+```text
+preimage = 4:21:F2E_CHECKSUM_TABLE_V114:public.reserva1:164:7f2438b5698a3d3ed9aec57674c64834da4aba252c08828768dbd148fa60006c
+tableHash = da4cad572663f11e0d5c8a4b6265729465089e13e940924f3958acac41e6ad1b
+```
+
+**D — misma row hash, distinta table identity.**
+
+```text
+public.reserva        -> da4cad572663f11e0d5c8a4b6265729465089e13e940924f3958acac41e6ad1b
+audit.reserva_shadow  preimage =
+4:21:F2E_CHECKSUM_TABLE_V120:audit.reserva_shadow1:164:7f2438b5698a3d3ed9aec57674c64834da4aba252c08828768dbd148fa60006c
+audit tableHash = 71b3084caaf55b7ad11c58f3f513a98228e6bce0535466cc11f7d96be6ec2278
+```
+
+**E — normalización de orden de dos rows.** Row A0 difiere de A en
+`id=...0000`, `fecha=2026-09-01`, `hora_inicio=07:00:00.000000` y
+`hora_fin=08:00:00.000000`; los demás fields son iguales.
+
+```text
+A0 rowHash = ea5f926c634840690be3087662db5dab08f446323378b075037e6e59e318f3e0
+input iteration [A,A0] or [A0,A]
+canonical PK order [A0,A]
+table preimage =
+5:21:F2E_CHECKSUM_TABLE_V114:public.reserva1:264:ea5f926c634840690be3087662db5dab08f446323378b075037e6e59e318f3e064:7f2438b5698a3d3ed9aec57674c64834da4aba252c08828768dbd148fa60006c
+tableHash = ee3953739cf5633cfe8869659be5b4d7075a7c74beb80be22dab90ae15eecedc
+```
+
+**F — slice R1 by IDs con table C.**
+
+```text
+scope = 4:21:F2E_CHECKSUM_SCOPE_V118:BY_RESERVATION_IDS1:136:00000000-0000-0000-0000-000000000001
+slice preimage =
+4:21:F2E_CHECKSUM_SLICE_V189:4:21:F2E_CHECKSUM_SCOPE_V118:BY_RESERVATION_IDS1:136:00000000-0000-0000-0000-0000000000011:1122:3:33:F2E_CHECKSUM_SLICE_TABLE_ENTRY_V114:public.reserva64:da4cad572663f11e0d5c8a4b6265729465089e13e940924f3958acac41e6ad1b
+sliceHash = ff619ecac74d86a149cc9110c9ac205990fc5a87eb10e61ba64c5b1a6967f5be
+```
+
+**G — misma table hash, scopes distintos.**
+
+```text
+scope A = SEQ("F2E_CHECKSUM_SCOPE_V1","BY_SCOPE","1",
+              "00000000-0000-0000-0000-000000000002","2026-09-01","2026-09-02")
+sliceHash A = 6b8c91ac4bb06fed2476d190b93e37a8cd75c2485a66033801bf01676e1f0b79
+
+scope B = SEQ("F2E_CHECKSUM_SCOPE_V1","BY_SCOPE","1",
+              "00000000-0000-0000-0000-000000000002","2026-09-02","2026-09-02")
+sliceHash B = 7b79a1f2403d6e63e9a012fdda6a4da39c422f5c559df2d5f38c61bd0c4b0db5
+```
+
+Vectores de empty:
+
+```text
+empty public.reserva preimage = 3:21:F2E_CHECKSUM_TABLE_V114:public.reserva1:0
+empty public.reserva tableHash = 7cd08818f587c66f33716592705b5d716a19fd1ac434cb65e0defce21abeb916
+
+empty zero-table slice para scope F
+-> sliceHash = 775d6bf38eb09356818f772684ab50e4d0c3c3776e623c21f179a8f5368a8625
+```
+
+**H — orden multi-table autocontenido.** Todo string se codifica en UTF-8. En este vector,
+`LP(x)=ASCII(byteLength(x)) || ":" || x` y
+`SEQ(x1..xN)=ASCII(N) || ":" || LP(x1) || ... || LP(xN)`; counts y longitudes son ASCII decimal
+sin whitespace ni leading zero. No se requiere ningún input implícito de otro vector.
+
+```text
+scopeType = BY_RESERVATION_IDS
+scopeInputs.idCount = 1
+scopeInputs.ids = [00000000-0000-0000-0000-000000000001]
+scopeIdentity = SEQ("F2E_CHECKSUM_SCOPE_V1","BY_RESERVATION_IDS","1",
+                    "00000000-0000-0000-0000-000000000001")
+scopeIdentity bytes =
+4:21:F2E_CHECKSUM_SCOPE_V118:BY_RESERVATION_IDS1:136:00000000-0000-0000-0000-000000000001
+
+table public.reserva:
+  tableIdentity = public.reserva
+  tableHash = da4cad572663f11e0d5c8a4b6265729465089e13e940924f3958acac41e6ad1b
+  entry = SEQ("F2E_CHECKSUM_SLICE_TABLE_ENTRY_V1","public.reserva",
+              "da4cad572663f11e0d5c8a4b6265729465089e13e940924f3958acac41e6ad1b")
+  entry bytes =
+  3:33:F2E_CHECKSUM_SLICE_TABLE_ENTRY_V114:public.reserva64:da4cad572663f11e0d5c8a4b6265729465089e13e940924f3958acac41e6ad1b
+
+table audit.reserva_shadow:
+  tableIdentity = audit.reserva_shadow
+  tableHash = 71b3084caaf55b7ad11c58f3f513a98228e6bce0535466cc11f7d96be6ec2278
+  entry = SEQ("F2E_CHECKSUM_SLICE_TABLE_ENTRY_V1","audit.reserva_shadow",
+              "71b3084caaf55b7ad11c58f3f513a98228e6bce0535466cc11f7d96be6ec2278")
+  entry bytes =
+  3:33:F2E_CHECKSUM_SLICE_TABLE_ENTRY_V120:audit.reserva_shadow64:71b3084caaf55b7ad11c58f3f513a98228e6bce0535466cc11f7d96be6ec2278
+
+Input permutation A = [public.reserva, audit.reserva_shadow]
+Input permutation B = [audit.reserva_shadow, public.reserva]
+canonical UTF-8 unsigned table order for A and B =
+  [audit.reserva_shadow, public.reserva]
+tableCount = ASCII("2")
+
+slicePreimage for A and B =
+SEQ("F2E_CHECKSUM_SLICE_V1", scopeIdentityBytes, "2",
+    SEQ("F2E_CHECKSUM_SLICE_TABLE_ENTRY_V1","audit.reserva_shadow",
+        "71b3084caaf55b7ad11c58f3f513a98228e6bce0535466cc11f7d96be6ec2278"),
+    SEQ("F2E_CHECKSUM_SLICE_TABLE_ENTRY_V1","public.reserva",
+        "da4cad572663f11e0d5c8a4b6265729465089e13e940924f3958acac41e6ad1b"))
+
+slicePreimage bytes for A and B =
+5:21:F2E_CHECKSUM_SLICE_V189:4:21:F2E_CHECKSUM_SCOPE_V118:BY_RESERVATION_IDS1:136:00000000-0000-0000-0000-0000000000011:2128:3:33:F2E_CHECKSUM_SLICE_TABLE_ENTRY_V120:audit.reserva_shadow64:71b3084caaf55b7ad11c58f3f513a98228e6bce0535466cc11f7d96be6ec2278122:3:33:F2E_CHECKSUM_SLICE_TABLE_ENTRY_V114:public.reserva64:da4cad572663f11e0d5c8a4b6265729465089e13e940924f3958acac41e6ad1b
+
+expected sliceHash for A and B =
+aa10c3ce64e25734e671c9bc9e91555a714655036cf03b27425e88e6c67b99a7
+```
+
+Ambas permutations se ordenan antes de construir entries; por ello producen exactamente la misma
+secuencia canónica, los mismos bytes de `slicePreimage` y el mismo SHA-256 esperado.
+
+### 36.10 Decisiones AD del amendment y salida
+
+No se renumeran AD-01–AD-32. Se agregan:
+
+| ID | Question | Decision | Evidence | Alternatives rejected | Implications | Future owner/slice | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| AD-33 | ¿Vocabulario de fallos R1? | cuatro codes exhaustivos de 36.2; invalid canónico=`ADAPTER_INPUT_INVALID`; missing tiene code propio | layering adapter/core, contrato R1 y catálogo operacional previo | alias `INPUT_INVALID`; mapear missing a semantic `MISSING`; catch-all source failure | exception/batch mecánicos, cero parciales | R1 | CLOSED_BY_THIS_AMENDMENT |
+| AD-34 | ¿Exception/cause/safe context y frontera de SQL policy? | shape, mensajes y keys de 36.3; `F2eSqlPolicyViolationException` pertenece al policy/integration gate, precede source-failure classification, se extrae de la cause chain y se relanza como la misma instancia; no hay fallback `RuntimeException -> READ_SET_INVARIANT_VIOLATION` | debugging sin exponer PII/SQL/credentials; separación entre policy layer y failure vocabulary R1 | cause descartada; message de vendor; raw SQL/context libre; convertir policy a `ReservationReadException`; catch-all semántico | evidencia preservada internamente, output seguro y policy failure sin reclasificación | R1 | CLOSED_BY_THIS_AMENDMENT |
+| AD-35 | ¿Normalización e identidad SQL? | `F2E_SQL_CANON_V1` + `F2E_SQL_CATALOG_ID_V1`; catálogo R1 de cuatro IDs | StatementInspector/Hibernate binding y unknown-SQL fail | trim/hash vago; wildcard SELECT; metadata abierta | allowlist exacta y reproducible | R1 | CLOSED_BY_THIS_AMENDMENT |
+| AD-36 | ¿Checksum row/table/slice? | `F2E_CHECKSUM_FIELD_V1`, `F2E_CHECKSUM_ROW_V1`, `F2E_CHECKSUM_TABLE_V1`, `F2E_CHECKSUM_SCOPE_V1`, `F2E_CHECKSUM_SLICE_TABLE_ENTRY_V1` y `F2E_CHECKSUM_SLICE_V1`, LP/SEQ y all columns R1 | V15, no-write scope y necesidad de domain separation | concatenación, reflection/iteration order, hash sin table/scope | hashes reproducibles, empty definido | R1/shared testinfra | CLOSED_BY_THIS_AMENDMENT |
+| AD-37 | ¿Golden vectors? | SQL-A–D y checksum A–H/empty de 36.7/36.9; H declara scope identity, ambas permutations, orden canónico, entries, preimage completa y hash | cálculo documental local SHA-256 sobre preimages declaradas | hashes sin input normativo o scope/orden inferidos | future tests pueden copiar expected values sin decidir ni inferir inputs | R1/shared testinfra | CLOSED_BY_THIS_AMENDMENT |
+
+Trazabilidad del gap:
+
+| Insuficiencia downstream | Decisión adoptada | Preservado sin cambio |
+| --- | --- | --- |
+| `INPUT_INVALID` vs `ADAPTER_INPUT_INVALID` | un único nombre adapter, sin alias | vocabulario/error semantics del pure core |
+| requested record absent | `SOURCE_RECORD_NOT_FOUND`, abort batch, cero parciales | scope-zero rows sigue válido |
+| source physical failure/cause | `SOURCE_ACCESS_FAILURE` y wrapping 36.3 | pre-semantic environment separado |
+| SQL normalization/hash abierto | schemes versionados, cuatro statements exhaustivos | unknown SQL/SELECT siempre FAIL |
+| checksum/hash hierarchy abierto | LP/SEQ, fields, row/table/scope/slice exactos | estrategia no-write y concurrencia separada |
+| golden vectors ausentes | inputs/preimages y SHA-256 conocidos | no tests ni implementación en esta unidad |
+
+```text
+Open technical questions in corrective scope: NINGUNA
+Human decision required: NO
+Pure detector changed: NO
+R1 draft changed: NO
+R1 implementation: NOT_STARTED / NOT_AUTHORIZED
+R1 downstream P1 allowlist: PENDING
+R1 downstream P1 test-only JPA topology: PENDING
+R2-R6: NOT_AUTHORIZED
+Next required gate: FRESH_INDEPENDENT_DESIGN_DOCUMENT_AUDIT
 ```

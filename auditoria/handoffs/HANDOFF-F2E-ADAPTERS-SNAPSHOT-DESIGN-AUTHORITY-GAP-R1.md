@@ -1,6 +1,6 @@
 # FeelingPilates — Handoff F2E adapters/snapshot design — authority gap R1
 
-Handoff status: `MATERIALIZED / APPROVED / ACTIVE / AUTHORIZED_FOR_CORRECTIVE_DESIGN_RESEARCH / TARGET_AUTHORIZED_TO_START / TARGET_NOT_STARTED`
+Handoff status: `COMPLETED / CLOSED / HISTORICAL / TARGET_COMPLETED / CORRECTIVE_DESIGN_GATE_PASS / NOT_ACTIVE`
 
 Target: `F2E / adapters-snapshot design — authority gap R1`
 
@@ -8,44 +8,44 @@ Type: `DESIGN / RESEARCH — CORRECTIVE AMENDMENT`
 
 Role that materialized this handoff: `DOCUMENTER`
 
-## 1. Purpose, authority, and lifecycle
+## 1. Purpose, authority, and closed lifecycle
 
 Repository documents and physical Git evidence are authoritative; chat is coordination only. This
-handoff materializes a future corrective design unit after the R1 handoff correction found an
+handoff materialized the corrective design unit after the R1 handoff preparation found an
 authority conflict in the design previously closed at
 `auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md`.
 
-The historical design closure remains historical evidence only. It does not authorize an executor
-to choose between incompatible or incomplete contracts while preparing R1. The fresh independent
+The original design closure remains historical evidence. The corrective amendment restored the
+missing design authority without rewriting that historical PASS. The prior independent
 handoff-document audit is persisted in
 `auditoria/reviews/HANDOFF-F2E-ADAPTERS-SNAPSHOT-DESIGN-AUTHORITY-GAP-R1-REVIEW.md`. Its
-contractual result is `P0=0 / P1=0 / P2=0`, all applicable handoff gates `PASS`, and
-`READY_TO_APPROVE_AND_ACTIVATE=SI`. This documentary action consequently approves and activates
-only the corrective design/research unit.
+contractual result was `P0=0 / P1=0 / P2=0`, all applicable handoff gates `PASS`, and
+`READY_TO_APPROVE_AND_ACTIVATE=SI`; it authorized only the now-completed corrective
+design/research unit.
 
 ```text
 Handoff: MATERIALIZED
 Fresh independent handoff-document audit: PASS / PERSISTED
 Approved: YES
-Active: YES
-Authorized for corrective design research: YES
-Target authorized to start: YES
-Target started: NO
-Target materialized: NO
-Corrective design amendment: NOT_PERFORMED
-Fresh corrective-design audit: NOT_PERFORMED
-Authority gap closed: NO
+Corrective design amendment: MATERIALIZED
+Fresh independent corrective-design audit: PASS / PERSISTED
+Final corrective-design review: auditoria/reviews/F2E-ADAPTERS-SNAPSHOT-AUTHORITY-GAP-R1-DESIGN-REVIEW.md
+P0 / P1 / P2: 0 / 0 / 0
+Target: COMPLETED
+Corrective design gate: PASS
+Authority gap: RESOLVED_BY_CORRECTIVE_DESIGN / CLOSED
+Active: NO
+Lifecycle: COMPLETED / CLOSED / HISTORICAL
 ```
 
-`ACTIVE` means only that the corrective `DESIGN / RESEARCH — CORRECTIVE AMENDMENT` may begin.
-It does not mean that the authority gap is resolved, the design has been corrected, a design
-amendment has passed, R1 has been corrected or activated, or Java, DB, or R1 implementation is
-authorized.
+This handoff is historical and is not an active lifecycle authority. Closure restores the canonical
+design authority only; it does not correct, approve, activate, or authorize R1, Java, DB, or
+implementation.
 
 The immediate next action is:
 
 ```text
-EXECUTE_ACTIVE_CORRECTIVE_DESIGN_RESEARCH_HANDOFF
+RETURN_TO_R1_HANDOFF_DOCUMENT_CORRECTION
 ```
 
 ## 2. Materialization pre-flight and preserved baseline
@@ -67,11 +67,11 @@ unstaged, and unapproved. A material mismatch in branch, HEAD, upstream, staging
 allowed delta is fail-closed: stop without reset, stash, checkout, clean, reconciliation, or
 unapproved mutation.
 
-## 3. Confirmed authority gap
+## 3. Historical authority gap — resolved by corrective design
 
-The R1 draft is `MATERIALIZED / NOT_APPROVED / NOT_ACTIVE / BLOCKED_BY_AUTHORITY_GAP`. Its
-preparation surfaced four unanswered or internally inconsistent technical questions. This
-corrective amendment must resolve them in the canonical design; this handoff must not resolve them.
+The R1 draft was `MATERIALIZED / NOT_APPROVED / NOT_ACTIVE / BLOCKED_BY_AUTHORITY_GAP` when its
+preparation surfaced four unanswered or internally inconsistent technical questions. The
+corrective amendment resolved them in the canonical design; this handoff records that history.
 
 1. The R1 read contract says `INPUT_INVALID`, while the closed operational catalog says
    `ADAPTER_INPUT_INVALID`. A single normative taxonomy is absent.
@@ -82,41 +82,38 @@ corrective amendment must resolve them in the canonical design; this handoff mus
 4. The checksum discussion fixes broad types and order but does not close exact, versioned row,
    table, and slice hash formulas.
 
-These gaps are technical. `Requires human decision: NO` remains preserved unless new evidence
-proves otherwise. The corrective unit must not invent a conclusion merely to preserve the earlier
-historical PASS.
+The gaps were technical. The fresh final audit reports `Requires human decision: NO`; the
+historical PASS of the original design remains preserved and was not falsified.
 
-## 4. Exact future scope
+## 4. Historical corrective scope
 
-After this handoff is freshly audited, approved, and active, the future unit may analyze and
-correct exclusively the following authority in the canonical design:
+The completed unit analyzed and corrected exclusively the following authority in the canonical
+design:
 
 1. failure vocabulary and exception contract required by R1;
 2. SQL statement canonicalization and catalog hashing;
 3. checksum canonicalization and row/table/slice hash hierarchy;
 4. minimum same-design-document references necessary to make those decisions coherent.
 
-The future corrective design unit may modify exactly one existing file:
+The corrective design unit modified exactly one existing file:
 
 ```text
 auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md
 ```
 
-That file is the only corrective-design artifact. The correction must be materialized directly as
-an explicit amendment/version section inside that existing canonical design. During the target
-design execution, creating a checkpoint, addendum, amendment file, or any parallel document is
-forbidden:
+That file was the only corrective-design artifact. The correction was materialized directly as an
+explicit amendment/version section inside that existing canonical design; no parallel amendment
+artifact was created:
 
 ```text
 NO NEW DOCUMENT DURING TARGET DESIGN EXECUTION
 ```
 
-No other existing file may be modified. In particular, the future unit must not modify
+No other existing file was modified during target execution. In particular, the target unit did not modify
 `auditoria/ESTADO-ACTUAL.md`, this corrective handoff, the R1 handoff, any other handoff,
 `auditoria/reviews/F2E-ADAPTERS-SNAPSHOT-DESIGN-REVIEW.md`, any other review, or any other canon.
-This physical allowlist is fail-closed. If the design corrector believes another file must change,
-it must stop and report `SCOPE/AUTHORITY_GAP`; it must not expand scope. The amendment requires a
-new fresh independent design audit.
+This physical allowlist was fail-closed. The amendment subsequently received the fresh independent
+design audit recorded in the final review.
 
 ## 5. Failure vocabulary and exception-contract questions to close
 
@@ -340,10 +337,10 @@ FRESH_INDEPENDENT_DESIGN_DOCUMENT_AUDIT
 
 It must audit the amendment itself and regressions. It is not an implementation audit.
 
-## 10. Downstream R1 sequencing
+## 10. Downstream R1 sequencing after closure
 
-The existing R1 draft is not to be modified by this materialization or by the future corrective
-design unit. After a future amendment PASS and publication, the required sequence is:
+The existing R1 draft was not modified by this materialization or by the corrective design unit.
+After the final amendment PASS, the required sequence is:
 
 ```text
 return to R1 handoff draft
@@ -353,9 +350,10 @@ return to R1 handoff draft
 → implementation
 ```
 
-R1 is not automatically authorized by an amendment PASS. R1 P1-1 (exhaustive allowlist) and P1-3
-(test-only JPA topology) remain pending for a later `HANDOFF_DOCUMENT_CORRECTION`; they do not
-reopen design absent new evidence.
+R1 is not authorized by an amendment PASS. R1 P1-1 (exact/fail-closed allowlist) and P1-3
+(test-only JPA topology) remain pending for `HANDOFF_DOCUMENT_CORRECTION`. The R1 handoff must
+also absorb the restored authority for its exact context/provenance/failure contract and its exact
+SQL/checksum canonicalization before its own fresh audit.
 
 ## 11. Explicit exclusions and preserved authority
 
@@ -398,21 +396,22 @@ Cutover: false
 This materialization does not update `auditoria/ESTADO-ACTUAL.md`, the canonical design, the R1
 draft, review artifacts, code, tests, configuration, migrations, schema, or Git history.
 
-## 12. Current disposition
+## 12. Closed disposition
 
 ```text
-CORRECTIVE DESIGN HANDOFF MATERIALIZED
+CORRECTIVE DESIGN HANDOFF COMPLETED
 FRESH INDEPENDENT HANDOFF DOCUMENT AUDIT: PASS / PERSISTED
-APPROVED
-ACTIVE
-AUTHORIZED_FOR_CORRECTIVE_DESIGN_RESEARCH
-TARGET_AUTHORIZED_TO_START
-TARGET_STARTED: NO
-TARGET_MATERIALIZED: NO
-CORRECTIVE_DESIGN_AMENDMENT: NOT_PERFORMED
-FRESH_CORRECTIVE_DESIGN_AUDIT: NOT_PERFORMED
-AUTHORITY_GAP: OPEN / TARGET_OF_ACTIVE_CORRECTION
+CORRECTIVE DESIGN AMENDMENT: MATERIALIZED
+FRESH INDEPENDENT CORRECTIVE DESIGN AUDIT: PASS / PERSISTED
+FINAL REVIEW: auditoria/reviews/F2E-ADAPTERS-SNAPSHOT-AUTHORITY-GAP-R1-DESIGN-REVIEW.md
+P0 / P1 / P2: 0 / 0 / 0
+CORRECTIVE_DESIGN_GATE: PASS
+TARGET_COMPLETED
+COMPLETED / CLOSED / HISTORICAL
+ACTIVE: NO
+AUTHORITY_GAP: RESOLVED_BY_CORRECTIVE_DESIGN / CLOSED
+NEXT ACTION: RETURN_TO_R1_HANDOFF_DOCUMENT_CORRECTION
 ```
 
-No corrective design decision has been made by this handoff. No implementation, publication,
-data access, migration, authority change, or cutover is authorized now.
+No R1 handoff correction, implementation, publication, data access, migration, authority change,
+or cutover is authorized by this closure.

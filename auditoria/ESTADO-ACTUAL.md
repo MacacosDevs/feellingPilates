@@ -5,7 +5,7 @@ Last updated: 2026-09-02
 Repository verification: VERIFIED
 Last verified against commit:
 1ebf0010e7376719627ecff9bdf592b8c2aa2f6f
-Verification scope: persistencia documental del technical implementation audit final F2E detector read-only; dark launch y autoridad productiva preservados
+Verification scope: activación documental del handoff F2E de diseño de adapters read-only y consistencia de snapshot; dark launch y autoridad productiva preservados
 
 La referencia anterior identifica la base histórica de esta materialización documental. No sustituye el `HEAD` operativo, que debe obtenerse mediante pre-flight en cada intervención.
 
@@ -342,16 +342,26 @@ conditions del handoff; `ESTADO-ACTUAL` y el review técnico son la evidencia co
 
 ## Próximo paso
 
-**READ_NEXT / NEXT_HANDOFF_SCOPE.** No hay handoff activo ni unidad posterior autorizada. Un
-posible slice de adapters read-only sigue siendo sólo candidato y requiere nuevo scope, handoff y
-audit competentes.
+**EXECUTE_ACTIVE_DESIGN_RESEARCH_HANDOFF.** Está autorizado exclusivamente iniciar el diseño/research
+del boundary de readers JPA hacia el detector puro. No autoriza implementar readers, crear
+projections, conectar DB, ejecutar data audit, modificar repositories, crear tests, migrar, cambiar
+consumers o cambiar autoridad.
 
 ## Handoff activo
 
 ```text
-ACTIVE HANDOFF: NINGUNO
-LAST HANDOFF: HANDOFF-F2E-DETECTOR-READ-ONLY-NUCLEO-PURO.md
-LAST HANDOFF STATUS: COMPLETED / CLOSED / HISTORICAL
+ACTIVE HANDOFF: HANDOFF-F2E-DISENO-ADAPTERS-READ-ONLY-SNAPSHOT-CONSISTENCY.md
+HANDOFF LIFECYCLE: APPROVED / ACTIVE
+TARGET: F2E / boundary de readers JPA hacia detector puro
+TYPE: DESIGN / RESEARCH
+TARGET STATUS: AUTHORIZED_TO_START
+TARGET STARTED: NO
+TARGET MATERIALIZED: NO
+DESIGN CHECKPOINT: NOT_CREATED / PENDING
+DESIGN GATE: PENDING / NOT_PERFORMED
+FRESH TARGET DESIGN AUDIT: NOT_PERFORMED
+HANDOFF AUDIT: auditoria/reviews/HANDOFF-F2E-DISENO-ADAPTERS-READ-ONLY-SNAPSHOT-CONSISTENCY-REVIEW.md
+PREVIOUS HANDOFF: HANDOFF-F2E-DETECTOR-READ-ONLY-NUCLEO-PURO.md / COMPLETED / CLOSED / HISTORICAL
 ```
 
 `IMPLEMENTATION CLOSED` significa núcleo puro materializado, tests aplicables PASS y technical audit
@@ -361,7 +371,7 @@ resolver, fence, migración ni cutover.
 ```text
 PURE JAVA / IMMUTABLE / IN-MEMORY / READ-ONLY: PRESERVED
 Spring/JPA/DB/runtime wiring: NONE
-Adapters: NOT_IMPLEMENTED / OUT_OF_SCOPE
+Adapters: NOT_IMPLEMENTED / DESIGN_TARGET / PENDING
 Persisted crosswalk / resolver / fence: NOT_AUTHORIZED
 D08: DEFERRED
 Migration: NOT_AUTHORIZED
@@ -375,6 +385,43 @@ Productive: NOT_PRODUCTIVE
 Authority: TurnoInstructor / LEGACY_VIVO / PRODUCTIVO
 ```
 
+## Diseño activo F2E — límites y pendientes
+
+El diseño/research activo debe cerrar, sin resolverlos en este estado: queries/projections; contrato
+reader de Reserva; contrato reader de TurnoInstructor; universo candidato de programación nueva;
+reader de ajustes; frontera de entidades managed; lazy loading; mapping inmutable; consistencia de
+snapshot; límite transaccional; aislamiento; inconsistencia fail-closed; non-mutation; runtime
+isolation; dirección de paquetes/dependencias; slicing de readers; decisión de coordinator; pruebas
+futuras; clasificación HostValidator; y prerrequisitos de data audit.
+
+```text
+Queries/projections: PENDING / IN_SCOPE
+Snapshot consistency: PENDING / IN_SCOPE
+Transaction boundary and isolation: PENDING / IN_SCOPE
+Managed entity behavior: PENDING / IN_SCOPE
+Lazy associations: PENDING / IN_SCOPE
+Immutable mapping: PENDING / IN_SCOPE
+Non-mutation: PENDING / IN_SCOPE
+Runtime isolation: PENDING / IN_SCOPE
+Reader slicing: PENDING / IN_SCOPE
+Host validation design: PENDING / IN_SCOPE
+Current DESIGN unit HostValidator: NOT_REQUIRED
+Future JPA implementation HostValidator: REQUIRED
+Implementation: NOT_AUTHORIZED
+DB connection: NOT_AUTHORIZED
+Data source: DATA_SOURCE_NOT_AVAILABLE
+Data audit: NOT_PERFORMED / NOT_AUTHORIZED_BY_THIS_HANDOFF
+D08: DEFERRED
+Crosswalk / resolver / fence: NOT_AUTHORIZED
+Migration: NOT_AUTHORIZED
+MIGRANDO: NO
+NUEVA: NO
+Cutover: false
+TurnoInstructor authority: PRESERVED / PRODUCTIVE
+Runtime: DARK_LAUNCH
+Productive: NOT_PRODUCTIVE
+```
+
 ## Advertencias inmediatas
 
 - `AjusteProgramacionFecha`, `InstructorLocks`, V47 y el resolver de programación efectiva están materializados y documentados únicamente como dark launch no productivo.
@@ -384,5 +431,8 @@ Authority: TurnoInstructor / LEGACY_VIVO / PRODUCTIVO
 - `BloqueProgramacion + Asignacion` permanece `IMPLEMENTADO_NO_PRODUCTIVO`.
 - F2E.1 cerrada no autoriza por sí misma F2E.2 ni ninguna implementación posterior; preserva todos
   los límites anteriores y exige nuevo scope/handoff.
-- El handoff del núcleo puro detector-only está `COMPLETED / CLOSED / HISTORICAL`; ninguna otra
-  unidad ni activación queda autorizada.
+- Al cierre del handoff del núcleo puro detector-only, éste quedó `COMPLETED / CLOSED / HISTORICAL`
+  y no autorizó por sí mismo una unidad ni activación posterior. Posteriormente se materializó,
+  auditó y activó `HANDOFF-F2E-DISENO-ADAPTERS-READ-ONLY-SNAPSHOT-CONSISTENCY.md`, la única
+  autorización vigente adicional: exclusivamente `DESIGN / RESEARCH` del boundary de readers JPA
+  hacia detector puro. No autoriza implementation, DB access, data audit, migration ni cutover.

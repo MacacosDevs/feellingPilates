@@ -1,7 +1,7 @@
 # FeelingPilates — Estado actual de la reestructuración
 
 Status: CANONICAL
-Last updated: 2026-09-02
+Last updated: 2026-09-03
 Repository verification: VERIFIED
 Last verified against commit:
 f6b5ed7c5729502e856f0d088cddc52de5662527
@@ -340,13 +340,13 @@ PASS de suite global ni bloquea este slice, cuyo host validation no era requerid
 El checkpoint específico de implementación no es requerido por el workflow profile ni por las exit
 conditions del handoff; `ESTADO-ACTUAL` y el review técnico son la evidencia competente.
 
-## Última unidad cerrada — F2E adapters/snapshot design authority gap R1
+## Unidad cerrada preservada — F2E adapters/snapshot design authority gap R1
 
 ```text
 LAST CLOSED UNIT: F2E / adapters-snapshot design — authority gap R1
 TYPE: DESIGN / RESEARCH — CORRECTIVE AMENDMENT
 STATUS: COMPLETED / CLOSED
-ACTIVE HANDOFF: NINGUNO
+ACTIVE HANDOFF: NINGUNO — historical snapshot only
 AUTHORITY GAP: RESOLVED_BY_CORRECTIVE_DESIGN / CLOSED
 DESIGN CANONICAL: auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md
 CORRECTIVE DESIGN AMENDMENT: MATERIALIZED
@@ -359,36 +359,49 @@ FINAL REVIEW: auditoria/reviews/F2E-ADAPTERS-SNAPSHOT-AUTHORITY-GAP-R1-DESIGN-RE
 CORRECTIVE HANDOFF: COMPLETED / CLOSED / HISTORICAL / NOT_ACTIVE
 ```
 
-El diseño adapters/snapshot original conserva su `PASS` histórico. El authority gap fue descubierto
-después por la preparación downstream R1, se corrigió en el mismo diseño canónico y recibió un
-fresh independent re-audit `PASS`; por tanto, la autoridad de diseño está restaurada. Esto no
-aprueba ni activa R1.
+El diseño adapters/snapshot original conserva su `PASS` histórico. Esta unidad cerrada no se
+reabre: permanece `COMPLETED / CLOSED / PASS / HISTORICAL`. Un re-audit downstream posterior de
+R1 identificó un nuevo residual authority gap, con alcance distinto y sin alterar este cierre.
+
+## Handoff activo — F2E adapters/snapshot residual authority gap R1 provenance + JPA transaction topology
+
+```text
+ACTIVE HANDOFF: auditoria/handoffs/HANDOFF-F2E-ADAPTERS-SNAPSHOT-DESIGN-AUTHORITY-GAP-R1-PROVENANCE-JPA-TX.md
+TARGET: F2E / adapters-snapshot design — residual authority gap R1 provenance + JPA transaction topology
+TYPE: DESIGN / RESEARCH — CORRECTIVE AMENDMENT
+HANDOFF: MATERIALIZED / APPROVED / ACTIVE
+TARGET: AUTHORIZED_TO_START / NOT_STARTED
+NEXT ALLOWED ACTION: EXECUTE_ACTIVE_RESIDUAL_CORRECTIVE_DESIGN_TARGET
+TARGET CANONICAL: auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md
+TARGET EXECUTION ALLOWLIST: EXACTLY_ONE_FILE — auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md
+PREVIOUS CORRECTIVE HANDOFF: COMPLETED / CLOSED / PASS / HISTORICAL / NOT_ACTIVE
+```
+
+The active target may close only identity/provenance authority (identity grammar,
+`executionProvenanceId`, `logicalSnapshotId`, `sourceFingerprint`, `snapshotIdentity`, canonical
+scope, projection catalog version, provenance shape, golden vectors and cross-consistency) and
+JPA transaction/resource authority (reader TM, main/test coupling, reader and probe EM paths,
+inspector path, same-resource graph, exact names/qualifiers, proxy path and reader isolation).
+It may not redesign P1-1 allowlist closure, P1-4 SQL/checksum closure, query/read semantics,
+historical target `ALWAYS_EMPTY`, propagation, isolation, readOnly, ownership, failure vocabulary,
+`ReservationReadException`, SQL/checksum canonicalization or the pure detector.
 
 ## Downstream R1 preservado
 
 ```text
 R1 draft physical content: PREEXISTING / UNCHANGED
-R1 SHA-256: b3d4131c9ac0d7fc594dea7a7c002c68d90ca14e95750afdb2006bb4a12ee25a
-R1 lifecycle: MATERIALIZED / NOT_APPROVED / NOT_ACTIVE
+R1 frozen SHA-256: b65965288c0840934f4db301b7d81efb5ac818640958863902e62ea7f4897185
+R1 lifecycle: MATERIALIZED / NOT_APPROVED / NOT_ACTIVE / IMPLEMENTATION_NOT_AUTHORIZED
 R1 implementation: NOT_STARTED / NOT_AUTHORIZED
-R1 handoff correction: REQUIRED
-R1 next required action: HANDOFF_DOCUMENT_CORRECTION
-R1 P1 exact/fail-closed allowlist: PENDING
-R1 P1 test-only JPA topology: PENDING
-R1 authority-dependent context/provenance/failure contract: PENDING_HANDOFF_CORRECTION
-R1 authority-dependent SQL/checksum canonicalization: PENDING_HANDOFF_CORRECTION
+R1 P1-1: CLOSED
+R1 P1-2: OPEN / WAITING_FOR_ACTIVE_CORRECTIVE_DESIGN
+R1 P1-3: OPEN / WAITING_FOR_ACTIVE_CORRECTIVE_DESIGN
+R1 P1-4: CLOSED
 R2-R6: NOT_AUTHORIZED
 ```
 
-The resolved design authority removes the former design-level block only. R1 remains an unapproved,
-inactive draft until its handoff document is corrected from that restored authority and then passes
-its own fresh independent audit.
-
-## Próximo paso
-
-**RETURN_TO_R1_HANDOFF_DOCUMENT_CORRECTION.** No `READ_NEXT` nuevo es necesario: the lifecycle
-already determines the return to the preserved R1 draft. This does not authorize correcting R1 in
-this closure, approving or activating it, or starting implementation.
+The active handoff authorizes only the future design target; it does not close R1 P1-2/P1-3,
+approve R1, authorize implementation, or authorize R2-R6.
 
 ## Autoridad y límites preservados
 
@@ -397,11 +410,18 @@ TurnoInstructor: PRODUCTIVE AUTHORITY
 Pure detector: DARK_LAUNCH / NOT_PRODUCTIVE
 Adapters: NOT_IMPLEMENTED
 Data source: DATA_SOURCE_NOT_AVAILABLE
-Data audit: NOT_PERFORMED / NOT_AUTHORIZED
+Data audit: NOT_AUTHORIZED
 D08: DEFERRED
 Crosswalk / Resolver / Fence / Migration: NOT_AUTHORIZED
 MIGRANDO: NO
 NUEVA: NO
 Cutover: false
-Java / DB / tests / HostValidator: NOT_AUTHORIZED_BY_THIS_CLOSURE
+Java / DB / tests / HostValidator: NOT_AUTHORIZED_BY_THIS_ACTIVATION
 ```
+
+Human/business decision: `NOT_REQUIRED`.
+
+Technical design authority: `REQUIRED / NOW AUTHORIZED VIA ACTIVE HANDOFF`.
+
+No hash/digest algorithm, scope strategy, transaction-manager selection or Spring resource binding
+requires a human choice; those are bounded design decisions for the authorized future target.

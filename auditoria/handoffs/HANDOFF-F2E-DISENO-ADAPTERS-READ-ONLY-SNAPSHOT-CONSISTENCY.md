@@ -1,6 +1,6 @@
 # FeelingPilates — Handoff F2E / diseño de adapters read-only y consistencia de snapshot
 
-Handoff status: `HANDOFF_MATERIALIZED / APPROVED / ACTIVE / AUTHORIZED_FOR_DESIGN_RESEARCH / TARGET_AUTHORIZED_TO_START / TARGET_NOT_STARTED`
+Handoff status: `COMPLETED / CLOSED / HISTORICAL / TARGET_COMPLETED / DESIGN_GATE_PASS`
 
 Target unit: `F2E / boundary de readers JPA hacia detector puro`
 
@@ -8,11 +8,15 @@ Type: `DESIGN / RESEARCH`
 
 Role that materialized this handoff: `DOCUMENTER`
 
-This handoff is approved and active exclusively for the future design/research unit described below.
+This handoff is historical. It authorized exclusively the `DESIGN / RESEARCH` unit now
+materialized and audited; it creates no current active authorization or implementation authority.
 Its fresh, independent handoff-document audit is persisted in
 `auditoria/reviews/HANDOFF-F2E-DISENO-ADAPTERS-READ-ONLY-SNAPSHOT-CONSISTENCY-REVIEW.md`.
-Activation authorizes the target to start; it is not a design result, checkpoint, design-gate PASS,
-implementation authorization, or technical gate.
+The final fresh independent design audit is persisted in
+`auditoria/reviews/F2E-ADAPTERS-SNAPSHOT-DESIGN-REVIEW.md`.
+
+Sections 1–13 preserve the pre-close handoff contract and activation history; they are not a
+current authorization.
 
 ## 1. Authority, derivation, and pre-flight
 
@@ -350,7 +354,7 @@ The target design can close only when its single checkpoint explicitly closes, w
 
 Its gate is `FRESH_INDEPENDENT_DESIGN_DOCUMENT_AUDIT`, with `P0=0` and `P1=0`. This handoff neither performs nor pre-approves that audit.
 
-## 14. Lifecycle, activation, and next gate
+## 14. Lifecycle, activation, and closure
 
 ```text
 Handoff materialized: YES
@@ -358,32 +362,50 @@ Fresh independent handoff-document audit: PASS
 Audit artifact: auditoria/reviews/HANDOFF-F2E-DISENO-ADAPTERS-READ-ONLY-SNAPSHOT-CONSISTENCY-REVIEW.md
 Audited lifecycle before approval/activation: HANDOFF_MATERIALIZED / READY_FOR_FRESH_INDEPENDENT_HANDOFF_DOCUMENT_AUDIT / NOT_APPROVED / NOT_ACTIVE / TARGET_NOT_STARTED
 Handoff approved: YES
-Handoff active: YES
-Authorization: AUTHORIZED_FOR_DESIGN_RESEARCH
-Target design started: NO
-Target design materialized: NO
-Target design authorized now: YES — AUTHORIZED_TO_START
-Design checkpoint: NOT_CREATED / PENDING
-Design gate: PENDING / NOT_PERFORMED
-Fresh target design audit: NOT_PERFORMED
+Historical activation: APPROVED / ACTIVE / AUTHORIZED_FOR_DESIGN_RESEARCH / TARGET_AUTHORIZED_TO_START
+Target design: MATERIALIZED / COMPLETED / CLOSED
+Checkpoint: auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md / MATERIALIZED
+Fresh target design audit: PASS
+Final design review: auditoria/reviews/F2E-ADAPTERS-SNAPSHOT-DESIGN-REVIEW.md
+P0 / P1 / P2: 0 / 0 / 0
+Design gate: PASS
+READY_FOR_DESIGN_CLOSURE: SI
+Requires human decision: NO
+Handoff active after closure: NO
+Active handoff: NINGUNO
+Handoff lifecycle: COMPLETED / CLOSED / HISTORICAL
 Review created by this activation: YES
 ESTADO-ACTUAL updated: YES
-Next step: EXECUTE_ACTIVE_DESIGN_RESEARCH_HANDOFF
+Next step: READ_NEXT / NEXT_HANDOFF_SCOPE
 ```
 
-`ACTIVE` means only that the target `DESIGN / RESEARCH` unit may start. It does not mean that the
-design was executed, a checkpoint was created, queries/projections or transaction/isolation were
-decided, the design gate passed, adapters were implemented, DB access was authorized, or a data
-audit was authorized. Snapshot consistency remains `IN_SCOPE / PENDING`; no isolation,
-projection strategy, transaction shape, or detach strategy is decided by this activation.
+The historical `ACTIVE` state meant only that the target `DESIGN / RESEARCH` unit could start. The
+checkpoint subsequently closed its documented design decisions and the fresh independent design
+audit passed. This closure does not implement adapters, authorize DB access or a data audit, or
+authorize any future implementation slice.
 
 The maximum disposition of this activation is:
 
 ```text
 AUDIT PERSISTED
-HANDOFF APPROVED / ACTIVE MATERIALIZED
-READY FOR FRESH ACTIVATION AUDIT
+DESIGN UNIT CLOSED MATERIALIZED
+HANDOFF CLOSED / HISTORICAL
+READY FOR FRESH DOCUMENT CLOSURE AUDIT
 ```
 
-No `git add`, commit, push, target execution, implementation, DB connection, data audit, authority
-update, or lifecycle result beyond this approval/activation is authorized by this intervention.
+```text
+R1 / R2 / R3 / R4 / R5 / R6 implementation: NOT_AUTHORIZED
+DB access: NOT_AUTHORIZED
+Data source: DATA_SOURCE_NOT_AVAILABLE
+Data audit: NOT_PERFORMED / NOT_AUTHORIZED
+D08: DEFERRED
+Crosswalk / resolver / fence / migration: NOT_AUTHORIZED
+MIGRANDO: NO
+NUEVA: NO
+Cutover: false
+Authority: TurnoInstructor / PRODUCTIVE
+Pure detector: DARK_LAUNCH / NOT_PRODUCTIVE
+Adapters: NOT_IMPLEMENTED
+Current design unit HostValidator: NOT_REQUIRED
+Future JPA implementation HostValidator: REQUIRED for applicable integration gates
+```

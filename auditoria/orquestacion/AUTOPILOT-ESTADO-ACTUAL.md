@@ -16,11 +16,11 @@ auto_publish: false
 The historical Python orchestrator remains `REFERENCE / SELECTIVE_REUSE` only.
 The historical F2D engine is `NOT_RUNTIME` for Autopilot.
 
-## R2 historical closure and current R3 acceptance
+## R2 and R3 historical closure
 
 ```text
 Target: AUTOPILOT R2 — Python bootstrap skeleton and core contracts
-Active Autopilot handoff: auditoria/handoffs/HANDOFF-AUTOPILOT-R3-DURABLE-STATE.md
+Active Autopilot handoff: NONE
 R2: IMPLEMENTATION_COMPLETED / IMPLEMENTATION_AUDIT_PASS / PUBLISHED / PUBLICATION_CLOSURE_AUDIT_PASS / CLOSED / HISTORICAL
 R2 active: NO
 R2 implementation publication commit: ec440841889bcfc7cd73279a1219de4e84054b1f
@@ -30,15 +30,21 @@ R2 material P1: ALL CLOSED
 R2 Debt A — LeaseResolution.NONE / NO_RELEVANT_LEASE: CLOSED_BY_R3
 R2 Debt B — malformed embedded usage_record behavioral validation: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R3_SCOPE
 R2 Debt C — attached branch without upstream behavioral coverage: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R3_SCOPE
-R3 handoff: MATERIALIZED / APPROVED / ACTIVE
+R3 handoff: APPROVED / CLOSED / HISTORICAL / NOT_ACTIVE
 R3 target: AUTOPILOT R3 — SQLite durable state and recovery foundation
-R3 target: IMPLEMENTED
-R3 implementation: ACCEPTED
+R3 target: IMPLEMENTED / PUBLISHED / COMPLETED
+R3 implementation: ACCEPTED / PUBLISHED
 R3 final implementation audit: P0=0 / P1=0 / P2=0 / PASS
-R3 publication: PENDING until this accepted commit is successfully pushed
-R3 closure: PENDING
-Next allowed action after successful push: FRESH_AUDIT_AUTOPILOT_R3_PUBLICATION_CLOSURE
-R4: NOT_AUTHORIZED
+R3 publication: COMPLETE / PUBLISHED
+R3 publication commit: 8c46617ec2d6cc78593a883ea2f3d92217b9a0e0
+R3 publication-closure audit.1 (historical): P0=0 / P1=1 / P2=0
+R3 publication-closure P1-1 (historical): PUBLICATION_CLOSURE_LIFECYCLE_NOT_RECONCILED
+R3 publication-closure Correction.1: MATERIALIZED
+R3 final publication-closure re-audit: P0=0 / P1=0 / P2=0 / PASS
+R3 publication-closure P1-1: CLOSED
+R3 closure: CLOSED / HISTORICAL
+Next permitted lifecycle action: MATERIALIZE_AUTOPILOT_R4_AUTHORITY
+R4: NOT_STARTED / NOT_AUTHORIZED
 F2E: UNCHANGED
 auto_publish: false
 ```
@@ -74,21 +80,29 @@ rewriting R2 history:
 Debts B/C remain non-blocking and visible to a future competent Autopilot
 hardening/testing phase; they must not be silently dropped.
 
-## R3 durable-state implementation accepted
+## R3 durable-state implementation and publication lifecycle closed
 
 ```text
 Handoff: auditoria/handoffs/HANDOFF-AUTOPILOT-R3-DURABLE-STATE.md
 Target: AUTOPILOT R3 — SQLite durable state and recovery foundation
 Type: IMPLEMENTATION / INFRASTRUCTURE / DURABILITY
-Lifecycle: MATERIALIZED / APPROVED / ACTIVE
-Target: IMPLEMENTED
-R3 implementation: ACCEPTED
+Lifecycle: MATERIALIZED / APPROVED / ACTIVE (historical) / CLOSED / HISTORICAL
+Target: IMPLEMENTED / PUBLISHED / COMPLETED
+R3 implementation: ACCEPTED / PUBLISHED
 Final fresh implementation re-audit: P0=0 / P1=0 / P2=0 / PASS
 P1-1 through P1-8: CLOSED
-Publication: PENDING until this accepted commit is successfully pushed
-Closure: PENDING
-Next allowed action after successful push: FRESH_AUDIT_AUTOPILOT_R3_PUBLICATION_CLOSURE
-R4: NOT_AUTHORIZED
+Publication: COMPLETE / PUBLISHED
+Publication commit: 8c46617ec2d6cc78593a883ea2f3d92217b9a0e0
+Publication-closure audit.1 (historical): P0=0 / P1=1 / P2=0
+Publication-closure P1-1 (historical): PUBLICATION_CLOSURE_LIFECYCLE_NOT_RECONCILED
+Correction.1: MATERIALIZED
+Final independent publication-closure re-audit: P0=0 / P1=0 / P2=0 / PASS
+Publication-closure P1-1: CLOSED
+Closure: CLOSED / HISTORICAL
+R3 handoff: CLOSED / HISTORICAL / NOT_ACTIVE
+Active Autopilot handoff: NONE
+Next permitted lifecycle action: MATERIALIZE_AUTOPILOT_R4_AUTHORITY
+R4: NOT_STARTED / NOT_AUTHORIZED
 F2E: UNCHANGED
 auto_publish: false
 ```
@@ -104,6 +118,17 @@ The R3 handoff preserves all R2 contracts and R2's terminal status. The final
 independent R3 implementation audit provides the competent later evidence to
 mark Debt A `CLOSED_BY_R3`; B and C remain open outside R3 scope. Historical R2
 evidence remains historical rather than being rewritten as if it existed then.
+
+The successful gated push published the accepted R3 target and implementation
+at `8c46617ec2d6cc78593a883ea2f3d92217b9a0e0`. The first fresh independent
+publication-closure audit historically found `P0=0 / P1=1 / P2=0` with
+`P1-1 — PUBLICATION_CLOSURE_LIFECYCLE_NOT_RECONCILED`; Correction.1 then
+materialized the reconciliation. The final fresh independent
+publication-closure re-audit recorded `P0=0 / P1=0 / P2=0`, closed P1-1, and
+permitted this competent lifecycle closure. R3 is therefore closed and
+historical, with no active Autopilot implementation handoff. The temporary DNS
+unavailability during Correction.1 is historical operational evidence only;
+it does not negate the completed publication.
 
 ```text
 R1 P2-1 telemetry provenance gap:

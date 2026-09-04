@@ -569,24 +569,52 @@ F2E: UNCHANGED
 auto_publish: false
 ```
 
-## Implementation acceptance addendum — authoritative current R3 lifecycle
+## Historical implementation acceptance, publication, and closure-reconciliation addendum
 
-The preceding activation material and its handoff-audit history remain
-historical evidence. The exact authorized implementation was subsequently
-materialized and passed the final fresh independent implementation re-audit at
+The preceding activation material and handoff-audit history remain historical
+evidence. The exact authorized implementation was subsequently materialized and
+passed the final fresh independent implementation re-audit at
 `auditoria/reviews/AUTOPILOT-R3-DURABLE-STATE-IMPLEMENTATION-FINAL-REAUDIT.md`.
-That review is the evidence for this competent acceptance transition; it does
-not convert the implementation into lifecycle closure.
+That review is the evidence for the competent implementation-acceptance
+transition; it does not itself close R3.
+
+Publication was subsequently completed through the direct user-approved push
+of publication commit `8c46617ec2d6cc78593a883ea2f3d92217b9a0e0` to
+`orquestacion/autopilot-r1`. The published checkpoint established that `HEAD`,
+the upstream-tracking ref, and the reported remote all identified that commit,
+with an empty staging area and clean working tree. The target and accepted
+implementation are therefore published; they are not pending a future push.
+
+The first fresh independent publication-closure audit then found
+`P0=0 / P1=1 / P2=0`: `P1-1 —
+PUBLICATION_CLOSURE_LIFECYCLE_NOT_RECONCILED`. This bounded
+Correction.1 materialized the missing post-publication lifecycle reconciliation.
+It preserved the accepted implementation audit and publication history, but did
+not self-certify the closure. The final independent publication-closure
+re-audit is recorded below.
+
+During this reconciliation, live remote re-verification could not resolve DNS
+for `github.com`; this is recorded as `UNAVAILABLE_NETWORK`, not as evidence
+that publication is pending or failed. The fresh re-audit must retry live remote
+verification when it is available.
 
 ```text
-R3 HANDOFF: APPROVED / ACTIVE
-R3 TARGET: IMPLEMENTED
-R3 IMPLEMENTATION: ACCEPTED
+R3 HANDOFF (HISTORICAL PRE-CLOSURE STATE): APPROVED / ACTIVE
+R3 TARGET: IMPLEMENTED / PUBLISHED
+R3 IMPLEMENTATION: ACCEPTED / PUBLISHED
 R3 IMPLEMENTATION AUDIT: PASS (P0=0 / P1=0 / P2=0)
-R3 PUBLICATION: PENDING until this accepted commit is successfully pushed
-R3 CLOSURE: NOT_YET_PERFORMED
-NEXT ALLOWED ACTION AFTER SUCCESSFUL PUSH:
-  FRESH_AUDIT_AUTOPILOT_R3_PUBLICATION_CLOSURE
+R3 PUBLICATION: COMPLETE / PUBLISHED
+R3 PUBLICATION COMMIT: 8c46617ec2d6cc78593a883ea2f3d92217b9a0e0
+R3 PUBLICATION-CLOSURE AUDIT.1: P0=0 / P1=1 / P2=0
+R3 PUBLICATION-CLOSURE P1-1: PUBLICATION_CLOSURE_LIFECYCLE_NOT_RECONCILED
+R3 PUBLICATION-CLOSURE P1-1 DISPOSITION (HISTORICAL):
+  CORRECTED_BY_MATERIALIZED_CORRECTION / PENDING_FRESH_REAUDIT
+R3 LIVE REMOTE RE-VERIFICATION DURING CORRECTION.1: UNAVAILABLE_NETWORK
+R3 CLOSURE (HISTORICAL PRE-CLOSURE STATE): PENDING_FRESH_PUBLICATION_CLOSURE_REAUDIT
+NEXT ALLOWED ACTION (HISTORICAL):
+  FRESH_REAUDIT_AUTOPILOT_R3_PUBLICATION_CLOSURE
+R3 CLOSED (HISTORICAL PRE-CLOSURE STATE): NO
+R3 HISTORICAL (HISTORICAL PRE-CLOSURE STATE): NO
 R4: NOT_AUTHORIZED
 F2E: UNCHANGED
 auto_publish: false
@@ -605,3 +633,43 @@ R3 implementation re-audit.
 R2 Debt B (malformed embedded `usage_record` behavioral validation) and Debt C
 (attached branch without upstream behavioral coverage) remain
 `OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R3_SCOPE`.
+
+## Final publication-closure re-audit and lifecycle closure — authoritative current R3 state
+
+The fresh independent publication-closure re-audit is persisted at
+`auditoria/reviews/AUTOPILOT-R3-PUBLICATION-CLOSURE-FINAL-REAUDIT.md`. It
+verified the already-published implementation commit and the materialized
+Correction.1 without modifying implementation or lifecycle state itself. Its
+`P0=0 / P1=0 / P2=0` result closes publication-closure P1-1. This competent
+lifecycle intervention records the resulting terminal R3 state; it does not
+attribute the lifecycle mutation to the auditor.
+
+```text
+R3 HANDOFF: APPROVED / CLOSED / HISTORICAL
+R3 ACTIVE: NO
+R3 TARGET: IMPLEMENTED / PUBLISHED / COMPLETED
+R3 IMPLEMENTATION: ACCEPTED / PUBLISHED
+R3 IMPLEMENTATION AUDIT: PASS (P0=0 / P1=0 / P2=0)
+R3 PUBLICATION: COMPLETE / PUBLISHED
+R3 PUBLICATION COMMIT: 8c46617ec2d6cc78593a883ea2f3d92217b9a0e0
+R3 PUBLICATION-CLOSURE AUDIT.1 (HISTORICAL): P0=0 / P1=1 / P2=0
+R3 PUBLICATION-CLOSURE P1-1 (HISTORICAL):
+  PUBLICATION_CLOSURE_LIFECYCLE_NOT_RECONCILED
+R3 PUBLICATION-CLOSURE CORRECTION.1: MATERIALIZED
+R3 FINAL PUBLICATION-CLOSURE RE-AUDIT: P0=0 / P1=0 / P2=0 / PASS
+R3 PUBLICATION-CLOSURE P1-1: CLOSED
+READY_TO_CLOSE_R3_PUBLICATION: SI
+R3 CLOSURE: CLOSED / HISTORICAL
+ACTIVE_AUTOPILOT_HANDOFF: NONE
+R2 DEBT A: CLOSED_BY_R3
+R2 DEBT B: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R3_SCOPE
+R2 DEBT C: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R3_SCOPE
+R4: NOT_STARTED / NOT_AUTHORIZED
+F2E: UNCHANGED
+auto_publish: false
+```
+
+The next permitted lifecycle action is only the separate materialization of
+Autopilot R4 authority. This closure does not create an R4 handoff, authorize
+R4 design or implementation, activate R4, execute F2E, or alter product,
+runtime, productive-authority, or cutover state.

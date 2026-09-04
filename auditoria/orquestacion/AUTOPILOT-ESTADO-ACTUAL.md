@@ -16,7 +16,7 @@ auto_publish: false
 The historical Python orchestrator remains `REFERENCE / SELECTIVE_REUSE` only.
 The historical F2D engine is `NOT_RUNTIME` for Autopilot.
 
-## R2 historical closure
+## R2 historical closure and current R3 acceptance
 
 ```text
 Target: AUTOPILOT R2 — Python bootstrap skeleton and core contracts
@@ -27,19 +27,17 @@ R2 implementation publication commit: ec440841889bcfc7cd73279a1219de4e84054b1f
 R2 implementation findings: P0=0 / P1=0 / P2=1
 R2 closure re-audit: P0=0 / P1=0 / P2=0
 R2 material P1: ALL CLOSED
-P2-1: OPEN / NON_BLOCKING / CARRY_FORWARD
+R2 Debt A — LeaseResolution.NONE / NO_RELEVANT_LEASE: CLOSED_BY_R3
+R2 Debt B — malformed embedded usage_record behavioral validation: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R3_SCOPE
+R2 Debt C — attached branch without upstream behavioral coverage: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R3_SCOPE
 R3 handoff: MATERIALIZED / APPROVED / ACTIVE
 R3 target: AUTOPILOT R3 — SQLite durable state and recovery foundation
-R3 target: AUTHORIZED_TO_START / NOT_STARTED
-R3 implementation: AUTHORIZED_TO_START
-R3 initial fresh handoff audit: P0=0 / P1=9 / P2=0
-R3 Correction.1: MATERIALIZED
-R3 fresh handoff re-audit.1: P0=0 / P1=1 / P2=0
-R3 technical corrections P1-1..P1-9: CLOSED_BY_FRESH_REAUDIT
-R3 P1-10 lifecycle inconsistency: CLOSED_BY_FRESH_REAUDIT
-R3 Correction.2: MATERIALIZED / CONFIRMED_BY_FRESH_REAUDIT
-R3 fresh handoff re-audit.2: P0=0 / P1=0 / P2=0
-Next allowed action: EXECUTE_ACTIVE_AUTOPILOT_R3_DURABLE_STATE
+R3 target: IMPLEMENTED
+R3 implementation: ACCEPTED
+R3 final implementation audit: P0=0 / P1=0 / P2=0 / PASS
+R3 publication: PENDING until this accepted commit is successfully pushed
+R3 closure: PENDING
+Next allowed action after successful push: FRESH_AUDIT_AUTOPILOT_R3_PUBLICATION_CLOSURE
 R4: NOT_AUTHORIZED
 F2E: UNCHANGED
 auto_publish: false
@@ -55,60 +53,57 @@ productive authority, or cutover.
 
 ## R2 P2-1 carry-forward test debt
 
-`P2-1` is `OPEN / NON_BLOCKING / CARRY_FORWARD` test-coverage debt. The
-underlying R2 contracts passed independent audit, but the following behavioral
-coverage remains incomplete:
+R2 P2-1 was historical `OPEN / NON_BLOCKING / CARRY_FORWARD` test-coverage
+debt. Later R3 implementation evidence now closes only Debt A, without
+rewriting R2 history:
 
-- No behavioral test yet covers `LeaseResolution.NONE / NO_RELEVANT_LEASE`.
-- Malformed embedded `usage_record` behavioral validation remains incomplete:
+- A. `LeaseResolution.NONE / NO_RELEVANT_LEASE`: `CLOSED_BY_R3`. A concrete
+  SQLite StateStore, real file-backed behavior, durable run, no relevant lease,
+  close/reopen, and recovery by `run_id` produced `LeaseResolution.NONE` in the
+  final independent R3 implementation audit.
+- B. Malformed embedded `usage_record` behavioral validation remains
+  `OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R3_SCOPE`:
   the underlying `UsageRecord`/`AgentResult` contract passed audit, but the
   behavioral test helper does not yet prove rejection of every malformed
   embedded `usage_record` payload.
-- Attached branch without upstream behavioral coverage remains missing: the
+- C. Attached branch without upstream behavioral coverage remains
+  `OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R3_SCOPE`: the
   repository contract supports an attached branch with no upstream, but that
   exact behavioral case is not yet tested.
 
-This debt is non-blocking for R2 closure and remains open after R2 closure. It
-must remain visible to a future competent Autopilot hardening/testing phase and
-must not be silently dropped when R2 becomes historical.
+Debts B/C remain non-blocking and visible to a future competent Autopilot
+hardening/testing phase; they must not be silently dropped.
 
-## R3 durable-state authority materialized
+## R3 durable-state implementation accepted
 
 ```text
 Handoff: auditoria/handoffs/HANDOFF-AUTOPILOT-R3-DURABLE-STATE.md
 Target: AUTOPILOT R3 — SQLite durable state and recovery foundation
 Type: IMPLEMENTATION / INFRASTRUCTURE / DURABILITY
 Lifecycle: MATERIALIZED / APPROVED / ACTIVE
-Target authorization: AUTHORIZED_TO_START / NOT_STARTED
-R3 implementation: AUTHORIZED_TO_START
-Initial fresh handoff audit: P0=0 / P1=9 / P2=0
-Correction.1: MATERIALIZED
-Fresh handoff re-audit.1: P0=0 / P1=1 / P2=0
-Technical corrections P1-1..P1-9: CLOSED_BY_FRESH_REAUDIT
-P1-10 lifecycle inconsistency: CLOSED_BY_FRESH_REAUDIT
-Correction.2: MATERIALIZED / CONFIRMED_BY_FRESH_REAUDIT
-Fresh handoff re-audit.2: P0=0 / P1=0 / P2=0
-Next allowed action: EXECUTE_ACTIVE_AUTOPILOT_R3_DURABLE_STATE
+Target: IMPLEMENTED
+R3 implementation: ACCEPTED
+Final fresh implementation re-audit: P0=0 / P1=0 / P2=0 / PASS
+P1-1 through P1-8: CLOSED
+Publication: PENDING until this accepted commit is successfully pushed
+Closure: PENDING
+Next allowed action after successful push: FRESH_AUDIT_AUTOPILOT_R3_PUBLICATION_CLOSURE
 R4: NOT_AUTHORIZED
 F2E: UNCHANGED
 auto_publish: false
 ```
 
-R3 authorizes only the start of its exact future stdlib `sqlite3` StateStore
-and recovery-foundation implementation allowlist. It does not authorize any
-extra implementation path, runtime database creation in the checkout,
-workflow-engine policy, adapters, model invocation, Git or worktree operations,
-publishing, supervision, F2E execution, runtime activation, productive
-authority, or cutover.
+The accepted R3 implementation is the exact 14-path stdlib `sqlite3`
+StateStore and recovery-foundation allowlist. It does not authorize extra
+implementation paths, runtime database creation in the checkout,
+workflow-engine policy, adapters beyond that allowlist, model invocation, Git
+or worktree operations, supervision, F2E execution, runtime activation,
+productive authority, or cutover.
 
-The R3 handoff preserves all R2 contracts and R2's terminal status. R2 P2-1
-remains `OPEN / NON_BLOCKING / CARRY_FORWARD` with all three items intact.
-R3 may eventually add lease-related behavioral coverage for item A, but this
-authority materialization neither implements that coverage nor closes the item.
-Items B (malformed embedded `usage_record`) and C (attached branch without
-upstream) remain outside R3 scope and open. Item A remains open at activation
-time and may become `CLOSED_BY_R3` only after R3 implementation, a fresh
-independent R3 implementation audit, and a competent lifecycle action.
+The R3 handoff preserves all R2 contracts and R2's terminal status. The final
+independent R3 implementation audit provides the competent later evidence to
+mark Debt A `CLOSED_BY_R3`; B and C remain open outside R3 scope. Historical R2
+evidence remains historical rather than being rewritten as if it existed then.
 
 ```text
 R1 P2-1 telemetry provenance gap:

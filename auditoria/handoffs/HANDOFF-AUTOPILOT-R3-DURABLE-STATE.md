@@ -547,7 +547,7 @@ It must not install dependencies, invoke Codex programmatically, or create a
 runtime database in the checkout. `auto_publish` remains `false`; F2E remains
 unchanged.
 
-## Handoff lifecycle and next action
+## Historical activation lifecycle and next action
 
 ```text
 R3 HANDOFF: MATERIALIZED / APPROVED / ACTIVE
@@ -568,3 +568,40 @@ R4: NOT_AUTHORIZED
 F2E: UNCHANGED
 auto_publish: false
 ```
+
+## Implementation acceptance addendum — authoritative current R3 lifecycle
+
+The preceding activation material and its handoff-audit history remain
+historical evidence. The exact authorized implementation was subsequently
+materialized and passed the final fresh independent implementation re-audit at
+`auditoria/reviews/AUTOPILOT-R3-DURABLE-STATE-IMPLEMENTATION-FINAL-REAUDIT.md`.
+That review is the evidence for this competent acceptance transition; it does
+not convert the implementation into lifecycle closure.
+
+```text
+R3 HANDOFF: APPROVED / ACTIVE
+R3 TARGET: IMPLEMENTED
+R3 IMPLEMENTATION: ACCEPTED
+R3 IMPLEMENTATION AUDIT: PASS (P0=0 / P1=0 / P2=0)
+R3 PUBLICATION: PENDING until this accepted commit is successfully pushed
+R3 CLOSURE: NOT_YET_PERFORMED
+NEXT ALLOWED ACTION AFTER SUCCESSFUL PUSH:
+  FRESH_AUDIT_AUTOPILOT_R3_PUBLICATION_CLOSURE
+R4: NOT_AUTHORIZED
+F2E: UNCHANGED
+auto_publish: false
+```
+
+### R2 P2-1 later closure record
+
+R2 remains `PUBLISHED / CLOSED / HISTORICAL`; its historical implementation
+and audit records are not rewritten. Based on later, concrete R3 evidence,
+R2 Debt A (`LeaseResolution.NONE / NO_RELEVANT_LEASE` behavioral coverage) is
+`CLOSED_BY_R3`. The evidence is a real file-backed SQLite StateStore test with
+a durable run, no relevant lease, close/reopen, recovery by `run_id`, and
+`LeaseResolution.NONE / NO_RELEVANT_LEASE`, independently accepted by the final
+R3 implementation re-audit.
+
+R2 Debt B (malformed embedded `usage_record` behavioral validation) and Debt C
+(attached branch without upstream behavioral coverage) remain
+`OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R3_SCOPE`.

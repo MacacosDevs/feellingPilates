@@ -14,7 +14,19 @@
   "state_backend": {
     "package": "sqlite3",
     "source": "stdlib",
-    "tested_sqlite_baseline": "3.53.3"
+    "tested_sqlite_baseline": "3.53.3",
+    "durable_state": {
+      "connection_contract": {
+        "foreign_keys": true,
+        "journal_mode": "WAL",
+        "synchronous": "FULL",
+        "busy_timeout_ms": "configured"
+      },
+      "migration_checksum": "sha256-raw-file-bytes-lowercase-hex",
+      "lease_expiry": "utc-wall-clock-current-time-greater-than-or-equal-to-expires-at",
+      "fencing_scope": "per-protected_resource_key",
+      "backup": "sqlite3-connection-backup-explicit-destination"
+    }
   },
   "authentication": {
     "chatgpt_local_codex_login_supported_by_r1_evidence": true

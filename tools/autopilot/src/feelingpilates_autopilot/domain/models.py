@@ -219,6 +219,11 @@ class Run:
     run_id: RunId
     workflow_id: WorkflowId
     state: OperationalState
+    state_version: int = 0
+
+    def __post_init__(self) -> None:
+        if self.state_version < 0:
+            raise ValueError("state_version must be non-negative")
 
 
 @dataclass(frozen=True, slots=True)
@@ -235,6 +240,20 @@ class StateTransition:
     run_id: RunId
     previous: OperationalState
     current: OperationalState
+    event: str | None = None
+    workflow_id: WorkflowId | None = None
+    phase_id: PhaseId | None = None
+    actor: str | None = None
+    created_at: datetime | None = None
+    gate_reference: str | None = None
+    evidence_reference: str | None = None
+    idempotency_key: str | None = None
+    state_version: int | None = None
+    protected_resource_key: str | None = None
+    fencing_token: int | None = None
+    idempotency_operation_kind: str | None = None
+    canonical_operation_identity: str | None = None
+    payload_fingerprint: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -244,6 +263,18 @@ class Checkpoint:
     operational_state: OperationalState
     created_at: datetime
     resume_data: Mapping[str, str] = field(default_factory=dict)
+    workflow_id: WorkflowId | None = None
+    phase_id: PhaseId | None = None
+    state_version: int | None = None
+    base_reference: str | None = None
+    last_safe_transition_id: TransitionId | None = None
+    session_id: SessionId | None = None
+    artifact_references: tuple[str, ...] = ()
+    evidence_references: tuple[str, ...] = ()
+    idempotency_key: str | None = None
+    idempotency_operation_kind: str | None = None
+    canonical_operation_identity: str | None = None
+    payload_fingerprint: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -258,6 +289,10 @@ class SessionReference:
     session_id: SessionId
     run_id: RunId
     opaque_reference: str
+    adapter: str | None = None
+    role: str | None = None
+    attempt_id: AttemptId | None = None
+    status: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -265,6 +300,14 @@ class Lease:
     lease_id: LeaseId
     run_id: RunId
     holder: str
+    protected_resource_key: str | None = None
+    workspace_reference: str | None = None
+    purpose: str | None = None
+    issued_at: datetime | None = None
+    expires_at: datetime | None = None
+    fencing_token: int | None = None
+    version: int = 0
+    released_at: datetime | None = None
 
 
 class LeaseResolution(StrEnum):
@@ -308,3 +351,15 @@ class HumanDecision:
     decision_id: HumanDecisionId
     run_id: RunId
     decision: str
+    reason: str | None = None
+    unresolved: bool = True
+    resolution: str | None = None
+    requested_at: datetime | None = None
+    resolved_at: datetime | None = None
+
+    def __post_init__(self) -> None:
+        if self.unresolved:
+            if self.resolution is not None or self.resolved_at is not None:
+                raise ValueError("an unresolved decision cannot carry a resolution")
+        elif not self.resolution or self.resolved_at is None:
+            raise ValueError("a resolved decision needs its response and resolved timestamp")

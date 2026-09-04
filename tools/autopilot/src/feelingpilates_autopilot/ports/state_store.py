@@ -1,6 +1,7 @@
 """Durable-state abstraction; R2 supplies no database implementation."""
 
 from abc import ABC, abstractmethod
+from typing import Mapping
 
 from ..domain.failures import FailureRecord
 from ..domain.models import (
@@ -62,6 +63,9 @@ class StateStore(ABC):
     def save_human_decision(self, decision: HumanDecision) -> None: ...
 
     @abstractmethod
+    def resolve_human_decision(self, decision_id: HumanDecisionId, resolution: str) -> HumanDecision: ...
+
+    @abstractmethod
     def load_workflow(self, workflow_id: WorkflowId) -> Workflow | None: ...
 
     @abstractmethod
@@ -106,3 +110,33 @@ class StateStore(ABC):
 
     @abstractmethod
     def list_human_decisions(self, run_id: RunId) -> tuple[HumanDecision, ...]: ...
+
+    @abstractmethod
+    def update_run(self, run: Run, expected_version: int) -> Run: ...
+
+    @abstractmethod
+    def save_transition_checkpoint(
+        self,
+        transition: StateTransition,
+        checkpoint: Checkpoint,
+        expected_version: int,
+        *,
+        protected_resource_key: str | None = None,
+        fencing_token: int | None = None,
+        idempotency_key: str | None = None,
+        operation_kind: str = "transition_checkpoint",
+        canonical_operation_identity: str | None = None,
+        payload: Mapping[str, object] | None = None,
+    ) -> bool: ...
+
+    @abstractmethod
+    def renew_lease(self, lease: Lease, expected_fencing_token: int) -> Lease: ...
+
+    @abstractmethod
+    def inspect_lease(self, protected_resource_key: str) -> Lease | None: ...
+
+    @abstractmethod
+    def integrity_check(self) -> None: ...
+
+    @abstractmethod
+    def backup_to(self, destination_path: str) -> None: ...

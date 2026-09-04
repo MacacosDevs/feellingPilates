@@ -16,11 +16,11 @@ auto_publish: false
 The historical Python orchestrator remains `REFERENCE / SELECTIVE_REUSE` only.
 The historical F2D engine is `NOT_RUNTIME` for Autopilot.
 
-## R2 and R3 historical closure
+## R2 and R3 historical closure; R4 activation pre-state preserved
 
 ```text
 Target: AUTOPILOT R2 — Python bootstrap skeleton and core contracts
-Active Autopilot handoff: NONE
+Active Autopilot handoff (historical at R2/R3 closure): NONE
 R2: IMPLEMENTATION_COMPLETED / IMPLEMENTATION_AUDIT_PASS / PUBLISHED / PUBLICATION_CLOSURE_AUDIT_PASS / CLOSED / HISTORICAL
 R2 active: NO
 R2 implementation publication commit: ec440841889bcfc7cd73279a1219de4e84054b1f
@@ -43,8 +43,17 @@ R3 publication-closure Correction.1: MATERIALIZED
 R3 final publication-closure re-audit: P0=0 / P1=0 / P2=0 / PASS
 R3 publication-closure P1-1: CLOSED
 R3 closure: CLOSED / HISTORICAL
-Next permitted lifecycle action: MATERIALIZE_AUTOPILOT_R4_AUTHORITY
-R4: NOT_STARTED / NOT_AUTHORIZED
+R4 canonical target: AUTOPILOT R4 — Codex CLI adapter
+R4 architectural role: AgentExecutor FALLBACK / DIAGNOSTIC
+R4 authority handoff (historical pre-activation): MATERIALIZED / NOT_APPROVED / NOT_ACTIVE
+R4 first handoff audit: P0=0 / P1=1 / P2=0
+R4 P1-1: NEW_TURN_SESSION_EXTRACTION_CARDINALITY_AND_REQUIREDNESS_UNDEFINED
+R4 P1-1 disposition: CORRECTED_BY_MATERIALIZED_CORRECTION / PENDING_FRESH_REAUDIT
+R4 target (historical pre-activation): NOT_AUTHORIZED / NOT_STARTED
+R4 implementation (historical pre-activation): NOT_AUTHORIZED
+Active Autopilot handoff (historical pre-activation): NONE
+R5: NOT_AUTHORIZED
+Next permitted lifecycle action (historical pre-activation): FRESH_REAUDIT_AUTOPILOT_R4_HANDOFF
 F2E: UNCHANGED
 auto_publish: false
 ```
@@ -100,9 +109,14 @@ Final independent publication-closure re-audit: P0=0 / P1=0 / P2=0 / PASS
 Publication-closure P1-1: CLOSED
 Closure: CLOSED / HISTORICAL
 R3 handoff: CLOSED / HISTORICAL / NOT_ACTIVE
-Active Autopilot handoff: NONE
-Next permitted lifecycle action: MATERIALIZE_AUTOPILOT_R4_AUTHORITY
-R4: NOT_STARTED / NOT_AUTHORIZED
+Active Autopilot handoff (historical at R3 closure): NONE
+R4 authority handoff (historical pre-activation): MATERIALIZED / NOT_APPROVED / NOT_ACTIVE
+R4 first handoff audit: P0=0 / P1=1 / P2=0
+R4 P1-1: CORRECTED_BY_MATERIALIZED_CORRECTION / PENDING_FRESH_REAUDIT
+R4 target (historical pre-activation): AUTOPILOT R4 — Codex CLI adapter / NOT_AUTHORIZED / NOT_STARTED
+R4 implementation (historical pre-activation): NOT_AUTHORIZED
+R5: NOT_AUTHORIZED
+Next permitted lifecycle action (historical pre-activation): FRESH_REAUDIT_AUTOPILOT_R4_HANDOFF
 F2E: UNCHANGED
 auto_publish: false
 ```
@@ -141,11 +155,90 @@ usage, and heuristic decomposition as observed usage, and separates any future
 `DERIVED` or `ESTIMATED` metric from observed telemetry. This is contract
 authority only; no telemetry implementation is complete or authorized.
 
+## R4 authority lifecycle history — pre-activation state
+
+```text
+Handoff: auditoria/handoffs/HANDOFF-AUTOPILOT-R4-CODEX-CLI-ADAPTER.md
+Target: AUTOPILOT R4 — Codex CLI adapter
+Type: IMPLEMENTATION / INFRASTRUCTURE / FALLBACK_EXECUTION_ADAPTER authority
+Lifecycle (historical pre-activation): MATERIALIZED / NOT_APPROVED / NOT_ACTIVE
+Target authorization (historical pre-activation): NOT_AUTHORIZED / NOT_STARTED
+Implementation authorization (historical pre-activation): NOT_AUTHORIZED
+First fresh handoff audit: P0=0 / P1=1 / P2=0
+P1-1: NEW_TURN_SESSION_EXTRACTION_CARDINALITY_AND_REQUIREDNESS_UNDEFINED
+Correction.1: MATERIALIZED
+P1-1 disposition: CORRECTED_BY_MATERIALIZED_CORRECTION / PENDING_FRESH_REAUDIT
+Ready for fresh handoff re-audit: SI
+Active Autopilot handoff (historical pre-activation): NONE
+R5: NOT_AUTHORIZED
+Next permitted lifecycle action (historical pre-activation): FRESH_REAUDIT_AUTOPILOT_R4_HANDOFF
+```
+
+The R4 handoff materializes only the future authority candidate for a Codex CLI
+adapter behind the accepted `AgentExecutor` port. It preserves the Python SDK as
+`PRIMARY` and limits Codex CLI to `FALLBACK / DIAGNOSTIC`; implementation order
+cannot invert that architecture. The handoff defines an exact 13-path future
+implementation allowlist, secure argv/no-shell execution, explicit cwd and
+read-only/workspace-write sandbox mapping, strict structured-result validation,
+and a deterministic new-turn session contract: zero events are allowed, one
+unique valid ID is captured, repeated identical IDs are deduplicated, distinct
+IDs and malformed recognized events fail closed, and a valid observed session
+is preserved as operational evidence on later failure. Resume still requires
+one caller-supplied validated identity. It also preserves bounded
+timeout/cancellation and child cleanup, separate stdout/stderr evidence,
+truthful telemetry, and secret/log boundaries.
+
+The first fresh independent R4 handoff audit found only P1-1; Correction.1
+materialized its deterministic session contract. That history is preserved: at
+the time, materialization was not approval or activation. No R4 implementation
+path had been changed, no active handoff existed, and only a fresh independent
+re-audit could occur next. The handoff does not authorize the Python SDK adapter,
+workflow engine, `ContextCompiler`, model router, Git/worktree adapters,
+publisher, supervisor/launchd, R5+, F2E, runtime activation, productive
+authority, or cutover.
+
+R2 Debt A remains `CLOSED_BY_R3`. R2 Debt B remains
+`OPEN / NON_BLOCKING / CARRY_FORWARD / POTENTIALLY_CLOSABLE_BY_R4 /
+REQUIRES_IMPLEMENTATION_AND_FRESH_AUDIT`; R2 Debt C remains
+`OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R4_SCOPE`.
+
+## R4 handoff approved and active — authoritative current state
+
+```text
+Handoff: auditoria/handoffs/HANDOFF-AUTOPILOT-R4-CODEX-CLI-ADAPTER.md
+Review: auditoria/reviews/AUTOPILOT-R4-CODEX-CLI-ADAPTER-HANDOFF-REAUDIT.md
+R4 handoff: MATERIALIZED / APPROVED / ACTIVE
+R4 handoff re-audit: PASS / P0=0 / P1=0 / P2=0
+R4 P1-1: CLOSED_BY_FRESH_REAUDIT
+R4 target: AUTOPILOT R4 — Codex CLI adapter
+R4 target lifecycle: AUTHORIZED_TO_START / NOT_STARTED
+R4 implementation: AUTHORIZED_TO_START
+Active Autopilot handoff: R4 Codex CLI adapter
+Primary executor: Python SDK
+Codex CLI: FALLBACK / DIAGNOSTIC
+R2 Debt A: CLOSED_BY_R3
+R2 Debt B: OPEN / NON_BLOCKING / CARRY_FORWARD /
+  POTENTIALLY_CLOSABLE_BY_R4 / REQUIRES_IMPLEMENTATION_AND_FRESH_AUDIT
+R2 Debt C: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R4_SCOPE
+R3: CLOSED / HISTORICAL
+R5: NOT_AUTHORIZED
+F2E: UNCHANGED
+auto_publish: false
+Next permitted lifecycle action: EXECUTE_ACTIVE_AUTOPILOT_R4_CODEX_CLI_ADAPTER
+```
+
+This is only activation authority. R4 has not started and has no accepted or
+published implementation. The exact 13-path allowlist in the R4 handoff is
+unchanged; implementation cannot expand it. Debt B remains open until actual
+R4 implementation plus a fresh independent implementation audit provides the
+required malformed embedded `usage_record` behavioral evidence. Debt C remains
+outside R4 scope.
+
 ## F2E isolation
 
 ```text
-F2E: UNCHANGED / OUTSIDE_AUTOPILOT_R2
+F2E: UNCHANGED / OUTSIDE_AUTOPILOT_R4
 ```
 
-No Autopilot R2 handoff action changes product code, TurnoInstructor authority,
+No Autopilot R4 handoff action changes product code, TurnoInstructor authority,
 the dark-launch state, or cutover.

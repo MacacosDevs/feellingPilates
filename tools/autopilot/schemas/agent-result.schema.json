@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feelingpilates.local/autopilot/schemas/agent-result.schema.json",
+  "title": "Autopilot agent result",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "workflow_id",
+    "run_id",
+    "role",
+    "status",
+    "gate",
+    "gate_result",
+    "summary",
+    "findings",
+    "test_evidence",
+    "changed_paths",
+    "recommendation",
+    "requires_human_decision",
+    "p1_correctable",
+    "correction_artifact"
+  ],
+  "properties": {
+    "schema_version": {"const": "r2"},
+    "workflow_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "role": {"type": "string", "minLength": 1},
+    "status": {"enum": ["SUCCEEDED", "FAILED", "INTERRUPTED", "UNKNOWN"]},
+    "gate": {"type": "string", "minLength": 1},
+    "gate_result": {"enum": ["NOT_APPLICABLE", "PENDING", "PASS", "FAIL", "BLOCKED", "STOP"]},
+    "summary": {"type": "string", "minLength": 1, "pattern": ".*\\S.*"},
+    "session_reference": {"type": ["string", "null"]},
+    "usage_record": {
+      "anyOf": [
+        {"$ref": "usage-record.schema.json"},
+        {"type": "null"}
+      ]
+    },
+    "findings": {
+      "type": "object",
+      "required": ["p0", "p1", "p2"],
+      "properties": {
+        "p0": {"type": "array", "items": {"type": "string"}},
+        "p1": {"type": "array", "items": {"type": "string"}},
+        "p2": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "test_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "outcome", "evidence"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "outcome": {"enum": ["PASS", "FAIL", "BLOCKED", "NOT_RUN"]},
+          "evidence": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "changed_paths": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "recommendation": {"type": "string", "minLength": 1},
+    "requires_human_decision": {"type": "boolean"},
+    "p1_correctable": {"type": "boolean"},
+    "correction_artifact": {"type": ["string", "null"]},
+    "artifacts": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"p1_correctable": {"const": true}}},
+      "then": {"properties": {"correction_artifact": {"type": "string", "minLength": 1}}},
+      "else": {"properties": {"correction_artifact": {"type": "null"}}}
+    }
+  ],
+  "additionalProperties": false
+}

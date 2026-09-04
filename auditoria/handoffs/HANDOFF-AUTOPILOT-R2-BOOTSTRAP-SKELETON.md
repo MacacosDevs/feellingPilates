@@ -1,6 +1,6 @@
 # FeelingPilates — HANDOFF: AUTOPILOT R2 bootstrap skeleton and core contracts
 
-**Role for a future execution:** `AUTOPILOT_R2_EXECUTOR / PYTHON_BOOTSTRAP_CONTRACT_MATERIALIZER`
+**Original execution role:** `AUTOPILOT_R2_EXECUTOR / PYTHON_BOOTSTRAP_CONTRACT_MATERIALIZER`
 
 **Workflow profile:** implementation/infrastructure; fresh independent handoff
 re-audit passed and explicit activation is recorded.
@@ -308,11 +308,16 @@ is not implementation input except for any narrowly necessary invariance check.
 
 The fresh independent handoff re-audit is recorded at
 `auditoria/reviews/AUTOPILOT-R2-BOOTSTRAP-SKELETON-HANDOFF-REAUDIT.md`.
-Activation authorizes only the exact R2 target and its existing implementation
-allowlist. The next allowed action is
-`EXECUTE_ACTIVE_AUTOPILOT_R2_BOOTSTRAP_SKELETON`. This activation is neither
-implementation nor evidence of an R2 test, publication, runtime operation,
-target completion, or R3 authority.
+The implementation re-audit is recorded at
+`auditoria/reviews/AUTOPILOT-R2-BOOTSTRAP-SKELETON-IMPLEMENTATION-REAUDIT.md`.
+The exact existing allowlist is now materialized and independently accepted:
+`P0=0 / P1=0 / P2=1`. All material P1 findings are closed. `P2-1` remains
+`OPEN / NON_BLOCKING TEST DEBT`; it does not authorize extra tests or scope.
+
+Publication is not yet confirmed. The next allowed action, only after this
+commit is successfully pushed, is `CONFIRM_R2_PUBLICATION_AND_CLOSE`. This
+state neither authorizes R3 nor changes F2E, runtime operation, productive
+authority, or cutover.
 
 ## Handoff lifecycle and next action
 
@@ -320,7 +325,11 @@ target completion, or R3 authority.
 MATERIALIZED
 APPROVED
 ACTIVE
-TARGET_AUTHORIZED_TO_START
-IMPLEMENTATION_AUTHORIZED_TO_START
-NOT_STARTED
+IMPLEMENTATION_MATERIALIZED
+IMPLEMENTATION_AUDIT_PASS
+TARGET_COMPLETED
+READY_TO_PUBLISH
+P2_TEST_DEBT_OPEN
+PUBLICATION_NOT_YET_CONFIRMED
+R3_NOT_AUTHORIZED
 ```

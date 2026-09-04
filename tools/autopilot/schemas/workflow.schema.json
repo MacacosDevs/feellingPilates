@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feelingpilates.local/autopilot/schemas/workflow.schema.json",
+  "title": "Autopilot workflow declaration",
+  "type": "object",
+  "required": ["schema_version", "workflow_id", "phases"],
+  "properties": {
+    "schema_version": {"const": "r2"},
+    "workflow_id": {"type": "string", "minLength": 1},
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["phase_id", "kind"],
+        "properties": {
+          "phase_id": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["IMPLEMENTATION", "AUDIT", "CORRECTION", "DOCUMENTATION", "VALIDATION", "PUBLICATION"]}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

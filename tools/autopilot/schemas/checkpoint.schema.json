@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feelingpilates.local/autopilot/schemas/checkpoint.schema.json",
+  "title": "Autopilot checkpoint",
+  "type": "object",
+  "required": ["schema_version", "checkpoint_id", "run_id", "operational_state", "created_at"],
+  "properties": {
+    "schema_version": {"const": "r2"},
+    "checkpoint_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "operational_state": {
+      "enum": ["PENDING", "RUNNING", "WAITING_FOR_QUOTA", "WAITING_FOR_NETWORK", "RECOVERING", "REVIEWING", "CORRECTING", "PAUSED", "BLOCKED", "HUMAN_DECISION_REQUIRED", "FAILED_SAFE", "COMPLETED"]
+    },
+    "created_at": {"type": "string", "format": "date-time"},
+    "resume_data": {
+      "type": "object",
+      "additionalProperties": {"type": "string"}
+    }
+  },
+  "additionalProperties": false
+}

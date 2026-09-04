@@ -22,16 +22,21 @@ The historical F2D engine is `NOT_RUNTIME` for Autopilot.
 Target: AUTOPILOT R2 — Python bootstrap skeleton and core contracts
 Active handoff: auditoria/handoffs/HANDOFF-AUTOPILOT-R2-BOOTSTRAP-SKELETON.md
 Handoff: MATERIALIZED / APPROVED / ACTIVE
-Target: AUTHORIZED_TO_START / NOT_STARTED
-R2 implementation: AUTHORIZED_TO_START
-Next allowed action: EXECUTE_ACTIVE_AUTOPILOT_R2_BOOTSTRAP_SKELETON
+R2 implementation: IMPLEMENTATION_ACCEPTED
+R2 implementation audit: P0=0 / P1=0 / P2=1
+R2 material P1: ALL CLOSED
+R2 target: COMPLETED / READY_TO_PUBLISH
+R2 publication: NOT_YET_CONFIRMED
+P2-1: OPEN / NON_BLOCKING TEST DEBT
+Next allowed action after this commit is successfully pushed: CONFIRM_R2_PUBLICATION_AND_CLOSE
 R3: NOT_AUTHORIZED
+auto_publish: false
 ```
 
-This activation authorizes only the exact R2 implementation target and its
-existing audited allowlist. It does not create `tools/autopilot/`, install
-packages, invoke an SDK, create SQLite state, execute a workflow, publish,
-activate runtime, complete the target, or authorize R3 or cutover.
+The exact 24-path R2 implementation allowlist is materialized and independently
+accepted. Its publication is intentionally not yet confirmed: successful remote
+push and a later bounded closure action are required. This does not authorize
+R3, F2E, runtime activation, productive authority, or cutover.
 
 ```text
 R1 P2-1 telemetry provenance gap:

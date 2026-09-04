@@ -1,0 +1,31 @@
+{
+  "contract_version": "r2",
+  "runtime": {
+    "python": "3.14-compatible"
+  },
+  "primary_sdk": {
+    "package": "openai-codex",
+    "tested_version": "0.147.0"
+  },
+  "fallback_cli": {
+    "package": "codex-cli",
+    "tested_version": "0.150.1"
+  },
+  "state_backend": {
+    "package": "sqlite3",
+    "source": "stdlib",
+    "tested_sqlite_baseline": "3.53.3"
+  },
+  "authentication": {
+    "chatgpt_local_codex_login_supported_by_r1_evidence": true
+  },
+  "auto_publish": false,
+  "telemetry": {
+    "unavailable_token_classes": null,
+    "synthetic_zero_for_unavailable": "forbidden",
+    "fabricated_usage": "forbidden",
+    "heuristic_decomposition_as_observed": "forbidden",
+    "observed_value_requires_direct_evidence": true,
+    "derived_or_estimated_usage_must_be_explicitly_labeled": true
+  }
+}

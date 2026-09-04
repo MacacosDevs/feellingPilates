@@ -310,26 +310,69 @@ The fresh independent handoff re-audit is recorded at
 `auditoria/reviews/AUTOPILOT-R2-BOOTSTRAP-SKELETON-HANDOFF-REAUDIT.md`.
 The implementation re-audit is recorded at
 `auditoria/reviews/AUTOPILOT-R2-BOOTSTRAP-SKELETON-IMPLEMENTATION-REAUDIT.md`.
-The exact existing allowlist is now materialized and independently accepted:
+The exact existing allowlist is materialized and independently accepted:
 `P0=0 / P1=0 / P2=1`. All material P1 findings are closed. `P2-1` remains
-`OPEN / NON_BLOCKING TEST DEBT`; it does not authorize extra tests or scope.
+`OPEN / NON_BLOCKING / CARRY_FORWARD`; it does not authorize extra tests or
+scope.
 
-Publication is not yet confirmed. The next allowed action, only after this
-commit is successfully pushed, is `CONFIRM_R2_PUBLICATION_AND_CLOSE`. This
-state neither authorizes R3 nor changes F2E, runtime operation, productive
-authority, or cutover.
+## R2 P2-1 carry-forward test debt
+
+`P2-1` is `OPEN / NON_BLOCKING / CARRY_FORWARD` test-coverage debt. The
+underlying R2 contracts passed independent audit, but the following behavioral
+coverage remains incomplete:
+
+- No behavioral test yet covers `LeaseResolution.NONE / NO_RELEVANT_LEASE`.
+- Malformed embedded `usage_record` behavioral validation remains incomplete:
+  the underlying `UsageRecord`/`AgentResult` contract passed audit, but the
+  behavioral test helper does not yet prove rejection of every malformed
+  embedded `usage_record` payload.
+- Attached branch without upstream behavioral coverage remains missing: the
+  repository contract supports an attached branch with no upstream, but that
+  exact behavioral case is not yet tested.
+
+This debt is non-blocking for R2 closure and remains open after R2 closure. It
+must remain visible to a future competent Autopilot hardening/testing phase and
+must not be silently dropped when R2 becomes historical.
+
+The R2 implementation publication is physically confirmed on
+`origin/orquestacion/autopilot-r1`. The fresh independent publication-closure
+re-audit is persisted at
+`auditoria/reviews/AUTOPILOT-R2-PUBLICATION-CLOSURE-REAUDIT.md`:
+
+```text
+Implementation publication commit: ec440841889bcfc7cd73279a1219de4e84054b1f
+HEAD/upstream parity: PASS
+Implementation: COMPLETED
+Implementation audit: PASS
+Publication: CONFIRMED
+Publication closure audit: PASS
+R2: PUBLISHED / CLOSED / HISTORICAL
+```
+
+This closure documentation records the successful re-audit and final lifecycle
+state. It does not replace or redefine the implementation publication commit:
+`ec440841889bcfc7cd73279a1219de4e84054b1f` remains the R2 implementation
+publication. R2 is terminal and not active. The next allowed action is
+`MATERIALIZE_AUTOPILOT_R3_DURABLE_STATE_AUTHORITY`; that authority may be
+prepared next, but it does not authorize R3 implementation. F2E, runtime
+operation, productive authority, and cutover remain unchanged.
 
 ## Handoff lifecycle and next action
 
 ```text
 MATERIALIZED
 APPROVED
-ACTIVE
-IMPLEMENTATION_MATERIALIZED
-IMPLEMENTATION_AUDIT_PASS
 TARGET_COMPLETED
-READY_TO_PUBLISH
-P2_TEST_DEBT_OPEN
-PUBLICATION_NOT_YET_CONFIRMED
+IMPLEMENTATION_COMPLETED
+IMPLEMENTATION_AUDIT_PASS
+PUBLICATION_CONFIRMED
+PUBLICATION_CLOSURE_AUDIT_PASS
+PUBLISHED
+CLOSED
+HISTORICAL
+P2_TEST_DEBT_OPEN_CARRY_FORWARD
+NOT_ACTIVE
+R3_NOT_STARTED
 R3_NOT_AUTHORIZED
+NEXT_ALLOWED_ACTION: MATERIALIZE_AUTOPILOT_R3_DURABLE_STATE_AUTHORITY
 ```

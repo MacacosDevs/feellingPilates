@@ -242,3 +242,44 @@ F2E: UNCHANGED / OUTSIDE_AUTOPILOT_R4
 
 No Autopilot R4 handoff action changes product code, TurnoInstructor authority,
 the dark-launch state, or cutover.
+
+## R4 implementation accepted — publication pending
+
+The exact, independently audited R4 Codex CLI adapter candidate is accepted.
+This is implementation acceptance only; it is not remote publication or R4
+lifecycle closure. The final fresh implementation re-audit is
+`auditoria/reviews/AUTOPILOT-R4-CODEX-CLI-ADAPTER-IMPLEMENTATION-FINAL-REAUDIT.md`.
+
+```text
+R1: HISTORICAL
+R2: PUBLISHED / CLOSED / HISTORICAL
+R2 Debt A: CLOSED_BY_R3
+R2 Debt B: CLOSED_BY_R4
+R2 Debt C: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R4_SCOPE
+R3: CLOSED / HISTORICAL
+R4: APPROVED / ACTIVE
+R4 target: IMPLEMENTED
+R4 implementation: ACCEPTED
+R4 final implementation audit: PASS / P0=0 / P1=0 / P2=1
+R4 final nonblocking P2: OPEN / NON_BLOCKING /
+  CAPABILITY_TIMEOUT_PRIMARY_CAUSE_MASKED_BY_PRE_REAP_GROUP_LIVENESS
+R4 publication: PENDING until successful push
+R4 closure: PENDING
+Primary executor: Python SDK / PRIMARY
+Codex CLI: FALLBACK / DIAGNOSTIC
+Automatic fallback: NOT_IMPLEMENTED
+Workflow engine: NOT_IMPLEMENTED
+R5: NOT_AUTHORIZED
+F2E: UNCHANGED
+auto_publish: false
+Next permitted lifecycle action: PUBLISH_ACCEPTED_AUTOPILOT_R4_IMPLEMENTATION
+```
+
+R2 Debt B is a competent later closure by R4, supplied by strict structured
+usage parsing and deterministic malformed embedded `usage_record` behavioral
+tests; R2 history remains unchanged. Debt C remains explicit, open,
+non-blocking, carried forward, and outside R4 scope. The R4 P2 remains open and
+non-blocking: its timeout diagnostic can select a pre-reap group-liveness cause
+even though subsequent reaping and process-group cleanup succeed. It is a
+diagnostic cause-ordering issue only and does not authorize an implementation
+change, R4 closure, R5, or F2E work.

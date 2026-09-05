@@ -11,6 +11,23 @@
     "package": "codex-cli",
     "tested_version": "0.150.1"
   },
+  "r4_cli_adapter": {
+    "role": "IMPLEMENTED_CANDIDATE_FALLBACK_DIAGNOSTIC",
+    "structured_protocol": "IMPLEMENTED_CANDIDATE",
+    "session_resume": "IMPLEMENTED_CANDIDATE",
+    "timeout_cancellation_process_cleanup": "IMPLEMENTED_CANDIDATE",
+    "reasoning_effort": {
+      "mechanism": "-c model_reasoning_effort=value",
+      "allowed_values": ["low", "medium", "high", "xhigh"]
+    },
+    "workspace_authorization": "BOUNDED_TO_CONFIGURED_ROOT"
+  },
+  "architecture": {
+    "python_sdk": "PRIMARY_ARCHITECTURE",
+    "automatic_fallback_routing": "NOT_IMPLEMENTED",
+    "workflow_engine": "NOT_IMPLEMENTED",
+    "publisher": "NOT_IMPLEMENTED"
+  },
   "state_backend": {
     "package": "sqlite3",
     "source": "stdlib",

@@ -640,3 +640,53 @@ NEXT ALLOWED ACTION: EXECUTE_ACTIVE_AUTOPILOT_R4_CODEX_CLI_ADAPTER
 No R4 implementation has been started or accepted. This activation does not
 authorize the Python SDK adapter, a workflow engine, StateStore mutation, Git
 lifecycle authority, automatic fallback policy, R5+, or F2E/product behavior.
+
+## Implementation acceptance addendum — authoritative current R4 state
+
+The exact 13-path R4 implementation candidate authorized by this handoff was
+materialized and then independently re-audited fresh. The final implementation
+re-audit is persisted at
+`auditoria/reviews/AUTOPILOT-R4-CODEX-CLI-ADAPTER-IMPLEMENTATION-FINAL-REAUDIT.md`.
+It records `P0=0 / P1=0 / P2=1`, closes the final material process-cleanup P1,
+and is sufficient to accept the implementation without changing the primary /
+fallback architecture.
+
+```text
+R4 HANDOFF: APPROVED / ACTIVE
+R4 TARGET: IMPLEMENTED
+R4 IMPLEMENTATION: ACCEPTED
+R4 IMPLEMENTATION AUDIT: PASS
+R4 FINAL AUDIT: P0=0 / P1=0 / P2=1
+READY_TO_ACCEPT_R4_IMPLEMENTATION: SI
+R4 P1 — CAPABILITY_PROBE_LEADER_EXIT_DESCENDANT_NOT_CLEANED: CLOSED
+R4 P2 — CAPABILITY_TIMEOUT_PRIMARY_CAUSE_MASKED_BY_PRE_REAP_GROUP_LIVENESS:
+  OPEN / NON_BLOCKING
+R4 PUBLICATION: PENDING until this accepted implementation commit is successfully pushed
+R4 CLOSURE: PENDING
+Primary executor: Python SDK
+Codex CLI: IMPLEMENTED / ACCEPTED / FALLBACK / DIAGNOSTIC
+Automatic fallback: NOT_IMPLEMENTED
+Workflow engine: NOT_IMPLEMENTED
+R2 Debt A: CLOSED_BY_R3
+R2 Debt B: CLOSED_BY_R4
+R2 Debt C: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R4_SCOPE
+R5+: NOT_AUTHORIZED
+F2E: UNCHANGED
+auto_publish: false
+NEXT ALLOWED ACTION: PUBLISH_ACCEPTED_AUTOPILOT_R4_IMPLEMENTATION
+```
+
+R2 Debt B is closed by later competent R4 evidence, not rewritten as R2-era
+coverage: the structured-result/usage parser and deterministic behavioral
+tests reject non-object records, malformed scalar/type values, prohibited
+negative values, unknown fields, invalid provenance, adapter/source mismatch,
+and partial malformed objects while preserving unavailable `NULL` values and
+directly observed zeroes. R2 Debt C remains outside this scope and open.
+
+The open R4 P2 is diagnostic cause ordering only. During a capability-probe
+timeout, cleanup status can be checked before the timed-out leader is reaped,
+so `CapabilityError` can say `Codex CLI capability probe process group cleanup
+failed` even though the leader is subsequently reaped, descendants and group
+are gone, the probe is bounded, no orphan survives, no request/model timeout is
+fabricated, and capability execution still fails closed. It is not a P1 and is
+not closed by this acceptance.

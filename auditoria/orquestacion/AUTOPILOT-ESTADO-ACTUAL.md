@@ -289,7 +289,7 @@ diagnostic cause-ordering issue only. It remains open, non-blocking, and
 carried forward; it does not authorize an implementation change, R5, or F2E
 work.
 
-## R5 implementation accepted and published — closure pending
+## R5 publication lifecycle closed — authoritative current state
 
 The fresh independent R5 handoff audit at
 `auditoria/reviews/AUTOPILOT-R5-PYTHON-SDK-ADAPTER-HANDOFF-AUDIT.md` passed
@@ -308,11 +308,19 @@ documentation findings. The final audit persisted at
 records `OPEN_P0=0 / OPEN_P1=0 / NEW_P0=0 / NEW_P1=0 / NEW_P2=0`, technical
 `PASS`, and `READY_TO_ACCEPT_R5_IMPLEMENTATION=SI`.
 
-The exact implementation is accepted and published. Publication and closure
-remain separate gates: R5 is not yet closed or historical, and the active R5
-handoff remains active until post-publication reconciliation and competent
-closure. This publication does not authorize R6, execute F2E, activate a
-workflow engine, implement automatic fallback, or change `auto_publish=false`.
+The exact implementation was accepted and published at
+`66aa13dae83d167d733d4d7371776cfd6b4484ef`. The bounded publication-closure
+review persisted at
+`auditoria/reviews/AUTOPILOT-R5-PUBLICATION-CLOSURE-FINAL-AUDIT.md` verifies
+the exact `15 / 15` publication scope, reconciles the accepted evidence, finds
+no post-publication regression evidence and no technical, publication, or
+closure blocker, and records R5 as `COMPETENT_TO_CLOSE`. The competent
+lifecycle action therefore closes R5 and retires its handoff as historical.
+
+No canonical post-R5 successor is currently selected. This closure does not
+select a component, label one R6, authorize successor implementation, execute
+F2E, activate a workflow engine, implement automatic fallback, or change
+`auto_publish=false`.
 
 ```text
 R1: HISTORICAL
@@ -331,22 +339,30 @@ Codex CLI: IMPLEMENTED / PUBLISHED / HISTORICAL R4 capability / FALLBACK / DIAGN
 Automatic fallback: NOT_IMPLEMENTED / NOT_AUTHORIZED
 Workflow engine: NOT_IMPLEMENTED / NOT_AUTHORIZED
 R5 canonical target: AUTOPILOT R5 — Python SDK primary adapter
-R5 handoff: MATERIALIZED / APPROVED / ACTIVE
+R5 handoff: MATERIALIZED / APPROVED / CLOSED / HISTORICAL / NOT_ACTIVE
 R5 handoff audit: PASS / P0=0 / P1=0 / P2=0
-R5 target: IMPLEMENTED / ACCEPTED / PUBLISHED
+R5: IMPLEMENTED / ACCEPTED / PUBLISHED / CLOSED / HISTORICAL
+R5 target: IMPLEMENTED / ACCEPTED / PUBLISHED / COMPLETED
 R5 implementation: ACCEPTED / PUBLISHED
 R5 implementation audit: PASS / OPEN_P0=0 / OPEN_P1=0 / NEW_P0=0 / NEW_P1=0 / NEW_P2=0
 R5 technical blockers: NONE
-R5 closure: PENDING
-Active Autopilot handoff: R5 Python SDK primary adapter
+R5 publication: COMPLETE / PUBLISHED
+R5 publication commit: 66aa13dae83d167d733d4d7371776cfd6b4484ef
+R5 publication-closure review: PASS / COMPETENT_TO_CLOSE
+R5 closure: COMPLETE / CLOSED / HISTORICAL
+Active Autopilot handoff: NONE
 R6: NOT_AUTHORIZED
+Canonical post-R5 successor: NONE_CANONICALLY_SELECTED
+Successor implementation authorized: NO
 F2E: UNCHANGED
 auto_publish: false
-Next permitted lifecycle action: POST_PUBLICATION_RECONCILE_AND_CLOSE_AUTOPILOT_R5
+Next permitted lifecycle action: MATERIALIZE_POST_R5_SUCCESSOR_SELECTION_AND_BOUNDARY_AUTHORITY
 ```
 
-R5 publishes the Python `openai-codex==0.147.0` adapter as the primary
+R5 published the Python `openai-codex==0.147.0` adapter as the primary
 implementation of the existing provider-neutral `AgentExecutor`. R4 remains a
 separately selectable fallback/diagnostic capability; R5 contains no automatic
 CLI fallback or workflow policy. The published implementation is limited to
-the unchanged exact 12-path allowlist named in the active R5 handoff.
+the unchanged exact 12-path allowlist named in the now-historical R5 handoff.
+The next action is authority materialization for successor selection and
+boundary definition, not successor implementation.

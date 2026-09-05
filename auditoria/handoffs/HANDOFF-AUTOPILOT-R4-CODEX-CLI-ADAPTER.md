@@ -9,10 +9,11 @@ AUTHORITY_MATERIALIZATION / NO_IMPLEMENTATION / NO_ACTIVATION / NO_PUBLICATION`
 
 The original materialization recorded below was prepared for a later fresh
 independent adversarial audit and, at that historical point, was not approval or
-implementation authority. The authoritative current lifecycle is the activation
-addendum at the end of this document; it authorizes only the exact R4 target,
-not implementation evidence, runtime activation, productive authority, cutover,
-or F2E authority.
+implementation authority. The authoritative current lifecycle is the final
+publication-closure and lifecycle-closure addendum at the end of this document.
+It preserves the exact R4 target and its published implementation without
+authorizing runtime activation, productive authority, cutover, R5, or F2E
+authority.
 
 ## Canonical target and evidence chain
 
@@ -37,8 +38,9 @@ The target follows the current physical repository authority, not chat memory:
   excludes SDK/CLI adapters and workflow policy.
 
 No current Autopilot canonical identifies a competing or materially different
-R4 target. The fresh re-audit and this activation publication authorize its
-implementation to start only after this authority commit is published.
+R4 target. The historical fresh re-audit and activation authorized its exact
+implementation; the later independent audit accepted that implementation and
+the publication checkpoint recorded in the current addendum published it.
 
 ## Historical pre-activation lifecycle and authority state
 
@@ -613,7 +615,7 @@ auto_publish: false
 NEXT ALLOWED ACTION (HISTORICAL PRE-ACTIVATION): FRESH_REAUDIT_AUTOPILOT_R4_HANDOFF
 ```
 
-## Activation addendum — authoritative current R4 state
+## Activation addendum — preserved historical activation state
 
 The fresh independent handoff re-audit at
 `auditoria/reviews/AUTOPILOT-R4-CODEX-CLI-ADAPTER-HANDOFF-REAUDIT.md` recorded
@@ -641,7 +643,7 @@ No R4 implementation has been started or accepted. This activation does not
 authorize the Python SDK adapter, a workflow engine, StateStore mutation, Git
 lifecycle authority, automatic fallback policy, R5+, or F2E/product behavior.
 
-## Implementation acceptance addendum — authoritative current R4 state
+## Implementation acceptance addendum — preserved pre-publication state
 
 The exact 13-path R4 implementation candidate authorized by this handoff was
 materialized and then independently re-audited fresh. The final implementation
@@ -690,3 +692,89 @@ failed` even though the leader is subsequently reaped, descendants and group
 are gone, the probe is bounded, no orphan survives, no request/model timeout is
 fabricated, and capability execution still fails closed. It is not a P1 and is
 not closed by this acceptance.
+
+## Post-publication reconciliation addendum — historical pre-closure state
+
+The accepted R4 implementation was successfully published at the physical
+checkpoint below. Publication is complete, but it is not lifecycle closure:
+the publication-closure gate remains pending a fresh independent
+publication-closure audit.
+
+```text
+R4 HANDOFF: APPROVED / ACTIVE
+ACTIVE_AUTOPILOT_HANDOFF: R4 CODEX CLI ADAPTER
+R4 TARGET: IMPLEMENTED / PUBLISHED
+R4 IMPLEMENTATION: ACCEPTED / PUBLISHED
+R4 IMPLEMENTATION AUDIT: PASS
+R4 FINAL IMPLEMENTATION AUDIT: P0=0 / P1=0 / P2=1
+R4 P2 — CAPABILITY_TIMEOUT_PRIMARY_CAUSE_MASKED_BY_PRE_REAP_GROUP_LIVENESS:
+  OPEN / NON_BLOCKING
+R4 PUBLICATION: COMPLETE / PUBLISHED
+R4 PUBLICATION COMMIT: e7f8cb3a66560df6981a0e1bfb54d0e942348ff1
+R4 CLOSURE: PENDING_FRESH_PUBLICATION_CLOSURE_AUDIT
+R4: NOT_CLOSED / NOT_HISTORICAL
+Primary executor: Python SDK / PRIMARY
+Codex CLI: IMPLEMENTED / ACCEPTED / PUBLISHED / FALLBACK / DIAGNOSTIC
+Automatic fallback: NOT_IMPLEMENTED
+Workflow engine: NOT_IMPLEMENTED
+R2 Debt A: CLOSED_BY_R3
+R2 Debt B: CLOSED_BY_R4
+R2 Debt C: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R4_SCOPE
+R5+: NOT_AUTHORIZED
+F2E: UNCHANGED
+auto_publish: false
+NEXT ALLOWED ACTION: FRESH_AUDIT_AUTOPILOT_R4_PUBLICATION_CLOSURE
+```
+
+The open P2 remains diagnostic cause ordering only: group-cleanup state can be
+observed before the timed-out leader is finally reaped, yielding a
+cleanup-oriented `CapabilityError` even though the leader is ultimately reaped,
+descendants and process group are gone, execution remains bounded, no orphan
+survives, and no request/model timeout is fabricated. It does not block this
+publication reconciliation or the required fresh closure audit, and it is not
+silently closed here.
+
+## Final publication-closure audit and lifecycle closure — authoritative current R4 state
+
+The fresh independent publication-closure audit is persisted at
+`auditoria/reviews/AUTOPILOT-R4-PUBLICATION-CLOSURE-FINAL-AUDIT.md`. It
+verified the already-published implementation commit and the post-publication
+reconciliation without changing implementation or lifecycle state itself. Its
+`P0=0 / P1=0 / P2=0 new findings` result permits this competent lifecycle
+closure; this addendum records the resulting terminal R4 state without
+attributing the lifecycle mutation to the auditor.
+
+```text
+R4 HANDOFF: APPROVED / CLOSED / HISTORICAL
+R4 ACTIVE: NO
+R4 TARGET: IMPLEMENTED / PUBLISHED / COMPLETED
+R4 IMPLEMENTATION: ACCEPTED / PUBLISHED
+R4 IMPLEMENTATION AUDIT: PASS
+R4 FINAL IMPLEMENTATION AUDIT: P0=0 / P1=0 / P2=1
+R4 PUBLICATION: COMPLETE / PUBLISHED
+R4 PUBLICATION COMMIT: e7f8cb3a66560df6981a0e1bfb54d0e942348ff1
+R4 FINAL PUBLICATION-CLOSURE AUDIT: P0=0 / P1=0 / P2=0 NEW FINDINGS / PASS
+READY_TO_CLOSE_R4_PUBLICATION: SI
+R4 CLOSURE: CLOSED / HISTORICAL
+R4 P2 — CAPABILITY_TIMEOUT_PRIMARY_CAUSE_MASKED_BY_PRE_REAP_GROUP_LIVENESS:
+  OPEN / NON_BLOCKING / CARRY_FORWARD
+Primary executor: Python SDK / PRIMARY
+Codex CLI: IMPLEMENTED / ACCEPTED / PUBLISHED / HISTORICAL / FALLBACK / DIAGNOSTIC
+Automatic fallback: NOT_IMPLEMENTED
+Workflow engine: NOT_IMPLEMENTED
+R2 Debt A: CLOSED_BY_R3
+R2 Debt B: CLOSED_BY_R4
+R2 Debt C: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R4_SCOPE
+ACTIVE_AUTOPILOT_HANDOFF: NONE
+R5: NOT_STARTED / NOT_AUTHORIZED
+F2E: UNCHANGED
+auto_publish: false
+NEXT ALLOWED ACTION: MATERIALIZE_AUTOPILOT_R5_AUTHORITY
+```
+
+The known P2 remains open and non-blocking. Bounded capability execution,
+final leader reap, absence of descendants, removal of the process group, no
+orphan, and fail-closed behavior are preserved; only diagnostic cause ordering
+is carried forward. This R4 closure does not authorize or materialize R5,
+implement an automatic fallback or workflow engine, execute F2E, or change
+runtime, productive-authority, or cutover state.

@@ -202,7 +202,7 @@ R2 Debt A remains `CLOSED_BY_R3`. R2 Debt B remains
 REQUIRES_IMPLEMENTATION_AND_FRESH_AUDIT`; R2 Debt C remains
 `OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R4_SCOPE`.
 
-## R4 handoff approved and active — authoritative current state
+## R4 handoff approved and active — preserved historical activation state
 
 ```text
 Handoff: auditoria/handoffs/HANDOFF-AUTOPILOT-R4-CODEX-CLI-ADAPTER.md
@@ -227,12 +227,10 @@ auto_publish: false
 Next permitted lifecycle action: EXECUTE_ACTIVE_AUTOPILOT_R4_CODEX_CLI_ADAPTER
 ```
 
-This is only activation authority. R4 has not started and has no accepted or
-published implementation. The exact 13-path allowlist in the R4 handoff is
-unchanged; implementation cannot expand it. Debt B remains open until actual
-R4 implementation plus a fresh independent implementation audit provides the
-required malformed embedded `usage_record` behavioral evidence. Debt C remains
-outside R4 scope.
+This was activation authority only. The exact 13-path allowlist in the R4
+handoff remained unchanged and implementation could not expand it. The later
+independent R4 implementation audit supplied the evidence that closed Debt B;
+Debt C remains outside R4 scope.
 
 ## F2E isolation
 
@@ -243,11 +241,12 @@ F2E: UNCHANGED / OUTSIDE_AUTOPILOT_R4
 No Autopilot R4 handoff action changes product code, TurnoInstructor authority,
 the dark-launch state, or cutover.
 
-## R4 implementation accepted — publication pending
+## R4 publication lifecycle closed — authoritative current state
 
-The exact, independently audited R4 Codex CLI adapter candidate is accepted.
-This is implementation acceptance only; it is not remote publication or R4
-lifecycle closure. The final fresh implementation re-audit is
+The exact, independently audited R4 Codex CLI adapter is accepted, published,
+and closed by the fresh independent publication-closure audit at
+`auditoria/reviews/AUTOPILOT-R4-PUBLICATION-CLOSURE-FINAL-AUDIT.md`. The final
+fresh implementation re-audit remains
 `auditoria/reviews/AUTOPILOT-R4-CODEX-CLI-ADAPTER-IMPLEMENTATION-FINAL-REAUDIT.md`.
 
 ```text
@@ -257,22 +256,27 @@ R2 Debt A: CLOSED_BY_R3
 R2 Debt B: CLOSED_BY_R4
 R2 Debt C: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R4_SCOPE
 R3: CLOSED / HISTORICAL
-R4: APPROVED / ACTIVE
-R4 target: IMPLEMENTED
-R4 implementation: ACCEPTED
+R4: IMPLEMENTED / ACCEPTED / PUBLISHED / CLOSED / HISTORICAL
+R4 handoff: APPROVED / CLOSED / HISTORICAL / NOT_ACTIVE
+Active Autopilot handoff: NONE
+R4 target: IMPLEMENTED / PUBLISHED / COMPLETED
+R4 implementation: ACCEPTED / PUBLISHED
 R4 final implementation audit: PASS / P0=0 / P1=0 / P2=1
 R4 final nonblocking P2: OPEN / NON_BLOCKING /
-  CAPABILITY_TIMEOUT_PRIMARY_CAUSE_MASKED_BY_PRE_REAP_GROUP_LIVENESS
-R4 publication: PENDING until successful push
-R4 closure: PENDING
+  CARRY_FORWARD / CAPABILITY_TIMEOUT_PRIMARY_CAUSE_MASKED_BY_PRE_REAP_GROUP_LIVENESS
+R4 publication: COMPLETE / PUBLISHED
+R4 publication commit: e7f8cb3a66560df6981a0e1bfb54d0e942348ff1
+R4 publication-closure audit: PASS / P0=0 / P1=0 / P2=0 new findings
+READY_TO_CLOSE_R4_PUBLICATION: SI
+R4 closure: PASS / CLOSED / HISTORICAL
 Primary executor: Python SDK / PRIMARY
-Codex CLI: FALLBACK / DIAGNOSTIC
+Codex CLI: IMPLEMENTED / ACCEPTED / PUBLISHED / HISTORICAL R4 capability / FALLBACK / DIAGNOSTIC
 Automatic fallback: NOT_IMPLEMENTED
 Workflow engine: NOT_IMPLEMENTED
-R5: NOT_AUTHORIZED
+R5: NOT_STARTED / NOT_AUTHORIZED
 F2E: UNCHANGED
 auto_publish: false
-Next permitted lifecycle action: PUBLISH_ACCEPTED_AUTOPILOT_R4_IMPLEMENTATION
+Next permitted lifecycle action: MATERIALIZE_AUTOPILOT_R5_AUTHORITY
 ```
 
 R2 Debt B is a competent later closure by R4, supplied by strict structured
@@ -281,5 +285,6 @@ tests; R2 history remains unchanged. Debt C remains explicit, open,
 non-blocking, carried forward, and outside R4 scope. The R4 P2 remains open and
 non-blocking: its timeout diagnostic can select a pre-reap group-liveness cause
 even though subsequent reaping and process-group cleanup succeed. It is a
-diagnostic cause-ordering issue only and does not authorize an implementation
-change, R4 closure, R5, or F2E work.
+diagnostic cause-ordering issue only. It remains open, non-blocking, and
+carried forward; it does not authorize an implementation change, R5, or F2E
+work.

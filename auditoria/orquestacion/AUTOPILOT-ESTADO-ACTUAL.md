@@ -288,3 +288,49 @@ even though subsequent reaping and process-group cleanup succeed. It is a
 diagnostic cause-ordering issue only. It remains open, non-blocking, and
 carried forward; it does not authorize an implementation change, R5, or F2E
 work.
+
+## R5 handoff approved and active — authoritative current state
+
+The fresh independent R5 handoff audit at
+`auditoria/reviews/AUTOPILOT-R5-PYTHON-SDK-ADAPTER-HANDOFF-AUDIT.md` passed
+with `P0=0 / P1=0 / P2=0`. Repository authority therefore approves and
+activates the exact materialized handoff at
+`auditoria/handoffs/HANDOFF-AUTOPILOT-R5-PYTHON-SDK-ADAPTER.md`.
+
+This is activation authority only. It authorizes the R5 implementation to
+start within its exact 12-path allowlist; it does not claim implementation,
+acceptance, publication, closure, runtime activation, productive authority,
+cutover, R6, or F2E.
+
+```text
+R1: HISTORICAL
+R2: PUBLISHED / CLOSED / HISTORICAL
+R2 Debt A: CLOSED_BY_R3
+R2 Debt B: CLOSED_BY_R4
+R2 Debt C: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R5_SCOPE
+R3: CLOSED / HISTORICAL
+R4: IMPLEMENTED / ACCEPTED / PUBLISHED / CLOSED / HISTORICAL
+R4 handoff: APPROVED / CLOSED / HISTORICAL / NOT_ACTIVE
+R4 P2 — CAPABILITY_TIMEOUT_PRIMARY_CAUSE_MASKED_BY_PRE_REAP_GROUP_LIVENESS:
+  OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R5_SCOPE
+Primary executor: Python SDK / PRIMARY
+Codex CLI: IMPLEMENTED / ACCEPTED / PUBLISHED / HISTORICAL R4 capability / FALLBACK / DIAGNOSTIC
+Automatic fallback: NOT_IMPLEMENTED / NOT_AUTHORIZED
+Workflow engine: NOT_IMPLEMENTED / NOT_AUTHORIZED
+R5 canonical target: AUTOPILOT R5 — Python SDK primary adapter
+R5 handoff: MATERIALIZED / APPROVED / ACTIVE
+R5 handoff audit: PASS / P0=0 / P1=0 / P2=0
+R5 target: AUTHORIZED_TO_START / NOT_STARTED
+R5 implementation: AUTHORIZED_TO_START
+Active Autopilot handoff: R5 Python SDK primary adapter
+R6: NOT_AUTHORIZED
+F2E: UNCHANGED
+auto_publish: false
+Next permitted lifecycle action: EXECUTE_ACTIVE_AUTOPILOT_R5_PYTHON_SDK_ADAPTER
+```
+
+R5 freezes the Python `openai-codex==0.147.0` adapter as the primary
+implementation of the existing provider-neutral `AgentExecutor`. R4 remains a
+separately selectable fallback/diagnostic capability; R5 contains no automatic
+CLI fallback or workflow policy. The implementation authority is limited to
+the unchanged exact 12-path allowlist named in the active R5 handoff.

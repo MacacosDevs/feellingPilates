@@ -24,19 +24,25 @@ defines a different Autopilot R5 target.
 
 The candidate authority was materialized before fresh independent audit. The
 fresh independent handoff audit at
-`auditoria/reviews/AUTOPILOT-R5-PYTHON-SDK-ADAPTER-HANDOFF-AUDIT.md` passed;
-this document is now the approved, active authority for the exact R5 target.
-It authorizes implementation to start, but does not claim implementation,
-acceptance, publication, closure, runtime activation, productive authority, or
-cutover.
+`auditoria/reviews/AUTOPILOT-R5-PYTHON-SDK-ADAPTER-HANDOFF-AUDIT.md` passed and
+activated the exact R5 target. The implementation was subsequently
+materialized, corrected through five bounded correction cycles, and accepted
+by the final independent implementation audit persisted at
+`auditoria/reviews/AUTOPILOT-R5-PYTHON-SDK-ADAPTER-IMPLEMENTATION-AUDIT.md`.
+The exact accepted implementation is now published. Publication does not close
+R5, make this handoff historical, authorize R6, or change runtime/productive
+authority or cutover.
 
 ```text
 R5 HANDOFF: MATERIALIZED / APPROVED / ACTIVE
 R5 HANDOFF AUDIT: PASS / P0=0 / P1=0 / P2=0
-R5 TARGET: AUTHORIZED_TO_START / NOT_STARTED
-R5 IMPLEMENTATION: AUTHORIZED_TO_START
+R5 TARGET: IMPLEMENTED / ACCEPTED / PUBLISHED
+R5 IMPLEMENTATION: ACCEPTED / PUBLISHED
+R5 IMPLEMENTATION AUDIT: PASS / OPEN_P0=0 / OPEN_P1=0 / NEW_P0=0 / NEW_P1=0 / NEW_P2=0
+R5 TECHNICAL BLOCKERS: NONE
+R5 CLOSURE: PENDING
 ACTIVE_AUTOPILOT_HANDOFF: R5 Python SDK primary adapter
-NEXT ALLOWED ACTION: EXECUTE_ACTIVE_AUTOPILOT_R5_PYTHON_SDK_ADAPTER
+NEXT ALLOWED ACTION: POST_PUBLICATION_RECONCILE_AND_CLOSE_AUTOPILOT_R5
 R6: NOT_AUTHORIZED
 F2E: UNCHANGED
 auto_publish: false
@@ -44,10 +50,11 @@ auto_publish: false
 
 The historical materialization did not itself establish audit `PASS`, approval,
 activation, implementation authority, publication, runtime activation,
-productive authority, or cutover. The later fresh independent handoff audit
-and competent explicit lifecycle action now approve and activate this exact
-target and exact allowlist. The activation does not establish implementation,
-acceptance, publication, runtime activation, productive authority, or cutover.
+productive authority, or cutover. Those later lifecycle results depend on the
+separate handoff audit, implementation and correction history, final technical
+audit, acceptance, and publication evidence. The current publication still
+does not establish closure, runtime activation, productive authority, or
+cutover.
 
 ## Materialization baseline
 
@@ -560,7 +567,7 @@ R5 does not authorize:
   productive-authority change, or cutover; or
 - staging, commit, push, or publication.
 
-## Fresh independent audit history and future implementation audit
+## Fresh independent audit and implementation history
 
 The fresh, independent, read-only, adversarial handoff audit is persisted at
 `auditoria/reviews/AUTOPILOT-R5-PYTHON-SDK-ADAPTER-HANDOFF-AUDIT.md`. It
@@ -569,11 +576,11 @@ structured-output strictness, session/resume and cross-process recovery,
 timeout/cancellation, telemetry truthfulness, secret boundaries,
 `AgentExecutor` compatibility, StateStore isolation, absence of automatic CLI
 fallback, exclusions, and exact scope. Its `P0=0 / P1=0 / P2=0` result and the
-separate competent lifecycle action activate this target and authorize R5
+separate competent lifecycle action activated this target and authorized R5
 implementation to start.
 
-If implementation is later authorized and materialized, a different fresh
-independent implementation audit must materially inspect:
+The later implementation was materially inspected across the following
+required boundaries:
 
 - exact SDK pin and supported capability profile;
 - no import-time I/O and no provider-native type escaping the adapter;
@@ -589,8 +596,12 @@ independent implementation audit must materially inspect:
 - all required offline tests and R2–R4 regression tests; and
 - exact 12-path touched scope with unchanged unrelated files.
 
-The R5 executor or corrector cannot perform its own independent audit or
-declare implementation `PASS`.
+The audit history is persisted at
+`auditoria/reviews/AUTOPILOT-R5-PYTHON-SDK-ADAPTER-IMPLEMENTATION-AUDIT.md`.
+It preserves the initial `P0=1 / P1=6 / P2=1`, Corrections 1 through 5, and the
+final independent `PASS` with no open P0/P1 or new finding. The accepted
+implementation is published; publication closure remains pending. The R5
+executor and correctors did not self-approve.
 
 ## Stop conditions
 
@@ -624,22 +635,26 @@ R3: CLOSED / HISTORICAL
 R4: IMPLEMENTED / ACCEPTED / PUBLISHED / CLOSED / HISTORICAL
 R4 P2: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R5_SCOPE
 Primary executor: Python SDK / PRIMARY
-Codex CLI: HISTORICAL R4 CAPABILITY / FALLBACK / DIAGNOSTIC
+Python SDK adapter: IMPLEMENTED / ACCEPTED / PUBLISHED / PRIMARY
+Codex CLI: IMPLEMENTED / PUBLISHED / HISTORICAL R4 CAPABILITY / FALLBACK / DIAGNOSTIC
 Automatic fallback: NOT_IMPLEMENTED / NOT_AUTHORIZED
 Workflow engine: NOT_IMPLEMENTED / NOT_AUTHORIZED
 R5 HANDOFF: MATERIALIZED / APPROVED / ACTIVE
 R5 HANDOFF AUDIT: PASS / P0=0 / P1=0 / P2=0
-R5 TARGET: AUTHORIZED_TO_START / NOT_STARTED
-R5 IMPLEMENTATION: AUTHORIZED_TO_START
+R5 TARGET: IMPLEMENTED / ACCEPTED / PUBLISHED
+R5 IMPLEMENTATION: ACCEPTED / PUBLISHED
+R5 IMPLEMENTATION AUDIT: PASS
+R5 TECHNICAL BLOCKERS: NONE
+R5 CLOSURE: PENDING
 ACTIVE_AUTOPILOT_HANDOFF: R5 Python SDK primary adapter
 R6: NOT_AUTHORIZED
 F2E: UNCHANGED
 auto_publish: false
-NEXT ALLOWED ACTION: EXECUTE_ACTIVE_AUTOPILOT_R5_PYTHON_SDK_ADAPTER
+NEXT ALLOWED ACTION: POST_PUBLICATION_RECONCILE_AND_CLOSE_AUTOPILOT_R5
 ```
 
 Current approved disposition:
 
 ```text
-R5 AUTHORITY ACTIVATED — READY TO IMPLEMENT
+R5 IMPLEMENTATION ACCEPTED / PUBLISHED — CLOSURE PENDING
 ```

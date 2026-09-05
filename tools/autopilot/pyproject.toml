@@ -8,7 +8,10 @@ version = "0.1.0"
 description = "Language-neutral bootstrap contracts for FeelingPilates Autopilot"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = ["openai-codex==0.147.0"]
+
+[tool.setuptools.data-files]
+"feelingpilates_autopilot/schemas" = ["schemas/agent-result.schema.json"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -122,7 +122,15 @@ def _runtime_usage(value: object) -> UsageRecord:
         raise ResultProtocolError("turn usage violates the domain contract") from exc
 
 
-def _parse_agent_result(value: object, request: ExecutionRequest, runtime_usage: UsageRecord | None) -> AgentResult:
+def parse_agent_result(
+    value: object, request: ExecutionRequest, runtime_usage: UsageRecord | None, *, adapter: str
+) -> AgentResult:
+    """Strictly translate one complete structured result from a trusted transport.
+
+    Transport adapters supply only their explicit provenance and directly
+    observed current-turn usage.  This deliberately shares R4's semantic
+    contract without allowing provider event shapes into the domain parser.
+    """
     result = _as_object(value, "agent result")
     allowed = {"schema_version", "workflow_id", "run_id", "role", "status", "gate", "gate_result", "summary", "session_reference", "usage_record", "findings", "test_evidence", "changed_paths", "recommendation", "requires_human_decision", "p1_correctable", "correction_artifact", "artifacts"}
     required = allowed - {"session_reference", "usage_record", "artifacts"}
@@ -166,7 +174,7 @@ def _parse_agent_result(value: object, request: ExecutionRequest, runtime_usage:
         raise ResultProtocolError("correction artifact is invalid")
     embedded = None
     if "usage_record" in result and result["usage_record"] is not None:
-        embedded = _strict_usage(result["usage_record"], adapter="codex-cli")
+        embedded = _strict_usage(result["usage_record"], adapter=adapter)
         if runtime_usage is None or embedded.measurements != runtime_usage.measurements:
             raise ResultProtocolError("embedded usage_record contradicts runtime usage")
     session = result.get("session_reference")
@@ -210,11 +218,24 @@ def parse_terminal(stdout: str, request: ExecutionRequest) -> ParsedTerminal:
         candidate = json.loads(candidate_texts[0])
     except (TypeError, json.JSONDecodeError) as exc:
         raise ResultProtocolError("terminal structured result is malformed") from exc
-    result = _parse_agent_result(candidate, request, runtime_usage)
+    result = parse_agent_result(candidate, request, runtime_usage, adapter="codex-cli")
     session_id = evidence.session_id()
     if result.session_reference != session_id and (result.session_reference is not None or session_id is not None):
         raise ResultProtocolError("agent result session reference conflicts with event evidence")
     return ParsedTerminal(result=result, session_id=session_id, usage=runtime_usage)
+
+
+def parse_structured_result(
+    text: object, request: ExecutionRequest, *, adapter: str, runtime_usage: UsageRecord | None
+) -> AgentResult:
+    """Decode exactly one bounded SDK final-response object; never repair JSON."""
+    if not isinstance(text, str):
+        raise ResultProtocolError("terminal structured result is missing")
+    try:
+        candidate = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ResultProtocolError("terminal structured result is malformed") from exc
+    return parse_agent_result(candidate, request, runtime_usage, adapter=adapter)
 
 
 def extract_session(stdout: str) -> str | None:

@@ -13,6 +13,10 @@
   },
   "r4_cli_adapter": {
     "role": "IMPLEMENTED_CANDIDATE_FALLBACK_DIAGNOSTIC",
+    "implementation": "IMPLEMENTED",
+    "publication": "PUBLISHED",
+    "routing": "FALLBACK",
+    "purpose": "DIAGNOSTIC",
     "structured_protocol": "IMPLEMENTED_CANDIDATE",
     "session_resume": "IMPLEMENTED_CANDIDATE",
     "timeout_cancellation_process_cleanup": "IMPLEMENTED_CANDIDATE",
@@ -21,6 +25,15 @@
       "allowed_values": ["low", "medium", "high", "xhigh"]
     },
     "workspace_authorization": "BOUNDED_TO_CONFIGURED_ROOT"
+  },
+  "r5_sdk_adapter": {
+    "role": "IMPLEMENTED_CANDIDATE_PRIMARY",
+    "package": "openai-codex==0.147.0",
+    "structured_result": "STRICT_R2_R4_SEMANTICS",
+    "session_resume": "IMPLEMENTED_CANDIDATE",
+    "timeout_cancellation": "IMPLEMENTED_CANDIDATE",
+    "event_collection": "BOUNDED",
+    "authentication": "LOCAL_CHATGPT_CODEX_LOGIN_NO_MANDATORY_API_KEY"
   },
   "architecture": {
     "python_sdk": "PRIMARY_ARCHITECTURE",

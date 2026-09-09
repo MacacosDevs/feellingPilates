@@ -36,13 +36,19 @@ P1-3: CLOSED_BY_CORRECTION_3_FINAL_FRESH_REAUDIT
 P1-4: CLOSED_BY_CORRECTION_3_FINAL_FRESH_REAUDIT
 P1-1/P1-2 REGRESSION: CLOSED / NO_REGRESSION
 HANDOFF_AUDIT: PASS
-TECHNICAL_AUTHORITY_BLOCKERS: NONE
+SEMANTIC_TECHNICAL_AUTHORITY_BLOCKERS: NONE
+IMPLEMENTATION_ALLOWLIST_BLOCKER: NONE
+INITIAL_IMPLEMENTATION_ATTEMPT: BLOCKED_BEFORE_ANY_CHANGE / HISTORICAL
+ALLOWLIST_AUTHORITY_CORRECTION.1: AUDITED / PUBLISHED
+ALLOWLIST_AUTHORITY_CORRECTION.1 AUDIT: PASS / P0=0 / P1=0 / P2=0
+ALLOWLIST_AUTHORITY_CORRECTION.1 REVIEW:
+  auditoria/reviews/AUTOPILOT-R6-ALLOWLIST-AUTHORITY-CORRECTION-1-AUDIT.md
 AUDIT: auditoria/reviews/AUTOPILOT-R6-WORKFLOW-ENGINE-HANDOFF-AUDIT.md
 ACTIVE_AUTOPILOT_HANDOFF: R6 WORKFLOW ENGINE
 R7: NOT_AUTHORIZED
 F2E: UNCHANGED
 auto_publish: false
-NEXT ALLOWED ACTION: EXECUTE_ACTIVE_AUTOPILOT_R6_WORKFLOW_ENGINE
+NEXT ALLOWED ACTION: RESUME_ACTIVE_AUTOPILOT_R6_WORKFLOW_ENGINE_IMPLEMENTATION
 ```
 
 The first fresh independent handoff audit has since completed with
@@ -1885,11 +1891,76 @@ No change is authorized for `AgentExecutor`, `ExecutionRequest`,
 future implementation cannot satisfy this contract within the exact allowlist,
 it must stop with `R6_ALLOWLIST_AUTHORITY_GAP` rather than substitute a path.
 
+## Implementation allowlist authority gap Correction.1
+
+The first R6 implementation attempt stopped before any change because the
+published 21-path allowlist omitted one existing regression test that must be
+reconciled with an authorized runtime-truth transition:
+
+```text
+Current runtime contract:
+  architecture.workflow_engine = NOT_IMPLEMENTED
+
+Required R6 implementation truth:
+  architecture.workflow_engine = IMPLEMENTED_CANDIDATE
+
+Conflicting existing assertion:
+  tools/autopilot/tests/test_codex_cli_command.py
+  asserts architecture.workflow_engine == NOT_IMPLEMENTED
+```
+
+`tools/autopilot/config/runtime-contract.json` is already an authorized R6
+path and must truthfully record the bounded engine once the implementation is
+materialized. Leaving the old value would make runtime documentation false.
+Changing that value while leaving the existing assertion unchanged would make
+the accepted R4 regression suite fail for a stale expectation. Deleting,
+skipping, weakening, or bypassing that test would not preserve R4 regression
+authority.
+
+A repository-wide search of `tools/autopilot/tests/**` found no other test that
+asserts `workflow_engine == NOT_IMPLEMENTED` or otherwise necessarily conflicts
+with this R6 runtime-contract transition. None of the original 21 paths can
+correct the stale assertion because the assertion is physically located in
+the omitted test. The authority gap is therefore exact and bounded to one
+additional future implementation path.
+
+The newly included path may be modified only to reconcile its runtime-contract
+expectation with this exact R6 candidate state. It must continue to prove:
+
+```text
+Codex CLI: IMPLEMENTED / PUBLISHED / FALLBACK / DIAGNOSTIC
+Python SDK: PUBLISHED / PRIMARY
+automatic fallback: NOT_IMPLEMENTED
+R4 CLI behavior: UNCHANGED
+R6 Workflow Engine: IMPLEMENTED_CANDIDATE
+R6 implementation lifecycle: NOT_YET_ACCEPTED / NOT_YET_PUBLISHED / NOT_CLOSED
+publisher: NOT_IMPLEMENTED
+auto_publish: false
+```
+
+This does not authorize unrelated refactoring, deletion, skipping, weakening,
+or redesign of R4 tests. It does not reopen R4, alter the R4 CLI adapter, or
+close R4 P2. Every audited R6 semantic contract, `workflow-definition-v1`, the
+DAG and transition matrix, action/attempt/execution contracts,
+`WorkflowObservationReceiptV1`, `ACTION -> RECEIPT -> EFFECT`, StateStore
+atomic authority, the `002` migration contract, all canonical goldens, and all
+deferred boundaries remain unchanged.
+
+The fresh bounded authority audit persisted at
+`auditoria/reviews/AUTOPILOT-R6-ALLOWLIST-AUTHORITY-CORRECTION-1-AUDIT.md`
+records `P0=0 / P1=0 / P2=0` and
+`READY_TO_PUBLISH_R6_ALLOWLIST_AUTHORITY_CORRECTION=SI`. The competent
+publication action now publishes this implementation-scope correction. R6
+remains `APPROVED / ACTIVE`; its implementation may resume within the exact
+corrected allowlist.
+
 ## Exact future R6 implementation allowlist
 
-The fresh independent handoff audit passed and the separate competent action
-approved and activated this exact target. An R6 executor may create or modify
-exactly these 21 paths:
+The original fresh independent handoff audit passed and the separate competent
+action approved and activated the R6 target with 21 paths. Audited and
+published Correction.1 preserves those 21 paths exactly and adds only the
+stale R4 runtime-contract regression test. An R6 executor may create or modify
+exactly these 22 paths:
 
 ```text
 tools/autopilot/README.md
@@ -1913,6 +1984,7 @@ tools/autopilot/tests/test_workflow_engine.py
 tools/autopilot/tests/test_workflow_effect_evidence.py
 tools/autopilot/tests/test_workflow_fail_closed.py
 tools/autopilot/tests/test_workflow_r2_r5_regression.py
+tools/autopilot/tests/test_codex_cli_command.py
 ```
 
 Allowlist rationale:
@@ -1927,9 +1999,12 @@ Allowlist rationale:
   side-effect sequencing;
 - `StateStore`, the SQLite adapter, and append-only migration provide the
   exact durable boundary R6 requires without changing R3's `001` history; and
-- the ten named test paths cover schema/runtime truth, migration and port
+- the original ten named test paths cover schema/runtime truth, migration and port
   deltas, pure policy, orchestration, side-effect evidence, fail-closed cases,
-  and accepted R2–R5 regression.
+  and accepted R2–R5 regression; and
+- `test_codex_cli_command.py` receives only the minimum expectation adjustment
+  required to preserve the R4 regression while global runtime truth records
+  the implemented R6 candidate.
 
 No `pyproject.toml` change is required: the existing package discovery includes
 the new application package, R6 adds no dependency, and normal tests remain
@@ -1937,12 +2012,18 @@ stdlib-only. No executor adapter, result parser, existing migration, product,
 F2E, Git, or orchestration-protocol document is in scope.
 
 ```text
-ALLOWLIST_COUNT: 21
+PREVIOUS_ALLOWLIST_COUNT: 21
+ALLOWLIST_COUNT: 22
+ADDED_PATH: tools/autopilot/tests/test_codex_cli_command.py
+OTHER_REQUIRED_PATHS_DISCOVERED: NONE
 ALLOWLIST_EXACT: PASS
 ALLOWLIST_SUFFICIENT: PASS
 ALLOWLIST_MINIMAL: PASS
+ALLOWLIST_CLOSED: PASS
 WILDCARDS: NONE
 KNOWN_PATH_GAP: NONE
+CORRECTION_LIFECYCLE: AUDITED / PUBLISHED
+CORRECTION_AUDIT: PASS / P0=0 / P1=0 / P2=0
 ```
 
 If implementation requires any different, renamed, additional, or substituted
@@ -2102,7 +2183,7 @@ NO_PREMATURE_NEXT_PHASE
 A later fresh implementation audit, if implementation becomes separately
 authorized, must additionally verify:
 
-- exact `21 / 21` touched-path scope and immutable `001_initial.sql`;
+- exact `22 / 22` touched-path scope and immutable `001_initial.sql`;
 - schema/graph strictness and canonical fingerprinting;
 - protocol decision matrix and applicability/lifecycle separation;
 - durable authorization-before-effect ordering under fault injection;
@@ -2197,12 +2278,21 @@ P1-3: CLOSED
 P1-4: CLOSED
 P1-1/P1-2 REGRESSION: CLOSED / NO_REGRESSION
 R6 HANDOFF AUDIT: PASS
-R6 TECHNICAL AUTHORITY BLOCKERS: NONE
+R6 SEMANTIC TECHNICAL AUTHORITY BLOCKERS: NONE
+R6 IMPLEMENTATION ALLOWLIST BLOCKER: NONE
+R6 INITIAL IMPLEMENTATION ATTEMPT: BLOCKED_BEFORE_ANY_CHANGE / HISTORICAL
+R6 PREVIOUS IMPLEMENTATION ALLOWLIST: 21 PATHS
+R6 CORRECTED FUTURE IMPLEMENTATION ALLOWLIST: 22 PATHS
+R6 ALLOWLIST AUTHORITY CORRECTION.1: AUDITED / PUBLISHED
+R6 ALLOWLIST AUTHORITY CORRECTION.1 AUDIT: PASS / P0=0 / P1=0 / P2=0
+R6 ALLOWLIST CORRECTION ADDED PATH:
+  tools/autopilot/tests/test_codex_cli_command.py
+R6 SEMANTIC CONTRACTS / GOLDENS: UNCHANGED
 ACTIVE_AUTOPILOT_HANDOFF: R6 WORKFLOW ENGINE
 R4 P2: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R6_SCOPE
 R2 Debt C: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R6_SCOPE
 R7: NOT_AUTHORIZED
 F2E: UNCHANGED
 auto_publish: false
-NEXT ALLOWED ACTION: EXECUTE_ACTIVE_AUTOPILOT_R6_WORKFLOW_ENGINE
+NEXT ALLOWED ACTION: RESUME_ACTIVE_AUTOPILOT_R6_WORKFLOW_ENGINE_IMPLEMENTATION
 ```

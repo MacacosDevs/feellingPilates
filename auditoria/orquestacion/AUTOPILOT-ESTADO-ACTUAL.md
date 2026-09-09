@@ -442,9 +442,10 @@ action authorization, same-owner normalization and durable receipt of an
 accepted `StateStore`. It does
 not own context compilation, model/executor routing, automatic fallback,
 retry/quota policy, recovery/reconciliation, Git/worktrees, publication,
-supervision/launchd, F2E, productive authority, or cutover. The exact future
-implementation allowlist is closed in the active handoff; implementation may
-now start only within those exact 21 paths.
+supervision/launchd, F2E, productive authority, or cutover. The original
+authority publication permitted implementation to start only within its exact
+21 paths. The bounded start then exposed the implementation-allowlist gap
+recorded below before any implementation change occurred.
 
 Corrections 1, 2, and 3 preserve the already-audited target, ordinal,
 critical-path selection, responsibility boundaries, existing exact goldens,
@@ -452,3 +453,62 @@ and exact 21-path future implementation allowlist. The final audit closes the
 remaining two findings; this authority publication activates that bounded
 implementation target without implementing it. R7 remains unauthorized, F2E
 remains unchanged, and `auto_publish=false` remains binding.
+
+## R6 implementation allowlist authority Correction.1 published — authoritative current state
+
+The R6 implementation attempt stopped before any change after independently
+identifying that its required update to
+`tools/autopilot/config/runtime-contract.json` would truthfully change
+`architecture.workflow_engine` from `NOT_IMPLEMENTED` to
+`IMPLEMENTED_CANDIDATE`, while the existing accepted R4 regression test
+`tools/autopilot/tests/test_codex_cli_command.py` asserts the old value and was
+not included in the published 21-path R6 allowlist.
+
+A repository-wide test search found no other assertion that necessarily
+conflicts with this runtime-contract transition. The correction preserves all
+21 published paths and adds only
+`tools/autopilot/tests/test_codex_cli_command.py`, with authority limited to
+the minimum expectation adjustment. R4 remains closed and historical; its CLI
+behavior and regression protection remain unchanged. All audited R6 semantic
+contracts and goldens remain unchanged.
+
+The fresh bounded authority audit persisted at
+`auditoria/reviews/AUTOPILOT-R6-ALLOWLIST-AUTHORITY-CORRECTION-1-AUDIT.md`
+records `P0=0 / P1=0 / P2=0`, all required gates `PASS`, and
+`READY_TO_PUBLISH_R6_ALLOWLIST_AUTHORITY_CORRECTION=SI`. The competent
+publication action publishes the corrected 22-path implementation authority
+and removes the bounded allowlist blocker.
+
+```text
+R4: IMPLEMENTED / ACCEPTED / PUBLISHED / CLOSED / HISTORICAL
+R4 CLI behavior: UNCHANGED
+R4 regression protection: PRESERVED
+R4 P2 — CAPABILITY_TIMEOUT_PRIMARY_CAUSE_MASKED_BY_PRE_REAP_GROUP_LIVENESS:
+  OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R6_SCOPE
+R5: IMPLEMENTED / ACCEPTED / PUBLISHED / CLOSED / HISTORICAL
+R6 handoff: MATERIALIZED / APPROVED / ACTIVE
+R6 target: SELECTED / AUTHORIZED_TO_START / NOT_STARTED
+R6 implementation authority: AUTHORIZED_TO_START
+R6 implementation execution: AUTHORIZED_TO_RESUME
+R6 initial implementation attempt: BLOCKED_BEFORE_ANY_CHANGE / HISTORICAL
+R6 implementation blocker: NONE
+R6 previous implementation allowlist: 21 PATHS
+R6 corrected future implementation allowlist: 22 PATHS
+R6 allowlist authority Correction.1: AUDITED / PUBLISHED
+R6 allowlist authority Correction.1 audit: PASS / P0=0 / P1=0 / P2=0
+R6 allowlist Correction.1 added path:
+  tools/autopilot/tests/test_codex_cli_command.py
+Other required paths discovered: NONE
+R6 semantic contracts: UNCHANGED
+R6 goldens: UNCHANGED
+Active Autopilot handoff: R6 Workflow Engine
+R7: NOT_AUTHORIZED
+F2E: UNCHANGED
+auto_publish: false
+Next permitted lifecycle action: RESUME_ACTIVE_AUTOPILOT_R6_WORKFLOW_ENGINE_IMPLEMENTATION
+```
+
+The corrected 22-path allowlist is independently audited and published as
+implementation authority. R6 remains active and implementation may resume.
+This correction publication does not itself modify `tools/autopilot`,
+implement R6, reopen R4, authorize R7, or execute F2E.

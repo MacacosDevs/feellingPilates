@@ -364,5 +364,91 @@ implementation of the existing provider-neutral `AgentExecutor`. R4 remains a
 separately selectable fallback/diagnostic capability; R5 contains no automatic
 CLI fallback or workflow policy. The published implementation is limited to
 the unchanged exact 12-path allowlist named in the now-historical R5 handoff.
-The next action is authority materialization for successor selection and
-boundary definition, not successor implementation.
+That post-R5 successor-selection action was completed by the bounded R6
+authority materialization. R5 remains closed and historical. The final fresh
+R6 handoff audit has now passed, and the separately authorized authority
+publication approves and activates the exact R6 handoff without claiming R6
+implementation.
+
+## R6 authority approved and active — authoritative current state
+
+Repository evidence selects the workflow decision/authorization gap as the
+next critical-path boundary. The exact candidate authority is materialized at
+`auditoria/handoffs/HANDOFF-AUTOPILOT-R6-WORKFLOW-ENGINE.md`. The first fresh
+independent handoff audit failed with four material contract-authority
+findings. Correction.1 materialized an initial freeze; its fresh bounded
+re-audit kept all four original P1 findings open with `NEW_P1=0` and confirmed
+the 21-path allowlist, 97/97 R2-R5 regression, and the then-applicable
+normative goldens.
+Correction.2 materialized the transition, effect-policy, selector, namespace,
+and initial relational authority. Its fresh re-audit closed P1-1 and P1-2,
+kept P1-3 and P1-4 open, and reported `NEW_P1=0`. Correction.3 now freezes the
+remaining observation-custody and R6 evidence-relational scope through a
+durable `WorkflowObservationReceiptV1` and the exact authoritative chain
+action authorization -> observation receipt -> effect. Raw observations are
+not transferable across owners; accepted R3 usage/session/failure/artifact
+records remain auxiliary evidence and are not effect-authority foreign-key
+targets. The final bounded fresh re-audit persisted at
+`auditoria/reviews/AUTOPILOT-R6-WORKFLOW-ENGINE-HANDOFF-AUDIT.md` closes P1-3
+and P1-4, preserves P1-1 and P1-2 as closed, reports
+`OPEN_P1=0 / NEW_P0=0 / NEW_P1=0 / NEW_P2=0`, and records `PASS` with
+`READY_TO_APPROVE_AND_ACTIVATE_R6_HANDOFF=SI`.
+
+Repository authority therefore approves and activates only the exact R6
+Workflow Engine handoff and its unchanged 21-path future implementation
+allowlist. This is authority publication: R6 remains not started and is not
+claimed implemented, accepted, implementation-published, closed, or
+historical.
+
+```text
+R3: CLOSED / HISTORICAL
+R4: IMPLEMENTED / ACCEPTED / PUBLISHED / CLOSED / HISTORICAL
+R5: IMPLEMENTED / ACCEPTED / PUBLISHED / CLOSED / HISTORICAL
+R5 handoff: APPROVED / CLOSED / HISTORICAL / NOT_ACTIVE
+Selected post-R5 successor: AUTOPILOT R6 — Workflow Engine
+R6 handoff: MATERIALIZED / APPROVED / ACTIVE
+R6 target: SELECTED / AUTHORIZED_TO_START / NOT_STARTED
+R6 implementation: AUTHORIZED_TO_START
+R6 initial handoff audit: FAIL / P0=0 / P1=4 / P2=0
+R6 Correction.1: MATERIALIZED
+R6 Correction.1 fresh re-audit: FAIL / P0=0 / OPEN_P1=4 / NEW_P1=0 / P2=0
+R6 Correction.2: MATERIALIZED
+R6 Correction.2 fresh re-audit: FAIL / P0=0 / OPEN_P1=2 / NEW_P0=0 / NEW_P1=0 / NEW_P2=0
+P1-1 — WORKFLOW_DEFINITION_AND_CANONICALIZATION_AUTHORITY_UNFROZEN:
+  CLOSED_BY_CORRECTION_2_FRESH_REAUDIT
+P1-2 — ACTION_ATTEMPT_EXECUTION_AND_EFFECT_CONTRACT_UNFROZEN:
+  CLOSED_BY_CORRECTION_2_FRESH_REAUDIT
+R6 Correction.3: MATERIALIZED
+R6 final two-finding fresh re-audit: PASS / OPEN_P1=0 / NEW_P0=0 / NEW_P1=0 / NEW_P2=0
+P1-3 — OBSERVATION_CUSTODY_AUTHORITY_UNFROZEN: CLOSED
+P1-4 — R6_EVIDENCE_RELATIONAL_SCOPE_UNFROZEN: CLOSED
+P1-1/P1-2 regression: CLOSED / NO_REGRESSION
+R6 handoff audit: PASS
+R6 technical authority blockers: NONE
+Active Autopilot handoff: R6 Workflow Engine
+R4 P2 — CAPABILITY_TIMEOUT_PRIMARY_CAUSE_MASKED_BY_PRE_REAP_GROUP_LIVENESS:
+  OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R6_SCOPE
+R2 Debt C — attached branch without upstream behavioral coverage:
+  OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R6_SCOPE
+R7: NOT_AUTHORIZED
+F2E: UNCHANGED
+auto_publish: false
+Next permitted lifecycle action: EXECUTE_ACTIVE_AUTOPILOT_R6_WORKFLOW_ENGINE
+```
+
+R6 is bounded to deterministic workflow/gate decisions, pre-effect durable
+action authorization, same-owner normalization and durable receipt of an
+`ExecutionObservation`, and durable decision/effect evidence through the
+accepted `StateStore`. It does
+not own context compilation, model/executor routing, automatic fallback,
+retry/quota policy, recovery/reconciliation, Git/worktrees, publication,
+supervision/launchd, F2E, productive authority, or cutover. The exact future
+implementation allowlist is closed in the active handoff; implementation may
+now start only within those exact 21 paths.
+
+Corrections 1, 2, and 3 preserve the already-audited target, ordinal,
+critical-path selection, responsibility boundaries, existing exact goldens,
+and exact 21-path future implementation allowlist. The final audit closes the
+remaining two findings; this authority publication activates that bounded
+implementation target without implementing it. R7 remains unauthorized, F2E
+remains unchanged, and `auto_publish=false` remains binding.

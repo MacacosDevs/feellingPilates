@@ -512,3 +512,53 @@ The corrected 22-path allowlist is independently audited and published as
 implementation authority. R6 remains active and implementation may resume.
 This correction publication does not itself modify `tools/autopilot`,
 implement R6, reopen R4, authorize R7, or execute F2E.
+
+## R6 implementation audit failed; implementation Correction.1 authority published and active — authoritative current state
+
+The authorized R6 implementation candidate subsequently materialized as an
+authorized dirty baseline over 19 paths, all inside the exact published
+22-path allowlist. A fresh independent implementation audit failed with three
+P0, six P1, and one nonblocking P2 finding. The result is persisted at
+`auditoria/reviews/AUTOPILOT-R6-WORKFLOW-ENGINE-IMPLEMENTATION-AUDIT.md`.
+
+The blocking findings are P0-1 through P1-6. The exact bounded correction
+authority was materialized at
+`auditoria/handoffs/HANDOFF-AUTOPILOT-R6-WORKFLOW-ENGINE-IMPLEMENTATION-CORRECTION-1.md`.
+Its fresh independent authority audit at
+`auditoria/reviews/AUTOPILOT-R6-WORKFLOW-ENGINE-IMPLEMENTATION-CORRECTION-1-AUTHORITY-AUDIT.md`
+passed with `P0=0 / P1=0 / P2=0`. The competent documentation-only publication
+therefore approves, activates, publishes, and makes Correction.1 executable.
+It preserves the approved R6 semantics, exact 22-path implementation allowlist,
+and dirty implementation candidate. It does not accept or publish the
+implementation and does not authorize R7 or F2E.
+
+```text
+Authority base: 6005319aebe7f23814f7d270555faa2f7cda03b4
+R6: APPROVED / ACTIVE
+R6 implementation candidate: MATERIALIZED / AUTHORIZED_DIRTY /
+  AUDIT_FAILED / CORRECTION_REQUIRED / NOT_ACCEPTED / NOT_PUBLISHED
+R6 implementation dirty paths: 19
+R6 implementation allowlist: 22 / EXACT / UNCHANGED
+Candidate paths outside allowlist: 0
+Fresh R6 implementation audit: FAIL / P0=3 / P1=6 / P2=1
+READY_TO_ACCEPT_R6_IMPLEMENTATION: NO
+Correction.1 authority: APPROVED / ACTIVE / PUBLISHED / EXECUTABLE
+Correction.1 fresh authority audit: PASS / P0=0 / P1=0 / P2=0
+Correction.1 authority audit result: PASS
+Correction.1 blocking scope: P0-1 / P0-2 / P0-3 /
+  P1-1 / P1-2 / P1-3 / P1-4 / P1-5 / P1-6
+P2-1: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_CORRECTION_1
+R4 P2 — CAPABILITY_TIMEOUT_PRIMARY_CAUSE_MASKED_BY_PRE_REAP_GROUP_LIVENESS:
+  OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R6_CORRECTION_SCOPE
+READY_TO_CORRECT_R6_IMPLEMENTATION: SI
+READY_TO_PUBLISH_R6_CORRECTION_1_AUTHORITY: SI / CONSUMED_BY_PUBLICATION
+Correction.1 authority publication: COMPLETE / PUBLISHED
+Active Autopilot handoff: R6 Workflow Engine
+R7: NOT_AUTHORIZED
+F2E: UNCHANGED / NOT_EXECUTED
+auto_publish: false
+Forward Lane: WAITING_FOR_MAIN
+Forward Lane resync required: NO
+Next permitted lifecycle action:
+  EXECUTE_R6_IMPLEMENTATION_CORRECTION_1_P0_1_THROUGH_P1_6
+```

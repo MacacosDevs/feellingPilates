@@ -532,14 +532,29 @@ It preserves the approved R6 semantics, exact 22-path implementation allowlist,
 and dirty implementation candidate. It does not accept or publish the
 implementation and does not authorize R7 or F2E.
 
+Correction execution subsequently materialized P0-1 through P1-3. The
+candidate now spans 20 paths, all inside the same exact 22-path allowlist. The
+P1-4 executor then stopped before modification because the authority freezes
+the three supporting indexes' uniqueness and ordered column tuples but not
+their exact names, while its instruction required exact names and prohibited
+inventing them. The minimal naming clarification is persisted at
+`auditoria/reviews/AUTOPILOT-R6-CORRECTION-1-P1-4-INDEX-NAMING-AUTHORITY-GAP.md`.
+The fresh independent audit persisted at
+`auditoria/reviews/AUTOPILOT-R6-CORRECTION-1-P1-4-INDEX-NAMING-AUTHORITY-AUDIT.md`
+passed with `P0=0 / P1=0 / P2=0`. The competent documentation-only publication
+closes only the naming authority gap and makes the non-semantic clarification
+binding. P1-4 itself remains open and is now authorized to resume.
+
 ```text
 Authority base: 6005319aebe7f23814f7d270555faa2f7cda03b4
 R6: APPROVED / ACTIVE
 R6 implementation candidate: MATERIALIZED / AUTHORIZED_DIRTY /
   AUDIT_FAILED / CORRECTION_REQUIRED / NOT_ACCEPTED / NOT_PUBLISHED
-R6 implementation dirty paths: 19
+R6 implementation dirty paths: 20
 R6 implementation allowlist: 22 / EXACT / UNCHANGED
 Candidate paths outside allowlist: 0
+Current implementation candidate fingerprint:
+  7925a0d6e15bce4e2be87df5b6391c426f9f3ab88d3db077bfab774c0b25181a
 Fresh R6 implementation audit: FAIL / P0=3 / P1=6 / P2=1
 READY_TO_ACCEPT_R6_IMPLEMENTATION: NO
 Correction.1 authority: APPROVED / ACTIVE / PUBLISHED / EXECUTABLE
@@ -547,6 +562,23 @@ Correction.1 fresh authority audit: PASS / P0=0 / P1=0 / P2=0
 Correction.1 authority audit result: PASS
 Correction.1 blocking scope: P0-1 / P0-2 / P0-3 /
   P1-1 / P1-2 / P1-3 / P1-4 / P1-5 / P1-6
+Correction.1 overall: ACTIVE
+P0-1: CORRECTION_MATERIALIZED
+P0-2: CORRECTION_MATERIALIZED
+P0-3: CORRECTION_MATERIALIZED
+P1-1: CORRECTION_MATERIALIZED
+P1-2: CORRECTION_MATERIALIZED
+P1-3: CORRECTION_MATERIALIZED
+P1-4: READY_TO_RESUME / IMPLEMENTATION_FINDING_OPEN /
+  AUTHORIZED_TO_RESUME
+P1-5: OPEN
+P1-6: OPEN
+Index naming authority correction:
+  APPROVED / ACTIVE / PUBLISHED / EXECUTABLE
+P1-4 index naming authority audit: PASS / P0=0 / P1=0 / P2=0
+P1-4 index name authority gap: CLOSED
+R6_SUPPORTING_INDEX_NAME_AUTHORITY: IMPLEMENTATION_DEFINED / NON_SEMANTIC
+READY_TO_RESUME_P1_4: SI
 P2-1: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_CORRECTION_1
 R4 P2 — CAPABILITY_TIMEOUT_PRIMARY_CAUSE_MASKED_BY_PRE_REAP_GROUP_LIVENESS:
   OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R6_CORRECTION_SCOPE
@@ -560,5 +592,5 @@ auto_publish: false
 Forward Lane: WAITING_FOR_MAIN
 Forward Lane resync required: NO
 Next permitted lifecycle action:
-  EXECUTE_R6_IMPLEMENTATION_CORRECTION_1_P0_1_THROUGH_P1_6
+  RESUME_R6_CORRECTION_1_P1_4_RELATIONAL_AUTHORITY_IMPLEMENTATION
 ```

@@ -14,7 +14,9 @@ PRESERVE_DIRTY_IMPLEMENTATION / NO_IMPLEMENTATION / NO_R7 / NO_F2E`
 
 ```text
 Correction: AUTOPILOT-R6-WORKFLOW-ENGINE-IMPLEMENTATION-CORRECTION-1
-Status: APPROVED / ACTIVE / PUBLISHED / EXECUTABLE
+Status: APPROVED / ACTIVE / PUBLISHED
+Execution: P0-1_THROUGH_P1-3_CORRECTIONS_MATERIALIZED /
+  P1-4_READY_TO_RESUME
 Authority base: 6005319aebe7f23814f7d270555faa2f7cda03b4
 Parent R6 authority: auditoria/handoffs/HANDOFF-AUTOPILOT-R6-WORKFLOW-ENGINE.md
 Source audit: auditoria/reviews/AUTOPILOT-R6-WORKFLOW-ENGINE-IMPLEMENTATION-AUDIT.md
@@ -28,14 +30,23 @@ R6 implementation candidate: AUTHORIZED_DIRTY / AUDIT_FAILED /
   CORRECTION_REQUIRED / NOT_ACCEPTED / NOT_PUBLISHED
 READY_TO_PUBLISH_R6_CORRECTION_1_AUTHORITY: SI / CONSUMED_BY_PUBLICATION
 CORRECTION_1_AUTHORITY_PUBLICATION: COMPLETE / PUBLISHED
+Index naming authority correction:
+  APPROVED / ACTIVE / PUBLISHED / EXECUTABLE
+P1_4_INDEX_NAMING_AUTHORITY: APPROVED / ACTIVE / EXECUTABLE
+P1_4_INDEX_NAMING_FRESH_AUDIT: PASS / P0=0 / P1=0 / P2=0
+P1_4_INDEX_NAMING_AUTHORITY_AUDIT:
+  auditoria/reviews/AUTOPILOT-R6-CORRECTION-1-P1-4-INDEX-NAMING-AUTHORITY-AUDIT.md
+P1_4_INDEX_NAME_AUTHORITY_GAP: CLOSED
 READY_TO_CORRECT_R6_IMPLEMENTATION: SI
+READY_TO_RESUME_P1_4: SI
 READY_TO_ACCEPT_R6_IMPLEMENTATION: NO
 R7: NOT_AUTHORIZED
 F2E: UNCHANGED / NOT_EXECUTED
 auto_publish: false
 Forward Lane: WAITING_FOR_MAIN
 Forward Lane resync required: NO
-NEXT ACTION: EXECUTE_R6_IMPLEMENTATION_CORRECTION_1_P0_1_THROUGH_P1_6
+NEXT ACTION:
+  RESUME_R6_CORRECTION_1_P1_4_RELATIONAL_AUTHORITY_IMPLEMENTATION
 ```
 
 The fresh independent authority audit accepted this exact bounded handoff with
@@ -341,6 +352,95 @@ and control/version relationship. SQLite itself must reject cross-scope and
 contradictory direct inserts. `001_initial.sql` and accepted R3 checksum/order/
 reopen behavior remain unchanged.
 
+### P1-4 supporting-index name authority clarification
+
+The P1-4 executor stopped before modifying Migration 002 because the published
+authority froze exact index structures but did not freeze exact index names,
+while its instruction required exact names and prohibited inventing them. The
+gap is persisted at
+`auditoria/reviews/AUTOPILOT-R6-CORRECTION-1-P1-4-INDEX-NAMING-AUTHORITY-GAP.md`.
+
+The fresh independent audit at
+`auditoria/reviews/AUTOPILOT-R6-CORRECTION-1-P1-4-INDEX-NAMING-AUTHORITY-AUDIT.md`
+passed with `P0=0 / P1=0 / P2=0`; competent publication makes this
+clarification binding Correction.1 authority.
+
+This binding clarification is:
+
+```text
+R6_SUPPORTING_INDEX_NAME_AUTHORITY:
+  IMPLEMENTATION_DEFINED / NON_SEMANTIC
+
+Index naming authority correction:
+  APPROVED / ACTIVE / PUBLISHED / EXECUTABLE
+
+P1_4_INDEX_NAMING_AUTHORITY:
+  APPROVED / ACTIVE / EXECUTABLE
+
+FRESH_AUDIT:
+  PASS / P0=0 / P1=0 / P2=0
+
+P1-4:
+  READY_TO_RESUME / IMPLEMENTATION_FINDING_OPEN
+
+READY_TO_RESUME_P1_4:
+  SI
+```
+
+Exact names are not workflow semantics, durable identity, relational identity,
+migration identity as independent semantic authority, application API, or
+runtime contract. The implementation must choose valid SQLite identifiers that
+are unique in the schema. Runtime and application logic must not depend on
+them. After the corrected Migration 002 is accepted and published, the chosen
+name spellings are fixed indirectly as part of its immutable migration bytes
+and checksum authority.
+
+The exact structural authority remains three explicit unique indexes and only
+these three:
+
+```text
+Index A
+  table: attempts
+  unique: YES
+  ordered columns: run_id, phase_id, attempt_id, ordinal
+  name: IMPLEMENTATION_DEFINED
+
+Index B
+  table: leases
+  unique: YES
+  ordered columns: lease_id, run_id, holder,
+                   protected_resource_key, fencing_token
+  name: IMPLEMENTATION_DEFINED
+
+Index C
+  table: idempotency_records
+  unique: YES
+  ordered columns: idempotency_key, operation_kind,
+                   canonical_operation_identity, payload_fingerprint
+  name: IMPLEMENTATION_DEFINED
+```
+
+No fourth explicit R6 supporting index is authorized. No tuple may omit,
+reorder, or add a column, and all three remain `UNIQUE`.
+
+`sqlite_autoindex_*` indexes created internally by SQLite for table `PRIMARY
+KEY` or `UNIQUE` constraints are not explicit Migration 002 supporting indexes
+and are excluded from the explicit count of three.
+
+P1-4 acceptance tests must introspect schema structure rather than assert
+arbitrary names. They must prove exactly one explicit unique index for each
+frozen table/ordered-column tuple, exactly three such indexes in total, and
+failure for a missing tuple, reordered tuple, extra column, non-unique index,
+or extra explicit supporting index. They may verify only that implementation-
+defined identifiers are valid, schema-unique, and stable in the actual
+Migration 002 bytes.
+
+All other P1-4 requirements remain unchanged, including the exact nine tables,
+columns, keys, composite FKs, R3 bindings, action/receipt/effect chain, fence
+evidence, CHECK constraints, invalid-SQL matrix, reopen behavior, checksum,
+and checksum drift. The 22-path allowlist remains exact and unchanged; no new
+migration or implementation path is authorized.
+
 ## P1-5 correction authority — policy-driven atomic finalization
 
 The finalization order is binding:
@@ -521,3 +621,36 @@ Forward Lane: WAITING_FOR_MAIN
 Forward Lane resync required: NO
 NEXT ACTION: EXECUTE_R6_IMPLEMENTATION_CORRECTION_1_P0_1_THROUGH_P1_6
 ```
+
+## P1-4 index naming authority gap closed — implementation ready to resume
+
+```text
+Correction.1 overall: ACTIVE
+P0-1: CORRECTION_MATERIALIZED
+P0-2: CORRECTION_MATERIALIZED
+P0-3: CORRECTION_MATERIALIZED
+P1-1: CORRECTION_MATERIALIZED
+P1-2: CORRECTION_MATERIALIZED
+P1-3: CORRECTION_MATERIALIZED
+P1-4: READY_TO_RESUME / IMPLEMENTATION_FINDING_OPEN /
+  AUTHORIZED_TO_RESUME
+P1-5: OPEN
+P1-6: OPEN
+Index naming authority correction:
+  APPROVED / ACTIVE / PUBLISHED / EXECUTABLE
+P1_4_INDEX_NAME_AUTHORITY_GAP: CLOSED
+P1_4_INDEX_NAMING_FRESH_AUDIT: PASS / P0=0 / P1=0 / P2=0
+READY_TO_RESUME_P1_4: SI
+READY_TO_ACCEPT_R6_IMPLEMENTATION: NO
+R7: NOT_AUTHORIZED
+auto_publish: false
+Forward Lane: WAITING_FOR_MAIN
+Forward Lane resync required: NO
+NEXT ACTION:
+  RESUME_R6_CORRECTION_1_P1_4_RELATIONAL_AUTHORITY_IMPLEMENTATION
+```
+
+The authority gap alone is closed. P1-4 remains an open implementation finding
+and is now authorized to resume under this exact clarification. This
+publication does not materialize, close, accept, or publish the P1-4
+implementation and does not authorize P1-5, P1-6, or R7 work.

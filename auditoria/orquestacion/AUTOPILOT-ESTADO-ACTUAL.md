@@ -594,3 +594,123 @@ Forward Lane resync required: NO
 Next permitted lifecycle action:
   RESUME_R6_CORRECTION_1_P1_4_RELATIONAL_AUTHORITY_IMPLEMENTATION
 ```
+
+## R6 Correction.1 implementation re-audit failed with partial closure; Correction.2 authority materialized — authoritative current state
+
+Correction.1 execution subsequently produced an R6 implementation candidate
+over exactly 22 dirty implementation paths, all inside the unchanged published
+22-path allowlist. Its current candidate fingerprint is
+`feb1c8a8a56f2d5dd33c14ba7e289a3620e5c7e7815c0681df60b68d7ec24ce0`.
+
+The fresh independent Correction.1 implementation re-audit is persisted at
+`auditoria/reviews/AUTOPILOT-R6-WORKFLOW-ENGINE-CORRECTION-1-IMPLEMENTATION-REAUDIT.md`.
+It failed with partial closure: P0-1, P1-1, and P1-5 are closed; P0-2,
+P0-3, P1-2, P1-3, P1-4, and P1-6 remain blocking. It discovered no new
+findings (`P0=0 / P1=0 / P2=0`). Focused and complete green test suites do
+not override the reproduced semantic and relational failures.
+
+The exact bounded Correction.2 authority is materialized at
+`auditoria/handoffs/HANDOFF-AUTOPILOT-R6-WORKFLOW-ENGINE-IMPLEMENTATION-CORRECTION-2.md`.
+It is pending a fresh independent authority audit and is not executable. It
+does not reopen the three closed findings, expand the implementation allowlist,
+accept or publish the R6 implementation, authorize R7, execute F2E, or release
+the Forward Lane.
+
+```text
+Authority base: da5b119d0819f2dcca74a9a71331394b0f752870
+R6: APPROVED / ACTIVE
+R6 implementation: CORRECTION_MATERIALIZED / REAUDIT_FAILED /
+  CORRECTION_REQUIRED / NOT_ACCEPTED / NOT_PUBLISHED
+Correction.1: APPROVED / ACTIVE / PUBLISHED / EXECUTED /
+  REAUDIT_FAILED / PARTIAL_CLOSURE
+Correction.1 implementation re-audit: FAIL / NEW_P0=0 / NEW_P1=0 / NEW_P2=0
+Closed findings: P0-1 / P1-1 / P1-5
+Residual blocking findings: P0-2 / P0-3 / P1-2 / P1-3 / P1-4 / P1-6
+Correction.2: MATERIALIZED / PENDING_FRESH_AUDIT / NOT_EXECUTABLE
+Correction.2 scope: P0-2 / P0-3 / P1-2 / P1-3 / P1-4 / P1-6
+READY_TO_EXECUTE_CORRECTION_2: NO
+READY_TO_ACCEPT_R6_IMPLEMENTATION: NO
+R6 implementation dirty paths: 22
+R6 implementation allowlist: 22 / EXACT / UNCHANGED
+Candidate paths outside allowlist: 0
+Current implementation candidate fingerprint:
+  feb1c8a8a56f2d5dd33c14ba7e289a3620e5c7e7815c0681df60b68d7ec24ce0
+P2-1: OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_CORRECTION_2
+R4 P2 — CAPABILITY_TIMEOUT_PRIMARY_CAUSE_MASKED_BY_PRE_REAP_GROUP_LIVENESS:
+  OPEN / NON_BLOCKING / CARRY_FORWARD / OUTSIDE_R6_CORRECTION_SCOPE
+R7: NOT_AUTHORIZED
+F2E: UNCHANGED / NOT_EXECUTED
+auto_publish: false
+Forward Lane: WAITING_FOR_MAIN
+Forward Lane resync required: NO
+Next permitted lifecycle action:
+  FRESH_INDEPENDENT_AUDIT_R6_CORRECTION_2_AUTHORITY
+```
+
+## Autopilot paused by product priority; R6 Correction.2 authority audit failed — authoritative current state
+
+Autopilot is intentionally paused as of 2026-09-13 so work can return to the
+FeelingPilates product. It is not abandoned, reverted, superseded, discarded,
+or closed. R6 remains approved and active but paused. Its exact 22-path dirty
+implementation candidate remains preserved for a future controlled resumption.
+
+The fresh independent Correction.2 authority audit is persisted at
+`auditoria/reviews/AUTOPILOT-R6-CORRECTION-2-AUTHORITY-AUDIT.md`. It failed
+with `P0=0 / P1=2 / P2=0`: P1-A identifies an overlapping, incompletely
+discriminated policy compatibility matrix; P1-B identifies a non-exact result/
+idempotency contract that conflicts with parent R6. Correction.2 therefore
+requires an authority correction and is not executable.
+
+The durable, self-contained pause and resume checkpoint is persisted at
+`auditoria/handoffs/HANDOFF-AUTOPILOT-PAUSE-PRODUCT-PRIORITY-2026-09-13.md`.
+Future resumption must preserve and reconcile the dirty candidate before the
+exact next authority action. Product work is not blocked by this pause.
+
+```text
+AUTOPILOT: PAUSED_BY_PRODUCT_PRIORITY
+PAUSE_DATE: 2026-09-13
+
+R0: CLOSED / HISTORICAL
+R1: CLOSED / HISTORICAL
+R2: CLOSED / HISTORICAL
+R3: CLOSED / HISTORICAL
+R4: CLOSED / HISTORICAL
+R5: CLOSED / HISTORICAL
+R6: APPROVED / ACTIVE / PAUSED / NOT_CLOSED
+R6 implementation: AUTHORIZED_DIRTY / CORRECTION_REQUIRED /
+  NOT_ACCEPTED / NOT_PUBLISHED
+Implementation paths: 22 / EXACT PUBLISHED ALLOWLIST
+Implementation candidate fingerprint:
+  feb1c8a8a56f2d5dd33c14ba7e289a3620e5c7e7815c0681df60b68d7ec24ce0
+
+Correction.1: EXECUTED / REAUDIT_FAILED / PARTIAL_CLOSURE
+Correction.1 closed: P0-1 / P1-1 / P1-5
+Correction.1 residual: P0-2 / P0-3 / P1-2 / P1-3 / P1-4 / P1-6
+
+Correction.2: MATERIALIZED / AUTHORITY_AUDIT_FAILED /
+  AUTHORITY_CORRECTION_REQUIRED / NOT_EXECUTABLE
+Correction.2 authority audit: FAIL / P0=0 / P1=2 / P2=0
+Correction.2 authority residuals:
+  P1-A — policy compatibility matrix ambiguity
+  P1-B — typed result/idempotency authority contradiction/non-exactness
+READY_TO_PUBLISH_R6_CORRECTION_2_AUTHORITY: NO
+READY_TO_EXECUTE_CORRECTION_2: NO
+READY_TO_ACCEPT_R6_IMPLEMENTATION: NO
+
+NEXT_RESUME_ACTION:
+  MATERIALIZE_AUTOPILOT_R6_CORRECTION_2_AUTHORITY_CORRECTION_1
+
+Forward: WAITING_FOR_MAIN
+FORWARD_LANE_RESYNC_REQUIRED: NO
+E2E Lab: INDEPENDENT / ADVISORY / NON_CANONICAL / NON_BLOCKING
+R7: NOT_AUTHORIZED
+F2E: NOT_EXECUTED
+auto_publish: false
+
+Product backend repository:
+  /Users/jesusaldaircruzortiz/Desktop/Feelingpilates/feelingpilates
+Autopilot repository/worktree:
+  /Users/jesusaldaircruzortiz/Desktop/Feelingpilates/feelingpilates-autopilot-r1
+Autopilot blocks product development: NO
+Product work may resume: YES
+```

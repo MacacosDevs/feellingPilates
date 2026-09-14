@@ -1,11 +1,11 @@
 # FeelingPilates — Estado actual de la reestructuración
 
 Status: CANONICAL
-Last updated: 2026-09-03
+Last updated: 2026-09-13
 Repository verification: VERIFIED
 Last verified against commit:
-f6b5ed7c5729502e856f0d088cddc52de5662527
-Verification scope: cierre documental del corrective design F2E adapters/snapshot — authority gap R1; audit final PASS persistido, dark launch y autoridad productiva preservados
+f23e91390d21ebd06040f3ed60f631e05d23d653
+Verification scope: publicación, cierre y activación del handoff F2E R1 auditado; implementación autorizada y no iniciada, dark launch y autoridad productiva preservados
 
 La referencia anterior identifica la base histórica de esta materialización documental. No sustituye el `HEAD` operativo, que debe obtenerse mediante pre-flight en cada intervención.
 
@@ -363,52 +363,66 @@ El diseño adapters/snapshot original conserva su `PASS` histórico. Esta unidad
 reabre: permanece `COMPLETED / CLOSED / PASS / HISTORICAL`. Un re-audit downstream posterior de
 R1 identificó un nuevo residual authority gap, con alcance distinto y sin alterar este cierre.
 
-## Handoff activo — F2E adapters/snapshot residual authority gap R1 provenance + JPA transaction topology
+## Unidad cerrada — F2E adapters/snapshot residual authority gap R1 provenance + JPA transaction topology
 
 ```text
-ACTIVE HANDOFF: auditoria/handoffs/HANDOFF-F2E-ADAPTERS-SNAPSHOT-DESIGN-AUTHORITY-GAP-R1-PROVENANCE-JPA-TX.md
 TARGET: F2E / adapters-snapshot design — residual authority gap R1 provenance + JPA transaction topology
 TYPE: DESIGN / RESEARCH — CORRECTIVE AMENDMENT
-HANDOFF: MATERIALIZED / APPROVED / ACTIVE
-TARGET: AUTHORIZED_TO_START / NOT_STARTED
-NEXT ALLOWED ACTION: EXECUTE_ACTIVE_RESIDUAL_CORRECTIVE_DESIGN_TARGET
+STATUS: COMPLETED / CLOSED / PUBLISHED
+FRESH_INDEPENDENT_DESIGN_AUDIT: PASS
+P0 / P1 / P2: 0 / 0 / 0
+PUBLICATION COMMIT: f23e91390d21ebd06040f3ed60f631e05d23d653
+PUBLISHED DESIGN SHA-256: 6c72cba1f83fbc2bcf3b3219d8252d2410ec482e30ae85d30fd2eeb04e8883d8
 TARGET CANONICAL: auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md
-TARGET EXECUTION ALLOWLIST: EXACTLY_ONE_FILE — auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md
-PREVIOUS CORRECTIVE HANDOFF: COMPLETED / CLOSED / PASS / HISTORICAL / NOT_ACTIVE
+FINAL REVIEW: auditoria/reviews/F2E-ADAPTERS-SNAPSHOT-RESIDUAL-AUTHORITY-GAP-R1-PROVENANCE-JPA-TX-DESIGN-REVIEW.md
+CORRECTIVE HANDOFF: COMPLETED / CLOSED / HISTORICAL / NOT_ACTIVE
+CORRECTIVE DESIGN HANDOFF ACTIVE: NINGUNO
+DOWNSTREAM R1 HANDOFF: ver unidad activa a continuación
 ```
 
-The active target may close only identity/provenance authority (identity grammar,
-`executionProvenanceId`, `logicalSnapshotId`, `sourceFingerprint`, `snapshotIdentity`, canonical
-scope, projection catalog version, provenance shape, golden vectors and cross-consistency) and
-JPA transaction/resource authority (reader TM, main/test coupling, reader and probe EM paths,
-inspector path, same-resource graph, exact names/qualifiers, proxy path and reader isolation).
-It may not redesign P1-1 allowlist closure, P1-4 SQL/checksum closure, query/read semantics,
-historical target `ALWAYS_EMPTY`, propagation, isolation, readOnly, ownership, failure vocabulary,
-`ReservationReadException`, SQL/checksum canonicalization or the pure detector.
+La enmienda residual publicada cierra exclusivamente la autoridad de identidad/provenance V2 y la
+topología JPA de transacción/recurso R1. Las marcas internas `NOT_SELF_APPROVED` y
+`PENDING_FRESH_AUDIT` del checkpoint conservan el estado histórico de la candidate al momento de
+ser escrita; el lifecycle posterior competente queda persistido por este canónico y por el review
+fresh independiente. Esa publicación del diseño no aprobó ni activó por sí sola el handoff R1;
+la auditoría fresh posterior y la transición competente se registran a continuación.
 
-## Downstream R1 preservado
+## Handoff activo — F2E R1 reserva reader JPA read-only
 
 ```text
-R1 draft physical content: PREEXISTING / UNCHANGED
-R1 frozen SHA-256: b65965288c0840934f4db301b7d81efb5ac818640958863902e62ea7f4897185
-R1 lifecycle: MATERIALIZED / NOT_APPROVED / NOT_ACTIVE / IMPLEMENTATION_NOT_AUTHORIZED
-R1 implementation: NOT_STARTED / NOT_AUTHORIZED
-R1 P1-1: CLOSED
-R1 P1-2: OPEN / WAITING_FOR_ACTIVE_CORRECTIVE_DESIGN
-R1 P1-3: OPEN / WAITING_FOR_ACTIVE_CORRECTIVE_DESIGN
-R1 P1-4: CLOSED
+F2E R1 residual design: PUBLISHED / CLOSED
+R1 handoff physical content: CORRECTED_TO_FINAL_V2_DESIGN_AUTHORITY
+ACTIVE HANDOFF: auditoria/handoffs/HANDOFF-F2E-R1-RESERVA-READER-JPA-READ-ONLY.md
+AUDITED HANDOFF SHA-256: 3fd71faca4d4c049ad5cb37b52bc6fd512509cf5b696bdc5c28d28cb966af8ef
+PUBLISHED DESIGN SHA-256: 6c72cba1f83fbc2bcf3b3219d8252d2410ec482e30ae85d30fd2eeb04e8883d8
+FRESH_INDEPENDENT_HANDOFF_DOCUMENT_AUDIT: PASS
+P0 / P1 / P2: 0 / 0 / 0
+READY_TO_APPROVE_F2E_R1_HANDOFF: YES
+HANDOFF AUDIT REVIEW: auditoria/reviews/HANDOFF-F2E-R1-RESERVA-READER-JPA-READ-ONLY-REVIEW.md
+R1 handoff: APPROVED / PUBLISHED / ACTIVE
+R1 implementation: AUTHORIZED / NOT_STARTED
+IMPLEMENTATION AUTHORITY: EXACTLY THE AUDITED HANDOFF SHA ABOVE / F2E R1 ONLY
+NEXT ALLOWED ACTION: EXECUTE_F2E_R1_IMPLEMENTATION
 R2-R6: NOT_AUTHORIZED
 ```
 
-The active handoff authorizes only the future design target; it does not close R1 P1-2/P1-3,
-approve R1, authorize implementation, or authorize R2-R6.
+Las marcas internas `NOT_APPROVED`, `NOT_ACTIVE` e `IMPLEMENTATION_NOT_AUTHORIZED` del handoff y
+del review residual conservan el estado histórico de esos artefactos al materializarse. No se
+reescriben después del audit. El review fresh de handoff y este canónico competente registran la
+transición posterior a `APPROVED / PUBLISHED / ACTIVE`; no queda una autoridad operacional
+contradictoria.
+
+`ACTIVE` autoriza exclusivamente la implementación F2E R1 delimitada por el handoff exacto con
+SHA-256 `3fd71faca4d4c049ad5cb37b52bc6fd512509cf5b696bdc5c28d28cb966af8ef`.
+No declara implementación iniciada o completada, tests ejecutados, migración, data audit, cutover,
+R2-R6 ni cambio de autoridad productiva.
 
 ## Autoridad y límites preservados
 
 ```text
 TurnoInstructor: PRODUCTIVE AUTHORITY
 Pure detector: DARK_LAUNCH / NOT_PRODUCTIVE
-Adapters: NOT_IMPLEMENTED
+Adapters R1: IMPLEMENTATION AUTHORIZED / NOT_STARTED / NOT_PRODUCTIVE
 Data source: DATA_SOURCE_NOT_AVAILABLE
 Data audit: NOT_AUTHORIZED
 D08: DEFERRED
@@ -416,12 +430,14 @@ Crosswalk / Resolver / Fence / Migration: NOT_AUTHORIZED
 MIGRANDO: NO
 NUEVA: NO
 Cutover: false
-Java / DB / tests / HostValidator: NOT_AUTHORIZED_BY_THIS_ACTIVATION
+R1 implementation: AUTHORIZED / NOT_STARTED / NOT_EXECUTED
+Java / tests / test-only Spring topology: AUTHORIZED ONLY BY THE EXACT ACTIVE R1 HANDOFF
+DB change / SQL migration / productive Spring configuration / data audit / cutover: NOT_AUTHORIZED
+Payments / Notifications / Capacity / Mobile: OUT_OF_SCOPE
 ```
 
 Human/business decision: `NOT_REQUIRED`.
 
-Technical design authority: `REQUIRED / NOW AUTHORIZED VIA ACTIVE HANDOFF`.
+Technical design authority: `CLOSED / PUBLISHED`.
 
-No hash/digest algorithm, scope strategy, transaction-manager selection or Spring resource binding
-requires a human choice; those are bounded design decisions for the authorized future target.
+Implementation authority: `AUTHORIZED / NOT_STARTED / BOUNDED BY EXACT ACTIVE R1 HANDOFF`.

@@ -852,13 +852,13 @@ El contexto contiene exactamente:
 ```text
 runIdentity                 aportado por el caller
 attemptIdentity             aportado por el caller; cambia sólo al reintentar el run completo
-sourceName                  datasource lógico autorizado o fixture Testcontainers nombrado
-schemaFingerprint           Flyway + schema contract fingerprint
+sourceName                  para R1, exclusivamente del DescriptorRecursoLector de 37.4
+schemaFingerprint           para R1, exclusivamente del DescriptorRecursoLector de 37.4
 projectionCatalogVersion    versión única de las queries/mappers
 ruleCatalogVersion          versión de reglas detector/F2D
 businessZone                ZoneId explícita
-scopeCanonical              fecha/ventana/salones/IDs, ordenados y length-prefixed
-snapshotClaim               MULTI_READER_MVCC | SINGLE_READER_TEST
+scopeCanonical              para R1, derivado internamente del scope tipado según 37.4
+snapshotClaim               R1=SINGLE_READER_TEST; MULTI_READER_MVCC no está soportado por R1
 snapshotEvidenceId          creado por el owner transaccional, no por el reader
 ```
 
@@ -883,9 +883,12 @@ logicalReadSetFingerprint = SHA-256("F2E-READSET-V1",
   sort(sourceSystem, sourceAtomType, sourceIdentity, sourceFingerprint))
 ```
 
-En production composition, sólo R6 crea el contexto. Para `MULTI_READER_MVCC`, primero verifica
-`repeatable read` y `read only`, captura la representación textual exacta de
-`pg_current_snapshot()` y calcula:
+La formulación histórica siguiente describe únicamente una necesidad candidata de una futura R6;
+no define un claim aceptable por R1 ni constituye autoridad suficiente para implementar R6. Una
+futura unidad R6 deberá recibir autoridad separada para su contexto, provenance, observación de
+statements y auditoría. Sólo entonces podrá definir un `MULTI_READER_MVCC`, verificar
+`repeatable read` y `read only`, capturar la representación textual exacta de
+`pg_current_snapshot()` y decidir una fórmula competente, como la candidata histórica:
 
 ```text
 snapshotEvidenceId = SHA-256("F2E-PG-MVCC-V1", datasourceIdentity,
@@ -906,10 +909,12 @@ snapshotEvidenceId = SHA-256("F2E-TEST-TX-V1", fixtureIdentity, testInvocationId
   declaredIsolation, "read only")
 ```
 
-`fixtureIdentity` y `testInvocationIdentity` son inputs literales/deterministas del test. No se
-inventa `pgSnapshotFingerprint`, no se afirma snapshot multi-reader y el mismo input produce el
-mismo ID. R1 standalone no necesita ni recibe fingerprint PostgreSQL. R2–R5 pueden usar RR en el
-harness por tener múltiples statements, sin convertirse en owners productivos del contrato.
+Para R1, `fixtureIdentity` proviene exclusivamente del `DescriptorRecursoLector` definido en 37.4;
+no es un literal elegible por el caller. `testInvocationIdentity` es reservado por el harness bajo
+el lifecycle cerrado de 37.7.1. No se inventa `pgSnapshotFingerprint`, no se afirma snapshot
+multi-reader y el mismo input produce el mismo ID. R1 standalone no necesita ni recibe fingerprint
+PostgreSQL. R2–R5 pueden requerir otra autoridad de RR en sus unidades futuras, sin convertirse en
+owners productivos del contrato R1.
 
 `EvidenceProvenance` conserva `sourceName`, `schemaFingerprint`, record IDs físicos ordenados,
 `ruleId/ruleVersion`, business context explícito y fields normalizados completos. Los markers
@@ -1085,14 +1090,18 @@ reintenta transacciones. R1–R5 participan en la transacción suministrada y no
 conceptuales de `SAME_LOGICAL_SNAPSHOT`. La annotation se prueba cruzando el proxy; llamar con
 `new` directamente no constituye evidencia de propagation.
 
-**Contrato de composición R6.** Sólo el método público proxied del
-`DetectorReadCoordinator` posee `REQUIRES_NEW + REPEATABLE_READ + readOnly + timeout bounded` y el
-claim `MULTI_READER_MVCC`. R6 crea el `ReadSnapshotContext`, captura/valida metadata, compone R1–R5
-y descarta el conjunto completo ante fallo. Ninguna annotation interna de F2D sustituye este owner.
+**Contrato candidato de composición R6.** El diseño histórico reserva a un futuro método público
+proxied de `DetectorReadCoordinator` la propiedad de una composición
+`REQUIRES_NEW + REPEATABLE_READ + readOnly + timeout bounded`. Sin embargo,
+`MULTI_READER_MVCC` no pertenece al claim set R1 cerrado en 37.4. Una futura R6 requiere autoridad
+separada para su contexto, provenance y statement observations antes de poder componer R1–R5.
+Ninguna annotation interna de F2D sustituye ese futuro owner.
 
 R1 usa una sola query por operación y no declara ni necesita repeatable-read para demostrar
-projection, mapping, no-write y participación `MANDATORY`. Si R1 forma parte de una evaluación
-multi-reader, hereda RR de R6. Esto mantiene R1 implementable y auditable antes de que exista R6.
+projection, mapping, no-write y participación `MANDATORY`. El R1 definido por esta autoridad no
+puede formar parte de una evaluación multi-reader: una futura R6 deberá recibir autoridad separada
+y corregir explícitamente el contrato de integración antes de admitirlo. Esto mantiene R1
+implementable y auditable sin una compatibilidad MVCC ficticia.
 
 ### 18.2 Transaction harness TEST-ONLY
 
@@ -1121,8 +1130,9 @@ inRepeatableReadOnly(...)
 Dentro del callback, el test llama al adapter bean proxied; así `MANDATORY` se evalúa realmente.
 Después de abrir la TX y antes del callback, el harness consulta `current_setting` y rechaza
 read-write o isolation distinta de la declarada; luego crea el `ReadSnapshotContext` determinista
-de sección 13 a partir de
-`fixtureIdentity`, `testInvocationIdentity`, scope y versiones literales suministradas por el test.
+de sección 13/37.4. `sourceName`, `fixtureIdentity` y `schemaFingerprint` provienen únicamente del
+`DescriptorRecursoLector`; el test sólo aporta los inputs no confiables permitidos de run/reglas y
+scope, que el harness valida. `testInvocationIdentity` se reserva por el registry del harness.
 Una prueba negativa llama al adapter proxy fuera del harness y exige
 `IllegalTransactionStateException`. Otra prueba verifica que R1 funciona bajo el método
 single-statement sin R6 ni `pgSnapshotFingerprint`. El harness no se compila en main, no se escanea
@@ -1529,9 +1539,9 @@ rango.
 - R2–R5 multi-statement harness y R6: assert
   `transaction_isolation=repeatable read` y `transaction_read_only=on`;
 - reader fuera de TX falla por `MANDATORY`;
-- el owner guard (test harness o R6) rechaza read-write antes de invocar el adapter; rechaza
-  isolation distinta de RR para R2–R6; R1 acepta RC sólo con `SINGLE_READER_TEST` y R6 exige RR
-  antes de entregarle un context `MULTI_READER_MVCC`;
+- el owner guard del test harness rechaza read-write antes de invocar el adapter; R1 acepta RC sólo
+  con `SINGLE_READER_TEST` y rechaza `MULTI_READER_MVCC` antes de probes/SQL; cualquier futura
+  composición RR/R6 requiere autoridad y contrato separados;
 - dos latches: writer comitea entre nominal y adjustment/master reads; el run RR conserva el primer
   snapshot y un run posterior ve el nuevo estado;
 - control negativo READ COMMITTED demuestra que statements pueden ver estados distintos;
@@ -2469,4 +2479,1100 @@ R1 downstream P1 allowlist: PENDING
 R1 downstream P1 test-only JPA topology: PENDING
 R2-R6: NOT_AUTHORIZED
 Next required gate: FRESH_INDEPENDENT_DESIGN_DOCUMENT_AUDIT
+```
+
+## 37. RESIDUAL AUTHORITY GAP R1 — PROVENANCE + JPA TRANSACTION TOPOLOGY AMENDMENT
+
+### 37.1 Alcance, precedencia y lifecycle
+
+Esta enmienda materializa exclusivamente el target autorizado por
+`HANDOFF-F2E-ADAPTERS-SNAPSHOT-DESIGN-AUTHORITY-GAP-R1-PROVENANCE-JPA-TX`.
+Hace normativos, para R1, la identidad/provenance y el grafo test-only de transacción/recurso que
+las secciones 13 y 18.1–18.2 dejaban insuficientemente determinados. En esos dos ámbitos, 37
+prevalece sobre las fórmulas o wiring anteriores. No modifica la semántica del detector puro ni
+sus identidades ya aprobadas.
+
+Para evitar una lectura residual contradictoria, toda referencia anterior de este documento a
+`MULTI_READER_MVCC`, `REPEATABLE_READ` o composición R6 es sólo diseño histórico/candidato de una
+unidad futura y no es autoridad de claim, isolation, provenance ni statement observation para R1.
+R1 queda cerrado exclusivamente a `SINGLE_READER_TEST + READ_COMMITTED + readOnly=true`. Asimismo,
+para R1, cualquier referencia anterior a `sourceName`, `schemaFingerprint` o `fixtureIdentity`
+aportados como literales se sustituye por la autoridad única del `DescriptorRecursoLector` de
+37.4.1.
+
+La enmienda 36.1–36.10 queda cerrada, histórica y preservada byte-for-byte en su materia: los
+cuatro `ReservationReadFailureCode`, `ReservationReadException`, la frontera de
+`F2eSqlPolicyViolationException`, `F2E_SQL_CANON_V1`, sus cuatro statements/IDs y golden vectors,
+y toda la jerarquía `F2E_CHECKSUM_*_V1` con sus vectores. También permanecen congelados los dos
+ports, queries, binding, ordering, cardinalidad, `historicalProgrammingTarget=Optional.empty()`,
+`MANDATORY`, `REQUIRES_NEW`, `READ_COMMITTED`, `readOnly=true` y ownership transaccional R1.
+
+```text
+R1 handoff: MATERIALIZED / NOT_APPROVED / NOT_ACTIVE / UNCHANGED
+R1 implementation: NOT_STARTED / NOT_AUTHORIZED
+This design candidate: MATERIALIZED / NOT_SELF_APPROVED
+Original handoff P1-2 identity/provenance candidate: MATERIALIZED / PENDING FRESH AUDIT
+Original handoff P1-3 JPA topology candidate: MATERIALIZED / PRESERVED CLOSED
+Residual audit corrections reader-resource/claim/uniqueness: MATERIALIZED / PENDING FRESH AUDIT
+Original handoff P1-1 and P1-4: CLOSED / NOT_REOPENED
+```
+
+### 37.2 Gramática normativa `F2E_IDENTITY_V2`
+
+`F2E_IDENTITY_V2` reutiliza exactamente las primitivas `LP` y `SEQ` aprobadas en 36.8, sin
+modificarlas ni cambiar los domains de checksum. Esta reutilización sólo comparte la gramática de
+framing; los domains `F2E-R1-*-V2` de esta sección son distintos de `F2E_CHECKSUM_*_V1`.
+
+Para todo byte string `x` y secuencia ordenada `x1..xN`:
+
+```text
+LP(x) = ASCII(unsignedDecimal(byteLength(x))) || UTF8(":") || x
+SEQ(x1..xN) = ASCII(unsignedDecimal(N)) || UTF8(":") || LP(x1) || ... || LP(xN)
+ID_HASH_V2(x1..xN) = lowercaseHex(SHA-256(SEQ(x1..xN)))
+```
+
+`unsignedDecimal` no tiene signo, whitespace ni leading zero, salvo el valor cero escrito `0`.
+Toda longitud cuenta bytes, nunca chars ni code points. SHA-256 es FIPS 180-4 sobre la preimage
+exacta; el output son exactamente 64 caracteres ASCII hexadecimales `0-9a-f`, sin prefijo,
+separador, newline ni padding. Una preimage ya enmarcada vuelve a recibir el `LP` exterior cuando
+es argumento de otro `SEQ`; no se aplana ni se interpreta.
+
+Scalars cerrados:
+
+| Tipo conceptual | Bytes canónicos |
+| --- | --- |
+| texto, version, bean name, claim, enum | UTF-8 exacto; enum usa `name()`; no trim, case-fold ni normalización Unicode |
+| UUID | RFC-4122 lower-case `8-4-4-4-12` |
+| `ZoneId` | `ZoneId.getId()`, nunca zone default |
+| `LocalDate` | `uuuu-MM-dd`, locale-free |
+| `LocalTime` | `HH:mm:ss.SSSSSS`; valor sub-microsegundo es inválido |
+| `OffsetDateTime` | UTC `uuuu-MM-dd'T'HH:mm:ss.SSSSSS'Z'`; nunca timezone default |
+| boolean | ASCII `true` o `false` |
+| integer/count/position | decimal ASCII como `unsignedDecimal`, salvo que el contrato declare signed |
+
+Un texto requerido es non-null, contiene al menos un code point no-whitespace, no contiene NUL ni
+un surrogate UTF-16 sin pareja y se codifica sin replacement. El whitespace interior y las formas
+Unicode distintas permanecen distintas. Required empty y null fallan; no existe null implícito ni
+omisión silenciosa. Un optional sólo usa los dos componentes literales `ABSENT` y empty bytes
+cuando la fórmula lo declara; un valor presente usa `VALUE` y sus bytes, por lo que absence,
+empty, el texto `null` y el texto `ABSENT` no colisionan.
+
+Los UUID sets son non-null, sin nulls ni duplicados y se ordenan por los 16 octetos unsigned. El
+input Java `Set` ya elimina duplicados; si una frontera de serialización entrega dos UUID iguales,
+se rechaza en vez de deduplicar. Un mapa canónico se ordena por bytes UTF-8 unsigned de key, rechaza
+key duplicada después de encoding y representa cada entry como
+`SEQ("F2E-R1-NORMALIZED-FIELD-V2", key, value)` y el mapa como
+`SEQ("F2E-R1-NORMALIZED-FIELDS-V2", ASCII(entryCount), entry1..entryN)`. La iteration order de
+`Map` nunca es autoridad.
+
+Todo valor no representable según estas reglas falla antes de crear una identidad y antes de
+publicar cualquier snapshot. SHA-256 se usa bajo la asunción criptográfica estándar de resistencia
+a colisiones, no como prueba matemática de inyectividad. Dentro de una invocación, si un digest ya
+observado se asocia a otra preimage, se aborta todo con
+`IllegalStateException("F2E identity hash collision detected")`; no se elige uno ni se agrega sal.
+Cambiar grammar, domain, algoritmo, field set u orden exige otro version/domain y nunca reescribe
+identidades ya emitidas.
+
+Owner futuro exacto: `ReadSnapshotIdentifiers` implementa `LP`, `SEQ`, scalar codecs y las cuatro
+fórmulas; `ReservaProjectionMapper` aporta únicamente valores tipados ya validados;
+`ReservaJpaReader` coordina el cálculo/recompute por invocación. Tests implementan un recomputador
+independiente; ningún test, map iteration, reflection o chat puede redefinir los bytes.
+
+### 37.3 Catálogo canónico de proyección R1
+
+La única fuente de verdad conceptual/Java para R1 es el enum cerrado anidado
+`ReadSnapshotContext.ProjectionCatalogVersion`. En este slice contiene exactamente un valor:
+
+```text
+enum constant: R1_RESERVA_V1
+projectionContractId: R1_RESERVA_PROJECTION
+projectionContractVersion: V1
+canonicalCatalogValue: R1_RESERVA_PROJECTION/V1
+sourceSystem: LEGACY
+sourceAtomType: RESERVA
+physicalTable: public.reserva
+data statement IDs:
+  R1_RESERVA_BY_IDS_V1
+  R1_RESERVA_BY_SCOPE_V1
+mapper contract: ReservaProjectionMapper / V1
+```
+
+El enum expone esos literales como valores inmutables; el caller no puede construir un string de
+versión arbitrario. `ReservaProjectionQueryExecutor`, `ReservaProjectionMapper`,
+`ReadSnapshotIdentifiers` y provenance aceptan sólo el mismo enum constant. Un ID/version/query o
+mapper distinto es catalog drift y hace fallar construcción/context startup antes de SQL. No hay
+alias, version fallback, valor `UNKNOWN` ni negociación.
+
+La proyección SQL y el record `ReservaProjectionRow` conservan este orden físico exacto:
+
+| Posición | Campo lógico | Columna | Tipo canónico | Source fingerprint | Snapshot/provenance |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `reservationId` | `id` | `UUID` | incluido | incluido |
+| 2 | `state` | `estado` | `TEXT` exacto DB, luego enum conocido | incluido | incluido |
+| 3 | `date` | `fecha` | `DATE` | incluido | incluido |
+| 4 | `salonId` | `salon_id` | `UUID` | incluido | incluido |
+| 5 | `instructorId` | `instructor_id` | `UUID` | incluido | incluido |
+| 6 | `activityId` | `tipo_actividad_id` | `UUID` | incluido | incluido |
+| 7 | `start` | `hora_inicio` | `TIME_MICROS` | incluido | incluido |
+| 8 | `end` | `hora_fin` | `TIME_MICROS` | incluido | incluido |
+| 9 | `createdAtTechnical` | `creado_en` | `TIMESTAMP_UTC_MICROS` | incluido | incluido como técnico |
+| 10 | `updatedAtTechnical` | `actualizado_en` | `TIMESTAMP_UTC_MICROS` | incluido | incluido como técnico |
+| 11 | `historicalProgrammingTarget` | ninguna | `OPTIONAL_HISTORICAL_TARGET` | `ABSENT` explícito | `Optional.empty()` |
+
+Las primeras diez posiciones son required/non-null. Los timestamps participan porque un cambio
+físico observable de la row debe cambiar el fingerprint, pero nunca se renombran ni interpretan
+como vigencia funcional. La posición 11 vincula el fingerprint con la afirmación normativa de
+ausencia; se representa con presence `ABSENT` y value empty, nunca con null o un target inferido.
+
+Cada campo se enmarca exactamente:
+
+```text
+sourceField = SEQ(
+  "F2E-R1-SOURCE-FIELD-V2",
+  ASCII(position), logicalName, physicalColumnOr"NONE", typeTag,
+  "VALUE"|"ABSENT", canonicalValueOrEmptyBytes)
+
+canonicalSourceProjectionBytes = SEQ(
+  "F2E-R1-CANONICAL-PROJECTION-V2",
+  "R1_RESERVA_PROJECTION", "V1", "11",
+  sourceField1, ..., sourceField11)
+```
+
+`cliente_id` es PII y queda excluido de query, row, projection, identity, provenance y error. Sólo
+permanece en el checksum privado de 36.8 para prueba de no-mutación. También quedan excluidos SQL
+raw/canónico, binds, credentials/URL, connection metadata, current clock, random values,
+candidates, `TurnoInstructor`, masters no proyectados y cualquier validez histórica inferida. El
+logical statement usado no entra al fingerprint de una row: ambas queries autorizadas pertenecen
+al mismo catálogo V1 y una row idéntica tiene el mismo source fingerprint.
+
+### 37.4 Contexto, scope y evidencia de transacción/statement
+
+#### 37.4.1 Autoridad única del recurso lector
+
+La autoridad R1 es exactamente una instancia inmutable test-only llamada
+`DescriptorRecursoLector`, propiedad exclusiva de `F2ePostgresTestConfiguration`. Se materializa
+como tipo anidado dentro de ese único archivo testinfra ya allowlisted; no crea otro bean ni otro
+path. Su constructor no es público, el callback/caller no lo recibe y ningún `ReadSnapshotContext`
+puede construirlo, sustituirlo o modificarlo.
+
+El descriptor conserva exactamente:
+
+```text
+sourceName
+identidadFuenteDatos              componente antes denominado fixtureIdentity
+schemaFingerprint
+jdbcUrlCanonicaSinCredenciales
+databaseName
+schemaName                        exactamente public para R1
+credentialPrincipal               login efímero SELECT-only, nunca password
+identity reference: f2eReaderDataSource
+identity reference: f2eReaderEntityManagerFactory / PU f2eReaderPersistenceUnit
+identity reference: f2eReaderTransactionManager
+identity reference: f2eReaderEntityManager shared proxy
+```
+
+`sourceName`, `identidadFuenteDatos` y `schemaFingerprint` no son parámetros de
+`inSingleStatementReadOnly`, del callback ni del port. `F2ePostgresTestConfiguration` los crea una
+sola vez después de que el bootstrap privilegiado haya aplicado/verificado Flyway, haya calculado
+la huella del schema realmente instalado y haya creado el login lector. Para una fixture R1, el
+catálogo de la configuración posee una key ASCII non-blank única `K` y deriva sin libertad:
+
+```text
+identidadFuenteDatos = "fixture-" || K
+sourceName = "fixture:postgres16:" || K
+schemaFingerprint = resultado inmutable del bootstrap Flyway+schema ejecutado sobre
+                    la misma instancia PostgreSQL identificada por endpoint/database/schema
+```
+
+El catálogo de fixtures, no el test method ni el caller, asigna `K`. El descriptor almacena el
+resultado del bootstrap junto con las referencias exactas de los beans construidos con ese mismo
+endpoint/database/schema/principal. No acepta un fingerprint esperado como sustituto del resultado
+observado. El password, URL con credentials y valores de conexión sensibles nunca entran al
+descriptor serializable, a identidades ni a provenance.
+
+La configuración inyecta en `ReservaJpaReader` los tres valores confiables
+`sourceName/identidadFuenteDatos/schemaFingerprint` desde esa misma instancia y el reader exige
+igualdad exacta con el context creado por el harness. El harness usa directamente
+`identidadFuenteDatos`, no una copia aportada por el callback, para calcular
+`snapshotEvidenceId`.
+
+Después de que el advisor abra la transacción y antes de abrir la capture o ejecutar el primer
+probe/SELECT, el harness valida fail-closed:
+
+1. por identidad Java, que sus instancias DS/EMF/TM/shared-EM son exactamente las del descriptor;
+2. que el shared EM está joined a la transacción del TM/EMF descritos;
+3. mediante la `Connection` obtenida sólo por el mismo `Session.doReturningWork`, que
+   `DatabaseMetaData.getURL()` sin user-info/password/query, `Connection.getCatalog()`,
+   `Connection.getSchema()` y `DatabaseMetaData.getUserName()` coinciden byte-for-byte con
+   `jdbcUrlCanonicaSinCredenciales`, `databaseName`, `public` y `credentialPrincipal`;
+4. que endpoint/database/schema de esa conexión son los de la misma instancia sobre la que el
+   bootstrap produjo `schemaFingerprint`; y
+5. que los valores confiables inyectados al reader y el context interno coinciden con el mismo
+   descriptor.
+
+La URL canónica permitida tiene exactamente la forma
+`jdbc:postgresql://<host-lowercase-ascii>:<decimal-port>/<databaseName>`; query, fragment,
+user-info, password, percent-encoding y aliases alternativos se rechazan. `databaseName`,
+`schemaName` y `credentialPrincipal` son los strings exactos observados, sin trim/case-fold. Esta
+metadata se usa sólo para validación local; no se publica ni participa en los cuatro golden
+vectors.
+
+Cualquier mismatch lanza antes de probes/SQL
+`IllegalStateException("F2E reader resource provenance not proven")`, cierra sin aceptar
+`snapshotEvidenceId`, no emite ninguna identidad/snapshot y no se reclasifica como
+`ReservationReadFailureCode`. Rehashing de labels no satisface este control.
+
+Acceptance criteria futuros obligatorios, sin implementación en esta unidad:
+
+```text
+descriptor + configured reader + active session exactos -> ACCEPT
+caller intenta otro sourceName -> FAIL antes de probes/SQL; zero identities/output
+caller intenta otro schemaFingerprint -> FAIL antes de probes/SQL; zero identities/output
+active connection/session resuelve otro endpoint/database/schema/principal -> FAIL cerrado
+descriptor/DS/EMF/TM/shared-EM no son las mismas instancias -> FAIL cerrado
+successful rows + probes + provenance -> mismo DescriptorRecursoLector validado
+```
+
+El shape R1 corregido de `ReadSnapshotContext` es exactamente, en este orden:
+
+| Campo | Tipo | Regla/owner |
+| --- | --- | --- |
+| `runIdentity` | `String` | required; owner del run |
+| `attemptIdentity` | `String` | required; cambia para cada retry completo; owner del run |
+| `readerInvocationIdentity` | `String` | required y único dentro de `(runIdentity,attemptIdentity)`; owner transaccional |
+| `sourceName` | `String` | required; copiado sólo del `DescriptorRecursoLector`; caller override prohibido |
+| `schemaFingerprint` | `String` | required; copiado sólo del `DescriptorRecursoLector`; caller override prohibido |
+| `projectionCatalogVersion` | `ProjectionCatalogVersion` | exactamente `R1_RESERVA_V1`; no string libre |
+| `ruleCatalogVersion` | `String` | required versión de reglas F2D; owner del run |
+| `businessZone` | `ZoneId` | required explícita |
+| `snapshotClaim` | `SnapshotClaim` | exactamente `SINGLE_READER_TEST`; único constant soportado por R1 |
+| `snapshotEvidenceId` | 64-char lower hex | creado por el harness con el descriptor validado; nunca caller-supplied |
+| `statementObservationFingerprint` | 64-char lower hex | commitment del harness tras probes, verificado contra manifest final |
+
+Se elimina `scopeCanonical` como input del caller. El port recibe su scope tipado existente y
+`ReservaJpaReader`, antes de crear la query, deriva una sola vez los bytes internos:
+
+```text
+readByReservationIds:
+  scopeBytes = SEQ("F2E-R1-READ-SCOPE-V2", "READ_BY_RESERVATION_IDS",
+                   ASCII(idCount), sortedReservationIds...)
+
+readByScope:
+  scopeBytes = SEQ("F2E-R1-READ-SCOPE-V2", "READ_BY_SCOPE",
+                   ASCII(salonCount), sortedSalonIds..., desde, hasta)
+
+scopeCanonical = UTF8-decode-strict(scopeBytes)
+```
+
+Todos los componentes actuales son ASCII, por lo que decode/encode es byte-identical. Los mismos
+`scopeBytes` se reutilizan, sin reserialización, en execution ID, logical ID y business context.
+El caller no puede suministrar un segundo scope representativo. Scope inválido o incapaz de
+canonicalizarse conserva `ADAPTER_INPUT_INVALID`, ocurre antes de SQL y produce cero parciales.
+
+R1 acepta exclusivamente `SINGLE_READER_TEST`. El enum R1 `SnapshotClaim` contiene exactamente
+ese único constant; `MULTI_READER_MVCC` no es alias, fallback ni valor tolerado. Si una frontera de
+deserialización, reflexión o integración intenta introducir `MULTI_READER_MVCC` u otro claim, el
+harness/reader rechaza `IllegalArgumentException("Unsupported R1 snapshot claim")` antes de
+validar evidencia, abrir capture o ejecutar probes/SQL, con cero identidades/output.
+
+Después de validar el recurso de 37.4.1, el harness crea exactamente:
+
+```text
+snapshotEvidenceId = ID_HASH_V2(
+  "F2E-R1-SINGLE-READER-TEST-EVIDENCE-V2",
+  descriptor.identidadFuenteDatos,
+  transactionBoundaryIdentity,
+  "f2eReaderTransactionManager",
+  "f2eReaderPersistenceUnit",
+  "read committed",
+  "read only")
+```
+
+`transactionBoundaryIdentity` identifica la invocación proxied del harness, no una row ni un
+intento completo, y se rige por 37.7.1. Esta evidencia no pretende ser
+`pg_current_snapshot()` ni demostrar simultaneidad entre readers. R1 no acepta, calcula ni
+propaga `MULTI_READER_MVCC`, `repeatable read` o un probe PostgreSQL de snapshot. Una futura fase
+multi-reader/R6 deberá recibir otro handoff, contrato de provenance, contrato de statement
+observation y fresh audit; nada de esta enmienda la autoriza.
+
+Después de los dos probes y antes del callback, el harness ya conoce sus valores/IDs y el único
+data statement permitido para la operación solicitada. Calcula el commitment:
+
+```text
+statementObservationFingerprint = ID_HASH_V2(
+  "F2E-R1-STATEMENT-OBSERVATIONS-V2",
+  snapshotEvidenceId,
+  observedIsolationValue,
+  observedAccessMode,
+  ASCII(statementCount),
+  committedCatalogStatementId1, ..., committedCatalogStatementIdN)
+```
+
+Para R1 el orden y count comprometidos son isolation probe observado, read-only probe observado y
+exactamente uno de los dos data statements esperado; `N=3`, isolation=`read committed`, access
+mode=`read only`. Ese fingerprint entra al context antes de invocar el reader. Después del callback
+el harness recalcula la misma fórmula con los tres IDs realmente capturados y exige igualdad exacta
+antes de que el resultado escape. El inspector conserva IDs del catálogo, nunca SQL/binds. Orden,
+count, claim, valores de probes o data statement distintos fallan antes de publicar snapshots.
+
+### 37.5 Las cuatro identidades
+
+#### 37.5.1 `executionProvenanceId`
+
+Representa exactamente una invocación material del port R1 dentro de una transacción competente.
+Todas las rows de esa invocación comparten el valor y ninguna otra invocación puede reutilizar su
+`readerInvocationIdentity` dentro del attempt.
+
+```text
+executionProvenanceId = ID_HASH_V2(
+  "F2E-R1-EXECUTION-PROVENANCE-V2",
+  runIdentity,
+  attemptIdentity,
+  readerInvocationIdentity,
+  operation,
+  sourceName,
+  schemaFingerprint,
+  projectionCatalogVersion.canonicalCatalogValue,
+  ruleCatalogVersion,
+  businessZone.getId(),
+  scopeBytes,
+  snapshotClaim.name(),
+  snapshotEvidenceId,
+  statementObservationFingerprint)
+```
+
+Cambian el ID: run, retry/attempt, invocación, operación, source/schema/catalog/rules/zone/scope,
+claim/evidencia, resultados de probes o manifest comprometido/verificado de statements. No
+participan valores de rows,
+reservation identity, clock, random, thread ID, Java object identity, Connection metadata, SQL ni
+binds. Dos ejecuciones materialmente distintas deben tener distinto
+`readerInvocationIdentity`; reutilizarlo aborta antes de probes/SQL. El fingerprint de statements
+vincula la identidad a la evidencia del inspector, pero no sustituye la prueba topológica de
+same-resource de 37.9–37.12.
+
+#### 37.5.2 `logicalSnapshotId`
+
+Representa la equivalence class de observaciones que comparten la misma fuente/schema/catalog,
+reglas/zone/scope tipado y la misma evidencia competente de snapshot transaccional.
+
+```text
+logicalSnapshotId = ID_HASH_V2(
+  "F2E-R1-LOGICAL-SNAPSHOT-V2",
+  sourceName,
+  schemaFingerprint,
+  projectionCatalogVersion.canonicalCatalogValue,
+  ruleCatalogVersion,
+  businessZone.getId(),
+  scopeBytes,
+  snapshotClaim.name(),
+  snapshotEvidenceId)
+```
+
+`runIdentity`, `attemptIdentity`, `readerInvocationIdentity`, operation mechanics, statement
+manifest y `executionProvenanceId` están excluidos. Por ello no se declara equivalencia lógica por
+mera igualdad de attempt. Una nueva transacción normalmente tiene otro `snapshotEvidenceId` y por
+tanto otro logical ID; dos ejecuciones sólo lo comparten si el owner competente demuestra y
+reutiliza exactamente la misma boundary/snapshot evidence y scope. Concatenar hashes de lecturas
+en transacciones/connections distintas nunca crea esa evidencia.
+
+#### 37.5.3 `sourceFingerprint`
+
+Representa la row R1 observable y la afirmación de historical target ausente bajo una versión
+exacta de source/schema/projection. Se calcula por row después de validar todos sus scalars:
+
+```text
+sourceFingerprint = ID_HASH_V2(
+  "F2E-R1-SOURCE-FINGERPRINT-V2",
+  sourceName,
+  schemaFingerprint,
+  projectionCatalogVersion.canonicalCatalogValue,
+  "LEGACY",
+  "RESERVA",
+  reservationId,
+  canonicalSourceProjectionBytes)
+```
+
+Cambian el fingerprint cualquier source/schema/catalog/source identity o cualquiera de las once
+posiciones canónicas, incluidos timestamps o `ABSENT`. No participan ejecución, scope, snapshot,
+query elegida, rules ni zone: el mismo source atom observado bajo el mismo catálogo conserva su
+fingerprint aunque se alcance desde otra query/scope. La relación exacta de source metadata y
+campos está cerrada en 37.3.
+
+#### 37.5.4 `snapshotIdentity`
+
+Identifica el payload concreto `ReservationSourceSnapshot` de una ejecución, excluyendo sólo su
+propio campo autorreferente. Une logical snapshot, execution evidence y exact source atom:
+
+```text
+snapshotIdentity = ID_HASH_V2(
+  "F2E-R1-SNAPSHOT-IDENTITY-V2",
+  logicalSnapshotId,
+  executionProvenanceId,
+  projectionCatalogVersion.canonicalCatalogValue,
+  "LEGACY",
+  "RESERVA",
+  reservationId,
+  sourceFingerprint)
+```
+
+Así, dos invocaciones distintas pueden referirse a la misma logical snapshot y source content,
+pero sus Java snapshots tienen distinta identidad porque su provenance de ejecución difiere. El
+ID no redefine identidad semántica del detector puro. `state/date/salon/instructor/activity`,
+intervalo, technical timestamps y historical absence quedan vinculados mediante
+`sourceFingerprint`; claim/scope/boundary mediante `logicalSnapshotId`; run/attempt/invocation y
+statements mediante `executionProvenanceId`.
+
+### 37.6 Shape exacto de `EvidenceProvenance`
+
+R1 usa sin cambiar el record core existente de siete campos. Para cada row:
+
+```text
+sourceName = context.sourceName
+schemaFingerprint = context.schemaFingerprint
+recordIds = immutable List.of(canonical reservationId)
+ruleId = "R1_RESERVA_PROJECTION"
+ruleVersion = "V1"
+businessTimeContext = UTF8-decode-strict(SEQ(
+  "F2E-R1-BUSINESS-CONTEXT-V2", businessZone.getId(), scopeBytes))
+normalizedFields = immutable map con exactamente las keys de la tabla siguiente
+```
+
+| Key | Value canónico |
+| --- | --- |
+| `activityId` | UUID de field 6 |
+| `attemptIdentity` | context exacto |
+| `businessZone` | `ZoneId.getId()` |
+| `createdAtTechnical` | field 9 UTC micros |
+| `date` | field 3 DATE |
+| `end` | field 8 TIME_MICROS |
+| `executionProvenanceId` | output 37.5.1 |
+| `historicalProgrammingTarget` | literal `ABSENT` |
+| `instructorId` | UUID de field 5 |
+| `logicalSnapshotId` | output 37.5.2 |
+| `operation` | `READ_BY_RESERVATION_IDS` o `READ_BY_SCOPE` |
+| `projectionCatalogVersion` | `R1_RESERVA_PROJECTION/V1` |
+| `projectionContractId` | `R1_RESERVA_PROJECTION` |
+| `projectionContractVersion` | `V1` |
+| `readerInvocationIdentity` | context exacto |
+| `reservationId` | UUID de field 1; igual a único `recordIds` |
+| `ruleCatalogVersion` | context exacto |
+| `runIdentity` | context exacto |
+| `salonId` | UUID de field 4 |
+| `scopeCanonical` | decode exacto de los mismos `scopeBytes` |
+| `snapshotClaim` | enum `name()` |
+| `snapshotEvidenceId` | context exacto |
+| `snapshotIdentity` | output 37.5.4 |
+| `sourceAtomType` | literal `RESERVA` |
+| `sourceFingerprint` | output 37.5.3 |
+| `sourceSystem` | literal `LEGACY` |
+| `start` | field 7 TIME_MICROS |
+| `state` | field 2 / known enum `name()` idéntico al DB value válido |
+| `statementObservationFingerprint` | output 37.4 |
+| `transactionAccessMode` | literal observado `read only` |
+| `transactionIsolation` | literal observado `read committed` |
+| `updatedAtTechnical` | field 10 UTC micros |
+
+El map tiene exactamente 32 entries, keys/values non-null y keys non-blank. Su iteration order no
+es normativo; para recompute/audit se aplica el orden unsigned UTF-8 y framing de map de 37.2. El
+snapshot `additionalObservableFields` contiene exactamente `createdAtTechnical` y
+`updatedAtTechnical` con los mismos bytes de projection/provenance. `recordIds` tiene exactamente
+una identidad porque provenance es por snapshot/row; el conjunto ordenado de todos los
+`recordIds` debe ser exactamente el de rows físicas publicadas.
+
+Quedan explícitamente excluidos `cliente_id`, nombres/correo/teléfono, SQL raw/canónica, binds,
+credentials/URL, role password, backend PID, transaction ID, Connection metadata/object IDs,
+thread IDs, arbitrary caller maps, raw invalid values y target histórico inferido. Ninguna key
+adicional es permitida. El core `EvidenceProvenance.semanticHash()` existente no sustituye ni
+redefine ninguna identidad F2E de esta sección.
+
+### 37.7 Construcción, recompute, cross-consistency e inmutabilidad
+
+#### 37.7.1 Lifecycle exacto de unicidad R1
+
+R1 no declara unicidad global, durable ni cross-restart. El namespace normativo es exactamente la
+vida de una instancia de `ApplicationContext` test-only que contiene un único
+`readerTransactionTestHarness` y un único `DescriptorRecursoLector`. Nace al inicializar ese
+contexto y termina al cerrarlo. Sus garantías sobreviven method completion y transaction
+completion, pero no sobreviven el cierre del `ApplicationContext`, el fin/restart del test process
+o JVM ni un application restart. Un proceso/contexto nuevo crea deliberadamente otro namespace y
+puede reutilizar los mismos strings sin violar R1. Como R1 no registra beans productivos, no existe
+una garantía productiva de application-restart. Ninguna implementación conforme puede ampliar o
+reducir este límite silenciosamente.
+
+El único registry es estado privado del bean singleton `readerTransactionTestHarness`, con nombre
+conceptual `RegistroUnicidadIdentidades`; no es otro bean, archivo, DB, filesystem, static global
+ni estado del caller. El caller sólo propone `runIdentity`, `attemptIdentity`,
+`transactionBoundaryIdentity` y `readerInvocationIdentity`; nunca declara que estén libres ni
+modifica el registry.
+
+El registry compara los bytes completos de estas keys, no sólo su digest. Los cuatro namespaces
+son independientes por domain y usan exactamente:
+
+```text
+runKey = SEQ("F2E-R1-UNIQUENESS-RUN-V2",
+             descriptor.identidadFuenteDatos, runIdentity)
+
+attemptKey = SEQ("F2E-R1-UNIQUENESS-ATTEMPT-V2",
+                 descriptor.identidadFuenteDatos, runIdentity, attemptIdentity)
+
+boundaryKey = SEQ("F2E-R1-UNIQUENESS-BOUNDARY-V2",
+                  descriptor.identidadFuenteDatos, runIdentity, attemptIdentity,
+                  transactionBoundaryIdentity)
+
+invocationKey = SEQ("F2E-R1-UNIQUENESS-INVOCATION-V2",
+                    descriptor.identidadFuenteDatos, runIdentity, attemptIdentity,
+                    readerInvocationIdentity)
+```
+
+Antes de validar recurso/probes/SQL, una única sección crítica del harness ejecuta una operación
+atómica all-or-none:
+
+1. crea `runKey=OPEN` si no existe; si existe, sólo `OPEN_AFTER_ABORT` puede admitir otro
+   `attemptIdentity` y nunca mientras tenga un attempt `ACTIVE`/`UNKNOWN`;
+2. exige que `attemptKey`, `boundaryKey` e `invocationKey` no existan;
+3. inserta las tres como `ACTIVE` y liga el attempt activo al run; y
+4. ante cualquier colisión no inserta ninguna key nueva y lanza exactamente
+   `IllegalStateException("F2E execution provenance identity reuse")` antes de probes/SQL.
+
+Lock/synchronization o una estructura concurrente son detalle interno sólo si preservan esa única
+transición linealizable: dos invocaciones competidoras no pueden observar éxito para la misma key
+y no se permite check-then-put separado.
+
+Lifecycle terminal exacto:
+
+```text
+sin reserva completada
+  -> no existe marker; los mismos inputs pueden volver a intentarse
+
+reserva ACTIVE + resultado validado justo antes de escapar del harness
+  -> attempt/boundary/invocation = CONSUMED_SUCCESS
+  -> run = COMPLETED_SUCCESS
+  -> ninguna key del run admite reuse ni un nuevo attempt
+
+reserva ACTIVE + fallo antes de evidence, durante probes/read/recompute,
+rollback o fallo antes de que un resultado escape
+  -> attempt/boundary/invocation = CONSUMED_ABORTED
+  -> run = OPEN_AFTER_ABORT
+  -> esas tres keys nunca se reutilizan; sólo un attemptIdentity nuevo puede reintentar el run
+
+fallo después de construir identidades pero antes de publicarlas
+  -> igual que CONSUMED_ABORTED; ninguna identity key se libera
+
+fallo/interrupción después de que el resultado haya escapado o después de marcar éxito
+  -> CONSUMED_SUCCESS / COMPLETED_SUCCESS; reuse y retry quedan prohibidos
+
+interrupción/crash sin poder ejecutar transición terminal dentro del mismo contexto
+  -> ACTIVE pasa lógicamente a UNKNOWN o permanece ACTIVE; bloquea reuse y otro attempt del run
+     hasta cerrar ese ApplicationContext
+```
+
+El registry no participa en la transacción DB: rollback/commit no borra markers. “Liberar” significa
+únicamente soltar el mutex/lock de la sección crítica o retirar la condición `ACTIVE`; nunca borrar
+`CONSUMED_SUCCESS`, `CONSUMED_ABORTED`, `UNKNOWN`, las keys ni el historial del run dentro del
+namespace. El registry per-invocation de preimages usado para detectar colisión SHA-256 es distinto:
+se destruye al terminar la invocación y no otorga ni revoca unicidad de run/attempt/boundary.
+
+#### 37.7.2 Orden de construcción y consistencia
+
+El orden obligatorio de una invocación es:
+
+1. ya dentro del target proxied del harness, validar el seed/context, el scope tipado y que el claim
+   sea exactamente `SINGLE_READER_TEST`; un claim distinto termina en el stage de 37.4/37.12 sin
+   reservar keys;
+2. reservar atómicamente las keys del namespace acotado de 37.7.1, resolver el único catalog enum
+   y derivar una sola instancia de `scopeBytes`;
+3. entrar por el harness/TM/EM topology de 37.9, validar el `DescriptorRecursoLector` contra la
+   misma Session/Connection, crear `snapshotEvidenceId` sólo después de éxito y abrir capture;
+4. ejecutar los dos probes por el reader EM, validar valores y calcular el commitment
+   `statementObservationFingerprint` con el data statement exacto esperado;
+5. construir el context completo e invocar exactamente una data query R1 por el mismo
+   EM/session/resource;
+6. validar/mapear todas las rows, calcular cada source fingerprint, los IDs execution/logical y
+   cada snapshot identity; crear provenance y outputs inmutables;
+7. al volver el callback, cerrar/capturar el manifest real y exigir que su recompute sea igual al
+   commitment ya usado por los snapshots;
+8. recomputar las cuatro fórmulas desde los objetos finales, comparar en constant-time los bytes
+   de digest, verificar cross-record y entregar sólo si todo coincide;
+9. aplicar la transición terminal de 37.7.1, cerrar el persistence context/transacción y soltar
+   sólo el lock activo sin borrar ningún marker consumido/unknown.
+
+Invariantes mecánicas:
+
+```text
+typed port scope == sole internally-derived scopeBytes
+context catalog enum == query catalog == mapper V1 == fingerprint catalog == provenance catalog
+row reservationId == snapshot.reservationId == provenance.recordIds[0]
+row field1..11 == source fingerprint preimage == snapshot observable payload/provenance values
+all rows in one call share executionProvenanceId and logicalSnapshotId
+each row has its own sourceFingerprint and snapshotIdentity
+statementObservationFingerprint == exact manifest seen by the same reader SessionFactory
+snapshotEvidenceId == exact harness transaction boundary/resource contract
+```
+
+El reader no acepta del caller `scopeCanonical`, ninguno de los cuatro IDs, normalized fields ni
+catalog strings. `statementObservationFingerprint` sólo llega dentro del context construido por el
+harness/owner competente y nunca desde el test callback o caller del port. Toda lista/map/output es
+defensive immutable y ningún valor cambia después de return. Cualquier mismatch interno,
+cross-record o recompute descarta el batch completo y propaga sin reclasificar
+`IllegalStateException("F2E identity/provenance consistency not proven")`; esto usa la regla
+residual RuntimeException ya aprobada y no agrega un `ReservationReadFailureCode` ni un quinto
+trigger de `READ_SET_INVARIANT_VIOLATION`.
+
+### 37.8 Golden vectors byte-exactos `F2E_IDENTITY_V2`
+
+Estos cuatro outputs fueron calculados sobre bytes ASCII/UTF-8 exactos y recomputados de forma
+independiente con Python `hashlib.sha256` y Node `crypto.createHash('sha256')`; ambas
+implementaciones produjeron los mismos valores. Las líneas `preimage=` contienen todos los bytes
+previos a SHA-256, sin comillas ni newline final.
+
+En los cuatro vectores, `K=r1-a`: por ello `sourceName=fixture:postgres16:r1-a`,
+`identidadFuenteDatos=fixture-r1-a` y el `schemaFingerprint` mostrado son outputs confiables del
+mismo `DescriptorRecursoLector` de 37.4.1, no literales que el caller pueda aportar. Esta
+aclaración de ownership no modifica ningún byte, preimage, longitud ni hash de I-A–I-D.
+
+#### Vector I-A — `executionProvenanceId`
+
+Inputs directos completos:
+
+```text
+runIdentity=run-2026-09-13-001
+attemptIdentity=attempt-01
+readerInvocationIdentity=reader-invocation-0001
+operation=READ_BY_RESERVATION_IDS
+sourceName=fixture:postgres16:r1-a
+schemaFingerprint=sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+projectionCatalogVersion=R1_RESERVA_PROJECTION/V1
+ruleCatalogVersion=F2D-RULE-CATALOG/V1
+businessZone=America/Mexico_City
+scopeBytes=4:20:F2E-R1-READ-SCOPE-V223:READ_BY_RESERVATION_IDS1:136:00000000-0000-4000-8000-000000000001
+snapshotClaim=SINGLE_READER_TEST
+```
+
+Inputs y preimages completos de los dos componentes calculados:
+
+```text
+snapshotEvidence preimage=7:37:F2E-R1-SINGLE-READER-TEST-EVIDENCE-V212:fixture-r1-a16:tx-boundary-000127:f2eReaderTransactionManager24:f2eReaderPersistenceUnit14:read committed9:read only
+snapshotEvidenceId=f195883f1312824ab4cc5e6ff5a865a54fa7e1fb45dafe6cc49f5865a8952877
+
+observedIsolationValue=read committed
+observedAccessMode=read only
+statementCount=3
+observed IDs, ordered:
+4a669a2f628e12468e0d532889e0bcafd38c09a5aadfb27f2f20f56159c1671e
+9963ea856cdf9bfb3e9c440b1c3a6c062fd375a906f465cbe7a7ac88878716c7
+dfa84c5db84f44c41adb82b0a58a2f080fc05a0612df15ababbd5dc064192a5b
+statementObservation preimage=8:32:F2E-R1-STATEMENT-OBSERVATIONS-V264:f195883f1312824ab4cc5e6ff5a865a54fa7e1fb45dafe6cc49f5865a895287714:read committed9:read only1:364:4a669a2f628e12468e0d532889e0bcafd38c09a5aadfb27f2f20f56159c1671e64:9963ea856cdf9bfb3e9c440b1c3a6c062fd375a906f465cbe7a7ac88878716c764:dfa84c5db84f44c41adb82b0a58a2f080fc05a0612df15ababbd5dc064192a5b
+statementObservationFingerprint=7f7e27a90a3efff6803bf4a8e40dbe4377d8bf1a754187cb14502f47af135838
+```
+
+Canonical hash preimage y output:
+
+```text
+preimage=14:30:F2E-R1-EXECUTION-PROVENANCE-V218:run-2026-09-13-00110:attempt-0122:reader-invocation-000123:READ_BY_RESERVATION_IDS23:fixture:postgres16:r1-a71:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa24:R1_RESERVA_PROJECTION/V119:F2D-RULE-CATALOG/V119:America/Mexico_City93:4:20:F2E-R1-READ-SCOPE-V223:READ_BY_RESERVATION_IDS1:136:00000000-0000-4000-8000-00000000000118:SINGLE_READER_TEST64:f195883f1312824ab4cc5e6ff5a865a54fa7e1fb45dafe6cc49f5865a895287764:7f7e27a90a3efff6803bf4a8e40dbe4377d8bf1a754187cb14502f47af135838
+SHA-256 lower-hex=b081c98ef4b71b8395051b3a9be319cc7d149c9306109828a0fbcb94a7c70795
+```
+
+#### Vector I-B — `logicalSnapshotId`
+
+Inputs directos completos:
+
+```text
+sourceName=fixture:postgres16:r1-a
+schemaFingerprint=sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+projectionCatalogVersion=R1_RESERVA_PROJECTION/V1
+ruleCatalogVersion=F2D-RULE-CATALOG/V1
+businessZone=America/Mexico_City
+scopeBytes=4:20:F2E-R1-READ-SCOPE-V223:READ_BY_RESERVATION_IDS1:136:00000000-0000-4000-8000-000000000001
+snapshotClaim=SINGLE_READER_TEST
+snapshotEvidence inputs=(fixture-r1-a,tx-boundary-0001,f2eReaderTransactionManager,f2eReaderPersistenceUnit,read committed,read only)
+snapshotEvidence preimage=7:37:F2E-R1-SINGLE-READER-TEST-EVIDENCE-V212:fixture-r1-a16:tx-boundary-000127:f2eReaderTransactionManager24:f2eReaderPersistenceUnit14:read committed9:read only
+snapshotEvidenceId=f195883f1312824ab4cc5e6ff5a865a54fa7e1fb45dafe6cc49f5865a8952877
+```
+
+```text
+preimage=9:26:F2E-R1-LOGICAL-SNAPSHOT-V223:fixture:postgres16:r1-a71:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa24:R1_RESERVA_PROJECTION/V119:F2D-RULE-CATALOG/V119:America/Mexico_City93:4:20:F2E-R1-READ-SCOPE-V223:READ_BY_RESERVATION_IDS1:136:00000000-0000-4000-8000-00000000000118:SINGLE_READER_TEST64:f195883f1312824ab4cc5e6ff5a865a54fa7e1fb45dafe6cc49f5865a8952877
+SHA-256 lower-hex=d5b95d6a6c3b9feeee9c2cefdf93a1229f065b783e2db7984b6c6957234b8e88
+```
+
+#### Vector I-C — `sourceFingerprint`
+
+Inputs directos completos:
+
+```text
+sourceName=fixture:postgres16:r1-a
+schemaFingerprint=sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+projectionCatalogVersion=R1_RESERVA_PROJECTION/V1
+sourceSystem=LEGACY
+sourceAtomType=RESERVA
+reservationId=00000000-0000-4000-8000-000000000001
+fields ordered:
+1 reservationId/id/UUID/VALUE/00000000-0000-4000-8000-000000000001
+2 state/estado/TEXT/VALUE/CONFIRMADA
+3 date/fecha/DATE/VALUE/2026-09-15
+4 salonId/salon_id/UUID/VALUE/00000000-0000-4000-8000-000000000002
+5 instructorId/instructor_id/UUID/VALUE/00000000-0000-4000-8000-000000000003
+6 activityId/tipo_actividad_id/UUID/VALUE/00000000-0000-4000-8000-000000000004
+7 start/hora_inicio/TIME_MICROS/VALUE/08:30:00.000000
+8 end/hora_fin/TIME_MICROS/VALUE/09:30:00.000000
+9 createdAtTechnical/creado_en/TIMESTAMP_UTC_MICROS/VALUE/2026-09-01T14:00:00.000000Z
+10 updatedAtTechnical/actualizado_en/TIMESTAMP_UTC_MICROS/VALUE/2026-09-02T15:30:00.000000Z
+11 historicalProgrammingTarget/NONE/OPTIONAL_HISTORICAL_TARGET/ABSENT/<empty bytes>
+```
+
+Canonical projection bytes completos (1210 bytes):
+
+```text
+15:30:F2E-R1-CANONICAL-PROJECTION-V221:R1_RESERVA_PROJECTION2:V12:11102:7:22:F2E-R1-SOURCE-FIELD-V21:113:reservationId2:id4:UUID5:VALUE36:00000000-0000-4000-8000-00000000000171:7:22:F2E-R1-SOURCE-FIELD-V21:25:state6:estado4:TEXT5:VALUE10:CONFIRMADA69:7:22:F2E-R1-SOURCE-FIELD-V21:34:date5:fecha4:DATE5:VALUE10:2026-09-15101:7:22:F2E-R1-SOURCE-FIELD-V21:47:salonId8:salon_id4:UUID5:VALUE36:00000000-0000-4000-8000-000000000002113:7:22:F2E-R1-SOURCE-FIELD-V21:512:instructorId13:instructor_id4:UUID5:VALUE36:00000000-0000-4000-8000-000000000003115:7:22:F2E-R1-SOURCE-FIELD-V21:610:activityId17:tipo_actividad_id4:UUID5:VALUE36:00000000-0000-4000-8000-00000000000490:7:22:F2E-R1-SOURCE-FIELD-V21:75:start11:hora_inicio11:TIME_MICROS5:VALUE15:08:30:00.00000084:7:22:F2E-R1-SOURCE-FIELD-V21:83:end8:hora_fin11:TIME_MICROS5:VALUE15:09:30:00.000000122:7:22:F2E-R1-SOURCE-FIELD-V21:918:createdAtTechnical9:creado_en20:TIMESTAMP_UTC_MICROS5:VALUE27:2026-09-01T14:00:00.000000Z129:7:22:F2E-R1-SOURCE-FIELD-V22:1018:updatedAtTechnical14:actualizado_en20:TIMESTAMP_UTC_MICROS5:VALUE27:2026-09-02T15:30:00.000000Z106:7:22:F2E-R1-SOURCE-FIELD-V22:1127:historicalProgrammingTarget4:NONE26:OPTIONAL_HISTORICAL_TARGET6:ABSENT0:
+```
+
+```text
+preimage=8:28:F2E-R1-SOURCE-FINGERPRINT-V223:fixture:postgres16:r1-a71:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa24:R1_RESERVA_PROJECTION/V16:LEGACY7:RESERVA36:00000000-0000-4000-8000-0000000000011210:15:30:F2E-R1-CANONICAL-PROJECTION-V221:R1_RESERVA_PROJECTION2:V12:11102:7:22:F2E-R1-SOURCE-FIELD-V21:113:reservationId2:id4:UUID5:VALUE36:00000000-0000-4000-8000-00000000000171:7:22:F2E-R1-SOURCE-FIELD-V21:25:state6:estado4:TEXT5:VALUE10:CONFIRMADA69:7:22:F2E-R1-SOURCE-FIELD-V21:34:date5:fecha4:DATE5:VALUE10:2026-09-15101:7:22:F2E-R1-SOURCE-FIELD-V21:47:salonId8:salon_id4:UUID5:VALUE36:00000000-0000-4000-8000-000000000002113:7:22:F2E-R1-SOURCE-FIELD-V21:512:instructorId13:instructor_id4:UUID5:VALUE36:00000000-0000-4000-8000-000000000003115:7:22:F2E-R1-SOURCE-FIELD-V21:610:activityId17:tipo_actividad_id4:UUID5:VALUE36:00000000-0000-4000-8000-00000000000490:7:22:F2E-R1-SOURCE-FIELD-V21:75:start11:hora_inicio11:TIME_MICROS5:VALUE15:08:30:00.00000084:7:22:F2E-R1-SOURCE-FIELD-V21:83:end8:hora_fin11:TIME_MICROS5:VALUE15:09:30:00.000000122:7:22:F2E-R1-SOURCE-FIELD-V21:918:createdAtTechnical9:creado_en20:TIMESTAMP_UTC_MICROS5:VALUE27:2026-09-01T14:00:00.000000Z129:7:22:F2E-R1-SOURCE-FIELD-V22:1018:updatedAtTechnical14:actualizado_en20:TIMESTAMP_UTC_MICROS5:VALUE27:2026-09-02T15:30:00.000000Z106:7:22:F2E-R1-SOURCE-FIELD-V22:1127:historicalProgrammingTarget4:NONE26:OPTIONAL_HISTORICAL_TARGET6:ABSENT0:
+SHA-256 lower-hex=e98cb3c5c325bae4fd7a8541121e690d0e27e6d9fd81ab756add5ca0f9e99e3e
+```
+
+#### Vector I-D — `snapshotIdentity`
+
+Inputs directos completos:
+
+```text
+logicalSnapshotId=d5b95d6a6c3b9feeee9c2cefdf93a1229f065b783e2db7984b6c6957234b8e88
+executionProvenanceId=b081c98ef4b71b8395051b3a9be319cc7d149c9306109828a0fbcb94a7c70795
+projectionCatalogVersion=R1_RESERVA_PROJECTION/V1
+sourceSystem=LEGACY
+sourceAtomType=RESERVA
+reservationId=00000000-0000-4000-8000-000000000001
+sourceFingerprint=e98cb3c5c325bae4fd7a8541121e690d0e27e6d9fd81ab756add5ca0f9e99e3e
+```
+
+Los tres hashes input se obtienen de las preimages completas I-A, I-B e I-C y se vuelven a
+tratar como 64 bytes ASCII lower-case, no como 32 bytes decoded.
+
+```text
+preimage=8:27:F2E-R1-SNAPSHOT-IDENTITY-V264:d5b95d6a6c3b9feeee9c2cefdf93a1229f065b783e2db7984b6c6957234b8e8864:b081c98ef4b71b8395051b3a9be319cc7d149c9306109828a0fbcb94a7c7079524:R1_RESERVA_PROJECTION/V16:LEGACY7:RESERVA36:00000000-0000-4000-8000-00000000000164:e98cb3c5c325bae4fd7a8541121e690d0e27e6d9fd81ab756add5ca0f9e99e3e
+SHA-256 lower-hex=5c27b72c6f6d7f183eec18d4e3d7b6383c9418f789b96485f892252c6a019d13
+```
+
+### 37.9 Topología JPA test-only exacta
+
+#### 37.9.1 Nombres, construcción y qualifiers
+
+`F2ePostgresTestConfiguration`, importada explícitamente sólo por tests R1, crea exactamente el
+reader plane con estos nombres. Dentro de la misma configuración crea además el único valor
+inmutable no-bean `DescriptorRecursoLector` de 37.4.1, después del bootstrap y del armado de los
+recursos reader; conserva en él las identity references exactas y lo entrega directamente al
+harness/reader al construirlos, sin exponerlo al test/callback ni registrarlo como bean:
+
+| Bean/resource name | Tipo/construcción normativa | Consumer exacto |
+| --- | --- | --- |
+| `f2eReaderDataSource` | DataSource nuevo con endpoint DB del container y sólo login efímero SELECT-only | sólo reader EMF y reader TM |
+| `f2eStatementPolicyInspector` | singleton `F2eStatementPolicyInspector` | sólo property del reader EMF y harness capture |
+| `f2eReaderEntityManagerFactory` | `LocalContainerEntityManagerFactoryBean`, PU `f2eReaderPersistenceUnit`, sólo reader DS, inspector exacto | reader EM proxy/TM |
+| `f2eReaderEntityManager` | `SharedEntityManagerCreator.createSharedEntityManager(f2eReaderEntityManagerFactory)` | executor y harness probes |
+| `f2eReaderTransactionManager` | `JpaTransactionManager(f2eReaderEntityManagerFactory)` con el mismo reader DS fijado explícitamente | harness advisor y reader advisor |
+| `readerTransactionTestHarness` | bean distinto/proxied | tests R1 |
+| `reservaProjectionQueryExecutor` | plain bean con `@Qualifier("f2eReaderEntityManager")` | reader |
+| `reservaProjectionMapper` | plain bean | reader |
+| `reservaJpaReader` | plain main class registrado explícitamente como bean test-only/proxied | callback del harness |
+
+La privileged plane usa `f2ePrivilegedDataSource` sólo para container/Flyway/fixtures/grants,
+negative write/checksum/cleanup. R1 no crea privileged EntityManagerFactory ni privileged
+transaction manager. Si el contexto parent tiene defaults/autoconfigurados, no son candidatos:
+cada factory method parameter e injection point anterior lleva el qualifier exacto. Ningún bean es
+`@Primary`; no hay `TransactionManagementConfigurer`, type/default fallback, `SET ROLE`, routing
+DataSource ni `AbstractRoutingDataSource`.
+
+El reader EMF fija
+`hibernate.session_factory.statement_inspector=f2eStatementPolicyInspector` con la instancia, no
+un classname que pueda crear otra. Sólo ese EMF puede producir el shared EM. El TM se construye con
+ese EMF y se le fija exactamente `f2eReaderDataSource`; startup falla si el EMF reporta otro DS,
+PU name, inspector o resource. Executor/harness no reciben `DataSource`, `EntityManagerFactory` ni
+otro EM. El harness sí recibe las identity references ya selladas dentro del descriptor para
+compararlas, no como rutas alternativas de acceso; el reader recibe sólo sus tres labels
+confiables y el mismo descriptor no-publicable requerido por 37.4.1.
+
+#### 37.9.2 Selección de transaction manager y coupling main/test
+
+Cada uno de los dos métodos públicos de `ReservaJpaReader` declara exactamente:
+
+```java
+@Transactional(
+    transactionManager = "f2eReaderTransactionManager",
+    propagation = Propagation.MANDATORY,
+    readOnly = true)
+```
+
+Se autoriza que esa main class plain nombre el manager test-only en R1. Es un string de wiring
+estable, compila sin el bean y no activa nada: la clase no tiene stereotype, production bean,
+component scan, configuration, property ni consumer. Sin `reservaJpaReader` bean no existe advisor
+ejecutable. Un contexto que intente registrar el reader sin el manager exacto falla al resolver el
+advisor/primera invocación y no cae al manager default o privilegiado.
+
+La futura composición R6, sólo si recibe autoridad separada, deberá registrar un manager llamado
+exactamente `f2eReaderTransactionManager` respaldado por la misma resource plane que su
+coordinator. No se autoriza R6 aquí ni un rename/fallback. Este bean-name contract mantiene
+`MANDATORY` y evita que R1 deba adivinar entre test y production managers.
+
+El método público exacto `readerTransactionTestHarness.inSingleStatementReadOnly(...)` declara:
+
+```java
+@Transactional(
+    transactionManager = "f2eReaderTransactionManager",
+    propagation = Propagation.REQUIRES_NEW,
+    isolation = Isolation.READ_COMMITTED,
+    readOnly = true)
+```
+
+El advisor del harness abre/cierra la única transacción R1. El advisor separado del reader resuelve
+el mismo manager por nombre, verifica `MANDATORY` y participa; no abre, suspende, eleva isolation
+ni reintenta. Un nested/new transaction dentro del callback, reader, executor, mapper o probes está
+prohibido.
+
+#### 37.9.3 EntityManager, persistence context y physical Connection
+
+`f2eReaderEntityManager` es un shared transaction-aware proxy. Durante la invocación delega al
+único EntityManager/Session que `JpaTransactionManager` liga al thread para
+`f2eReaderEntityManagerFactory`; fuera de esa transacción no puede ejecutar R1. Executor y harness
+reciben por identity el mismo bean proxy. `EntityManagerFactory.createEntityManager`, otro shared
+EM, `@PersistenceContext` sin `unitName`, default EM y privileged EM están prohibidos.
+
+El persistence context nace con el begin del TM y muere con su completion. Después de abrir, el
+harness exige `EntityManager.isJoinedToTransaction()`, Hibernate `Session` default-read-only y
+flush mode `MANUAL`; cualquier mismatch aborta antes del primer probe. R1 sólo materializa scalars
+y records, no entities managed. `persist`, `merge`, `remove`, `flush`, dirty managed state,
+`clear`, `detach` y output lazy/proxy están prohibidos; no se usa cleanup para ocultar writes.
+
+La única conexión del reader se obtiene por el EMF/TM desde `f2eReaderDataSource`. Para evidencia
+topológica, el harness puede usar exclusivamente
+`f2eReaderEntityManager.unwrap(Session.class).doReturningWork(...)` antes de probes y después del
+callback. El primer `doReturningWork`, antes de abrir capture, ejecuta exclusivamente la validación
+local de `DatabaseMetaData`/catalog/schema/principal de 37.4.1 y conserva internamente la referencia
+de esa `Connection`; no prepara ni ejecuta SQL. El segundo, después del callback, sólo compara por
+referencia la `Connection`, sin consultar metadata ni ejecutar SQL. Ninguno publica PID, URL,
+credentials u object identity. `DataSource.getConnection()`, `DriverManager`, `JdbcTemplate`,
+otro `doWork`, un JDBC connection suministrado por caller y connection independiente están
+prohibidos dentro de la ventana y nunca prueban same snapshot.
+
+### 37.10 Probes, inspector y SELECT-only/no-write guarantee
+
+El call path real y único es:
+
+```text
+test
+-> readerTransactionTestHarness Spring proxy
+-> TransactionInterceptor("f2eReaderTransactionManager") REQUIRES_NEW/RC/readOnly
+-> harness target + transaction-bound f2eReaderEntityManager
+-> validate DescriptorRecursoLector against same Session/Connection (zero SQL)
+-> open inspector capture(readerInvocationIdentity, snapshotEvidenceId)
+-> probe isolation through that EntityManager
+-> probe read-only through that EntityManager
+-> callback
+-> reservaJpaReader Spring proxy
+-> TransactionInterceptor("f2eReaderTransactionManager") MANDATORY/readOnly (joins)
+-> reader target -> executor -> same shared EntityManager delegate/Session
+-> one cataloged data query
+-> mapper/identity/provenance
+-> callback returns
+-> harness verifies statement manifest + connection sameness + cross-consistency
+-> harness target returns
+-> outer interceptor completes/closes transaction and persistence context
+```
+
+No self-invocation cuenta: test obtiene el harness bean proxy y el callback invoca el reader bean
+proxy distinto. Ninguna prueba transaccional usa `new ReaderTransactionTestHarness` o
+`new ReservaJpaReader`; un test arquitectónico falla si falta alguno de ambos advisors o si el
+advisor resuelve otro manager. La prueba negativa llama al reader proxy fuera del harness y exige
+`IllegalTransactionStateException` antes de query/mapper.
+
+Los probes autorizados son únicamente las dos native queries de 36.6 ejecutadas con
+`f2eReaderEntityManager`:
+
+```text
+R1_TX_ISOLATION_V1 -> SELECT current_setting('transaction_isolation') -> read committed
+R1_TX_READ_ONLY_V1 -> SELECT current_setting('transaction_read_only') -> on/read only
+```
+
+Se ejecutan una vez y antes de la data query. No se autorizan `DataSource.getConnection`, JDBC
+privilegiado/default, otro EntityManager/SessionFactory, `SHOW`, `SET`, ningún statement SQL de
+metadata/schema, `pg_current_snapshot()` o probe adicional R1. La lectura local de
+`DatabaseMetaData`/catalog/schema/principal autorizada en 37.4.1 ocurre antes de la capture por la
+misma Session/Connection, no es un statement catalogado ni una consulta SQL. El resultado `on` se
+canonicaliza a `read only` sólo para IDs/provenance; cualquier otro value falla.
+
+El singleton `f2eStatementPolicyInspector` está registrado en el mismo reader SessionFactory. El
+harness abre una capture ThreadLocal no anidable después del begin y antes del primer probe; cada
+`inspect` valida 36.3.1/36.4–36.6 y registra `(capture identity, ordered catalog ID)` antes de
+retornar SQL. Tras la data query el harness exige tres IDs exactos en orden y cierra la capture aun
+al fallar. Reuse, nested capture, missing/extra/out-of-order ID, thread change, call sin capture o
+capture no cerrada aborta la operación. Tests concurrentes usan ThreadLocal separado y una
+invocation identity única.
+
+El inspector prueba que los tres statements atravesaron ese SessionFactory y que ningún statement
+fuera del catálogo fue retornado. No ve bind values, transaction begin/commit, Connection identity,
+DB grants ni prueba por sí solo same physical connection o ausencia de writes por otra resource;
+esas propiedades provienen del grafo/binding, hard role fence y checksum.
+
+No existe DataSource SQL proxy adicional: la cadena exacta de enforcement es (1) advisors Spring
+que imponen una sola TX read-only, (2) shared EM proxy ligado al único reader EMF, (3) inspector
+fail-closed antes de JDBC y (4) hard PostgreSQL role fence en toda physical connection del reader
+DS. El login efímero sólo tiene `CONNECT`, `USAGE public` y `SELECT public.reserva`; sin CREATE,
+DML, sequence, function application privilege ni `SET ROLE`. Un negative INSERT mediante una
+transacción reader-role separada y fuera de la capture debe ser denegado; checksum/count
+privilegiado before/after debe ser idéntico. Spring `readOnly=true` y statistics sólo corroboran,
+no sustituyen inspector+role+checksum.
+
+No hay hidden bypass: reader, executor, probes y harness carecen de referencia a privileged/default
+DS/EMF/EM/TM; el único path SQL reachable es shared EM -> reader EMF -> reader DS -> SELECT-only
+credential. Bootstrap, Flyway, fixtures, role lifecycle, negative control, checksum y cleanup usan
+la privileged plane fuera de la ventana y nunca se mezclan en snapshot/provenance.
+
+### 37.11 Grafo normativo y paths prohibidos
+
+```text
+                           TEST-ONLY READER PLANE
+
+ test
+   |
+   v
+ [readerTransactionTestHarness proxy]
+   | TransactionInterceptor: explicit f2eReaderTransactionManager
+   v
+ [one REQUIRES_NEW / READ_COMMITTED / readOnly transaction]
+   | binds one EntityManager/Session to f2eReaderEntityManagerFactory
+   v
+ [validate DescriptorRecursoLector on same Session/Connection; zero SQL]
+   +----------------------------+-------------------------------+
+   |                            |                               |
+   v                            v                               v
+ [isolation probe]          [read-only probe]          [reservaJpaReader proxy]
+   |                            |                        explicit same TM / MANDATORY
+   +----------------------------+-------------------------------+
+                                |
+                                v
+                    [f2eReaderEntityManager shared proxy]
+                                |
+                                v
+                 [same transaction-bound EntityManager/Session]
+                                |
+          f2eStatementPolicyInspector sees probes + one data query
+                                |
+                                v
+                 [f2eReaderEntityManagerFactory / PU]
+                                |
+                                v
+                    [f2eReaderDataSource only]
+                                |
+                                v
+              [same transaction-bound physical Connection]
+                                |
+                                v
+          [PostgreSQL ephemeral SELECT-only login / hard DB fence]
+
+ PRIVILEGED PLANE (outside window only)
+ [f2ePrivilegedDataSource] -> bootstrap/Flyway/fixture/grant/checksum/cleanup
+                 -/-> harness, reader, executor, probes, reader EMF/TM
+
+ FORBIDDEN
+ reader/probe -X-> default or privileged TM/EM/EMF/DataSource
+ reader/probe -X-> dataSource.getConnection()/DriverManager/JdbcTemplate
+ reader/executor -X-> createEntityManager()/second Session/REQUIRES_NEW
+ probe -X-> another StatementInspector/SessionFactory/connection
+```
+
+### 37.12 Fail-closed matrix
+
+| Material condition | Detection/evidence | Required future behavior | Semantic mapping |
+| --- | --- | --- | --- |
+| unsupported/foreign snapshot claim | closed R1 enum plus boundary validation | `IllegalArgumentException("Unsupported R1 snapshot claim")` before registry reservation, resource validation, capture, probes or SQL; zero identity/output | no `ReservationReadFailureCode` |
+| no active reader transaction | reader proxy `MANDATORY` | `IllegalTransactionStateException`, zero SQL/output | no `ReservationReadFailureCode` |
+| another TM active | explicit reader advisor finds no resource for named reader TM | same deterministic `IllegalTransactionStateException`; never join wrong TM | none |
+| manager missing/renamed/incompatible | bean/advisor context validation | context/first invocation fails before probe/query; no default fallback | pre-semantic topology failure |
+| descriptor/resource label or identity mismatch | exact checks of 37.4.1 against reader DS/EMF/TM/shared EM and same Session/Connection | `IllegalStateException("F2E reader resource provenance not proven")` before capture/probes/SQL; no evidence, identity or output | unchanged RuntimeException |
+| EM bean not shared/not transaction-bound | bean identity + `isJoinedToTransaction` + Session checks | abort before probe | `SNAPSHOT_CONSISTENCY_NOT_PROVEN` operational |
+| second EM/EMF or wrong PU | architecture bean graph and runtime delegate identity | context/test FAIL; no candidate accepted | operational/topology |
+| independent/unexpected Connection | before/after Session connection reference differs, forbidden API scan | abort/discard all; connection evidence cannot be substituted | operational/topology |
+| probe escaped snapshot | expected EM bean/delegate, capture and ordered manifest absent | abort/discard all | `SNAPSHOT_CONSISTENCY_NOT_PROVEN` |
+| inspector missing/wrong SessionFactory/capture | EMF property instance identity or manifest mismatch | context/operation FAIL before output | SQL/no-write policy layer |
+| noncatalog SQL or write/DDL/lock/sequence SQL | inspector normalization/class/denylist/catalog | same `F2eSqlPolicyViolationException` instance before JDBC | exactly 36.3.1; no remap |
+| SELECT-only credential/fence unavailable | role grant/login preflight or negative write control | integration gate does not start/accept reader | `PRE_SEMANTIC_OPERATIONAL_FAILURE` |
+| physical mutation despite policy | before/after scoped checksum/count | no result accepted; integration gate FAIL | no semantic detector status |
+| duplicate run/attempt/boundary/invocation key | single bounded registry and atomic reservation of 37.7.1, before resource/probe/SQL | `IllegalStateException("F2E execution provenance identity reuse")`; no partial key insertion | unchanged RuntimeException |
+| provenance/field/catalog/scope mismatch | recompute and cross-consistency 37.7 | discard whole batch; exact identity consistency exception | unchanged RuntimeException |
+| digest collision with different preimage | per-invocation preimage registry | discard whole batch; exact collision exception | unchanged RuntimeException |
+| snapshot ID inconsistent with payload | reconstruct all direct component preimages | discard whole batch; zero partial snapshots | unchanged RuntimeException |
+
+Ninguna fila de esta tabla agrega/reclasifica los cuatro failure codes o triggers cerrados en 36.
+Los defectos de topology/policy/identity permanecen en sus owners operacionales; fallos físicos
+JPA/Hibernate/JDBC reales conservan `SOURCE_ACCESS_FAILURE` conforme a 36.3.
+
+### 37.13 Future implementation acceptance gates
+
+Una futura corrección de handoff/implementación R1 deberá convertir estas decisiones en pruebas
+objetivas, sin inventar autoridad:
+
+1. recomputador independiente de `LP/SEQ/ID_HASH_V2`, los dos scopes y cuatro vectors I-A–I-D,
+   incluida la prueba de que el ownership del descriptor no cambia sus bytes;
+2. mutation vectors que cambien individualmente run, attempt, invocation, scope, catalog, row
+   field, transaction evidence y labels del descriptor, comprobando inclusiones/exclusiones
+   declaradas y rechazo de labels aportados por caller;
+3. único enum catalog, mismos query IDs/mapper version y startup fail ante drift;
+4. rechazo pre-SQL de scope inválido y prueba arquitectónica de ausencia de caller
+   `scopeCanonical`/caller-generated output IDs;
+5. provenance exacto de 7 fields/32 keys, record/row equality, PII/SQL/credential exclusions y
+   historical `ABSENT`/`Optional.empty()`;
+6. bean graph/qualifiers exactos, descriptor inmutable no-bean y no-publicable, sus identity
+   references iguales a DS/EMF/TM/shared-EM reales, metadata de la misma Session/Connection igual a
+   endpoint/database/schema/principal sellados, cero `@Primary`/fallback/routing y privileged plane
+   unreachable;
+7. advisors reales: harness explicit TM + reader explicit same TM; negative outside-TX;
+8. shared EM bean/delegate/Session, joined transaction, one persistence context y same Connection
+   reference before/after; forbidden connection/second-EM APIs ausentes;
+9. dos probes por el shared EM, tres inspected IDs ordenados y ningún statement adicional;
+10. actual SELECT-only login/grants, denied INSERT, inspector fail-closed y scoped checksum/count
+    unchanged;
+11. recompute/cross-record inconsistency, missing inspector/fence/wrong resource y cada fila de
+    37.12 abortan sin outputs parciales;
+12. `SnapshotClaim` R1 contiene/acepta exactamente `SINGLE_READER_TEST`; cualquier intento de
+    `MULTI_READER_MVCC` u otro valor falla en el stage exacto de 37.4/37.12, sin evidence/probe/SQL;
+13. registry único y acotado: carreras sobre cada key, reserva all-or-none, success, abort antes y
+    después de construir identidades, rollback, interruption/`UNKNOWN`, retry sólo con attempt
+    nuevo, markers no borrados al liberar y reutilización permitida únicamente tras crear otro
+    `ApplicationContext` namespace;
+14. no production bean/config/property/consumer, no R6, no managed/lazy escape y exact allowlists.
+
+Los gates 1–14 son requisitos futuros; esta unidad documental no ejecuta ni aprueba R1. Los
+queries/read semantics, historical target, propagation, isolation y read-only congelados deben
+reportarse `UNCHANGED` por el fresh design audit y por el futuro handoff audit.
+
+### 37.14 Decisiones AD y salida de esta enmienda
+
+No se renumeran AD-01–AD-37. Se agregan:
+
+| ID | Decision | Alternatives rejected | Status |
+| --- | --- | --- | --- |
+| AD-38 | `F2E_IDENTITY_V2`: LP/SEQ exacto, SHA-256, 64 lower-hex, domains separados | hash/encoding/framing implementation-defined; concatenación | CLOSED_BY_THIS_AMENDMENT / PENDING_FRESH_AUDIT |
+| AD-39 | catálogo único enum `R1_RESERVA_V1`, scope derivado internamente y context sin canonical string libre | caller scope/version arbitrarios; verify-later | CLOSED_BY_THIS_AMENDMENT / PENDING_FRESH_AUDIT |
+| AD-40 | execution ID incluye run/attempt/invocation y inspected manifest; logical ID excluye execution-only; source/snapshot formulas 37.5 | logical attempt-dependent; provenance sin query evidence | CLOSED_BY_THIS_AMENDMENT / PENDING_FRESH_AUDIT |
+| AD-41 | canonical source projection de 11 posiciones, timestamps incluidos, PII excluida, historical `ABSENT` | reflection/map order; campos relevantes vagos; inferencia histórica | CLOSED_BY_THIS_AMENDMENT / PENDING_FRESH_AUDIT |
+| AD-42 | provenance core exacto y cuatro vectors I-A–I-D byte-exactos, doble recompute | tests/chat como autoridad; expected adaptado al código | MATERIALIZED / PENDING_FRESH_AUDIT |
+| AD-43 | reader y harness nombran explícitamente `f2eReaderTransactionManager`; main-class nominal test bean name permitido sin reachability | default TM, `@Primary`, configurer implícito, manager ambiguity | CLOSED_BY_THIS_AMENDMENT / PENDING_FRESH_AUDIT |
+| AD-44 | único shared EM/Session/DS/Connection SELECT-only; probes e inspector en el mismo EMF | independent EM/JDBC como snapshot proof | CLOSED_BY_THIS_AMENDMENT / PENDING_FRESH_AUDIT |
+| AD-45 | advisors/proxy path, inspector capture, hard role fence, graph y fail matrix 37.9–37.12 | annotations sin proxy; inspector/role/checksum aislados | CLOSED_BY_THIS_AMENDMENT / PENDING_FRESH_AUDIT |
+| AD-46 | `DescriptorRecursoLector` inmutable y config-owned sella labels con DS/EMF/TM/shared-EM y metadata de la misma Session/Connection | labels caller-supplied; hash de labels como prueba; conexión independiente | CORRECTED_AND_MATERIALIZED / PENDING_FRESH_AUDIT |
+| AD-47 | R1 soporta exclusivamente `SINGLE_READER_TEST + READ_COMMITTED`; `MULTI_READER_MVCC` se rechaza pre-evidence/probe/SQL y R6 requiere autoridad separada | claim dual R1; MVCC multi-reader sobre READ_COMMITTED; fallback | CORRECTED_AND_MATERIALIZED / PENDING_FRESH_AUDIT |
+| AD-48 | un registry harness-owned, atómico y acotado al `ApplicationContext` conserva markers ACTIVE/UNKNOWN/consumed y define retry/restart | check-then-put; borrar al release; unicidad global o durability implícita | CORRECTED_AND_MATERIALIZED / PENDING_FRESH_AUDIT |
+
+```text
+Open technical questions in authorized corrective scope: NINGUNA
+Human/business decision required: NO
+Prior failure/SQL/checksum authority: PRESERVED / NOT_REOPENED
+Query/read semantics: UNCHANGED
+Historical programming target: ALWAYS_EMPTY / UNCHANGED
+R1 propagation/isolation/readOnly/ownership: UNCHANGED
+Pure detector: UNCHANGED / DARK_LAUNCH / NOT_PRODUCTIVE
+R1 implementation: NOT_STARTED / NOT_AUTHORIZED
+R2-R6: NOT_AUTHORIZED
+Data audit / migration / resolver / fence / cutover: NOT_AUTHORIZED
+TurnoInstructor: PRODUCTIVE AUTHORITY
+cutover=false
+Next required gate: FRESH_INDEPENDENT_DESIGN_AUDIT_IN_NEW_CHAT
 ```

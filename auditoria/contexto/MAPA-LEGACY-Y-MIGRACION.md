@@ -1,11 +1,11 @@
 # FeelingPilates — Mapa legacy y migración
 
 Status: CANONICAL
-Last updated: 2026-08-27
+Last updated: 2026-09-15
 Repository verification: VERIFIED
 Last verified against commit:
-f6456310454a297397a63dac0c7b4c418bde9f5c
-Verification scope: autoridad productiva y transición con F2D.2 cerrada documentalmente en dark launch no productivo
+a0ec85818b771d4ac924b427fa1e90244ea9fe8e
+Verification scope: autoridad productiva, F2D preservado y transición PN-13 diseñada/no implementada
 
 ## Propósito
 
@@ -363,3 +363,136 @@ Antes de habilitar un nuevo writer o consumer:
 4. si no pueden, establecer cutover/fence;
 5. ejecutar migración;
 6. actualizar este documento sólo cuando la autoridad cambie realmente.
+
+---
+
+# Área: Pagos y Notificaciones — transición PN-13
+
+## Autoridad actual y objetivo
+
+```text
+ACTUAL: EXISTING / LEGACY_EVOLUTION_SOURCE / PRODUCTIVO_PARCIAL
+OBJETIVO PN: DESIGNED_NOT_IMPLEMENTED / NOT_PRODUCTIVE
+CUTOVER: NOT_AUTHORIZED
+IMPLEMENTATION: NOT_AUTHORIZED
+```
+
+El código legacy sigue atendiendo sus consumidores actuales. PN-13 define una transición; no
+cambia autoridad productiva. La branch histórica `feature/calendario-reservas-pagos` en
+`e515152671dc5b2801f4fd7ef3e1e608bfc55a0a` es sólo `CONCEPTUAL_EVIDENCE_ONLY`: no se mezcla, no
+se cherry-pickea y no es fuente de implementación.
+
+## Matriz REUSE / REWORK / RETIRE
+
+`REUSE` significa conservar una capacidad o contrato bajo su boundary correcto; `REWORK`, migrar
+o envolver antes de ser objetivo; `RETIRE`, retirar sólo después de cutover y cero consumidores.
+Ninguna clasificación autoriza trabajo físico.
+
+| Pieza física | Clase | Rol actual | Rol objetivo y razón | Coexistencia / compatibilidad | Condición de migración o cutover |
+| --- | --- | --- | --- | --- | --- |
+| `Paquete` | REWORK | Catálogo mutable y vigencia/precio actuales. | `ProductoComercial` mutable sólo para catálogo; compra usa snapshot. | Preservar IDs y APIs de catálogo durante migración. | Snapshot/backfill validados; readers históricos dejan de consultar catálogo. |
+| `PaqueteActividad` | REUSE + REWORK | Composición actividad/cantidad. | Base del componente de catálogo con cantidad positiva; no snapshot histórico. | Convivir con `CompraComponenteSnapshot`. | Writers nuevos congelan componentes; backfill legacy cerrado. |
+| `Compra` | REWORK | Mezcla compra, pago, Stripe, caja, vigencia y estado. | `Compra` adquirida separada de `OrdenVenta`, `Pago`, `Acreditacion` y derechos. | Adaptador/API legacy temporal; no doble settlement. | Datos descompuestos, reconciliados y consumers migrados. |
+| `PagoService` | REWORK | PaymentIntent, webhook directo y reconciliación básica. | Casos de uso separados + puerto Stripe + Inbox/reconciliador. | Mantener endpoints mientras delegan al nuevo núcleo. | Inbox y máquina monotónica auditadas; webhook antiguo deja de mutar directo. |
+| `VentaService` | REWORK | Efectivo/transferencia acreditados inmediatamente; ticket por UUID. | Crea `OrdenVenta`, registra/valida `Pago`, dispara acreditación común. | API de caja compatible; respuesta puede evolucionar aditivamente. | Transferencia pendiente y permisos separados activos; backfill conciliado. |
+| `PagoController` | REWORK | Intento, historial, paquetes activos y webhook. | Controllers delgados sobre aplicación; raw body hacia Inbox. | Preservar rutas iniciales; versionar cambios incompatibles. | Clientes migrados y observabilidad/recovery verificados. |
+| `VentaController` | REWORK | Caja, consulta y cambio de estado/reembolso. | Operaciones distintas de orden, efectivo, transferencia y reembolso. | Preservar rutas de venta/consulta temporalmente; deprecar mutación ambigua. | Nuevos permisos/endpoints adoptados; ruta legacy cerrada. |
+| `PaqueteController` / `PaqueteGestionController` | REUSE + REWORK | Lectura pública y CRUD lógico. | API de catálogo, con política/versiones y DTOs explícitos. | Mantener rutas `/api/publico/paquetes` y `/api/ventas/servicios` inicialmente. | Consumers confirman DTO objetivo; compatibilidad retirada aparte. |
+| `StripeConfig` | REUSE + REWORK | Configura clave global del SDK. | Adaptador Stripe configurado, validado y sin autoridad de dominio. | Puede coexistir detrás del puerto. | Config/secret handling y tests de adapter aprobados. |
+| `CompraRepository` | RETIRE + REPLACE | Persistencia monolítica de la entidad mezclada. | Repositorios por agregado/Inbox/ledger; consultas históricas sobre snapshot. | Adaptador legacy read-only temporal. | Backfill y equivalencia verificados; writers legacy apagados. |
+| `PaqueteRepository` | REUSE + REWORK | Persistencia de catálogo. | Repositorio de catálogo separado de contratos comprados. | Mantener mientras se migra el package. | Nuevo catálogo/API auditados. |
+| `EmailService` | REUSE + REWORK | Puerto mínimo sólo para invitación. | Puerto genérico de entrega email en infraestructura de notificaciones. | Invitaciones siguen funcionando mediante adaptador compatible. | Outbox/notificación y proveedor real verificados. |
+| `EmailServiceConsola` | RETIRE | Simulación de desarrollo en logs. | Sólo fake de desarrollo/test; no proveedor productivo. | Conservar hasta tener adapter sustituto. | Proveedor elegido/configurado y fallback operacional aprobado. |
+| `Reserva` | REUSE + REWORK | Reserva operacional sin crédito ni asistencia económica. | Sigue siendo entidad de Reservas; obtiene integración por `CompromisoReserva`. | ID actual es correlación; no duplicar reserva en Pagos. | Boundary atómico y estados necesarios auditados. |
+| `ReservaService` | REWORK | Crea/cancela contra turnos y horario; sin crédito. | Orquesta operación con `GestorCreditoReserva` en la misma transacción. | Endpoints actuales se preservan hasta migrar consumidores. | Tests de integración, concurrencia y rollback pasan. |
+| `ReservaRepository` | REUSE + REWORK | Persistencia/consultas de reserva. | Sigue bajo Reservas; añade sólo locks/consultas autorizados por su slice. | Sí; Pagos referencia `reserva_id`, no posee la fila. | Contrato de integración aprobado. |
+| `ReservaController` | REUSE + REWORK | API administrativa de reserva/cancelación. | Conserva autoridad operacional; expone consecuencias sin decidir saldo. | Compatibilidad obligatoria hasta migración de clientes. | DTO/API objetivo versionado y consumers migrados. |
+
+## Migraciones V22.1–V35
+
+Todas coexisten físicamente y permanecen inmutables; `REWORK/RETIRE` describe su modelo o permiso,
+no autoriza editar el archivo histórico. La compatibilidad indicada se conserva hasta el gate de
+consumer/cutover correspondiente.
+
+| Migración | Clase | Rol actual y target/razón | Coexistencia, API y condición de cutover |
+| --- | --- | --- | --- |
+| V22.1 | REUSE + REWORK | Crea `paquete/compra`; sus datos alimentan catálogo, orden, snapshot y pago separados. | Tablas legacy conviven; APIs se preservan hasta backfill y readers históricos validados. |
+| V22.2 | REUSE + REWORK | Clave única legacy; target añade operación/contexto/hash contradictorio. | Se reconoce durante transición; writer nuevo usa contrato fuerte antes del cutover. |
+| V22.3 | RETIRE HISTÓRICO | Crea permiso refund Stripe luego retirado; no es autoridad del refund nuevo. | Sin API que reactivar; permisos nuevos llegan aditivamente y con gate. |
+| V23 | REUSE + REWORK | Añade composición actividad/cantidad y método; fuente para snapshots y pagos. | Catálogo/caja compatibles hasta congelar todas las compras y separar transferencia. |
+| V24 | REUSE HISTÓRICO | Retira semillas conocidas con salvaguardas. | No tiene API target ni acción de cutover; sólo se preserva. |
+| V25 | REUSE + REWORK | Sede de venta; target queda en orden/pago/provenance según el caso. | DTO legacy conserva sede hasta mapping/backfill validado. |
+| V26 | REUSE + REWORK | `grupo_compra_id/numero_item` simula ticket; target es `OrdenVenta`+línea. | API carrito preservada hasta equivalencia y unicidad de orden verificadas. |
+| V27 | REUSE + REWORK | Motivo libre de estado; target son causas tipadas/auditables. | Lectura histórica conserva texto; writers nuevos dejan de usarlo tras cutover. |
+| V28 | REUSE + REWORK | Primeros permisos granulares de caja. | IDs/asignaciones se preservan; target agrega autoridades separadas sin romper roles. |
+| V29 | REUSE + REWORK | Permiso de vista de caja. | Compatibilidad UI preservada hasta inventario de consumers/permisos. |
+| V30 | REUSE HISTÓRICO | Ajusta descripciones de permisos. | Sin efecto de modelo; permanece por historia Flyway. |
+| V31 | REUSE + REWORK | Reestructura permisos por pantallas/acciones. | Asignaciones por ID coexisten; no se renombran otra vez sin migración aditiva. |
+| V32 | REUSE + REWORK | Renombra Caja a Ventas y crea vocabulario API actual. | Códigos actuales se preservan mientras controllers legacy estén activos. |
+| V33 | REUSE + REWORK | Granulariza catálogo. | Se conservan permisos UI; políticas comerciales agregan permisos nuevos aparte. |
+| V34 | REUSE + REWORK | Renombra catálogo a servicios. | Rutas `/api/ventas/servicios` y permisos se preservan hasta migrar consumers. |
+| V35 | REUSE HISTÓRICO | Elimina permiso/endpoint refund Stripe legacy. | No se revierte; lifecycle `Reembolso` usa nuevos permisos/API tras su propio gate. |
+
+Todas las migraciones históricas permanecen inmutables. La implementación revalida la versión
+Flyway máxima en ese momento; PN-13 no reserva un número.
+
+## Coexistencia y secuencia obligatoria
+
+1. Añadir tablas y constraints objetivo sin cambiar readers/writers productivos.
+2. Caracterizar el comportamiento legacy y crear snapshot/backfill determinista con reporte de
+   filas ambiguas en `REQUIERE_REVISION`.
+3. Introducir escritura nueva idempotente detrás de adapters compatibles; ningún pago puede
+   liquidar dos veces ni acreditar por dos rutas.
+4. Validar contabilidad, snapshots, permisos, API y observabilidad en dark launch.
+5. Migrar consumers de historial, catálogo, caja, Stripe y Reservas por slices auditados.
+6. Activar un único writer/reader autoritativo mediante fence/cutover expresamente autorizado.
+7. Retirar servicios, columnas y rutas legacy sólo en fase `contract` posterior y con cero
+   consumers demostrados.
+
+Antes del cutover, rollback significa desactivar el path nuevo sin perder datos. Después del
+cutover sólo se permite corrección forward/compensatoria; nunca se borra ledger o evidencia.
+
+La futura expansión debe materializar antes de cualquier writer objetivo, como un conjunto
+coherente y auditado: `cliente_id` inmutable con FKs compuestas Orden/Compra/Derecho; pointer único
+de settlement en Orden; ledger de seis buckets y constraints de conservación; ancla
+cliente+actividad y FEFO sin `SKIP LOCKED` foreground; vigencia UTC +
+`America/Mexico_City`/versión, `fechaVencimiento` incluida y límites exclusivos de compromiso y
+sesión; allowance por mes de inicio de sesión; identidades separadas de
+transferencia/evidencia/intento y rechazo `ORDEN_YA_LIQUIDADA`; scopes de refund/disputa
+normalizados por origen con anomalías payment-scoped; y `Notificacion -> EntregaLogica ->
+IntentoEntrega` con intentos append-only y agregación terminal por precedencia. Una migración
+parcial no habilita el writer correspondiente y toda fila ambigua queda fuera del cutover en
+`REQUIERE_REVISION`.
+
+Durante coexistencia, el adapter legacy no puede confirmar una transferencia al registrarla,
+asignar settlement por una segunda ruta, crear saldo fuera del ledger ni enviar notificaciones
+como sustituto del Outbox. Stripe y transferencia deben converger en el mismo guard de settlement;
+una transferencia validada después de otro settlement se contiene con `ORDEN_YA_LIQUIDADA` y no
+acredita. Un pago tardío/segundo se reconcilia o reembolsa sólo en el scope del `Pago` anómalo y no
+afecta derechos del settlement válido. Reservas conserva sesión/asistencia y llama la consecuencia
+crediticia transaccional; refund y disputa del mismo origen comparten mutex/ownership y nunca se
+amplían a todos los derechos del cliente. La corrección residual PN-13 sólo diseñó este
+enforcement: no creó SQL, migraciones, dual-write, backfill, fence ni código.
+
+## Compatibilidad API
+
+- **Preservar/evolucionar compatible:** catálogo público, gestión de servicios, creación/consulta de
+  ventas, inicio de PaymentIntent, historial propio, webhook y APIs de reserva.
+- **Deprecar después de reemplazo:** `mis-paquetes` como vigencia sin saldo real y cambios de estado
+  de venta que pretendan ser refund.
+- **Reemplazar:** refund como simple `Compra.estado`, webhook con mutación compleja directa y
+  transferencia confirmada al registrarse.
+- Cambios incompatibles usan ruta/versión nueva; una respuesta legacy puede enriquecerse sólo de
+  forma aditiva mientras existan consumidores.
+
+## Fence, autoridad y bloqueadores
+
+No existe fence ni cutover PN. El código legacy permanece autoridad física parcial hasta una fase
+de implementación, migración y activación futura. La corrección canónica y PN-13 están
+`ACCEPTED` después del re-audit fresh R1.2 `PASS / P0=0 / P1=0 / P2=1`; el único P2 permanece
+`NEW-PN13-017 / OPEN / EDITORIAL / NON_BLOCKING / IMPLEMENTATION_INDEPENDENT`. PN-14 y cualquier
+implementación siguen `NOT_AUTHORIZED`. Esta aceptación documental no crea SQL, migraciones,
+dual-write, backfill, fence, runtime productivo ni cutover. Las condiciones mínimas de cutover son:
+safety net, backfill sin ambigüedades no resueltas,
+invariantes/locks probados en PostgreSQL, Stripe/Inbox/recovery verificados, boundary de Reservas
+atómico, Outbox operativo, consumers inventariados y gate independiente en PASS.

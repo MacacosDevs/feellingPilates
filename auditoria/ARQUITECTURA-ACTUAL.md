@@ -1,11 +1,11 @@
 # FeelingPilates — Arquitectura actual
 
 Status: CANONICAL
-Last updated: 2026-08-27
+Last updated: 2026-09-15
 Repository verification: VERIFIED
 Last verified against commit:
-f6456310454a297397a63dac0c7b4c418bde9f5c
-Verification scope: arquitectura actual; F2D.2 cerrada documentalmente y preservada como dark launch no productivo
+a0ec85818b771d4ac924b427fa1e90244ea9fe8e
+Verification scope: arquitectura actual, F2D preservado y contraste físico PN-13 frente a diseño no implementado
 
 ## 1. Visión general
 
@@ -415,3 +415,128 @@ modelo legacy actual — PRODUCTIVO
 La autoridad concreta de cada transición se mantiene en:
 
 `contexto/MAPA-LEGACY-Y-MIGRACION.md`
+
+---
+
+# 17. Pagos — verdad física PN-13
+
+## 17.1 Actualmente implementado / legacy vivo
+
+Estado:
+
+**PRODUCTIVO PARCIAL / LEGACY_EVOLUTION_SOURCE / EN_TRANSICION**
+
+La evidencia física del baseline PN contiene `com.feelingpilates.pagos` con:
+
+- `Paquete` mutable (`precioCentavos`, `vigenciaDias`, estado activo y metadata de presentación);
+- `PaqueteActividad`, que ya relaciona un paquete con actividades existentes y cantidad explícita;
+- `Compra`, que hoy mezcla producto adquirido, estado monetario, método, PaymentIntent, expiración,
+  venta de caja, agrupación de ticket y motivo de estado;
+- `PagoService`, que crea/reutiliza PaymentIntent, procesa directamente webhooks firmados y
+  reconcilia compras pendientes;
+- `VentaService`, que registra efectivo o transferencia como `pagada` inmediatamente y calcula
+  expiración desde el paquete actual;
+- `PaqueteGestionService`, catálogo mutable;
+- `CompraRepository`, `PaqueteRepository`, `PagoController`, `VentaController`,
+  `PaqueteController`, `PaqueteGestionController` y `StripeConfig`;
+- dependencia `stripe-java` y claves/configuración Stripe existentes.
+
+Endpoints físicos relevantes:
+
+```text
+GET    /api/publico/paquetes
+POST   /api/pagos/paquetes/{paqueteId}/intento
+GET    /api/pagos/mis-paquetes
+GET    /api/pagos/mis-compras
+POST   /api/pagos/webhook
+GET    /api/ventas/sedes
+POST   /api/ventas
+POST   /api/ventas/carrito
+PATCH  /api/ventas/{id}/reembolsar
+GET    /api/ventas
+GET    /api/ventas/buscar
+GET    /api/ventas/servicios
+POST   /api/ventas/servicios
+PUT    /api/ventas/servicios/{id}
+PATCH  /api/ventas/servicios/{id}/deshabilitar
+PATCH  /api/ventas/servicios/{id}/habilitar
+```
+
+La firma Stripe se verifica contra el raw body recibido por el controller, existe unicidad para
+`stripe_payment_intent_id` e `idempotency_key`, y existe reconciliación programada básica. Estas
+capacidades son evidencia reutilizable, no prueban el contrato PN objetivo.
+
+Limitaciones físicas confirmadas:
+
+- no existe `OrdenVenta` propia; `grupo_compra_id` sólo agrupa líneas de caja;
+- no hay snapshot inmutable completo: lecturas y vigencia dependen de `Paquete` mutable;
+- no existe entidad `Pago` separada ni varios intentos por orden;
+- transferencia carece de `PENDIENTE_VALIDACION` y autoridad separada;
+- `pagada` acredita de hecho sólo una fecha, sin `Acreditacion` durable;
+- `payment_intent.payment_failed` puede escribir `fallida` sin una máquina monotónica cerrada;
+- no hay Inbox Stripe durable, deduplicación por `event.id` ni estado de procesamiento;
+- no hay ledger, derecho por actividad, compromiso de reserva, cuota de cancelación, crédito de
+  recuperación, bloqueo de derechos, reembolso con lifecycle propio ni contención de disputas;
+- la ruta legacy de reembolso sólo cambia `Compra.estado`; V35 retiró el permiso/ruta Stripe
+  anterior, mientras caja conserva `/api/ventas/{id}/reembolsar`;
+- no hay suite robusta de Pagos/Stripe: el inventario de tests no contiene tests focalizados del
+  paquete `pagos`.
+
+Las migraciones V22.1–V35 son historia física: crean/evolucionan catálogo, compra, idempotencia,
+actividades, caja, agrupación, sede, motivos y permisos. No deben renombrarse ni reinterpretarse
+como implementación PN.
+
+## 17.2 Diseñado por PN-13 / no implementado
+
+Estado:
+
+**DISEÑADO_NO_IMPLEMENTADO / NOT_PRODUCTIVE / IMPLEMENTATION_NOT_AUTHORIZED**
+
+No existen todavía los límites físicos, tipos, tablas o servicios objetivo definidos por
+DA-014–DA-022 y el checkpoint PN-13: orden/compra/pago/acreditación separados, snapshot comercial,
+derechos y ledgers, compromisos, Inbox, reembolso, disputa, Outbox ni workers idempotentes.
+
+La corrección residual de autoridad especifica además seis buckets separados de ledger,
+settlement pointer y FKs de cliente, FEFO serializado, vigencia con `fechaVencimiento` incluida y
+límites exclusivos en `America/Mexico_City`, asistencia pendiente,
+transferencia/evidencia/validación separadas, rechazo `ORDEN_YA_LIQUIDADA`, refund excepcional
+payment-scoped, contención exacta refund/disputa por origen y precedencia terminal de
+Notificación. Todo ello permanece **DISEÑADO_NO_IMPLEMENTADO**: no existen sus tablas, columnas,
+constraints, índices, migraciones, jobs ni código runtime en este worktree. La mayor precisión
+documental no cambia autoridad productiva ni autoriza PN-14.
+
+# 18. Reservas y Notificaciones — verdad física PN-13
+
+## 18.1 Reservas actuales
+
+`com.feelingpilates.calendario.entidad.Reserva` es **PRODUCTIVO / LEGACY_VIVO** y conserva salón,
+instructor, cliente, actividad, fecha, horas y sólo `CONFIRMADA | CANCELADA`.
+`ReservaService` valida horario efectivo y turno legacy, usa `SalonLock`, crea/cancela reservas y
+no consulta compras, no compromete créditos y no registra asistencia/no-asistencia o consecuencia
+económica. Sus endpoints actuales son:
+
+```text
+GET    /api/reservas
+GET    /api/reservas/mias
+POST   /api/reservas
+DELETE /api/reservas/{id}
+```
+
+La integración `GestorCreditoReserva` de DA-016 y el lifecycle
+`PENDIENTE_ASISTENCIA -> ASISTIDA | NO_ASISTIDA` administrado sólo por ADMIN están
+**DISEÑADOS_NO_IMPLEMENTADOS**. No autorizan alterar la autoridad de Programación/Reservas ni crean
+un segundo módulo de reservas; `Reserva` física actual continúa sin esos estados ni movimientos.
+
+## 18.2 Notificaciones actuales
+
+`EmailService` sólo declara envío de invitación de cliente y `EmailServiceConsola` lo simula en
+logs sin PII. Existe un test acotado de ese adaptador. No hay proveedor real, push, dispositivos,
+templates versionados, notificación lógica, intento de entrega, scheduling durable, reintentos,
+Outbox o deduplicación.
+
+La arquitectura de DA-020, incluidos los tres niveles `Notificacion -> EntregaLogica ->
+IntentoEntrega` y su agregación terminal, está **DISEÑADA_NO_IMPLEMENTADA / NOT_PRODUCTIVE**. No
+existen tablas, Outbox, workers ni migraciones que la materialicen. Ningún documento PN-13 afirma
+que email/push o los eventos de pago/reserva estén activos. En particular, tampoco existen la
+precedencia `REQUIERE_REVISION` por outcome incierto ni la distinción de planificación
+`SIN_CANALES_DISPONIBLES` frente al fallo posterior de una entrega ya creada.

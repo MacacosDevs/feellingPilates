@@ -1,7 +1,7 @@
 # FeelingPilates — Estado actual de la reestructuración
 
 Status: CANONICAL
-Last updated: 2026-09-13
+Last updated: 2026-09-15
 Repository verification: VERIFIED
 Last verified against commit:
 f23e91390d21ebd06040f3ed60f631e05d23d653
@@ -441,3 +441,125 @@ Human/business decision: `NOT_REQUIRED`.
 Technical design authority: `CLOSED / PUBLISHED`.
 
 Implementation authority: `AUTHORIZED / NOT_STARTED / BOUNDED BY EXACT ACTIVE R1 HANDOFF`.
+
+## Carril activo paralelo — Payments & Notifications / PN-13
+
+Este lifecycle pertenece exclusivamente al carril físicamente aislado de Payments &
+Notifications. Coexiste con el lifecycle F2E activo descrito arriba: no lo cierra, supersede,
+absorbe, modifica ni autoriza a integrarlo, y no cambia el estado de candidatos inéditos de sus
+otros worktrees.
+
+```text
+LANE: PAYMENTS & NOTIFICATIONS
+BRANCH: pagos/pagos-notificaciones-r1
+WORKTREE: /Users/jesusaldaircruzortiz/Desktop/Feelingpilates/feelingpilates-payments-notifications
+FROZEN BASELINE: a0ec85818b771d4ac924b427fa1e90244ea9fe8e
+
+PN-12.4: APPROVED / COMPLETED / HISTORICAL
+PN-13 HANDOFF: COMPLETED FOR AUTHORITY MATERIALIZATION / HISTORICAL / NOT_ACTIVE
+PN-13 HANDOFF PATH: auditoria/handoffs/HANDOFF-PN13-MATERIALIZACION-AUTORIDAD-PAGOS-NOTIFICACIONES.md
+PN-13 HANDOFF SHA-256: 601d285a23c87b131b4b4946d2f858ad918faea12e492d76f7e9da7acd073e22
+ACTIVE HANDOFF: NINGUNO
+
+INDEPENDENT AUDIT EVIDENCE: auditoria/reviews/HANDOFF-PN13-MATERIALIZACION-AUTORIDAD-PAGOS-NOTIFICACIONES-REVIEW.md
+AUDIT EVIDENCE SHA-256: 26a0e67588f7a9e5bd13c79aa9006a833d63834cf3cf1a1a19467194e27df5f5
+AUDIT RESULT: PASS
+P0 / P1 / P2: 0 / 0 / 0
+
+PN-13: MATERIALIZED / ACCEPTED / READY_TO_PUBLISH
+PN-13 CHECKPOINT: auditoria/fase-pn13-materializacion-autoridad-pagos-notificaciones.md
+PN-13.1 (HISTORICAL): FRESH INDEPENDENT AUTHORITY AUDIT / FAIL
+PN-13.1 P0 / P1 / P2: 0 / 10 / 0
+PN-13.1 REVIEW: auditoria/reviews/PN13-REVIEW-MATERIALIZACION-AUTORIDAD-PAGOS-NOTIFICACIONES.md
+PN-13.1 REVIEW SHA-256: cda17b50e562059382f42c46ebe827fedf6519682f95259860be4d0a48215477
+PN-13.1.1: FAILED AUTHORITY AUDIT EVIDENCE MATERIALIZATION / PASS / EVIDENCE_ONLY / NO_CORRECTION
+PN-13 RESIDUAL AUTHORITY AUDIT (HISTORICAL): FAIL / P0=0 / P1=5 / P2=1
+PN-13 R1.2 FRESH AUTHORITY AUDIT: PASS / P0=0 / P1=0 / P2=1
+PN-13 R1.2 REVIEW: auditoria/reviews/PN13-R1.2-REVIEW-MATERIALIZACION-AUTORIDAD-PAGOS-NOTIFICACIONES.md
+PN-13 R1.2 REVIEW SHA-256: da21981cbb4d0925fc7732e645580dd22e5e369938f6b165a0e7009d0eb4510b
+PN-13 AUTHORITY CORRECTION: ACCEPTED
+PN13-001..PN13-010: CLOSED
+NEW-PN13-011..NEW-PN13-016: CLOSED
+NEW-PN13-017: OPEN / P2 / EDITORIAL / NON_BLOCKING / IMPLEMENTATION_INDEPENDENT
+PN-13 DOCUMENTATION GATE: PASS
+PN-13 PUBLICATION GATE: PENDING
+PN-13 PUBLICATION CLOSURE GATE: PENDING
+PN-13.2 (HISTORICAL): NOT_AUTHORIZED
+PN-14: NOT_AUTHORIZED
+IMPLEMENTATION: NOT_AUTHORIZED
+NEXT ALLOWED ACTION: PUBLICATION ONLY UNDER SEPARATE EXPLICIT AUTHORITY; OTHERWISE SAFE STOP AT READY_TO_PUBLISH
+
+F2E LIFECYCLE: ACTIVE / INDEPENDENT / UNCHANGED
+F2E WORKTREE AND UNPUBLISHED CANDIDATES: NOT_INSPECTED / NOT_MODIFIED
+F2E INTEGRATION: NOT_AUTHORIZED
+```
+
+La aprobación y activación históricas se limitaron al hash exacto del handoff indicado. Las marcas internas
+`NOT_APPROVED`, `NOT_ACTIVE` y `PN-13 NOT_AUTHORIZED_TO_START` conservan el estado histórico del
+artefacto cuando fue materializado; el review independiente y esta transición canónica posterior
+son la evidencia competente del nuevo lifecycle. Después de PN-13.1, PN-13 permaneció materializada
+y no aceptada porque ese audit falló con diez hallazgos P1; PN-13.1.1 materializa la evidencia
+histórica sin corregirla.
+El re-audit fresh R1.2 posterior cerró PN13-001..PN13-010 y NEW-PN13-011..NEW-PN13-016, reportó
+`AUTHORITY_AUDIT=PASS / P0=0 / P1=0 / P2=1` y habilitó esta aceptación. PN-14 e implementación
+siguen no autorizadas; publication y publication closure siguen pendientes, y no se concede
+autoridad de runtime, migración, integración ni cutover.
+
+PN13-001: CLOSED — checkpoint §18.1; DA-015/016/017/019
+PN13-002 / NEW-PN13-011: CLOSED / CLOSED — checkpoint §18.2; Dominio §§13.3–13.5; DA-009
+PN13-003: CLOSED — checkpoint §18.3; Dominio §13.5; DA-016
+PN13-004: CLOSED — checkpoint §18.4; Dominio §13.5; DA-017
+PN13-005 / NEW-PN13-012: CLOSED / CLOSED — checkpoint §18.5; Dominio §§13.6–13.7; DA-014/018/019
+PN13-006 / NEW-PN13-013: CLOSED / CLOSED — checkpoint §18.6; Dominio §13.7; DA-014/018
+PN13-007: CLOSED — checkpoint §18.7; Dominio §13.6; DA-019
+PN13-008 / NEW-PN13-014: CLOSED / CLOSED — checkpoint §18.8; Dominio §13.6; DA-015/017/019
+PN13-009: CLOSED — checkpoint §18.9; DA-014/017
+PN13-010 / NEW-PN13-015: CLOSED / CLOSED — checkpoint §18.10; Dominio §13.8; DA-020
+NEW-PN13-016: CLOSED — checkpoint §§5.1/18.1; DA-015
+NEW-PN13-017: OPEN / P2 / EDITORIAL / NON_BLOCKING / IMPLEMENTATION_INDEPENDENT — checkpoint §5.1 frente a §18.1 y DA-015
+
+El review histórico PN-13.1 conserva `FAIL / P1=10` y el audit residual conserva
+`FAIL / P1=5 / P2=1`; no se reescriben retroactivamente. El review R1.2 es evidencia
+`EVIDENCE_ONLY / NOT_SELF_AUTHORIZING`, y esta transición canónica posterior materializa la
+aceptación. NEW-PN13-017 permanece explícitamente abierto y no se corrige en esta tarea.
+
+Allowlist documental exhaustiva autorizada para el DOCUMENTER PN-13:
+
+```text
+auditoria/fase-pn13-materializacion-autoridad-pagos-notificaciones.md
+auditoria/contexto/DOMINIO-FUNCIONAL.md
+auditoria/DECISIONES-ARQUITECTONICAS.md
+auditoria/ARQUITECTURA-ACTUAL.md
+auditoria/contexto/MAPA-LEGACY-Y-MIGRACION.md
+auditoria/ESTADO-ACTUAL.md
+```
+
+El DOCUMENTER PN-13 no puede escribir su propio review independiente. El review
+`auditoria/reviews/PN13-REVIEW-MATERIALIZACION-AUTORIDAD-PAGOS-NOTIFICACIONES.md` existe como
+evidencia del audit y permanece `EVIDENCE_ONLY / NOT_NORMATIVE_AUTHORITY`.
+
+Workflow profile de la transición y del siguiente bloque documental:
+
+```text
+PN-12.4 SCOPE / DOCUMENTATION / LIFECYCLE GATE: APPLICABLE
+PN-13 PREPARE / DOCUMENT / DOCUMENT AUDIT: APPLICABLE
+PN-13 MATERIALIZATION: COMPLETED / NOT_SELF_AUDITED
+PN-13 AUTHORITY CORRECTION: ACCEPTED AFTER FRESH INDEPENDENT R1.2 AUDIT
+PN-13 SCOPE / DELTA ISOLATION: APPLICABLE / PASS
+PN-13 DOCUMENTATION GATE: APPLICABLE / PASS
+PN-13 PUBLICATION GATE: APPLICABLE / PENDING
+PN-13 PUBLICATION CLOSURE GATE: APPLICABLE / PENDING
+IMPLEMENTATION GATE: NOT_APPLICABLE / NOT_AUTHORIZED
+TESTS GATE: NOT_APPLICABLE
+HOST VALIDATION: NOT_APPLICABLE
+```
+
+`NOT_APPLICABLE` no equivale a `PASS`. No se ejecutaron ni se declaran aprobados tests,
+HostValidator o validaciones de runtime en esta transición documental. La autoridad productiva y
+el `cutover` permanecen sin cambios. El audit fresh independiente PN-13.1 confirmó el aislamiento
+de scope/delta como `CONFORMING` y documentó diez P1; el audit residual posterior mantuvo
+`AUTHORITY_AUDIT=FAIL` con cinco P1 y un P2. La corrección residual documental fue autorizada y
+aplicada; el re-audit fresh R1.2 posterior reportó `PASS / P0=0 / P1=0 / P2=1`, y la transición
+competente materializa ahora la aceptación con `DOCUMENTATION GATE=PASS`. El único P2 es
+NEW-PN13-017, editorial, no bloqueante e independiente de implementación. Publication y cierre de
+publicación siguen `PENDING`; no se publicó ni se autorizó PN-14 o implementación.

@@ -620,3 +620,165 @@ En el snapshot histórico de materialización documental (`worker_done msg_16f41
 `2026-09-16T15:46:13Z`), la publicación del delta final de cierre y su verificación fresh
 correspondían a tareas separadas; sus resultados posteriores se demuestran por Git y por el
 publisher/verifier competentes, sin fijar un HEAD permanente ni un SHA autorreferencial.
+
+## Payments & Notifications — PN14 aceptación limitada del primer safety net
+
+La transición competente acepta y activa exclusivamente el contrato auditado del primer slice
+PN13 §13, `SAFETY_NET / CHARACTERIZATION`. La autorización del contrato ya pasó su gate;
+la entrada de ejecución exige además la verificación final y confirmación condicional siguientes.
+Los bloques PN13 anteriores conservan el workflow cerrado y su historia. Sus marcas PN14
+`NOT_AUTHORIZED`, y las marcas candidate del handoff inmutable/checkpoint histórico, describen
+cortes anteriores supersedidos sólo para este primer slice por esta autoridad vigente.
+
+```text
+RUN / MATERIALIZER TASK / DISPATCH: run_c0e250934cba / task_80eccb03747c / ctx_f1da47037d6c
+ROLE / MODE: PN14_LIMITED_AUTHORIZATION_ACCEPTANCE_MATERIALIZER / DOCUMENTATION_ONLY / SINGLE_WRITER
+PN13: MATERIALIZED / ACCEPTED / PUBLISHED / CLOSED
+PN13 WORKFLOW: PUBLISHED / TERMINAL
+PN13 DOCUMENTATION / PUBLICATION / CLOSURE: PASS / PASS / PASS
+PN13 P0 / P1 / P2: 0 / 0 / 1
+PN13 ONLY OPEN: NEW-PN13-017 / OPEN / P2 / EDITORIAL / NON_BLOCKING / IMPLEMENTATION_INDEPENDENT
+PN14 CONTRACT: MATERIALIZED / AUDITED / ACCEPTED
+PN14 HANDOFF: ACCEPTED / ACTIVE
+PN LANE ACTIVE HANDOFF: auditoria/handoffs/HANDOFF-PN14-SAFETY-NET-CARACTERIZACION.md
+ACCEPTED IMMUTABLE HANDOFF SHA-256: df540a241671b5c1c173a5aaf6d809871e9beb8bd8248d16025ff0984b7f48ab
+PN14 CHECKPOINT: auditoria/fase-pn14-autorizacion-implementacion-safety-net-caracterizacion.md
+INDEPENDENT AUDIT REVIEW: auditoria/reviews/PN14-REVIEW-AUTORIZACION-SAFETY-NET-CARACTERIZACION.md
+AUDIT TASK / DISPATCH / MESSAGE: task_8bca8adeef57 / ctx_4617ec2a4704 / msg_b0e03b5c0b14
+FRESH_INDEPENDENT_DOCUMENT_AUDIT / SCOPE_GATE / DOCUMENTATION_GATE: PASS / PASS / PASS
+COORDINATOR AUTHORIZATION TASK / GATE: task_0b2b9bb4e09a / gate_622256c04eaf — COMPLETED / RESOLVED / PASS
+PN14 NEW FINDINGS: P0=0 / P1=0 / P2=0
+COMBINED OPEN TOTALS: P0=0 / P1=0 / P2=1 — solely NEW-PN13-017
+SELF_AUDIT: NOT_PERFORMED
+IMPLEMENTATION: AUTHORIZED_ONLY_FOR_FIRST_SLICE / NOT_STARTED
+FIRST SLICE: SAFETY_NET / CHARACTERIZATION
+IMPLEMENTATION PERFORMED / SOURCE OR TEST DELTA: NO / NONE
+SLICES 2–12: NOT_AUTHORIZED / NO_AUTOMATIC_NEXTSLICE
+LOCAL ENTRY PROFILE: LOCAL_UNCOMMITTED_AUDITED_DOCUMENTATION_ENTRY
+LOCAL ENTRY MANIFEST: auditoria/reviews/PN14-MANIFEST-ENTRADA-LOCAL-SAFETY-NET-CARACTERIZACION.md
+FINAL VERIFIER TASK: task_8f1a6c481d15 — READY / RESULT PENDING at materialization
+FINAL CONFIRMATION TASK / GATE: task_2b415c7bb7c0 / gate_3e9c24443aa9 — BLOCKED / PENDING at materialization
+EXECUTION ENTRY: CONDITIONAL / NOT_SATISFIED until final verifier PASS + final confirmation PASS + physical preflight
+PN14 PUBLICATION: NOT_PERFORMED / NO_PUBLICATION_PERMISSION
+TESTS / HOST / TECHNICAL IMPLEMENTATION GATES IN THIS DOCUMENTARY RUN: NOT_APPLICABLE / NOT_EXECUTED
+BASELINE HEAD: 12f52781177694693be7d6dc2efc71009c5f45b3
+BASELINE STAGING: EMPTY
+PHYSICAL PREFLIGHT: BOUNDED PREEXISTING PN14 DOCUMENTATION DIRTY / LOCAL=UPSTREAM=LIVE ORIGIN=BASELINE HEAD
+TARGET PRODUCTION PN13: DESIGNED_NOT_IMPLEMENTED / NOT_AUTHORIZED
+F2D / F2E / PRODUCTIVE AUTHORITY / RUNTIME / MIGRATION / FENCE / CUTOVER: UNCHANGED
+```
+
+La entrada local queda expresamente autorizada bajo este profile limitado, sin publicación
+previa requerida por esta transición. Sólo se hace efectiva cuando, en el mismo Run, el Task
+`task_8f1a6c481d15` esté COMPLETED/succeeded con un único resultado competente
+`PN14_FINAL_MATERIALIZATION_VERIFICATION=PASS` y el Task `task_2b415c7bb7c0` /
+`gate_3e9c24443aa9` esté COMPLETED / RESOLVED / PASS por resolución competente del coordinador.
+Esos resultados están pendientes en este corte; su ocurrencia posterior satisface esta regla
+sin otra edición documental. El EXECUTOR debe recuperar resultados estructurados competentes,
+comparar los seis hashes físicos con el manifest y el resultado final del gate
+(`localEntryManifestSHA256` y `authorityFileSHA256`), cross-check de materializador/verificador,
+y confirmar worktree/branch/HEAD exactos, upstream/live origin, staging EMPTY y baseline bounded.
+No basta chat, journal, un título PASS ni existencia de archivos; Orca aporta provenance y
+complementa esta autoridad normativa explícita del repositorio.
+
+El EXECUTOR conserva byte-identical los seis documentos y sólo puede crear los once tests y
+dos helpers finitos del handoff §4, manteniendo matriz, comandos, compatibilidad y gates §§5–8.
+Toda diferencia documental, HEAD distinto, path desconocido o staging no vacío falla cerrado;
+manifest revisado u otro HEAD requiere nueva autorización explícita. No hay waiver general
+de dirty. Tras la implementación serán exigibles baseline/focal/full, PostgreSQL/host, audit
+técnico fresh, documentación/audit separados y gates de publicación/cierre propios.
+Ningún failed/unknown/skipped equivale a PASS ni autoriza producción o el slice siguiente.
+
+## Payments & Notifications — PN14 Slice1 current lifecycle posterior al gate técnico
+
+Transición vigente limitada: persiste aprobación técnica independiente y documentación candidata
+del primer safety net PN13§13; los bloques anteriores y sus NOT_STARTED/PENDING conservan su
+snapshot histórico y sólo se superseden en la dimensión Slice1 expresamente descrita aquí.
+Los bytes completos de entrada de este canónico permanecen intactos como prefix.
+
+```text
+RUN / DOCUMENTER TASK / DISPATCH: run_190c06410cef / task_4a2e70c6bafd / ctx_749d90b963c8
+PN13: MATERIALIZED / ACCEPTED / PUBLISHED / CLOSED; PUBLISHED terminal; gates PASS
+PN14 CONTRACT / HANDOFF: ACCEPTED / ACTIVE
+PN LANE HANDOFF: auditoria/handoffs/HANDOFF-PN14-SAFETY-NET-CARACTERIZACION.md
+IMMUTABLE HANDOFF SHA-256: df540a241671b5c1c173a5aaf6d809871e9beb8bd8248d16025ff0984b7f48ab
+SLICE1: SAFETY_NET / CHARACTERIZATION / IMPLEMENTED / VALIDATED / AUDITED / TECHNICAL_GATE_PASS
+TECHNICAL AUDIT TASK / DISPATCH: task_2f0ba72484a2 / ctx_f2874d4903db
+TECHNICAL AUDIT DONE / STRUCTURED EVIDENCE: msg_4eb8fcb726e4 / msg_3a4969ac4c4a
+TECHNICAL COORDINATOR TASK / GATE: task_ae6dd88b4b33 / gate_bc4ce966cb51 — COMPLETED / RESOLVED / PASS
+SCOPE_GATE / TESTS_GATE / TECHNICAL_IMPLEMENTATION_GATE / HOST_VALIDATION: PASS / PASS / PASS / PASS
+BASELINE BEFORE WRITERS / FINAL FOCAL / FINAL FULL: 590 / 67 / 638; zero failures/errors/skips
+PN14-S1-TA-001 / TA-002 / TA-003: CLOSED / CLOSED / CLOSED
+NEW TECHNICAL P0 / P1 / P2: 0 / 0 / 0
+COMBINED P0 / P1 / P2: 0 / 0 / 1 — solely NEW-PN13-017 OPEN P2 EDITORIAL NON_BLOCKING IMPLEMENTATION_INDEPENDENT
+SLICE1 CHECKPOINT: auditoria/fase-pn14-slice1-safety-net-caracterizacion.md
+AJENO TECHNICAL REVIEW: auditoria/reviews/PN14-SLICE1-REVIEW-TECNICO-SAFETY-NET-CARACTERIZACION.md
+DOCUMENTATION: MATERIALIZED / NOT_SELF_AUDITED / PENDING_FRESH_INDEPENDENT_DOCUMENT_AUDIT
+DOCUMENTATION_GATE / SLICE1_ACCEPTANCE / READY_TO_PUBLISH AT SNAPSHOT: PENDING / PENDING / NO
+LIVE ACCEPTANCE: COMPETENT CONDITIONAL RULE BELOW / checkpoint Slice1§6
+PUBLICATION_GATE / PUBLICATION_CLOSURE_GATE: APPLICABLE PENDING / APPLICABLE PENDING
+PUBLICATION / CLOSURE: NOT_PERFORMED / NOT_CLOSED in this snapshot
+IMPLEMENTATION AUTHORITY: SLICE_1_ONLY / NO_FURTHER_IMPLEMENTATION_PERMISSION
+SLICES2–12: NOT_AUTHORIZED / NO_AUTOMATIC_NEXTSLICE
+TARGET PRODUCTION PN13: DESIGNED_NOT_IMPLEMENTED / NOT_AUTHORIZED
+SOURCE / EXISTING TESTS / POM / CONFIG / RESOURCES / DB MIGRATIONS / WRAPPERS / RUNTIME / F2D / F2E / PRODUCTIVE AUTHORITY / FENCE / CUTOVER: UNCHANGED
+```
+
+La transición competente queda expresamente definida, siguiendo el precedente temporal del
+checkpoint PN14 original §6. En el Run `run_190c06410cef`, Slice1 pasa determinísticamente a
+`ACCEPTED / READY_TO_PUBLISH` **si y sólo si** se cumplen conjuntamente estas condiciones:
+
+1. El Task `task_f094cad89d53`, rol `DOCUMENT_AUDITOR` fresh, independiente del ejecutor,
+   correctores y este DOCUMENTER, está `COMPLETED / succeeded`; su Dispatch competente posee
+   un único `worker_done` aceptado, `DOCUMENTATION_AUDIT=PASS`, P0=0/P1=0,
+   `filesModified=[]`, sin decisión humana ni SECURITY_STOP pendientes, y verifica físicamente
+   los 21 paths exactos de la allowlist de publicación del checkpoint Slice1 §5.
+2. El Task exclusivamente coordinador `task_1054afbc3810` está `COMPLETED`, y su gate
+   `gate_f163c0193bdb` está `RESOLVED / PASS`, provenance `coordinator_gate_resolution`.
+   El resultado competente contiene `candidateFileSHA256` con el mapa exacto path→SHA-256 raw
+   de los 21 archivos realmente auditados y `acceptedPublishPaths` con el set exacto de esos
+   21 paths, sin omisiones ni paths extra; ambos coinciden con el snapshot final del
+   DOCUMENTER, el snapshot independiente del DOCUMENT_AUDITOR y los bytes físicos actuales.
+3. Se preservan los gates técnicos ya PASS, los trece hashes finales de tests/helpers y los
+   cuatro documentos PN14 originales no editables, los prefixes completos de entrada de
+   ESTADO/mapa y todos los demás archivos protegidos; branch/HEAD/upstream/live origin
+   siguen en el baseline exacto, staging EMPTY y delta documental limitado a cuatro paths.
+
+En este corte el auditor está READY sin resultado y el Task/gate coordinador está
+BLOCKED/PENDING: `DOCUMENTATION_GATE=PENDING`, `SLICE1_ACCEPTANCE=PENDING`,
+`READY_TO_PUBLISH=NO`. No se fabrica un futuro PASS, Dispatch, mensaje ni SHA final.
+Si la condición real se satisface posteriormente sobre los mismos bytes, el lifecycle vivo es
+`ACCEPTED / READY_TO_PUBLISH` y `DOCUMENTATION_GATE=PASS` sin reescribir el snapshot auditado.
+Los hashes finales de documentos se fijan externamente en resultados estructurados únicos y
+en el gate competente: ningún documento contiene su propio SHA ni un ciclo criptográfico.
+Un título PASS, chat, journal o existencia de archivos no satisface esta regla; se recuperan
+task-list/worker-show/gate-list/inbox y se cruzan outcome, Dispatch, mensajes y hashes reales.
+Mismatch, evidencia ausente/stale, FAIL/UNKNOWN/SKIPPED/BLOCKED o mutación posterior falla cerrado;
+no se publica ni se infiere un HEAD descendiente sin nueva autorización pertinente.
+
+La aceptación es una **transición única** evaluada sobre el baseline auditado antes de publicar;
+HEAD `12f52781177694693be7d6dc2efc71009c5f45b3` y staging EMPTY son precondiciones de esa
+transición, no requisitos perpetuos después de ella. Una publicación posterior del scope exacto,
+autorizada por el gate competente de este Run, no revoca la aceptación ya adquirida por cambiar
+HEAD o staging durante sus operaciones autorizadas. Los nuevos HEAD, igualdad local/remota y
+staging se verifican en publicación y cierre con sus propios profiles/gates y evidencia física,
+sin inventar aquí un SHA descendiente; esta regla no concede permiso a cambios fuera de scope.
+
+La condición sólo acepta el safety net y habilita su PUBLISHER separado dentro del scope
+autorizado. `PUBLICATION_GATE=APPLICABLE/PENDING` y
+`PUBLICATION_CLOSURE_GATE=APPLICABLE/PENDING` permanecen así hasta sus etapas competentes.
+No equivale a publicación, cierre, runtime productivo, migración, fence o cutover; no concede
+otra ejecución de implementación ni autoriza slices 2–12.
+
+El profile y los 21 paths de publicación exactos están en checkpoint Slice1§§4–5. La publicación
+postécnica/cierre fueron autorizados por el usuario para roles separados; este DOCUMENTER sólo
+añade este bloque y el bloque del mapa y crea checkpoint/review técnicos. Conserva originales
+PN14 y toda historia PN13; no stage/commit/push. Entry físico baseline exacto
+12f52781177694693be7d6dc2efc71009c5f45b3, staging EMPTY, before462raw
+5003125e87cedd56d90d04fc914e9b97234b31b886e45c81d1f7f58abc2d3090 y19dirty verificados.
+Los seis docs de autoridad local auditada se publicarán junto con tests/evidencia sólo tras el
+gate documental: original§6 permitió ejecución sin publicación previa y §8 exige estas etapas
+posteriores, no una publicación PN14 previa separada. No se cambia retrospectivamente ese contrato.
+NEXT ALLOWED ACTION actual: fresh DOCUMENT AUDIT → gate coordinador; después de condición real,
+publisher21 → verification/publication gate → documentary closure/fresh audit/closure gate.
+Ninguna acción de slices2–12. Tests caracterizan legacy/LEGACY_NOT_TARGET; no aprueban target PN.

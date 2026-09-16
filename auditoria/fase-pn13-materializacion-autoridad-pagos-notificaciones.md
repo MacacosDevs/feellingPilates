@@ -1,6 +1,8 @@
 # FeelingPilates — PN-13 — Materialización de autoridad de Pagos y Notificaciones
 
-Status: `MATERIALIZED / ACCEPTED / AUTHORITY_AUDIT_PASS / P0=0 / P1=0 / P2=1`
+Status: `MATERIALIZED / ACCEPTED / PUBLISHED / CLOSED / AUTHORITY_AUDIT_PASS / P0=0 / P1=0 / P2=1`
+
+Workflow state: `PUBLISHED / CLOSURE_GATE_PASS / CLOSED / TERMINAL`
 
 Type: `DOCUMENTATION_ONLY / NORMATIVE_AUTHORITY_MATERIALIZATION`
 
@@ -11,7 +13,13 @@ Implementation: `NOT_STARTED / NOT_AUTHORIZED`
 ```text
 Repository: /Users/jesusaldaircruzortiz/Desktop/Feelingpilates/feelingpilates-payments-notifications
 Branch: pagos/pagos-notificaciones-r1
-Frozen baseline / HEAD: a0ec85818b771d4ac924b427fa1e90244ea9fe8e
+Historical frozen baseline / pre-publication HEAD: a0ec85818b771d4ac924b427fa1e90244ea9fe8e
+Originating authority publication commit (historical verified snapshot): a292a86225766acba0bb3333039b2ac30a36d48b
+Operational HEAD: obtain by physical pre-flight; historical baseline is not current HEAD
+
+Publication evidence (not a closure audit):
+auditoria/reviews/PN13-REVIEW-PUBLICACION-AUTORIDAD-PAGOS-NOTIFICACIONES.md
+Classification: EVIDENCE_ONLY / NOT_SELF_AUTHORIZING / NOT_IMPLEMENTATION_AUTHORITY
 
 Historical PN-13 handoff (completed for authority materialization / not active):
 auditoria/handoffs/HANDOFF-PN13-MATERIALIZACION-AUTORIDAD-PAGOS-NOTIFICACIONES.md
@@ -551,16 +559,24 @@ El `DOCUMENT_AUDITOR` fresh, independiente y read-only R1.2 contrastó:
 
 El resultado quedó persistido en el review R1.2 exacto identificado en §1. El P2
 `NEW-PN13-017` permanece abierto como editorial, no bloqueante e independiente de implementación;
-no se corrige en esta transición. Publication y publication closure siguen pendientes. La
-declaración exacta es:
+no se corrige en esta transición. La publicación tiene gate `PASS`; el audit fresh independiente
+`task_75fb7e989fe1 / ctx_139dcf4b6e60 / msg_b15a9378279f` reportó
+`PUBLICATION_CLOSURE_AUDIT=PASS / nuevos P0=0 / P1=0 / P2=0`. La resolución real
+`task_8284a0151874 / gate_0284fb3efcc7 / RESOLVED / PASS` sustenta esta materialización final,
+sin audit propio del materializador. La declaración vigente exacta es:
 
 ```text
-PN-13: MATERIALIZED / ACCEPTED
+PN-13: MATERIALIZED / ACCEPTED / PUBLISHED / CLOSED
+WORKFLOW STATE: PUBLISHED
 CORRECTED AUTHORITY: ACCEPTED
 AUTHORITY AUDIT R1.2: PASS / P0=0 / P1=0 / P2=1
 DOCUMENTATION GATE: PASS
-PUBLICATION GATE: PENDING
-PUBLICATION CLOSURE GATE: PENDING
+PUBLICATION GATE: PASS
+PUBLICATION CLOSURE GATE: PASS — task_8284a0151874 / gate_0284fb3efcc7 / RESOLVED PASS
+CLOSURE DOCUMENTATION: AUDITED / CLOSED / FRESH_INDEPENDENT_AUDIT_PASS / NOT_SELF_AUDITED
+CLOSURE STATUS: CLOSED
+NEXT ALLOWED ACTION: NONE / TERMINAL / NO_CONTINUATION_INFERRED
+PN-13.2 (HISTORICAL): NOT_AUTHORIZED
 PN-14: NOT_AUTHORIZED
 IMPLEMENTATION: NOT_STARTED / NOT_AUTHORIZED
 IMPLEMENTATION GATE: NOT_APPLICABLE / NOT_AUTHORIZED
@@ -568,6 +584,33 @@ TESTS GATE: NOT_APPLICABLE
 HOST VALIDATION: NOT_APPLICABLE
 RUNTIME / PRODUCTIVE AUTHORITY / MIGRATION / CUTOVER / F2E: UNCHANGED
 ```
+
+La evidencia estructurada del Run `run_4b8a88e13c97` registra publisher
+`task_1dc519bf9a1a / ctx_597b658ec31d / msg_6573bc881c87` (`PUBLICATION_RESULT=PASS`), verifier fresh
+independiente `task_eb0d3f4ce26d / ctx_70bd2f984fb8 / msg_37a535a7afdc`
+(`PUBLICATION_VERIFICATION=PASS`) y publication gate-only
+`task_7ad876b226e3 / gate_66365f81645f` (`RESOLVED / PASS`). El commit publicado es
+`a292a86225766acba0bb3333039b2ac30a36d48b`, parent `a0ec85818b771d4ac924b427fa1e90244ea9fe8e`, y el
+snapshot verificado cumple `local = upstream origin/pagos/pagos-notificaciones-r1 = live origin`
+en ese commit, con staging vacío y working tree limpio en aquel snapshot histórico de publicación.
+El review de publicación identificado en §1 conserva los diez paths/hashes exactos, el push inicial
+`git push -u origin pagos/pagos-notificaciones-r1`, los retries y los resultados ajenos; no es un
+review independiente del cierre. Su candidate con `PENDING / NOT_CLOSED` es un snapshot histórico
+auditado, no autoridad del lifecycle actual; permanece inmutable con SHA-256
+`96378bcc74da86f656d5eaf0a08042e246f6ce6f87bee3e77873679228c17a1f`.
+El review `auditoria/reviews/PN13-REVIEW-CIERRE-PUBLICACION-AUTORIDAD-PAGOS-NOTIFICACIONES.md`
+persiste el audit independiente y las resoluciones reales como
+`EVIDENCE_ONLY / NOT_SELF_AUTHORIZING / NOT_IMPLEMENTATION_AUTHORITY`.
+El closure gate se resolvió con `msg_b15a9378279f, msg_37a535a7afdc` y `repositoryWrites=false`;
+conforme a `STATE-MACHINE.md`, `PUBLISHED` es ahora el estado normativo terminal, sin próxima acción.
+El total combinado permanece `P0=0 / P1=0 / P2=1`, exclusivamente NEW-PN13-017.
+El preflight físico de esta materialización final verificó HEAD `a292a86225766acba0bb3333039b2ac30a36d48b`
+y staging vacío. El commit originario y la igualdad local/upstream/live son evidencia histórica,
+no un HEAD final permanente. En el snapshot histórico de materialización documental del
+2026-09-16 (`worker_done msg_16f4142ad6ee`, `2026-09-16T15:46:13Z`), previo al publisher separado,
+este delta todavía no estaba committed ni pushed. La publicación posterior y su verificación
+física se demuestran por Git y por el resultado del publisher/verifier competentes; esta
+evidencia no fija un HEAD permanente ni fabrica un SHA autorreferencial.
 
 **La implementación permanece no autorizada.**
 
@@ -854,5 +897,15 @@ migración ni código que los implemente.
 El review PN-13.1 y el audit residual posterior conservan sus resultados históricos `FAIL`. El
 re-audit fresh R1.2 reportó `AUTHORITY_AUDIT=PASS / P0=0 / P1=0 / P2=1`, cerró
 PN13-001..PN13-010 y NEW-PN13-011..NEW-PN13-016, y dejó exclusivamente NEW-PN13-017 abierto sin
-bloquear el documentation gate. Publication/closure quedan `PENDING`; PN-14 e implementación
-permanecen `NOT_AUTHORIZED`, y runtime, autoridad productiva, migración, cutover y F2E no cambian.
+bloquear el documentation gate. La publicación tiene gate `PASS`; el audit fresh independiente
+`task_75fb7e989fe1 / ctx_139dcf4b6e60 / msg_b15a9378279f / PUBLICATION_CLOSURE_AUDIT=PASS` y
+`task_8284a0151874 / gate_0284fb3efcc7 / RESOLVED / PASS` sustentan el cierre documental
+`AUDITED / CLOSED`, PN-13 `MATERIALIZED / ACCEPTED / PUBLISHED / CLOSED` y workflow normativo
+terminal `PUBLISHED`. Nuevos hallazgos de cierre `P0=0 / P1=0 / P2=0`; total combinado aceptado
+`P0=0 / P1=0 / P2=1`. Siguiente acción `NONE / TERMINAL / NO_CONTINUATION_INFERRED`;
+PN-13.2 histórica, PN-14 e implementación permanecen `NOT_AUTHORIZED`, y runtime, autoridad
+productiva, migración, cutover y F2E no cambian. En el snapshot histórico de materialización
+documental (`worker_done msg_16f4142ad6ee`, `2026-09-16T15:46:13Z`), este delta final todavía
+requería publicación documental controlada separada y verificación final fresh; sus resultados
+posteriores se demuestran por Git y por el publisher/verifier competentes, sin fijar un HEAD
+permanente ni un SHA autorreferencial ni autorizar continuación funcional.

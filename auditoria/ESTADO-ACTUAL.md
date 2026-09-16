@@ -4,10 +4,10 @@ Status: CANONICAL
 Last updated: 2026-09-16
 Repository verification: VERIFIED
 Last verified against commit:
-a0ec85818b771d4ac924b427fa1e90244ea9fe8e
-Verification scope: F2E R1 ACCEPTED / NOT_PUBLISHED tras audit independiente task_5f12bc24768c PASS y gate_b263068ee65c PASS; exact21 congelado, TECH01–06/08 CLOSED y TECH07 CLOSED FOR_CURRENT_R1_HOST_INVARIANT ONLY, GAP1–5 CLOSED, P2-EVIDENCE-01 NON_BLOCKING visible; publicación READY_FOR_PUBLICATION_PREFLIGHT pero ejecución NOT_AUTHORIZED_IN_THIS_RUN; dark launch/TurnoInstructor productivo/cutover y R2–R6 no autorizados; FAIL históricos intactos
+f5e0239d378119b9c1a5ec94e8f09db77cc4fe3c
+Verification scope: F2E R1 CLOSED / ACCEPTED / PUBLISHED por publicación exacta probada en run_8b913c526294, audit task_a5c106ff3d5a PASS y gate_65645a7533da PASS; HEAD/upstream/origin live iguales y 0/0; exact21 inmutable, TECH01–06/08 y GAP1–5 CLOSED, TECH07 CLOSED FOR_CURRENT_R1_HOST_INVARIANT ONLY, P2-EVIDENCE-01 NON_BLOCKING/PRESERVED; handoff CONSUMED_BY_R1, ACTIVE HANDOFF NINGUNO; cierre documental MATERIALIZED en run_fb92631a2300, audit/gates/publicación de estos nuevos bytes PENDING/NOT_EXECUTED; dark launch, TurnoInstructor productivo y límites cutover/R2–R6 preservados; historia y FAIL intactos
 
-La referencia anterior identifica el HEAD físico contrastado en esta materialización documental. No sustituye el `HEAD` operativo, que debe obtenerse mediante pre-flight en cada intervención. Los snapshots 3B.0 y conteos anteriores siguientes son históricos; el corte vigente F2E R1 se registra en la unidad activa y su review consolidado.
+La referencia anterior identifica el HEAD físico contrastado en esta materialización documental. No sustituye el `HEAD` operativo, que debe obtenerse mediante pre-flight en cada intervención. Los snapshots 3B.0 y conteos anteriores siguientes son históricos; el corte vigente F2E R1 se registra en la unidad cerrada y en la sección12 de su review consolidado.
 
 ## Snapshot del repositorio verificado en 3B.0
 
@@ -377,7 +377,7 @@ TARGET CANONICAL: auditoria/fase-2e-diseno-adapters-read-only-snapshot-consisten
 FINAL REVIEW: auditoria/reviews/F2E-ADAPTERS-SNAPSHOT-RESIDUAL-AUTHORITY-GAP-R1-PROVENANCE-JPA-TX-DESIGN-REVIEW.md
 CORRECTIVE HANDOFF: COMPLETED / CLOSED / HISTORICAL / NOT_ACTIVE
 CORRECTIVE DESIGN HANDOFF ACTIVE: NINGUNO
-DOWNSTREAM R1 HANDOFF: ver unidad activa a continuación
+DOWNSTREAM R1 HANDOFF: ver unidad cerrada a continuación; CONSUMED_BY_R1 / NOT_ACTIVE
 ```
 
 La enmienda residual publicada cierra exclusivamente la autoridad de identidad/provenance V2 y la
@@ -387,20 +387,22 @@ ser escrita; el lifecycle posterior competente queda persistido por este canóni
 fresh independiente. Esa publicación del diseño no aprobó ni activó por sí sola el handoff R1;
 la auditoría fresh posterior y la transición competente se registran a continuación.
 
-## Handoff activo — F2E R1 reserva reader JPA read-only
+## Unidad cerrada vigente — F2E R1 reserva reader JPA read-only
 
 ```text
 F2E R1 residual design: PUBLISHED / CLOSED
 R1 handoff physical content: CORRECTED_TO_FINAL_V2_DESIGN_AUTHORITY
-ACTIVE HANDOFF: auditoria/handoffs/HANDOFF-F2E-R1-RESERVA-READER-JPA-READ-ONLY.md
+ACTIVE HANDOFF: NINGUNO — R1 CLOSED; NO_NEXT_PHASE_AUTHORIZED
+CONSUMED IMPLEMENTATION HANDOFF: auditoria/handoffs/HANDOFF-F2E-R1-RESERVA-READER-JPA-READ-ONLY.md
 AUDITED HANDOFF SHA-256: 3fd71faca4d4c049ad5cb37b52bc6fd512509cf5b696bdc5c28d28cb966af8ef
 PUBLISHED DESIGN SHA-256: 6c72cba1f83fbc2bcf3b3219d8252d2410ec482e30ae85d30fd2eeb04e8883d8
 FRESH_INDEPENDENT_HANDOFF_DOCUMENT_AUDIT: PASS
 P0 / P1 / P2: 0 / 0 / 0
-READY_TO_APPROVE_F2E_R1_HANDOFF: YES
+HISTORICAL READY_TO_APPROVE_F2E_R1_HANDOFF: YES — APPROVAL CONSUMED_BY_R1
 HANDOFF AUDIT REVIEW: auditoria/reviews/HANDOFF-F2E-R1-RESERVA-READER-JPA-READ-ONLY-REVIEW.md
-R1 handoff: APPROVED / PUBLISHED / ACTIVE
-R1 implementation: AUTHORIZED / MATERIALIZED / IMMUTABLE_VALIDATED_CANDIDATE
+R1 handoff: APPROVED / PUBLISHED / CONSUMED_BY_R1 / NOT_ACTIVE
+R1 implementation: ACCEPTED / PUBLISHED / MATERIALIZED / IMMUTABLE_VALIDATED_CANDIDATE
+R1 lifecycle: CLOSED
 IMPLEMENTATION AUTHORITY: EXACTLY THE AUDITED HANDOFF SHA ABOVE / F2E R1 ONLY
 R1 fresh technical validation / independent technical audit: PASS
 GAP1 / GAP2 / GAP3 / GAP4 / GAP5: CLOSED
@@ -409,34 +411,41 @@ TECH02 / TECH03 / TECH04 / TECH05 / TECH06: CLOSED
 TECH01: CLOSED — INDEPENDENTLY_VERIFIED_NATIVE_FIRST_LATER_METADATA_PROOF
 TECH08: CLOSED — EXACT_SHARED_NATIVE_METADATA_OVERLAP_ONLY
 TECH07: CLOSED FOR_CURRENT_R1_HOST_INVARIANT ONLY
-DOCUMENTATION: MATERIALIZED / INDEPENDENT_ACCEPTANCE_AUTHORITY_VERIFIED
-AUTHORITY AUDIT/GATE CURRENT RUN: task_5f12bc24768c PASS / gate_b263068ee65c PASS
+DOCUMENTATION: PUBLICATION_CLOSURE_MATERIALIZED / PENDING_INDEPENDENT_AUDIT
+PRIOR ACCEPTANCE AUDIT/GATE: task_5f12bc24768c PASS / gate_b263068ee65c PASS
 AUTHORITY ACCEPTANCE REQUIREMENT: SATISFIED_BY_INDEPENDENT_AUDIT_AND_COMPETENT_GATE
-R1 acceptance: ACCEPTED / NOT_PUBLISHED
-R1 publication: NOT_PUBLISHED / READY_FOR_PUBLICATION_PREFLIGHT
-PUBLICATION EXECUTION: NOT_AUTHORIZED_IN_THIS_RUN
+R1 acceptance: ACCEPTED / PUBLISHED
+R1 publication: PUBLISHED — f5e0239d378119b9c1a5ec94e8f09db77cc4fe3c
+PRIOR PUBLICATION POST-AUDIT/GATE: task_a5c106ff3d5a PASS / gate_65645a7533da PASS
+PUBLICATION CLOSURE: MATERIALIZED / PENDING_INDEPENDENT_AUDIT
+P2-EVIDENCE-01: NON_BLOCKING / PRESERVED
+CURRENT CLOSURE RUN: run_fb92631a2300
+CURRENT PRECOMMIT CLOSURE AUDIT / COMMIT AUTHORIZATION GATE: PENDING / NOT_EXECUTED
+CURRENT CLOSURE DOCUMENTATION PUBLICATION / POST-CLOSURE AUDIT / FINAL GATE: PENDING / NOT_EXECUTED
 CONSOLIDATED REVIEW: auditoria/reviews/F2E-R1-PROVENANCE-VALIDACION-ACEPTACION.md
-NEXT ALLOWED ACTION: SEPARATE_AUTHORIZED_PUBLICATION_PREFLIGHT_ONLY
+NEXT ALLOWED WORKFLOW ACTION: INDEPENDENT_CLOSURE_AUDIT_ONLY; LATER STAGES REQUIRE ACTUAL COMPETENT GATES
+NEXT FUNCTIONAL PHASE: NINGUNA / NOT_AUTHORIZED
 R2-R6: NOT_AUTHORIZED
 ```
 
 Las marcas internas `NOT_APPROVED`, `NOT_ACTIVE` e `IMPLEMENTATION_NOT_AUTHORIZED` del handoff y
 del review residual conservan el estado histórico de esos artefactos al materializarse. No se
 reescriben después del audit. El review fresh de handoff y este canónico competente registran la
-transición posterior a `APPROVED / PUBLISHED / ACTIVE`; no queda una autoridad operacional
-contradictoria.
+transición histórica posterior a `APPROVED / PUBLISHED / ACTIVE`; la publicación exacta probada
+permite registrar ahora `APPROVED / PUBLISHED / CONSUMED_BY_R1 / NOT_ACTIVE` sin alterar el
+handoff físico ni reactivarlo. Su ruta y SHA siguen siendo autoridad de implementación e historia.
 
-`ACTIVE` autoriza exclusivamente la implementación F2E R1 delimitada por el handoff exacto con
+El estado histórico `ACTIVE` autorizó exclusivamente la implementación F2E R1 delimitada por el handoff exacto con
 SHA-256 `3fd71faca4d4c049ad5cb37b52bc6fd512509cf5b696bdc5c28d28cb966af8ef`.
 La activación histórica por sí sola no declaró ejecución. El corte físico posterior ahora acredita
-la implementación R1 materializada y validada, sin migración, data audit, cutover, R2-R6 ni cambio
-de autoridad productiva.
+la implementación R1 materializada, aceptada y publicada. R1 queda CLOSED, sin handoff activo,
+sin siguiente fase autorizada, migración, data audit, cutover, R2-R6 ni cambio de autoridad productiva.
 
 ### Corte histórico — provenance y aceptación antes de la prueba nativa
 
 Los párrafos siguientes conservan el corte `run_b0efaa8ebe42`: «vigente», «actual», OPEN,
 PENDING y siguiente paso describen aquel momento. No son blockers presentes después de la
-incorporación nativa; la vista vigente es la unidad activa arriba y la incorporación posterior abajo.
+incorporación nativa; la vista vigente es la unidad cerrada arriba y el cierre de publicación abajo.
 
 La materialización documental anterior `run_3c3b68d0f06b` y su authority gate
 `gate_f598ddc359bd` conservan FAIL de autoridad por recovery scope acotado, sin reinterpretar
@@ -521,7 +530,7 @@ Review consolidado:
 ```text
 TurnoInstructor: PRODUCTIVE AUTHORITY / LEGACY_VIVO / PRODUCTIVO
 Pure detector: DARK_LAUNCH / NOT_PRODUCTIVE
-Adapters R1: MATERIALIZED / TECHNICAL_PASS / DARK_LAUNCH / NOT_PRODUCTIVE
+Adapters R1: ACCEPTED / PUBLISHED / CLOSED / TECHNICAL_PASS / DARK_LAUNCH / NOT_PRODUCTIVE
 Data source: DATA_SOURCE_NOT_AVAILABLE
 Data audit: NOT_AUTHORIZED
 D08: DEFERRED
@@ -529,12 +538,17 @@ Crosswalk / Resolver / Fence / Migration: NOT_AUTHORIZED
 MIGRANDO: NO
 NUEVA: NO
 Cutover: NOT_AUTHORIZED / false
-R1 implementation: AUTHORIZED / MATERIALIZED / IMMUTABLE_VALIDATED_CANDIDATE
-R1 acceptance: ACCEPTED / NOT_PUBLISHED
-R1 publication: NOT_PUBLISHED / READY_FOR_PUBLICATION_PREFLIGHT
-PUBLICATION EXECUTION: NOT_AUTHORIZED_IN_THIS_RUN
+R1 implementation: ACCEPTED / PUBLISHED / IMMUTABLE_VALIDATED_CANDIDATE / NOT_REOPENED
+R1 acceptance: ACCEPTED / PUBLISHED
+R1 lifecycle: CLOSED
+R1 handoff: APPROVED / PUBLISHED / CONSUMED_BY_R1 / NOT_ACTIVE
+ACTIVE HANDOFF: NINGUNO
+R1 publication: PUBLISHED — f5e0239d378119b9c1a5ec94e8f09db77cc4fe3c
+PUBLICATION CLOSURE: MATERIALIZED / PENDING_INDEPENDENT_AUDIT
+CURRENT CLOSURE AUDITS / GATES / DOCUMENTATION PUBLICATION: PENDING / NOT_EXECUTED
+NEXT FUNCTIONAL PHASE: NINGUNA / NOT_AUTHORIZED
 R2-R6: NOT_AUTHORIZED
-Java / tests / test-only Spring topology: MATERIALIZED ONLY UNDER THE EXACT ACTIVE R1 HANDOFF; NOT_REOPENED
+Java / tests / test-only Spring topology: ACCEPTED / PUBLISHED UNDER THE EXACT CONSUMED R1 HANDOFF; NOT_REOPENED
 DB change / SQL migration / productive Spring configuration / data audit / cutover: NOT_AUTHORIZED
 Payments / Notifications / Capacity / Mobile: OUT_OF_SCOPE
 ```
@@ -543,16 +557,19 @@ Human/business decision: `NOT_REQUIRED`.
 
 Technical design authority: `CLOSED / PUBLISHED`.
 
-Implementation authority: `AUTHORIZED / MATERIALIZED / BOUNDED BY EXACT ACTIVE R1 HANDOFF / NOT_REOPENED`.
+Implementation authority: `ACCEPTED / PUBLISHED / IMMUTABLE / BOUNDED BY EXACT CONSUMED R1 HANDOFF / NOT_REOPENED`.
 
-Authority audit/gate current Run: `task_5f12bc24768c PASS / gate_b263068ee65c PASS`.
+Prior acceptance authority audit/gate: `task_5f12bc24768c PASS / gate_b263068ee65c PASS`.
+
+Current closure Run `run_fb92631a2300`: precommit closure audit, commit authorization gate,
+closure documentation publication, post-closure audit and final gate `PENDING / NOT_EXECUTED`.
 
 Authority acceptance requirement: `SATISFIED_BY_INDEPENDENT_AUDIT_AND_COMPETENT_GATE`.
 
-Documentation authority audit: `PASS — F2E R1 AUTHORITY PROVENANCE COMPLETE AND ACCEPTANCE VERIFIED`; auditor fresh independiente, no autoaudit del documenter.
+Prior acceptance documentation authority audit: `PASS — F2E R1 AUTHORITY PROVENANCE COMPLETE AND ACCEPTANCE VERIFIED`; auditor fresh independiente, no autoaudit del documenter. Los nuevos bytes de cierre aún requieren su auditor independiente.
 
 Los PENDING conservados abajo pertenecen al corte histórico de entrega documental antes del audit/gate.
-Los resultados competentes reales posteriores se registran en la resolución terminal de este Run;
+Los resultados competentes reales posteriores se registran en la resolución terminal histórica de aceptación;
 no se atribuyen al documenter ni se reescribe su entrega pendiente como aceptación.
 
 ## F2E R1 — resolución de autoridad histórica posterior al corte documental anterior
@@ -598,8 +615,8 @@ y nuevo review/gate competente; no autoriza automáticamente código, tests, pub
 
 ## F2E R1 — corte documental auditado: residual nativo incorporado, aceptación entonces pendiente
 
-Este bloque conserva la entrega previa al audit/gate. El estado vigente ACCEPTED / NOT_PUBLISHED
-se registra en la resolución terminal posterior; ningún PENDING de este bloque es perpetuo.
+Este bloque conserva la entrega previa al audit/gate. El estado entonces ACCEPTED / NOT_PUBLISHED
+se registra en la resolución terminal histórica posterior; el cierre vigente queda abajo.
 
 Run documental `run_6b83c0a8f3a4 / task_41443902b374 / ctx_77c671acdfb6`, rol
 FRESH_F2E_R1_FINAL_AUTHORITY_DOCUMENTER, documentación exclusivamente.
@@ -669,7 +686,11 @@ R2–R6 NOT_AUTHORIZED y Payments/Notifications OUT_OF_SCOPE. Siguiente paso ún
 audit fresh independiente de aceptación/autoridad/documentación y gate competente sobre este
 binding y delta; este documenter no se autoaudita, no crea gate ni aprueba aceptación/publicación.
 
-## F2E R1 — resolución terminal competente: ACCEPTED / NOT_PUBLISHED
+## F2E R1 — resolución terminal competente histórica: ACCEPTED / NOT_PUBLISHED
+
+Este bloque conserva íntegro el resultado y los límites de `run_6b83c0a8f3a4` antes de publicar.
+Sus «actual», NOT_PUBLISHED y siguiente paso son históricos; el estado vigente es el cierre
+de publicación posterior. Aquel estado pasado no se transforma retrospectivamente en PUBLISHED.
 
 
 Run actual `run_6b83c0a8f3a4`, coordinator PRODUCT_DELIVERY_COORDINATOR /
@@ -757,3 +778,85 @@ logs/root counts y XML full/host retenidos corroborantes; ningún repair/fabrica
 Cero Java/test/config/SQL/migration mutation; staging EMPTY; ningún commit/push/publicación.
 Sólo un PUBLICATION_PREFLIGHT futuro separado, con autorización y gate propios, es posible;
 no publicación, activación productiva, cutover o R2–R6 en este Run.
+
+## F2E R1 — cierre de publicación vigente: CLOSED / ACCEPTED / PUBLISHED
+
+Run de cierre `run_fb92631a2300`; documenter exclusivo
+`task_9a3a4512c780 / ctx_9dc3f5dc789f`, rol `F2E_R1_PUBLICATION_CLOSURE_DOCUMENTER`.
+Entrega: `DOCUMENTATION_CLOSURE_MATERIALIZED_PENDING_INDEPENDENT_AUDIT`.
+Este cierre reconcilia la publicación de implementación ya probada; no es audit, gate,
+coordinación o publicación de estos nuevos bytes. R1 CLOSED está expresamente autorizado
+por esa publicación competente, sin exigir un futuro SHA de cierre ni inventarlo.
+
+| Identidad publicada exacta | Valor |
+| --- | --- |
+| Branch | `operacion/excepciones-horario-fecha` |
+| Commit publicado / baseline verificado del cierre | `f5e0239d378119b9c1a5ec94e8f09db77cc4fe3c` |
+| Único parent | `a0ec85818b771d4ac924b427fa1e90244ea9fe8e` |
+| Publication canonical set | 23 paths:22 NEW /1 MODIFIED |
+| Commit publication manifest SHA-256 | `0c305f556c6753b130a53a18b2e510f49318f6d7f9fb39c669f5a2e1d5bd9b80` |
+| Implementación exact21 path-set SHA-256 | `f400a0602f95e318845da670bee4f819f057842adf8a60506564d5bd75e41d14` |
+| Implementación exact21 content manifest SHA-256 | `e2b64abd6aba8a050df6184f6c5440d87db83a67182fb43e622f48cf96f4f3ce` |
+| Diseño CLOSED / PUBLISHED SHA-256 | `6c72cba1f83fbc2bcf3b3219d8252d2410ec482e30ae85d30fd2eeb04e8883d8` |
+| Handoff publicado consumido SHA-256 | `3fd71faca4d4c049ad5cb37b52bc6fd512509cf5b696bdc5c28d28cb966af8ef` |
+| ESTADO publicado / preclosure SHA-256 histórico | `94c477fca3d17113b00d2f3d35ca3f741b903b3e3fbd043ffd9f38af5d4d3237` |
+| Review resealed publicado / preclosure SHA-256 histórico | `c300e851a313b252fd1b12e32816540ff5939edd4dc44125fb6829033698f1e4` |
+
+Cadena real preservada: preflight original `run_4a37e5400083 / gate_f48f00abaf3e`
+y manifest `c699ab84e194ad31bd1918cd5e7f9af1aa6078519cfbbc1eaca33dadf3c4c708`
+son HISTORICAL_ONLY. Primera publicación `run_683c285000f8` falló cached diff check exit2,
+18 líneas×2 espacios finales, cero commits/pushes. Higiene/reseal
+`run_89649c4139e8 / gate_629f95236c32 PASS` eliminó exactamente36 espacios y nada más,
+semántica unchanged; review original histórico
+`cfd744c610e5f983527c6506e53a3a90402e74600625bacbec1150f9a89a4fe6` preservado como tal.
+Tras preflight resealed previo `run_0e78daeb44b4 / gate_89bc92a8bae5`, el fresh preflight.2
+`run_b5c5d0cc61a0 / gate_cb4bc2d34c43 PASS` verificó el manifest resealed exacto.
+Ninguno reemplaza la ejecución/publicación competente posterior ni reescribe FAIL anteriores.
+
+Publicación real `run_8b913c526294`: staged audit independiente
+`task_b93db209e206 / ctx_bdb22a3f225b`
+`PASS — F2E R1 RESEALED STAGED ACCEPTED SNAPSHOT VERIFIED`; authorization gate
+`task_4594a303de2c / gate_bd04ea00c795`
+`PASS — AUTHORIZED_TO_COMMIT_AND_PUSH_EXACT_RESEALED_F2E_R1_SNAPSHOT`.
+Un único commit f5 de parent a0 y un único push normal nonforce fast-forward con refspec
+exactSHA→`refs/heads/operacion/excepciones-horario-fecha` en origin, sin tags ni otros refs.
+Post-publication audit NUEVO fresh independiente `task_a5c106ff3d5a / ctx_e16589253474`:
+`PASS — F2E R1 RESEALED ACCEPTED SNAPSHOT PUBLISHED EXACTLY`.
+Completion gate real `task_4b0c8ac25cd0 / gate_65645a7533da`, PASS a
+`2026-09-16T20:20:30Z`:
+`PASS — F2E R1 RESEALED ACCEPTED SNAPSHOT PUBLISHED / READY_FOR_PUBLICATION_CLOSURE`.
+Consulta read-only actual gate-list sobre aquel Run/Task confirma resolved/PASS.
+HEAD/upstream/origin live=f5 y ahead/behind0/0 verificados, sin fetch.
+Entrada de esta materialización: staging EMPTY, worktree CLEAN, untracked0; los dos docs
+coincidían físicamente con sus blobs inmutables f5 antes del delta; exact21 permanece intacto.
+
+La sección12 del [review consolidado](reviews/F2E-R1-PROVENANCE-VALIDACION-ACEPTACION.md)
+persiste cronología, identidades, receipts y sellos de los originales físicos bajo
+`/tmp/feelingpilates-f2e-publication-execution2.fEAgdl/` y snapshots de entrada bajo
+`/tmp/feelingpilates-f2e-publication-closure.HwP7MH/`; son custodia local sin retención garantizada.
+El review anterior completo es prefijo byte-exacto; definiciones/citas/mappings no se reescriben.
+Los estados históricos MATERIALIZED/NOT_ACCEPTED, ACCEPTED/NOT_PUBLISHED, authority FAIL
+gate_f598ddc359bd y gate_ad9e29b8d8e8, residual nativo y P2 conservan su significado original.
+
+Estado vigente: diseño `CLOSED / PUBLISHED`, handoff `APPROVED / PUBLISHED / CONSUMED_BY_R1 /
+NOT_ACTIVE`, implementación `ACCEPTED / PUBLISHED / IMMUTABLE`, R1 lifecycle `CLOSED`,
+publicación `PUBLISHED`, cierre documental `MATERIALIZED / PENDING_INDEPENDENT_AUDIT`.
+`ACTIVE HANDOFF: NINGUNO`; ruta consumida exacta
+`auditoria/handoffs/HANDOFF-F2E-R1-RESERVA-READER-JPA-READ-ONLY.md` conservada como autoridad
+de implementación e historia, sin reactivación. `NEXT FUNCTIONAL PHASE: NINGUNA / NOT_AUTHORIZED`.
+TECH01–06/08 y GAP1–5 CLOSED; TECH07 `CLOSED FOR_CURRENT_R1_HOST_INVARIANT ONLY`, técnico PASS.
+59 targeted/69 suites649full/host7 pertenecen a `run_6d0dfb237a61`; native4 a
+`run_8b529b21e8ad`, ninguna prueba nueva de este Run. `P2-EVIDENCE-01 NON_BLOCKING / PRESERVED`:
+arrays JSON incompletos/deniedINSERT omitted, targetedXML overwritten/unretained, roots/logs y
+full/hostXML retenidos corroborantes; no fabricación ni repair de originales.
+TurnoInstructor `LEGACY_VIVO / PRODUCTIVO`, R1 `DARK_LAUNCH / NOT_PRODUCTIVE`, dark launch
+PRESERVED, cutover `NOT_AUTHORIZED / false`, R2–R6 NOT_AUTHORIZED; Payments/Notifications
+OUT_OF_SCOPE. Data source DATA_SOURCE_NOT_AVAILABLE; data audit material/migration/fence
+DEFERRED/NOT_AUTHORIZED; Autopilot/FeelingPilatesOrchestrator/HostValidator OLD_PROCESS_ONLY.
+
+Workflow actual `run_fb92631a2300`: precommit closure audit, commit authorization gate,
+publicación de docs de cierre, post-closure audit y final gate `PENDING / NOT_EXECUTED`.
+Los PASS anteriores sólo cubren aceptación/publicación previa; no cubren nuevos bytes de cierre.
+Siguiente acción exacta: audit independiente del cierre materializado; las etapas posteriores
+requieren resultados/gates competentes reales. No self-audit, futuros IDs/veredictos inventados,
+commit/push de este cierre ya ejecutados ni nueva fase funcional inferida.

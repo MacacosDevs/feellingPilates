@@ -1271,3 +1271,164 @@ logs/root counts y XML full/host retenidos corroborantes; ningún repair/fabrica
 Cero Java/test/config/SQL/migration mutation; staging EMPTY; ningún commit/push/publicación.
 Sólo un PUBLICATION_PREFLIGHT futuro separado, con autorización y gate propios, es posible;
 no publicación, activación productiva, cutover o R2–R6 en este Run.
+
+## 12. Cierre de publicación materializado — R1 CLOSED / ACCEPTED / PUBLISHED
+
+Run de cierre `run_fb92631a2300`, Task/Dispatch documental
+`task_9a3a4512c780 / ctx_9dc3f5dc789f`; rol `F2E_R1_PUBLICATION_CLOSURE_DOCUMENTER`.
+Resultado de entrega: `DOCUMENTATION_CLOSURE_MATERIALIZED_PENDING_INDEPENDENT_AUDIT`.
+Este rol documenta la publicación ya probada; no es auditor, coordinator ni publisher.
+Las secciones1–11 y el encabezado anterior son el preimage publicado histórico completo,
+preservado como prefijo byte-exacto. Sus «actual», ACTIVE, OPEN, PENDING, NOT_ACCEPTED,
+NOT_PUBLISHED y siguientes pasos describen sus cortes respectivos; no son autoridad operativa
+vigente después de esta nueva unidad cronológica. No se alteran originales, citas ni mappings.
+
+### 12.1 Cadena real posterior a la aceptación, sin reescribir historia
+
+La sección11 conserva la aceptación competente de `run_6b83c0a8f3a4` y
+`gate_b263068ee65c`: `ACCEPTED / NOT_PUBLISHED / READY_FOR_PUBLICATION_PREFLIGHT`.
+Los estados anteriores `MATERIALIZED / NOT_ACCEPTED / NOT_PUBLISHED`, el authority FAIL
+`run_3c3b68d0f06b / gate_f598ddc359bd`, el recovery/acceptance FAIL
+`run_b0efaa8ebe42 / gate_ad9e29b8d8e8` y el residual nativo posterior
+`run_8b529b21e8ad / gate_4ab844c58bbb PASS` permanecen verdaderos e intactos.
+Ni los PASS posteriores ni la publicación convierten esos FAIL históricos en PASS.
+
+| Etapa real | Identidad y resultado | Límite preservado |
+| --- | --- | --- |
+| Preflight original | `run_4a37e5400083 / gate_f48f00abaf3e` | Readiness y manifest originales HISTORICAL_ONLY; no reutilizados para bytes resealed |
+| Primera publicación fallida | `run_683c285000f8` — `FAILED_AT_STAGED_DIFF_CHECK`, exit2 | 18 líneas con dos espacios finales cada una; cero commits/pushes; audits no despachados/gates no creados |
+| Higiene y reseal | `run_89649c4139e8 / gate_629f95236c32 PASS` | Exactamente36 espacios eliminados, cero bytes añadidos, cero cambios no-space;1273 líneas/LF y semántica intactos |
+| Equivalencia independiente | `task_c16274d5747b / ctx_44d647524ad4` — `PASS — F2E R1 ACCEPTANCE AUTHORITY EQUIVALENT AFTER WHITESPACE-ONLY CORRECTION` | Autoridad aceptada resealed; NOT_PUBLISHED, nuevo preflight requerido |
+| Preflight resealed previo | `run_0e78daeb44b4 / gate_89bc92a8bae5 PASS` | Mismo snapshot; no reemplaza el nuevo audit/gate competente siguiente |
+| Fresh preflight.2 | `run_b5c5d0cc61a0 / gate_cb4bc2d34c43 PASS` | `PASS — F2E R1 RESEALED_ACCEPTED_SNAPSHOT READY_TO_PUBLISH`; publicación separada |
+| Ejecución exitosa | `run_8b913c526294` | Un commit exacto y un push normal nonforce sobre la branch exacta; ningún tag/otro ref |
+
+Review original antes de higiene SHA-256
+`cfd744c610e5f983527c6506e53a3a90402e74600625bacbec1150f9a89a4fe6`;
+manifest original SHA-256
+`c699ab84e194ad31bd1918cd5e7f9af1aa6078519cfbbc1eaca33dadf3c4c708`.
+Ambos son HISTORICAL_ONLY; nunca se hacen pasar por el snapshot resealed publicado.
+Las36 eliminaciones fueron sólo los sufijos de dos espacios en líneas557–562,565–570,573–578.
+No se corrigieron hallazgos técnicos ni se debilitaron definiciones S0/S1/S2 o evidencia nativa.
+
+### 12.2 Identidad exacta de la publicación competente
+
+| Binding publicado | Valor |
+| --- | --- |
+| Branch exacta | `operacion/excepciones-horario-fecha` |
+| Commit publicado / baseline físico de este cierre | `f5e0239d378119b9c1a5ec94e8f09db77cc4fe3c` |
+| Único parent real | `a0ec85818b771d4ac924b427fa1e90244ea9fe8e` |
+| Publication canonical path/status set | 23 paths:22 NEW /1 MODIFIED; exact21 + review nuevo + ESTADO modificado |
+| Commit publication canonical manifest SHA-256 | `0c305f556c6753b130a53a18b2e510f49318f6d7f9fb39c669f5a2e1d5bd9b80` |
+| Implementación exact21 sorted path LF SHA-256 | `f400a0602f95e318845da670bee4f819f057842adf8a60506564d5bd75e41d14` |
+| Implementación exact21 content manifest SHA-256 | `e2b64abd6aba8a050df6184f6c5440d87db83a67182fb43e622f48cf96f4f3ce` |
+| Diseño CLOSED / PUBLISHED SHA-256 | `6c72cba1f83fbc2bcf3b3219d8252d2410ec482e30ae85d30fd2eeb04e8883d8` |
+| Handoff exacto publicado SHA-256 | `3fd71faca4d4c049ad5cb37b52bc6fd512509cf5b696bdc5c28d28cb966af8ef` |
+| ESTADO publicado / preclosure SHA-256 | `94c477fca3d17113b00d2f3d35ca3f741b903b3e3fbd043ffd9f38af5d4d3237` |
+| Review resealed publicado / preclosure SHA-256 | `c300e851a313b252fd1b12e32816540ff5939edd4dc44125fb6829033698f1e4` |
+
+Manifest canónico publicado: UTF-8 TSV `path<TAB>status<TAB>sha256<TAB>classification<LF>`,
+ordenado por path relativo, NEW para Git A y MODIFIED para M, con LF final.
+Los dos SHA documentales de la tabla sellan los blobs históricos dentro de f5, no estos
+nuevos bytes de cierre. Preimages inmutables: `git show f5e0239d378119b9c1a5ec94e8f09db77cc4fe3c:<path>`.
+El manifest23 publicado permanece histórico e inmutable; este delta posterior sólo son dos docs.
+
+Audit independiente de staging real `task_b93db209e206 / ctx_bdb22a3f225b`,
+worker_done `msg_c71aadaf8785`, outcome succeeded:
+`PASS — F2E R1 RESEALED STAGED ACCEPTED SNAPSHOT VERIFIED`.
+Authorization gate real `task_4594a303de2c / gate_bd04ea00c795`, PASS a
+`2026-09-16T20:14:43Z`:
+`PASS — AUTHORIZED_TO_COMMIT_AND_PUSH_EXACT_RESEALED_F2E_R1_SNAPSHOT`.
+El commit posterior tiene timestamp `2026-09-16T20:14:44+00:00`, parent único e identidad exacta.
+Un solo push normal fast-forward, exit0, sin force, tags u otros refs:
+
+```text
+git push --no-follow-tags origin f5e0239d378119b9c1a5ec94e8f09db77cc4fe3c:refs/heads/operacion/excepciones-horario-fecha
+```
+
+Es receipt de una operación previa, no instrucción para ejecutarla de nuevo.
+Sólo target local branch y origin-tracking branch pasaron del parent a f5; ningún otro ref cambió.
+Audit NUEVO fresh e independiente de post-publicación
+`task_a5c106ff3d5a / ctx_e16589253474`, worker_done `msg_359164d0ec0a`, outcome succeeded:
+`PASS — F2E R1 RESEALED ACCEPTED SNAPSHOT PUBLISHED EXACTLY`,13 respuestas YES.
+Completion gate real `task_4b0c8ac25cd0 / gate_65645a7533da`, creado pending a
+`2026-09-16T20:20:13Z`, resuelto PASS a `2026-09-16T20:20:30Z`:
+`PASS — F2E R1 RESEALED ACCEPTED SNAPSHOT PUBLISHED / READY_FOR_PUBLICATION_CLOSURE`.
+La consulta read-only actual `gate-list` sobre ese Run/Task corroboró resolved/PASS real.
+Ese gate prueba publicación y readiness para este cierre, sin aprobar los nuevos bytes documentales.
+
+### 12.3 Fuentes físicas y sellos de custodia
+
+Raíz P: `/tmp/feelingpilates-f2e-publication-execution2.fEAgdl`.
+El documenter leyó los originales físicos siguientes y recalculó sus SHA-256.
+Los enlaces externos son navegación/custodia operacional local, sin garantía de retención;
+las identidades y resultados de publicación quedan persistidos aquí.
+
+| Original bajo P/ | SHA-256 |
+| --- | --- |
+| FINAL-RESULT.json | `461988c268036e64c8313972e70d1758e637729eb4f69e5817ab0e1b58940716` |
+| AUDIT-POST-PUBLICATION.md | `f79ab55e98062ef79779b404d893c97fa114047eb1e6bfeb3342871dd929b857` |
+| COMMIT-PUBLICATION-MANIFEST.tsv | `0c305f556c6753b130a53a18b2e510f49318f6d7f9fb39c669f5a2e1d5bd9b80` |
+| PUSH-RECEIPT.json | `8d9acc5c91d8156da3b36664d577f0622928e8d196560806af6000da8a187005` |
+| COMPLETION-GATE.json | `fe5d87f07b4c9c4d4d8c6a24145d0888330a55a8226ee368b6b7c1ce93da1d0f` |
+
+Raíz de entrada C: `/tmp/feelingpilates-f2e-publication-closure.HwP7MH`.
+`PUBLISHED-STARTING-SNAPSHOT.json` SHA-256
+`9770e5d1d7192edf0510a9177c4740c56c2ddfbb55ee2688716a16fda2bdf6b6` y
+`LIVE-REMOTE-START.json` SHA-256
+`6a001239ede6c7d7ce191b7ab1253cd4a7798b0ffee225ac89f0468c46a839f6`.
+Entrada físicamente contrastada: HEAD/upstream/origin live iguales a f5, ahead/behind0/0,
+staging EMPTY, working tree CLEAN, untracked0. Consulta independiente actual `ls-remote`
+sólo sobre `refs/heads/operacion/excepciones-horario-fecha` corroboró f5, sin fetch ni mutación.
+Hashes de ambos documentos antes del delta coinciden con los preimages Git y la tabla12.2;
+exact21 permanece byte-idéntico al manifest publicado y al snapshot aceptado.
+
+### 12.4 Estado vigente, separación de ejes y trabajo pendiente
+
+```text
+Design: CLOSED / PUBLISHED
+Handoff: APPROVED / PUBLISHED / CONSUMED_BY_R1 / NOT_ACTIVE
+CONSUMED IMPLEMENTATION HANDOFF: auditoria/handoffs/HANDOFF-F2E-R1-RESERVA-READER-JPA-READ-ONLY.md
+ACTIVE HANDOFF: NINGUNO
+Implementation: ACCEPTED / PUBLISHED / MATERIALIZED / IMMUTABLE_VALIDATED_CANDIDATE / NOT_REOPENED
+R1 lifecycle: CLOSED
+Technical validation / independent technical audit: PASS
+GAP1-GAP5: CLOSED
+TECH01-TECH06 / TECH08: CLOSED
+TECH07: CLOSED FOR_CURRENT_R1_HOST_INVARIANT ONLY
+Publication: PUBLISHED — f5e0239d378119b9c1a5ec94e8f09db77cc4fe3c
+Publication closure documentation: MATERIALIZED / PENDING_INDEPENDENT_AUDIT
+P2-EVIDENCE-01: NON_BLOCKING / PRESERVED
+R1 runtime: DARK_LAUNCH / NOT_PRODUCTIVE
+Dark launch: PRESERVED
+TurnoInstructor: LEGACY_VIVO / PRODUCTIVO / PRODUCTIVE AUTHORITY UNCHANGED
+Cutover: NOT_AUTHORIZED / false
+R2-R6: NOT_AUTHORIZED
+NEXT FUNCTIONAL PHASE: NINGUNA / NOT_AUTHORIZED
+```
+
+R1 CLOSED se materializa por autorización expresa sobre implementación aceptada y publicación
+ya probadas; no depende de inventar un futuro commit de cierre. No equivale a closure audit/gate
+PASS de `run_fb92631a2300` ni al estado terminal completo del workflow documental actual.
+Precommit closure audit, commit authorization gate, publicación de los docs de cierre,
+post-closure audit y final gate actuales: todos `PENDING / NOT_EXECUTED`.
+No se inventan futuros IDs, resultados o SHA; no hace falta edición posterior para añadirlos.
+Siguiente acción del workflow actual: audit documental independiente; las etapas posteriores
+exigen sus resultados/gates competentes reales. No se infiere ni autoriza siguiente fase funcional.
+La ruta/hash del handoff consumido sigue como autoridad exacta de implementación e historia;
+ningún contenido histórico se reactiva como permiso operativo.
+
+TECH01 conserva origen nativo/causalidad first/later independiente; TECH08 cierra sólo el overlap
+exacto; TECH02–06 mappings intactos. TECH07 no aprueba retrospectivamente el plan antiguo.
+Main technical `run_6d0dfb237a61`:59 targeted,69 suites/649 full,host7;
+native `run_8b529b21e8ad`:4 probes (2 negativas/2 positivas). Son ejecuciones históricas,
+ninguna nueva de este Run. P2 conserva arrays JSON incompletos y omitted denied-INSERT,
+targeted XML overwritten/unretained, roots/logs originales y XML full/host retenidos corroborantes;
+no originals repair ni casos/logs/XML fabricados, sin reapertura de GAP/aceptación.
+Data source `DATA_SOURCE_NOT_AVAILABLE`; data audit material, migration y fence
+`DEFERRED / NOT_AUTHORIZED`; D08 DEFERRED, crosswalk/resolver/selection NOT_AUTHORIZED.
+Payments/Notifications/Capacity/Mobile OUT_OF_SCOPE. Autopilot/FeelingPilatesOrchestrator/
+HostValidator `OLD_PROCESS_ONLY`, sin revival ni ejecución por este rol.
+Este documenter sólo modifica ESTADO y añade esta sección al review existente: ningún
+Java/test/config/SQL/migration, tests/Maven/JDBC/Docker, staging/commit/push/fetch/ref/config
+mutation o childworker. Los controles before/after son verificación de entrega, no self-audit.

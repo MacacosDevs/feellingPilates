@@ -782,3 +782,162 @@ posteriores, no una publicación PN14 previa separada. No se cambia retrospectiv
 NEXT ALLOWED ACTION actual: fresh DOCUMENT AUDIT → gate coordinador; después de condición real,
 publisher21 → verification/publication gate → documentary closure/fresh audit/closure gate.
 Ninguna acción de slices2–12. Tests caracterizan legacy/LEGACY_NOT_TARGET; no aprueban target PN.
+
+
+## Payments & Notifications — PN14 Slice1 publicación verificada / cierre pendiente
+
+Esta transición vigente supersede sólo las marcas históricas Slice1 de publicación pendiente
+de los bloques anteriores: el conjunto exact21 aceptado fue publicado normalmente y verificado
+fresh, con ambos gates competentes reales PASS. Todo el documento publicado se conserva como
+prefix íntegro. El review nuevo persiste evidencia AJENA; este DOCUMENTER no se autoaudita.
+
+```text
+RUN / DOCUMENTER TASK / DISPATCH: run_190c06410cef / task_69e8500eb85a / ctx_326d35ccf6c2
+PN13: MATERIALIZED / ACCEPTED / PUBLISHED / CLOSED; PUBLISHED terminal; gates PASS
+PN14 CONTRACT / HANDOFF: ACCEPTED / ACTIVE; implementation authority SLICE1_ONLY
+SLICE1: SAFETY_NET / CHARACTERIZATION / IMPLEMENTED / VALIDATED / AUDITED / ACCEPTED / PUBLISHED
+PUBLICATION STATUS / CLOSURE: PUBLISHED_PENDING_CLOSURE / NOT_CLOSED
+NORMATIVE WORKFLOW: AUDITING_PUBLICATION_CLOSURE — no terminal PUBLISHED yet
+DOCUMENT AUDIT: task_f094cad89d53 / ctx_91c146a73d2b / msg_2ae86643da92 / status msg_69234d45aec6 — COMPLETED/succeeded/PASS
+DOCUMENTATION_GATE: task_1054afbc3810 / gate_f163c0193bdb — COMPLETED/RESOLVED/PASS
+PUBLISHER: task_51f511e87b0e / ctx_9b912a0cea99 / msg_c38f52b1272e / status msg_a89a98038473 — COMPLETED/succeeded/PASS
+FRESH PUBLICATION VERIFIER: task_e43c9910482e / ctx_16c626a83113 / msg_e0a594456e26 / status msg_684b3f61af80 — COMPLETED/succeeded/PASS
+PUBLICATION_GATE: task_beb02b174572 / gate_2ae21ec12eac — COMPLETED/RESOLVED/PASS
+PUBLICATION COMMIT / SOLE PARENT: 6a256f0060417533c08c8763c90bb013cf6b3aea / 12f52781177694693be7d6dc2efc71009c5f45b3
+PUBLISHED SCOPE / RAW MANIFEST: exact21 / raw464 390bbea099fd4b514a2a6c30baf5119b5c8deef5c5279e77ebc9e4e3d39ec05e
+PHYSICAL ENTRY: localHEAD=upstream=successful live origin=6a; ahead/behind0/0; CLEAN WT / EMPTY staging
+TECHNICAL SCOPE / TESTS / IMPLEMENTATION / HOST: PASS / PASS / PASS / PASS — gate_bc4ce966cb51
+BASELINE / FINAL FOCAL / FINAL FULL: 590 / 67 / 638; zero failures/errors/skips; requiredSkips0; real PostgreSQL
+CLOSURE DOCUMENTATION: MATERIALIZED / READY_FOR_FRESH_INDEPENDENT_AUDIT / NOT_SELF_AUDITED
+FRESH CLOSURE AUDIT: task_ac50b49949e6 — PENDING; dispatch only after this DOCUMENTER settles
+PUBLICATION_CLOSURE_GATE: task_bdeb3de4e216 / gate_d1154275fd3e — BLOCKED/PENDING, NOT_CLOSED
+NEXT ALLOWED ACTION: FRESH_INDEPENDENT_PUBLICATION_CLOSURE_AUDIT ONLY
+COMBINED OPEN: P0=0 / P1=0 / P2=1 — solely NEW-PN13-017 OPEN/P2/EDITORIAL/NON_BLOCKING/IMPLEMENTATION_INDEPENDENT
+SLICES2–12: NOT_AUTHORIZED / NO_AUTOMATIC_NEXTSLICE
+TARGET PN13 PRODUCTION / RUNTIME / PRODUCTIVE AUTHORITY / MIGRATION / F2D / F2E / FENCE / CUTOVER: NOT_AUTHORIZED / UNCHANGED
+```
+
+Evidencia real, secciones exactas de ambos gate results y 21 paths/rawpins históricos:
+`auditoria/reviews/PN14-SLICE1-REVIEW-PUBLICACION-SAFETY-NET-CARACTERIZACION.md` §§2–4;
+checkpoint Slice1 §8. La aceptación §6 fue una transición única prepublicación sobre 12f.
+Los pins de 6a y raw464 son snapshots históricos de audit/provenance, no requisitos perpetuos
+de HEAD/hash documental tras cambios competentes de cierre. Esta materialización conserva
+prefixes completos publicados ESTADO39480/mapa30628/checkpoint16280 y los demás archivos,
+incluidos13 tests/helpers, cuatro originales PN14 y review técnico, byte-identical.
+No nuevos tests ni validación host ni SHA/gate PASS futuros fabricados; TA-001/002/003 y
+hallazgos PN13 cerrados permanecen CLOSED, NEW-PN13-017 no se corrige ni reabre PN13.
+
+Allowlist actual exact4: append-only este canónico, mapa y checkpoint Slice1; crear review
+PN14-SLICE1-REVIEW-PUBLICACION. Allowlist futura exhaustiva5 de cierre/publicación:
+
+```json
+[
+  "auditoria/ESTADO-ACTUAL.md",
+  "auditoria/contexto/MAPA-LEGACY-Y-MIGRACION.md",
+  "auditoria/fase-pn14-slice1-safety-net-caracterizacion.md",
+  "auditoria/reviews/PN14-SLICE1-REVIEW-PUBLICACION-SAFETY-NET-CARACTERIZACION.md",
+  "auditoria/reviews/PN14-SLICE1-REVIEW-CIERRE-PUBLICACION-SAFETY-NET-CARACTERIZACION.md"
+]
+```
+
+Deriva de PN14 handoff §8, autorización del usuario postécnica de publicación/cierre con roles
+separados y convenciones físicas PN13 de reviews de publicación/cierre; no autoriza código,
+documentos extra ni Git writes a este DOCUMENTER. El review final de cierre no existe todavía:
+un DOCUMENTER separado posterior persistirá el audit AJENO realmente emitido y la transición
+final competente sólo con audit/gate reales; publisher/verifier documentales serán separados.
+Cierre pendiente es aplicable, no NOT_APPLICABLE/PASS. Publicación física no activa runtime ni
+cutover y todavía no equivale al estado normativo terminal PUBLISHED de STATE-MACHINE.
+
+
+## Payments & Notifications — PN14 Slice1 CLOSED / recibo AJENO final pendiente de verificación
+
+Date2026-09-16; Run/task/dispatch run_190c06410cef / task_ce81ab0afbd3 / ctx_7609aea707f5.
+Rol DOCUMENTER / PAYMENTS_SLICE1_CLOSURE_AUDIT_EVIDENCE_MATERIALIZER, SINGLE_WRITER,
+DOCUMENTATION_ONLY, no auditor ni publisher. La transición competente del cierre ya ocurrió
+por audit AJENO fresh y gate REAL: este append persiste su resultado, sin self-audit ni resolución
+propia. Supersede únicamente los pendientes de cierre Slice1 de snapshots anteriores.
+
+```text
+PN13: MATERIALIZED / ACCEPTED / PUBLISHED / CLOSED; workflow PUBLISHED / TERMINAL; gates PASS
+PN14 CONTRACT / HANDOFF: ACCEPTED / ACTIVE
+SLICE1: SAFETY_NET / CHARACTERIZATION / IMPLEMENTED / VALIDATED / AUDITED / ACCEPTED / PUBLISHED / CLOSED
+SLICE1 NORMATIVE WORKFLOW: PUBLISHED / TERMINAL — no functional continuation
+DOCUMENTATION_GATE: PASS — task_1054afbc3810 / gate_f163c0193bdb
+TECHNICAL SCOPE / TESTS / IMPLEMENTATION / HOST: PASS — task_ae6dd88b4b33 / gate_bc4ce966cb51
+PUBLICATION_GATE: PASS — task_beb02b174572 / gate_2ae21ec12eac
+PUBLICATION_CLOSURE_AUDIT: PASS — task_ac50b49949e6 / ctx_af03b1f26b0d / msg_9c46fc825592 / status msg_463efc9c06b4
+PUBLICATION_CLOSURE_GATE: PASS — task_bdeb3de4e216 / gate_d1154275fd3e COMPLETED / RESOLVED / PASS
+FINAL AJENO RECEIPT: MATERIALIZED / PENDING_FRESH_INDEPENDENT_DOCUMENT_VERIFICATION / NOT_SELF_AUDITED
+FINAL RECEIPT PUBLICATION: LOCAL_UNCOMMITTED_DOCUMENTARY_CLOSURE_RECEIPT / NOT_YET_PUBLISHED
+FINAL FRESH VERIFIER: task_8ef14af3963e PENDING / no executed result at materialization
+FINAL DOCUMENTARY PUBLICATION AUTHORIZATION: task_f4f5de6333dd / gate_3a084176596d PENDING
+IMPLEMENTATION AUTHORITY: SLICE1_ONLY / NO_FURTHER_WRITES
+SLICES2–12: NOT_AUTHORIZED / NO_AUTOMATIC_NEXTSLICE
+PN13-001..PN13-010 / NEW-PN13-011..NEW-PN13-016: CLOSED / CLOSED
+NEW-PN13-017: OPEN / P2 / EDITORIAL / NON_BLOCKING / IMPLEMENTATION_INDEPENDENT
+NEW CLOSURE FINDINGS P0/P1/P2: 0/0/0; COMBINED OPEN P0/P1/P2: 0/0/1 solely NEW-PN13-017
+TARGET PN13 PRODUCTION: DESIGNED_NOT_IMPLEMENTED / NOT_AUTHORIZED
+PRODUCTIVE AUTHORITY / LEGACY / RESERVAS / PROGRAMACION / RUNTIME / SQL / MIGRATION / F2D / F2E / FENCE / CUTOVER: UNCHANGED / NO_NEW_AUTHORIZATION
+TESTS / HOST RUNS BY THIS DOCUMENTER: NOT_APPLICABLE / NOT_EXECUTED
+```
+
+Audit AJENO fresh READ_ONLY/ADVERSARIAL/INDEPENDENT task_ac50b49949e6/ctx_af03b1f26b0d,
+uniqueDone msg_9c46fc825592 y status msg_463efc9c06b4, COMPLETED/succeeded/settled/accepted/
+released, filesModified=[], nuevosP0=P1=P2=0. ClosureGate task_bdeb3de4e216/gate_d1154275fd3e
+COMPLETED/RESOLVED/PASS, provenance coordinator_gate_resolution, resuelto2026-09-16 18:37:11.
+Binding exact4 initialclosurecandidate raw465
+53491b210644ba452167b81e0da44b68156d6e75728861cbdd60506559aae308:
+**AUDITED_HISTORICAL_CLOSURE_SNAPSHOT**, con sus cuatro pins y resultados JSON relevantes
+decodificados literalmente en
+`auditoria/reviews/PN14-SLICE1-REVIEW-CIERRE-PUBLICACION-SAFETY-NET-CARACTERIZACION.md`.
+Las marcas internas PENDING/NOT_CLOSED del audit y review de publicación describen aquel
+corte previo a la resolución real; quedan inmutables como historia. No son el lifecycle vigente.
+Los pins/raw465/6a son snapshots de provenance, no requisitos perpetuos de currentdocHEAD/hash;
+estos nuevos append competentes tienen scope y verificación final independientes.
+
+Preflight propio anterior a cualquier write: worktree/branch exactos, HEAD=upstream=liveorigin
+6a256f0060417533c08c8763c90bb013cf6b3aea,0/0,EMPTY staging, índice67ee2cdc… intacto,
+raw465 MATCH y WT exact4dirty MATCH contra gate/audit actuales, source+pom362 raw
+b8da272df924b885c4466ba3a92fc7c6a90ab5ddb296bc1d31fe5e570b98315a.
+Se preservan TODOS los bytes de entrada propios (ESTADO44209/mapa34215/checkpoint21552),
+y prefixes publicados39480/30628/16280; review publicación bdceb0a0418e8895a2b8276a939a264e51d88cba84a5f701cd7739aa67954185 inmutable.
+13tests/helpers, cuatro originalesPN14, technicalreview, historiaPN13, dominio/arquitectura/
+decisiones y TODOS los otros archivos quedan intactos. Scope propio EXACT FOUR WRITES:
+append ESTADO/mapa/checkpoint y crear sólo reviewCIERRE; apply_patch únicamente, sin Git writes.
+
+Evidencia técnica AJENA preservada baseline590/finalfocal67/full638 PASS,0failure/error/skipped,
+requiredSkips0 y PostgreSQL real M12; TA-001/002/003 CLOSED. No nuevos runs, fixes/reaperturas
+PN13, cambio de reglas/legacy ni autorización target/runtime/migración/F2E/fence/cutover.
+El safety net precede SQL y conserva LEGACY_NOT_TARGET; no continuidad slices2–12.
+
+Publicación final documental — condición competente protectora exact5:
+
+La publicación de este recibo documental final sólo se autoriza **si y sólo si**:
+
+1. task_8ef14af3963e completa succeeded con un único worker_done competente aceptado,
+   FINAL_CLOSURE_MATERIALIZATION_VERIFICATION=PASS, P0=0/P1=0 y filesModified=[],
+   fresh e independiente de todos los escritores, preservando autoridad y gates anteriores.
+2. task_f4f5de6333dd completa y gate_3a084176596d se resuelve PASS realmente por el coordinador,
+   provenance coordinator_gate_resolution; candidateFileSHA256 y acceptedPublishPaths enlazan
+   exhaustivamente los CINCO paths de abajo y TODOS sus bytes actuales exactos, iguales al
+   snapshot final del DOCUMENTER, verificador fresh y comprobación independiente de integridad
+   del coordinador, sin omisiones, extras, mutación posterior, decisión humana ni SECURITY_STOP.
+3. Un PUBLISHER separado verifica ese binding y el preflight físico pertinente antes del
+   stage exacto, commit normal y push normal en la branch actual; publicación/verificación
+   posteriores son etapas separadas. Cualquier mismatch falla cerrado; no se inventa SHA futuro.
+
+Este gate adicional es autorización de scope/lifecycle de publicación documental, no un nuevo
+gate de producto/dominio ni reapertura de Slice1. Protege TODOS los bytes añadidos después del
+ClosureGate inicial: ningún byte postgate puede publicarse sin su verificación independiente.
+En este corte verifier PENDING/no resultado y gate final PENDING/no resolución; READY_TO_PUBLISH
+del recibo final=NO. Los SHA finales se entregan externamente, sin self-hash o ciclo criptográfico.
+
+```json
+[
+  "auditoria/ESTADO-ACTUAL.md",
+  "auditoria/contexto/MAPA-LEGACY-Y-MIGRACION.md",
+  "auditoria/fase-pn14-slice1-safety-net-caracterizacion.md",
+  "auditoria/reviews/PN14-SLICE1-REVIEW-PUBLICACION-SAFETY-NET-CARACTERIZACION.md",
+  "auditoria/reviews/PN14-SLICE1-REVIEW-CIERRE-PUBLICACION-SAFETY-NET-CARACTERIZACION.md"
+]
+```

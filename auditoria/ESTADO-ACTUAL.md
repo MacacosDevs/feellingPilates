@@ -860,3 +860,140 @@ Los PASS anteriores sólo cubren aceptación/publicación previa; no cubren nuev
 Siguiente acción exacta: audit independiente del cierre materializado; las etapas posteriores
 requieren resultados/gates competentes reales. No self-audit, futuros IDs/veredictos inventados,
 commit/push de este cierre ya ejecutados ni nueva fase funcional inferida.
+
+## F2E R2 — autoridad de diseño materializada y auditada, pendiente de publicación
+
+Corte terminal documental 2026-09-16, Run `run_df3cbaebd5d7`.
+El protocolo y el gate precedente `run_b000b8a5b647 / gate_236c6b0bdf43 PASS`
+autorizaron únicamente `R2_DESIGN_AUTHORITY_MATERIALIZATION`.
+Clasificación previa `R2_DESIGN_AUTHORITY_INCOMPLETE`: tres gaps de integración
+A/B/C, no indefinición funcional ni autorización de implementación.
+
+Baseline físico fresco: branch `operacion/excepciones-horario-fecha`,
+HEAD/upstream/origin live `6c2eacc870499e74ead74c1851630f9f53b1c676`,
+ahead/behind0/0, CLEAN/index EMPTY/untracked0 al inicio; sin fetch.
+R1 es terminal `CLOSED / ACCEPTED / PUBLISHED / DARK_LAUNCH_PRESERVED`,
+`run_fb92631a2300 / gate_7e4a087bd1ce PASS`, resolved2026-09-16T20:51:36Z,
+commit de cierre publicado6c2 ancestral de esta nueva unidad. Los PENDING en
+las secciones documentales R1 anteriores son cortes de materialización históricos;
+el cierre posterior fue corroborado físicamente por preflight y auditor fresh
+(gate real, HEAD/upstream/live). No se reabre ni reescribe R1.
+
+### Artefactos locales R2 y provenance sellada
+
+| Artifact / identidad | Estado actual / SHA-256 |
+| --- | --- |
+| Diseño R2 | [fase-2e-r2-diseno-lector-turno-legacy-integracion.md](fase-2e-r2-diseno-lector-turno-legacy-integracion.md), MATERIALIZED / AUDITED / COMPLETE / NOT_PUBLISHED; db4673dd0705c41e62d0b77339d45b2cd1e87c51e26064112ad95b843dafe9cf |
+| Research handoff R2 | [HANDOFF-F2E-R2-DISENO-LECTOR-TURNO-LEGACY.md](handoffs/HANDOFF-F2E-R2-DISENO-LECTOR-TURNO-LEGACY.md), DESIGN/RESEARCH provenance/profile, NOT_ACTIVE_IMPLEMENTATION_HANDOFF / NOT_PUBLISHED; 221347b46c5032b384a306c61908c8fd0f2c26076455609fb880098be8f0d2d4 |
+| Review R2 | [F2E-R2-REVIEW-DISENO-LECTOR-TURNO-LEGACY.md](reviews/F2E-R2-REVIEW-DISENO-LECTOR-TURNO-LEGACY.md), informes independientes originales completos FAIL y fresh PASS, receipt coordinador; 0863b2a704f56b9d55a141edb3d191629c25d35f8706a66b7c878e176564b785 |
+| Canónico primario D, read-only | CLOSED / PUBLISHED; 6c72cba1f83fbc2bcf3b3219d8252d2410ec482e30ae85d30fd2eeb04e8883d8 |
+| R1 exact21 path-set / content preservados | f400a0602f95e318845da670bee4f819f057842adf8a60506564d5bd75e41d14 / e2b64abd6aba8a050df6184f6c5440d87db83a67182fb43e622f48cf96f4f3ce |
+
+La nueva autoridad precisa solamente gaps R2; las reglas existentes D8/12/13/18–30
+continúan. D36–37 sigue R1-only salvo fundamentos neutrales compartidos adoptados
+explícitamente; ningún contexto/DTO/ReservaSQL/mapper/enum/identidad R1 se vuelve
+genérico por analogía. Los headers PENDING_FRESH_REAUDIT_AND_GATE en inputs R2
+sellados describen la entrega anterior del corrector; su aceptación documental
+posterior es el informe independiente reproducido en review y el gate real aquí.
+No se cambian los bytes auditados para introducir resultados futuros en su preimage.
+El review conserva fuente/hashes, distingue NORMATIVE anterior, SUPPORTING físico y
+nuevas decisiones R2, y no atribuye al auditor este estado postgate.
+
+### Worker, CORRECT y re-audit cronológicos
+
+Materializador fresh `task_c195cda67de7 / ctx_c45b806cebbf` entregó
+`R2_DESIGN_AUTHORITY_MATERIALIZED`; complete/released/transcript captured.
+Auditor inicial separado `task_1c407b9a88a1 / ctx_3c018d86ea0f` emitió
+**FAIL — F2E R2 DESIGN AUTHORITY REMAINS INCOMPLETE**, P0=0/P1=2:
+B-01 SQL implícita getSchema/getCatalog fuera del catálogo5, AB-02 corte de MEMBERS
+antes de ASSIGNMENTS impedía K exacto de header inválido con keys suficientes.
+Informe histórico original SHA
+`bda484b6140405491740b6c193fd120d06dbd3550cc26ee458866500f489109a`.
+Preimages diseño `3a6eb4e4b38ff90b66e85680c407ae808dbba471b21d4be79dd2c321cd77afaa`
+y research `e9c56d7beb47f8558a756fe2e132aa3874069fd902cbb0d26270646256c1bb83`
+se preservan externamente; FAIL inicial no se convierte en PASS retroactivo.
+
+CORRECT documental acotado, misma allowlist de dos candidatos, corrector fresh
+`task_a2e7ce748158 / ctx_ef6c945da2a1`, sólo B-01/AB-02 y referencias dependientes:
+catálogo6 incorpora RESOURCE real explícito/capturado, native URL/user locales,
+getSchema/getCatalog prohibidos; extracción keys primero y errores proyectados
+pendientes hasta ASSIGNMENTS/K exacto, frente a hard operational immediate abort.
+Entrega `R2_DESIGN_AUTHORITY_MATERIALIZED`, no self-approval/cierre competente;
+complete/released/transcript captured. Diseño §§3/8/9 se mantuvo byte-exacto.
+
+Reauditor fresh independiente distinto `task_9a5c9b6b0b55 / ctx_4d4dfda77e33`
+revisitó las doce preguntas, todos los sources/contratos y ambos P1; Done
+`msg_5fe1bdca614f` a2026-09-16T22:28:11Z:
+**PASS — F2E R2 DESIGN AUTHORITY COMPLETE FOR HANDOFF**.
+GAP A/B/C COMPLETE, B-01/AB-02 CLOSED a nivel diseño; P0=0/P1=0/P2=0.
+Informe original íntegro SHA
+`bf3057c4f5d085e049f76ab901289c58bf694d9048b46c31c90fa99330acb27b`,
+44186bytes/254LF; persistido exacto en review, con hash y byte equality verificados.
+Todos los workers completados y liberados, transcripts captured, ACK de Done después
+de release. El auditor hizo cero mutaciones de repo; el coordinador persiste su
+receipt y este estado terminal autorizado, no una autoauditoría de su propio diseño.
+
+### Instancia de los tres gaps y límites finales
+
+| Gap | Contrato auditado completo | Disposición |
+| --- | --- | --- |
+| A | Context R2 propio10 fields/trust/registry; fecha+salones, triple PK/gap URNs/markers/K; facts versus structural/unknown intent; LP/SEQ/UTF8/maps26+20/D13/source-only immutable LegacyTurnReadSet; rechazo exacto pre-core | COMPLETE AT DESIGN LEVEL |
+| B | Catálogo6: MEMBERS/ASSIGNMENTS +I/R/RESOURCE/S; tipos/aliases/binding/capture independiente de ejecución; owner TEST-only RR/readOnly y reader MANDATORY; native same-resource/allstatements/initialfinal snapshot/completion; SELECT-only3tables/all-column compoundPK scopedchecksum y ventanas no-write/concurrencia separadas | COMPLETE AT DESIGN LEVEL |
+| C | Única excepción futura explícita sólo a ReservaJpaReaderArchitectureTest, R1literalmain11/test10 y todos sus guards preservados, R2SEALED separate sets/global union sin extra/missing/overlap; aprobación futura exacthandoff obligatoria | COMPLETE AT DESIGN LEVEL |
+
+Las siete capacidades D24.1 son exactas: container/Flyway REUSE_AS_IS sólo capacidad
+aislada; SELECT-role/SQLinspection/checksum/architecture EXTEND_WITH_R2_NEUTRAL_CAPABILITY
+con preservación R1; owner RC/Reserva actual NOT_REUSABLE, nuevo owner RR R2 separado.
+No shared source cambia ahora. No filenames de implementación/allowlist/commands/counts
+futuros se inventan. Golden vectors, pre-callback fingerprint commitments, exact Maven
+commands/counts y criterios R1 59/649/host7/native4 son NOT_YET_NORMATIVE para R2.
+Tests/Maven/JDBC/container/SQL/host execution no aplican a esta unidad documental:
+NOT_EXECUTED, nunca green test totals ni implementación aceptada.
+
+R2 standalone lee únicamente turno_instructor, turno_instructor_usuario y
+turno_instructor_asignacion mediante dos projections escalares, no Cartesian join:
+active recurrent weekday domingo0 y puntual exact-date, LEFT JOIN conserva cero
+miembros, todas las assignments inclnonmembers por parent UUIDs; sólo cero MEMBERS
+rows real es éxito-empty con query2 omitida. Puntual UNKNOWN_INTENT/no inventedhistory;
+bad required/type/duplicates/orphans causan rechazo total, cero publicación parcial.
+No nominal/effective generation/targets/classifier/intent inference/productive consumer.
+
+### Gate competente y única siguiente unidad
+
+GateTask real `task_348d69549331`; gate nuevo `gate_3a050e22dc0f`,
+creado pending2026-09-16T22:29:59Z **después** del re-audit terminal.
+Resolved PASS2026-09-16T22:30:03Z; binding diseño/research/review/informe finales y
+baseline6c2 inmutables; scope/integrity verificados:
+**PASS — F2E R2 DESIGN AUTHORITY COMPLETE / READY_FOR_R2_DESIGN_AUTHORITY_PUBLICATION**.
+
+Selección competente específica del profile R2, **no requisito universal**:
+`R2_DESIGN_AUTHORITY_PUBLICATION` separada antes de futuro implementation handoff ACTIVE.
+La autoridad necesita publicación/versionado/sello y closure con sus propios preflight,
+scope exacto, auditor fresh y gates. Local materialization/audit/gate no es PUBLISHED.
+Suficiencia para AUTHORING es de diseño y se puede evaluar sólo bajo autorización
+documental nueva, no equivale a handoff APPROVED/ACTIVE o permiso de implementación.
+En esta unidad **no** se creó implementation handoff ni se activó R2.
+
+`ACTIVE HANDOFF: NINGUNO`; research R2 `NOT_ACTIVE_IMPLEMENTATION_HANDOFF`.
+`NEXT AUTHORIZED LIFECYCLE: R2_DESIGN_AUTHORITY_PUBLICATION` solamente.
+`NEXT FUNCTIONAL PHASE / R2 IMPLEMENTATION: NOT_AUTHORIZED`.
+R2 design `MATERIALIZED / AUDITED / COMPLETE / NOT_PUBLISHED`;
+R2 implementation `NOT_AUTHORIZED / NOT_STARTED`, no aceptación ni publicación R2.
+No stage/commit/push/fetch ni publicación automática en este Run.
+
+TurnoInstructor `LEGACY_VIVO / PRODUCTIVO`; R1 `CLOSED / ACCEPTED / PUBLISHED /
+DARK_LAUNCH_PRESERVED`; R2 previsto `DARK_LAUNCH / NON_PRODUCTIVE`, default/product
+contexts ABSENT y zero productive callers como obligaciones futuras, no activation.
+Cutover `NOT_AUTHORIZED`; R3 nominal/candidates, R4 exact-date NEW_* adjustments,
+R5 F2D graph/collector/backing y R6 cross-source RR/shadow `NOT_AUTHORIZED_IN_R2`.
+Target selection/crosswalk/resolver/fence/cross-source composition/materialdataaudit/
+reportsink/migration/productive shadow activation excluidos. Payments/Notifications
+OUT_OF_SCOPE; Autopilot/FeelingPilatesOrchestrator/HostValidator OLD_PROCESS_ONLY.
+P2-EVIDENCE-01 `NON_BLOCKING / PRESERVED`, sin reparar/fabricar arrays/XML/originales.
+
+Scope terminal permitido: este único tracked document modificado y tres nuevos docs
+R2 allowlisted (design/research/review); implementación/tests/config/SQL/migraciones/
+pom/core/legacyR1 delta0. Staging EMPTY; HEAD/upstream/live y R1 exact21 unchanged.
+El review y este append son delta coordinador autorizado posterior al audit, no
+delta atribuible al auditor ni bytes futuros auditados por él. La sección R1 anterior
+se conserva como prefijo byte-exacto. Git diff --check y cached check exigidos PASS.

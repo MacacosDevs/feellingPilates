@@ -987,3 +987,93 @@ regla de estado/transferencia/refund, API, dependencia, reader/writer switch, li
 activación productiva, fence, cutover, integración/inspección de candidatos F2E o slices3–12.
 No handoff, task ni autorización Slice3. Final de este Run: STOP / HUMAN_GATE_MILESTONE_COMPLETE;
 ninguna continuación funcional automática.
+
+
+## PN14 Slice2 — publicación de fundación interna verificada / cierre documental EXACT5 pendiente
+
+Run `run_6859a7f36296`; writer `task_326e1d0be3c3 / ctx_2fb4e7dd7f2a`, DOCUMENTATION_ONLY /
+SINGLE_WRITER / NOT_AUDITOR / NOT_PUBLISHER. Autorización humana durable EntryTask
+`task_8020d35c11af` y checkpoint publicado§8 delimitan este cierre EXACT5, sin nuevo scope técnico.
+
+Aceptación documental AJENA efectiva: `task_3a8018ef45ec/ctx_962edb57a7b2`, BODY
+`msg_a55852c176c5`, único done `msg_d26c040d6940`, completed/succeeded/accepted/settled/released,
+READ_ONLY/filesModified=[], PUBLICATION_DOCUMENTATION_AUDIT=PASS; root
+`task_099742bc80da/gate_9f566aeb0043` completed/coordinator_gate_resolution/resolvedPASS.
+Publisher separado `task_3595372569cb`: commit normal EXACT46
+`62fb32e68546f2521ef441aa61a4d51896999942`, parent
+`1564fb5b2e6f9465b83adce8d6c53a418c99330b`, push origin branch Payments normal/equality real.
+Verificador AJENO `task_55b12d011626/ctx_1df3a7061353`, BODY literal
+`msg_2225f66ff69b`, uniqueDone `msg_56e4970e3b1d`, completed/succeeded/accepted/settled/released,
+READ_ONLY/filesModified=[], PUBLICATION_VERIFICATION=PASS/P0=P1=0; actual
+`task_b3d3fbf82fee/gate_ea25fa50425c` completed/coordinator_gate_resolution/resolvedPASS.
+ReviewPUBLICACION persiste evidencia literal AJENA; reviewCIERRE persiste condición, sin selfaudit.
+
+La fundación interna queda IMPLEMENTED / VALIDATED / AUDITED / ACCEPTED / FIRST_PUBLICATION_VERIFIED;
+WORKFLOW entrada PUBLISHED_PENDING_CLOSURE_DOCUMENTATION. Current closure5 MATERIALIZED /
+NOT_SELF_AUDITED, CLOSURE=NOT_CLOSED / CLOSURE_GATE=APPLICABLE/PENDING; su publicación remota
+NOT_PERFORMED. Own BEFORE511 rawmanifest141af393e839463eefe1ea6d418f6db53b1a7a0b15132293fbe43ffc12d5b4c3;
+AFTER esperado513=511+2CREATE, sólo3append completos, otros508 intactos. Prefix MAPA completo
+58848bytes/SHA ce30d368e2f72e4b4001d8d6b2b81046dec56450aa8ff77563f310ecaf75d0f9 preservado.
+Técnico33/arquitectura/authdocs8/review técnico/RAW90 preserved686/0/0/0, sin rerun.
+
+Corrección documental acotada `task_d45dfd499d92 / ctx_9ba8aec63bed`: hold precommit
+CLOSURE-CACHED-WHITESPACE-001 y recovery REAL completed `task_8b4769dd0783`.
+El primer audit `task_47a483ba472b` emitió PUBLICATION_CLOSURE_AUDIT=PASS y el root
+`task_eaa3a8d8fe1a / gate_418164dbc9f3` resolvió PASS para los bytes anteriores solamente:
+HISTORICAL / NON_COMPETENT_FOR_CORRECTED_SNAPSHOT; no auditFAIL ni reset de presupuesto.
+Root stageó EXACT5, cached hashes concordantes, pero `git diff --cached --check` falló por
+una línea vacía final extra en cada nuevo review; NO closurecommit ni closurepush ejecutados.
+Recovery restauró ONLY staged5 a HEAD, sin alterar working bytes; staging actual EMPTY.
+Entrada corrector: HEAD62fb32e, indexSHA256
+`ad93ceec94412cbea71327e61d84fe457be5f07c27c50d93cabb2ac09b56de77`, whole513 físico; index1422/BEFORE511 son historia del primer intento.
+Se elimina sólo whitespace EOF de los reviews y se actualiza sólo el control de cierre;
+evidencia literal AJENA, decisiones técnicas/de publicación y otros508/RAW90/excluidos3 intactos.
+Único binding CURRENT: fresh audit `task_92f3b3c10a83` → successor root gate
+`task_e55c13f2e7f6` → publisher `task_fb3167f2cd24`; los resultados futuros siguen PENDING.
+Exact5 maps y full513 postcorrección se pinnean EXTERNAMENTE, idénticos writer/auditor/root/físico,
+sin selfhash ni PASS/GateID futuro inventados. Antes del successor Gate son prerrequisitos
+`git diff --check` sobre tracked scope y `git diff --no-index --check /dev/null <review>`
+sobre CADA uno de los dos reviews untracked-to-create, además de ausencia de trailing blank lines.
+Después de stage EXACT5, el publisher exige nuevamente `git diff --cached --check` PASS
+antes de closurecommit; cualquier fallo/mismatch mantiene HOLD / NOT_CLOSED / NO_PUBLICATION.
+
+La condición íntegra vigente de ESTADO/checkpoint§10/reviewCIERRE exige NUEVO auditor fresh
+`task_92f3b3c10a83` READ_ONLY independiente completed/succeeded/únicoDone accepted/settled/released,
+filesModified=[],P0=P1=0/PUBLICATION_CLOSURE_AUDIT=PASS; después NUEVO root
+`task_e55c13f2e7f6` completed/provenancecoordinator_gate_resolution/únicoGate resolvedPASS,
+pregunta literal de reviewCIERRE, ambos mapas candidateFileSHA256/authorityFileSHA256 EXACT5
+iguales writer/auditor/root/físico y whole513 count/raw/fullmap concordantes, PublicationGate
+actualPASS y todas protecciones sin bloqueos/mismatch/SECURITY_STOP/mutación posterior.
+Dispatch/BODY/done/GateID futuros UNKNOWN al escribir, no se fabrican. Audit/root reales hacen
+CLOSED documental one-shot sobre first62fb32e/indexSHA256
+`ad93ceec94412cbea71327e61d84fe457be5f07c27c50d93cabb2ac09b56de77` y snapshot corregido513 concordante, stagingEMPTY.
+Publisher separado `task_fb3167f2cd24` sólo después revalida EXACT5 aprobados y realiza stage/
+closurecommit/push normales de mismos bytes; HEAD ancestral no revoca aceptación.
+Final `SLICE2=IMPLEMENTED / VALIDATED / AUDITED / ACCEPTED / PUBLISHED / CLOSED` y
+`WORKFLOW=PUBLISHED / TERMINAL` exige además publisherTaskcompleted y evidencia física real
+closurecommit parent62fb32e/exact5 approvedblobs, origin branch exacta, HEAD=upstream=liveOrigin,
+0/0/cached+trackedDiffEMPTY/ONLYexcluded3untracked. Commit futuro se registra externamente en
+Task.result real, no postgateedit ni selfhash. Hasta esa conjunción, NOT_CLOSED/PENDING.
+
+Sólo se supersede el estado operativo Slice2 stale: original32ABSENT/H47/authpins/control
+STATE/RUNBOOK/policy/gates quedan íntegros HISTORICAL/PROVENANCE, no control perpetuo vigente.
+Failed3 experiments AC/0f/01c: históricos no autoritativos para MVP, diferidos POST_MVP,
+locales/no publicados/intactos/hash-only; no reparación/importación de política fallida.
+Scope que requiera esos3/u otro path STOP/AMBIGUOUS_AUTHORITY; defecto técnico STOP/HUMAN/sin fix.
+
+La coexistencia mantiene Compra legacy como único mappingJPA writable y consumers públicos
+actuales; Paquete/PaqueteActividad siguen catálogo mutable. V48/V49 existen como persistencia
+interna publicada, sin migración live ni backfill productivo, sin switch de autoridad o reader.
+La consulta congelada/JDBC, provenance/backfill explícitos sólo son fundación INACTIVE /
+IMPLEMENTADO_NO_PRODUCTIVO; PUBLICATION no cambia runtime ni autoridad productiva.
+
+PN13 permanece MATERIALIZED / ACCEPTED / PUBLISHED / CLOSED / TERMINAL; PN14 contrato
+ACCEPTED; Slice1 ACCEPTED / PUBLISHED / CLOSED / TERMINAL. NEW-PN13-017 permanece OPEN / P2 /
+EDITORIAL / NON_BLOCKING / IMPLEMENTATION_INDEPENDENT, único residual combinado, sin fix/reopen.
+P0=P1=0 corresponde sólo a resultados AJENOS técnicos/documentales/de publicación ya emitidos;
+este writer no clasifica hallazgos ni autoaprueba su nuevo delta.
+Foundation interna IMPLEMENTADO_NO_PRODUCTIVO / INACTIVE; autoridad productiva legacy, API,
+readers/writers y runtime intactos, cutover=false. No ledger, slices3–12, producto/API/finanzas,
+regla nueva de estado/refund/security/dependencia/migración, schema live/backfill/wiring/switch,
+fence/cutover ni inspección/integración F2E. No handoff/Task posterior ni autostart de otro slice.
+Final STOP / HUMAN_GATE_REQUIRED / MILESTONE_COMPLETE; ninguna continuación funcional automática.

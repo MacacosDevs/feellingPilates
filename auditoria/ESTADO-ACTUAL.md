@@ -1695,3 +1695,129 @@ regla de estado/transferencia/refund, API, dependencia, reader/writer switch, li
 activación productiva, fence, cutover, integración/inspección de candidatos F2E o slices3–12.
 No handoff, task ni autorización Slice3. Final de este Run: STOP / HUMAN_GATE_MILESTONE_COMPLETE;
 ninguna continuación funcional automática.
+
+
+## Payments & Notifications — PN14 Slice2 publicación física verificada / cierre EXACT5 pendiente
+
+Run `run_6859a7f36296`; writer `task_326e1d0be3c3 / ctx_2fb4e7dd7f2a`,
+PAYMENTS_SLICE2_PUBLICATION_CLOSURE_DOCUMENTER / SINGLE_WRITER / DOCUMENTATION_ONLY /
+NOT_AUDITOR / NOT_PUBLISHER / NOT_SELF_AUTHORIZING. Autorización humana durable EntryTask
+`task_8020d35c11af`: documentación/publicación/cierre Slice2 exclusivamente; este writer sin Git writes.
+
+La conjunción documental previa es REAL: auditor `task_3a8018ef45ec / ctx_962edb57a7b2`,
+BODY `msg_a55852c176c5`, uniqueDone `msg_d26c040d6940`, completed/succeeded/accepted/settled/
+released, READ_ONLY/filesModified=[], PUBLICATION_DOCUMENTATION_AUDIT=PASS/P0=P1=0;
+root `task_099742bc80da / gate_9f566aeb0043` completed/coordinator_gate_resolution/resolvedPASS.
+Publisher separado `task_3595372569cb` publicó normal EXACT46 en
+`62fb32e68546f2521ef441aa61a4d51896999942`, parent
+`1564fb5b2e6f9465b83adce8d6c53a418c99330b`; aceptación one-shot preservada.
+Verificador AJENO fresh `task_55b12d011626 / ctx_1df3a7061353`, BODY literal
+`msg_2225f66ff69b`, uniqueDone `msg_56e4970e3b1d`, completed/succeeded/accepted/settled/released,
+READ_ONLY/filesModified=[], PUBLICATION_VERIFICATION=PASS/P0=P1=0.
+Actual PublicationGate `task_b3d3fbf82fee / gate_ea25fa50425c` completed,
+provenance coordinator_gate_resolution, resolved/PASS. Evidencia AJENA literal y fuente competente:
+`auditoria/reviews/PN14-SLICE2-REVIEW-PUBLICACION-ORDEN-SNAPSHOT-INMUTABLE.md`.
+
+```text
+SLICE2: IMPLEMENTED / VALIDATED / AUDITED / ACCEPTED / FIRST_PUBLICATION_VERIFIED
+TECHNICAL_GATE: PASS AJENO task_fe0ff2ab6f3b/gate_180145ac5766
+PN14-S2-FRESH-TA-001: CLOSED — evidencia técnica AJENA preservada
+DOCUMENTARY_ACCEPTANCE / DOCUMENTATION_GATE: ACCEPTED / PASS — gate_9f566aeb0043
+FIRST_PUBLICATION / PUBLICATION_GATE: PUBLISHED / VERIFIED / PASS — gate_ea25fa50425c
+WORKFLOW ENTRY: PUBLISHED_PENDING_CLOSURE_DOCUMENTATION
+OWN CLOSURE5: MATERIALIZED / NOT_SELF_AUDITED / PENDING_FRESH_CLOSURE_AUDIT_AND_ROOT_GATE
+PUBLICATION_CLOSURE / CLOSURE_GATE: NOT_CLOSED / APPLICABLE/PENDING
+CLOSURE5 REMOTE PUBLICATION: NOT_PERFORMED — separate publisher pending
+PRODUCTIVE_AUTHORITY / LEGACY / API / CUTOVER: UNCHANGED / cutover=false
+```
+
+Scope autoritativo publicado checkpoint§8: append-only completos ESTADO/MAPA/checkpoint y CREATE
+sólo reviewPUBLICACION/reviewCIERRE. Own BEFORE511 rawmanifest
+`141af393e839463eefe1ea6d418f6db53b1a7a0b15132293fbe43ffc12d5b4c3` coincide íntegro con
+actual completed PublicationGateTask.result.wholeCurrentFileSHA256; own AFTER esperado513,
+3append+2CREATE, otros508 entrypaths intactos. Prefix completo ESTADO108027bytes/SHA
+`1b36c27b43d6752143cf1f203af6ddd694623de121421ea4885caa054b3e42ba` preservado;
+los tres prefixSHA/longitudes y fullmaps/exact5SHA finales son externos, sin ciclo selfhash.
+Branch Payments exacta; entrada HEAD=upstream=liveOrigin62fb32e,0/0,stagingEMPTY/index1422.
+Técnico33, arquitectura/authdocs8/review técnico y RAW90 (fourlogs+full86XML686/0/0/0)
+permanecen preservados, no tests/Maven/build/rerun por este writer.
+Review `auditoria/reviews/PN14-SLICE2-REVIEW-CIERRE-PUBLICACION-ORDEN-SNAPSHOT-INMUTABLE.md`
+persiste scope/protecciones/condición completa, no un audit propio.
+
+Corrección documental acotada `task_d45dfd499d92 / ctx_9ba8aec63bed`: hold precommit
+CLOSURE-CACHED-WHITESPACE-001 y recovery REAL completed `task_8b4769dd0783`.
+El primer audit `task_47a483ba472b` emitió PUBLICATION_CLOSURE_AUDIT=PASS y el root
+`task_eaa3a8d8fe1a / gate_418164dbc9f3` resolvió PASS para los bytes anteriores solamente:
+HISTORICAL / NON_COMPETENT_FOR_CORRECTED_SNAPSHOT; no auditFAIL ni reset de presupuesto.
+Root stageó EXACT5, cached hashes concordantes, pero `git diff --cached --check` falló por
+una línea vacía final extra en cada nuevo review; NO closurecommit ni closurepush ejecutados.
+Recovery restauró ONLY staged5 a HEAD, sin alterar working bytes; staging actual EMPTY.
+Entrada corrector: HEAD62fb32e, indexSHA256
+`ad93ceec94412cbea71327e61d84fe457be5f07c27c50d93cabb2ac09b56de77`, whole513 físico; index1422/BEFORE511 son historia del primer intento.
+Se elimina sólo whitespace EOF de los reviews y se actualiza sólo el control de cierre;
+evidencia literal AJENA, decisiones técnicas/de publicación y otros508/RAW90/excluidos3 intactos.
+Único binding CURRENT: fresh audit `task_92f3b3c10a83` → successor root gate
+`task_e55c13f2e7f6` → publisher `task_fb3167f2cd24`; los resultados futuros siguen PENDING.
+Exact5 maps y full513 postcorrección se pinnean EXTERNAMENTE, idénticos writer/auditor/root/físico,
+sin selfhash ni PASS/GateID futuro inventados. Antes del successor Gate son prerrequisitos
+`git diff --check` sobre tracked scope y `git diff --no-index --check /dev/null <review>`
+sobre CADA uno de los dos reviews untracked-to-create, además de ausencia de trailing blank lines.
+Después de stage EXACT5, el publisher exige nuevamente `git diff --cached --check` PASS
+antes de closurecommit; cualquier fallo/mismatch mantiene HOLD / NOT_CLOSED / NO_PUBLICATION.
+
+La aceptación documental del cierre / CLOSED es eficaz SI Y SÓLO SI se cumple la conjunción real siguiente:
+
+1. El NUEVO auditor `task_92f3b3c10a83`, fresh, READ_ONLY e independiente de todos los escritores,
+   completa succeeded con Task/Dispatch reales completed, único worker_done accepted/settled/released,
+   filesModified=[], P0=P1=0 y veredicto literal `PUBLICATION_CLOSURE_AUDIT=PASS`.
+   Dispatch/BODY/done futuros son UNKNOWN al escribir; descubrirlos en Orca, nunca inventarlos.
+2. Después el NUEVO root Task `task_e55c13f2e7f6` completa con provenance
+   `coordinator_gate_resolution`; su único gate REAL queda resolved/PASS con pregunta EXACTA:
+
+   > Is Payments Slice 2 publication closure independently verified for exactly five closure documents, with preserved accepted technical candidate, actual publication gate PASS, no blocking findings, and no later-slice or productive activation authority?
+
+   GateID futuro UNKNOWN al escribir. candidateFileSHA256 y authorityFileSHA256 contienen
+   EXACTAMENTE los cinco paths de cierre de checkpoint§8/reviewCIERRE, sin extras ni omisiones;
+   TODOS sus SHA raw finales son idénticos entre writer, nuevo auditor, root y comprobación física.
+   wholeCurrentCount=513, wholeCurrentRawSHA256 y mapa COMPLETO wholeCurrentFileSHA256 son igualmente
+   concordantes entre todos. Se preservan técnico33/RAW90/otros508/prefixes completos y el actual
+   PublicationGate gate_ea25fa50425c PASS, sin bloqueo P0/P1, decisión pendiente, SECURITY_STOP,
+   mismatch o mutación documental posterior. Ningún selfSHA ni edición postgate para insertar PASS.
+3. La aceptación se evalúa una sola vez sobre el primer commit publicado
+   `62fb32e68546f2521ef441aa61a4d51896999942`, indexSHA256
+   `ad93ceec94412cbea71327e61d84fe457be5f07c27c50d93cabb2ac09b56de77`,
+   snapshot postcorrección513 concordante y entrada stagingEMPTY. Un PUBLISHER separado `task_fb3167f2cd24`
+   sólo después de la conjunción revalida el binding EXACT5 aprobado y las protecciones;
+   stage/commit/push normales de ESOS MISMOS cinco bytes aceptados no invalidan CLOSED por
+   avanzar HEAD. El primer commit y los pins de entrada quedan como provenance ancestral.
+
+CLOSED documental tras audit/root reales no equivale a publicación remota del cierre.
+El estado final `SLICE2=IMPLEMENTED / VALIDATED / AUDITED / ACCEPTED / PUBLISHED / CLOSED` y
+`WORKFLOW=PUBLISHED / TERMINAL` exige además el Task PUBLISHER `task_fb3167f2cd24` completed,
+con resultado físico real: closurecommit normal cuyo parent sea el primer commit62fb32e,
+EXACT5 paths/blobs SHA aprobados sin delta adicional, push normal origin a la branch exacta,
+localHEAD=configuredUpstream=liveOrigin, ahead/behind0/0, cachedDiff/trackedDiffEMPTY y ONLY3
+excluidos untracked intactos/ausentes del branchTree. Commit futuro UNKNOWN hasta Git real;
+se registra externamente en Task.result competente, sin selfhash ni edición postgate de estos docs.
+Ausente/stale/UNKNOWN/FAIL/SKIPPED/BLOCKED/mismatch falla cerrado STOP/NO_PUBLICATION.
+Al materializar: cierreAudit APPLICABLE/PENDING, rootClosureGate APPLICABLE/PENDING/NOT_CREATED,
+CLOSURE=NOT_CLOSED, cierre documental NOT_SELF_AUDITED y closurePublication NOT_PERFORMED.
+
+La supersesión se limita al control operativo Slice2 stale: las entradas anteriores
+original32ABSENT/H47, bootstrap/STATE/RUNBOOK/policy/gates conservan sus bytes y condición
+HISTORICAL / PROVENANCE; no son restricciones perpetuas ni autoridad operativa actual.
+Failed3 experiments AC/0f/01c: HISTORICAL_EVIDENCE_ONLY / NON_AUTHORITATIVE_FOR_MVP_CONTINUATION /
+DEFERRED_UNTIL_POST_MVP, locales/no publicados/intactos, sólo hashcompare. No reparación de
+optimización ni importación de política fallida. Si el mínimo exigiera esos3/u otro path:
+STOP / AMBIGUOUS_AUTHORITY; defecto técnico STOP/HUMAN, sin fix.
+
+PN13 permanece MATERIALIZED / ACCEPTED / PUBLISHED / CLOSED / TERMINAL; PN14 contrato
+ACCEPTED; Slice1 ACCEPTED / PUBLISHED / CLOSED / TERMINAL. NEW-PN13-017 permanece OPEN / P2 /
+EDITORIAL / NON_BLOCKING / IMPLEMENTATION_INDEPENDENT, único residual combinado, sin fix/reopen.
+P0=P1=0 corresponde sólo a resultados AJENOS técnicos/documentales/de publicación ya emitidos;
+este writer no clasifica hallazgos ni autoaprueba su nuevo delta.
+Foundation interna IMPLEMENTADO_NO_PRODUCTIVO / INACTIVE; autoridad productiva legacy, API,
+readers/writers y runtime intactos, cutover=false. No ledger, slices3–12, producto/API/finanzas,
+regla nueva de estado/refund/security/dependencia/migración, schema live/backfill/wiring/switch,
+fence/cutover ni inspección/integración F2E. No handoff/Task posterior ni autostart de otro slice.
+Final STOP / HUMAN_GATE_REQUIRED / MILESTONE_COMPLETE; ninguna continuación funcional automática.

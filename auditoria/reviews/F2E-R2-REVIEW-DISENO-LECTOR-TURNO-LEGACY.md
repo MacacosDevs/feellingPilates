@@ -569,3 +569,123 @@ The closing result JSON delivered with this report identifies this exact report'
 Terminal verdict: **PASS — F2E R2 DESIGN AUTHORITY COMPLETE FOR HANDOFF**
 
 <!-- END_ORIGINAL_FRESH_REAUDIT -->
+
+## 5. Receipt cronológico — publicación probada y reconciliación de cierre
+
+2026-09-17 America/Mexico_City, cierre Run `run_9e2fc3f4c74f`.
+Las secciones1–4 y los dos originales anteriores conservan íntegramente su corte
+histórico antes de publicación: initial FAIL → corrección → fresh PASS de diseño.
+Sus NOT_PUBLISHED/PENDING y siguiente publicación son historia correcta, no una
+contradicción actual. Este append es reconciliación coordinadora, no audit propio
+ni atribución de bytes futuros a auditores previos. ESTADO-ACTUAL conserva la
+autoridad operacional; este review conserva trazabilidad y sellos.
+
+### 5.1 Identidad de publicación competente
+
+| Binding publicado | Valor |
+| --- | --- |
+| Branch | operacion/excepciones-horario-fecha |
+| Publication Run | run_ea24bf9a335a |
+| Commit | 061dda98319722bcc2c601e707c25d7433ac44c1 |
+| Único parent | 6c2eacc870499e74ead74c1851630f9f53b1c676 |
+| Exact diff | Cuatro documentos: 3 NEW / 1 MODIFIED; cero implementación |
+| Canonical manifest SHA-256 | f367f8d657b2f26237a98f22baea8f1dde54841685c4134f7b05683038d48fe2 |
+| ESTADO preclosure histórico | aad8f9436dfc14f9ce45c645aa002e7692f91766483f48cbd82f8d93ea8d0d26 |
+| R2 design inmutable publicado | db4673dd0705c41e62d0b77339d45b2cd1e87c51e26064112ad95b843dafe9cf |
+| DESIGN/RESEARCH inmutable publicado | 221347b46c5032b384a306c61908c8fd0f2c26076455609fb880098be8f0d2d4 |
+| Review preclosure histórico | 0863b2a704f56b9d55a141edb3d191629c25d35f8706a66b7c878e176564b785 |
+| R1 exact21 path-set inmutable | f400a0602f95e318845da670bee4f819f057842adf8a60506564d5bd75e41d14 |
+| R1 exact21 content inmutable | e2b64abd6aba8a050df6184f6c5440d87db83a67182fb43e622f48cf96f4f3ce |
+
+Manifest UTF-8 TSV con header `path\tstatus\tsha256\tclassification`, paths
+lexicográficos, LF/final LF; reconstruido desde diff real y blobs del commit,
+no desde una copia del chat. Cada blob preclosure igual al working tree inicial.
+Entrada de cierre HEAD=upstream=live origin=061dda9 exacto, ahead/behind0/0,
+CLEAN/index EMPTY/untracked0, ambos diff checks exit0. Fresh non-mutating query:
+`GIT_OPTIONAL_LOCKS=0 git ls-remote --exit-code --heads origin refs/heads/operacion/excepciones-horario-fecha`.
+Completion gate real confirmado read-only con gate-list sobre publication Run.
+
+Readiness `run_b04f6e0ac339 / gate_4954c971c1e7 PASS` precedió staging.
+Auditor staged separado `task_152bef6a1caf / ctx_0c0a4fe8d250`, Done
+`msg_1bb7deaafe57` a2026-09-18T04:13:56Z:
+`PASS — F2E R2 DESIGN AUTHORITY STAGED SNAPSHOT VERIFIED`.
+Original report SHA-256
+`2f411211f0e60607ff21adbb9cc0adb86869620767d5a78c29929e76631ec7a1`.
+Authorization `task_cb3bafa1910d / gate_40f8471dfebd`, PASS2026-09-18T04:14:28Z:
+`PASS — AUTHORIZED_TO_COMMIT_AND_PUSH_EXACT_F2E_R2_DESIGN_AUTHORITY`.
+
+Un único commit subject `docs(auditoria): publica autoridad de diseño F2E R2`,
+un único push normal non-force fast-forward del SHA exacto a la branch exacta;
+sin tags, refs adicionales, integración Payments ni contenido mutado.
+Comando/receipt originales:
+
+```text
+git push --no-follow-tags --recurse-submodules=no origin 061dda98319722bcc2c601e707c25d7433ac44c1:refs/heads/operacion/excepciones-horario-fecha
+To https://github.com/MacacosDevs/feellingPilates.git
+   6c2eacc..061dda9  061dda98319722bcc2c601e707c25d7433ac44c1 -> operacion/excepciones-horario-fecha
+exit0
+```
+
+Post-publication auditor fresh distinto `task_de971a00b41d / ctx_4685c46279e2`,
+Done `msg_63062ec40ded` a2026-09-18T04:21:38Z:
+`PASS — F2E R2 DESIGN AUTHORITY PUBLISHED EXACTLY`, quince respuestas verificadas,
+P0/P1/P2=0/0/0. Original report SHA-256
+`eb2d00966c9ed6ca948ed955c16149b13b8765ceb6f0f9900fc5d8bfc17e372b`.
+Ambos workers terminales settled/released, transcripts captured, Done ACK tras
+release. Completion `task_d08dce894db1 / gate_e140218d660b`, PASS2026-09-18T04:22:15Z:
+`PASS — F2E R2 DESIGN AUTHORITY PUBLISHED / READY_FOR_DESIGN_PUBLICATION_CLOSURE`.
+
+Custodia local original: `/tmp/feelingpilates-f2e-r2-design-publication-execution.QE5yLZ/`,
+reportes `AUDIT-STAGED.md` y `AUDIT-POST-PUBLICATION.md`; evidencia
+`POST-PUSH-EVIDENCE.json` SHA-256
+`b5238b7b6daa1ce136e5eec6e9de390601484f89366f31544945b82f05373fd5`.
+No garantía de retención de /tmp; identidades/diff/blobs siguen verificables por Git
+y los IDs de audit/gates permiten rastrear evidencia operacional archivada.
+Preimages de este cierre se preservan externamente bajo
+`/tmp/feelingpilates-f2e-r2-design-closure.rKBHZH/`; este review anterior completo
+es prefijo byte-exacto. Ni el FAIL ni los dos P1 originales fueron alterados.
+
+### 5.2 Estado reconciliado y próximo proceso separado
+
+R2 autoridad de diseño `COMPLETE / AUDITED / PUBLISHED`; design-publication
+lifecycle `CLOSED — AUTHORITY_RECONCILIATION_MATERIALIZED` por diseño y publicación
+competentes ya probados, no por un SHA futuro de closure. Los nuevos bytes de cierre
+requieren todavía precommit audit independiente, authorization gate, publicación
+de docs, post-closure audit distinto y final gate: `PENDING / NOT_EXECUTED` al
+corte de esta entrega. No se inventan futuros IDs ni resultados.
+Allowlist actual exclusivamente ESTADO-ACTUAL y este review; ningún nuevo path.
+Diseño normativo/research handoff no cambian para registrar su propia publicación.
+El research es published provenance DESIGN/RESEARCH, NO implementation authority.
+
+Diseño §11 y research §4 + WORKFLOW/STATE-MACHINE/GATES/ROLES soportan futura
+`R2_IMPLEMENTATION_HANDOFF_MATERIALIZATION` sólo con autorización documental propia;
+publicación y closure competentes preceden handoff ACTIVE específico del profile.
+Ese futuro handoff requiere audit/approval/activation propios, y la implementación
+una autorización separada; no se materializan ni autorizan por este cierre.
+
+Selección de siguiente lifecycle del usuario, condicionada al gate final de cierre:
+`F2E_OPTIMIZED_EXECUTION_BOOTSTRAP_R1`, PROCESS_ONLY. No es nuevo prerrequisito
+normativo de producto ni autorización R2; se elige su futura apertura, no se
+implementa/diseña/publica/activa el proceso aquí. Necesita scope/profile/audit y
+publicación/activación competentes propios. Checkpoint clean después de cerrar es
+apto para iniciar bootstrap antes del handoff. Secuencia seleccionada: closure →
+bootstrap process-only → process publication/activation competente → R2 handoff
+bajo autorización propia → implementación sólo con autorización propia.
+
+R1 `CLOSED / ACCEPTED / PUBLISHED`; GAP1–5 y TECH01–06/08 CLOSED, TECH07
+`CLOSED FOR_CURRENT_R1_HOST_INVARIANT ONLY`, `P2-EVIDENCE-01 NON_BLOCKING / PRESERVED`.
+R2 implementation handoff `NOT_MATERIALIZED / NOT_ACTIVE`; código `NOT_AUTHORIZED`.
+TurnoInstructor `LEGACY_VIVO / PRODUCTIVO`; dark launch `PRESERVED`;
+R2 runtime diseñado `DARK_LAUNCH / NON_PRODUCTIVE`, sin activación/default-product
+beans/callers autorizados. Cutover `NOT_AUTHORIZED`; R3–R6 `NOT_AUTHORIZED_IN_R2`;
+Payments/Notifications OUT_OF_SCOPE; procesos antiguos OLD_PROCESS_ONLY.
+Tests/build/Maven/JDBC/SQL/containers no ejecutados por este cierre documental.
+
+Payments Slice2 CLOSED reportado en su lane aislada, branch pagos/pagos-notificaciones-r1,
+HEAD conocido8a912217adf6ea2d7d56e3e818845c3338db250e, Run run_6859a7f36296,
+es coordinación, no re-audit Payments: `SHARED_BUT_COMPATIBLE + INTEGRATION_POINTS_IDENTIFIED`.
+V48/V49 y baselineV49/52 pertenecen a esa lane. Cero integración/reconciliación Flyway
+en este cierre y ninguna transferencia ownership financiero/Reserva/capacity.
+Futuro handoff/implementación F2E revalidará head Flyway integrado vigente, no asumirá
+V47/50 globalmente terminal; escrituras compartidas Reserva/Programación/cupos/
+capacity requieren `CROSS_LANE_DEPENDENCY_REQUIRED` antes de escribir.

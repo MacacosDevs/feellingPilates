@@ -997,3 +997,107 @@ pom/core/legacyR1 delta0. Staging EMPTY; HEAD/upstream/live y R1 exact21 unchang
 El review y este append son delta coordinador autorizado posterior al audit, no
 delta atribuible al auditor ni bytes futuros auditados por él. La sección R1 anterior
 se conserva como prefijo byte-exacto. Git diff --check y cached check exigidos PASS.
+
+## F2E R2 — cierre de publicación de autoridad de diseño
+
+Corte de reconciliación 2026-09-17 (America/Mexico_City), Run `run_9e2fc3f4c74f`.
+Este bloque es la vista vigente R2. La sección anterior y los headers de los
+artefactos sellados son cortes históricos de materialización/corrección anteriores
+a publicar; sus NOT_PUBLISHED y siguientes acciones no son el estado presente.
+Se preservan completos: preflight, FAIL inicial con dos P1, corrección, re-audit
+PASS y gate de diseño; no se transforman retrospectivamente en first-pass PASS.
+
+Publicación comprobada: `run_ea24bf9a335a`, commit
+`061dda98319722bcc2c601e707c25d7433ac44c1`, único parent
+`6c2eacc870499e74ead74c1851630f9f53b1c676`, branch
+`operacion/excepciones-horario-fecha`. Exactamente cuatro documentos (3 NEW,
+1 MODIFIED), manifest TSV UTF-8 sorted/LF/final LF SHA-256
+`f367f8d657b2f26237a98f22baea8f1dde54841685c4134f7b05683038d48fe2`.
+HEAD/upstream/origin live iguales a ese commit, ahead/behind0/0, entrada CLEAN,
+index EMPTY/untracked0; fresh ls-remote y blobs/parent/manifest verificados.
+
+Preflight `run_b04f6e0ac339 / gate_4954c971c1e7 PASS`; staged audit independiente
+`task_152bef6a1caf / ctx_0c0a4fe8d250`:
+`PASS — F2E R2 DESIGN AUTHORITY STAGED SNAPSHOT VERIFIED`.
+Authorization `gate_40f8471dfebd`:
+`PASS — AUTHORIZED_TO_COMMIT_AND_PUSH_EXACT_F2E_R2_DESIGN_AUTHORITY`.
+Un commit y un push normal non-force fast-forward, sólo exact branch, sin tags ni
+otros refs. Post-publication auditor separado
+`task_de971a00b41d / ctx_4685c46279e2`:
+`PASS — F2E R2 DESIGN AUTHORITY PUBLISHED EXACTLY`.
+Completion `task_d08dce894db1 / gate_e140218d660b`, resolved/PASS:
+`PASS — F2E R2 DESIGN AUTHORITY PUBLISHED / READY_FOR_DESIGN_PUBLICATION_CLOSURE`.
+El gate real fue contrastado read-only; no se sustituye por una afirmación del chat.
+
+Identidades preclosure históricas: ESTADO
+`aad8f9436dfc14f9ce45c645aa002e7692f91766483f48cbd82f8d93ea8d0d26`, review
+`0863b2a704f56b9d55a141edb3d191629c25d35f8706a66b7c878e176564b785`.
+Diseño normativo publicado permanece inmutable SHA-256
+`db4673dd0705c41e62d0b77339d45b2cd1e87c51e26064112ad95b843dafe9cf`;
+research provenance publicado permanece inmutable SHA-256
+`221347b46c5032b384a306c61908c8fd0f2c26076455609fb880098be8f0d2d4`.
+El research handoff sigue DESIGN/RESEARCH, nunca implementación ni ACTIVE.
+El [review existente](reviews/F2E-R2-REVIEW-DISENO-LECTOR-TURNO-LEGACY.md)
+conserva los informes originales íntegros y añade el receipt de publicación/cierre.
+
+```text
+R1: CLOSED / ACCEPTED / PUBLISHED
+R2 design authority: COMPLETE / AUDITED / PUBLISHED
+R2 design-publication lifecycle: CLOSED — AUTHORITY_RECONCILIATION_MATERIALIZED
+CURRENT CLOSURE AUDIT / AUTHORIZATION GATE: PENDING / NOT_EXECUTED
+CURRENT CLOSURE-DOC PUBLICATION / POST-CLOSURE AUDIT / FINAL GATE: PENDING / NOT_EXECUTED
+R2 DESIGN/RESEARCH handoff: PUBLISHED_PROVENANCE_ONLY / NOT_IMPLEMENTATION_AUTHORITY
+R2 implementation handoff: NOT_MATERIALIZED / NOT_ACTIVE
+ACTIVE IMPLEMENTATION HANDOFF: NINGUNO
+R2 implementation: NOT_AUTHORIZED / NOT_STARTED
+R2 designed runtime: DARK_LAUNCH / NON_PRODUCTIVE; NO_ACTIVATION
+TurnoInstructor: LEGACY_VIVO / PRODUCTIVO
+Dark launch: PRESERVED
+Cutover: NOT_AUTHORIZED
+R3 / R4 / R5 / R6: NOT_AUTHORIZED_IN_R2
+Payments / Notifications: OUT_OF_SCOPE
+P2-EVIDENCE-01: NON_BLOCKING / PRESERVED
+Autopilot / FeelingPilatesOrchestrator / HostValidator: OLD_PROCESS_ONLY
+```
+
+CLOSED arriba reconcilia autoridad completa/auditada y publicación ya probadas;
+no falsifica el futuro audit, commit, push o gate de estos bytes de cierre.
+El gate terminal de cierre sólo podrá pasar tras ambas auditorías independientes
+y publicación controlada. Profile actual: DOCUMENTATION_ONLY, dos rutas
+ESTADO/review; implementación/tests/host/build/JDBC/SQL NOT_APPLICABLE/NOT_EXECUTED.
+Scope/safety y auditorías/gates/publicación documental sí aplican, sin autoaprobación.
+
+### Próximo lifecycle separado, no implementación por continuidad
+
+Diseño R2 §11, research handoff §4 y WORKFLOW/STATE-MACHINE/GATES/ROLES permiten
+evaluar `R2_IMPLEMENTATION_HANDOFF_MATERIALIZATION` con autorización documental
+propia. Publication y closure competentes son requisitos específicos del profile
+antes de futuro handoff ACTIVE; éste todavía necesitará su propio audit,
+aprobación/activación y autorización implementativa separada. No existe ahora.
+
+Selección deliberada del usuario para el siguiente proceso, condicionada al gate
+final de este cierre: `F2E_OPTIMIZED_EXECUTION_BOOTSTRAP_R1`.
+Es PROCESS_ONLY, no prerrequisito normativo nuevo de producto, no continuación de
+R1 técnico ni permiso implícito R2. Sólo se selecciona su apertura futura; aquí no
+se materializa, publica, activa ni diseña el bootstrap. Su scope/profile, auditoría
+y publicación/activación de proceso necesitan su lifecycle y autoridad propios.
+Secuencia seleccionada: cierre R2 design publication → bootstrap process-only →
+process publication/activation competente → materialización de handoff R2 bajo
+autorización propia → implementación únicamente tras autorización propia.
+Un checkpoint clean HEAD/upstream/live al terminar será apto para empezar ese
+bootstrap; no se presume su ejecución ni se transmite autoridad para código.
+
+### Coordinación cross-lane preservada, sin integración
+
+Payments Slice2 fue reportado CLOSED/ACCEPTED/PUBLISHED por coordinación,
+branch aislada `pagos/pagos-notificaciones-r1`, HEAD conocido
+`8a912217adf6ea2d7d56e3e818845c3338db250e`, Run `run_6859a7f36296`.
+Clasificación `SHARED_BUT_COMPATIBLE + INTEGRATION_POINTS_IDENTIFIED`;
+es evidencia de coordinación, no una nueva auditoría Payments en este cierre.
+V48/V49 y V49/52 pertenecen a esa lane; no se integra ni reconcilia Flyway aquí.
+Futuro handoff/implementación F2E revalidará el head Flyway integrado vigente:
+V47/50 no se asume globalmente terminal. Cambios compartidos Reserva/Programación/
+capacity/cupos requieren `CROSS_LANE_DEPENDENCY_REQUIRED` antes de escribir.
+No se transfiere ownership: F2E observa Reserva; Reservations posee write/state/
+capacity; Payments posee semántica financiera; Notifications delivery infrastructure.
+TurnoInstructor sigue productivo. Cero integración, cutover o activación.

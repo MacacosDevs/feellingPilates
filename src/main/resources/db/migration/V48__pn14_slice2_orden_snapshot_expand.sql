@@ -1,0 +1,86 @@
+-- Foundation interna aditiva. Ningún backfill, writer switch o modificación de columnas legacy.
+CREATE TABLE public.orden_venta (
+    id uuid PRIMARY KEY,
+    cliente_id uuid NOT NULL REFERENCES public.usuario(id) ON DELETE RESTRICT,
+    scope_key text NOT NULL UNIQUE,
+    moneda_iso char(3) NOT NULL CHECK (moneda_iso ~ '^[A-Z]{3}$'),
+    total_unidades_minimas bigint NOT NULL CHECK (total_unidades_minimas >= 0),
+    numero_lineas integer NOT NULL CHECK (numero_lineas > 0),
+    estado_fundacion text NOT NULL CHECK (estado_fundacion IN ('PREPARANDO','CONGELADA')),
+    congelado_en timestamptz(6) NOT NULL,
+    payload_canonico text NOT NULL,
+    payload_hash char(64) NOT NULL CHECK (payload_hash ~ '^[0-9a-f]{64}$'),
+    procedencia_canonica text NOT NULL,
+    UNIQUE (id,cliente_id), UNIQUE (id,cliente_id,moneda_iso)
+);
+
+ALTER TABLE public.compra
+    ADD COLUMN orden_venta_id uuid,
+    ADD COLUMN cliente_snapshot_id uuid,
+    ADD COLUMN numero_linea integer,
+    ADD COLUMN producto_fuente_id uuid,
+    ADD COLUMN nombre_producto_snapshot text,
+    ADD COLUMN tipo_producto_snapshot text,
+    ADD COLUMN precio_venta_unidades_minimas bigint,
+    ADD COLUMN moneda_snapshot_iso char(3),
+    ADD COLUMN congelado_en timestamptz(6),
+    ADD COLUMN contrato_canonico text,
+    ADD COLUMN contrato_hash char(64),
+    ADD COLUMN politica_canonica text,
+    ADD COLUMN politica_hash char(64),
+    ADD COLUMN procedencia_canonica text,
+    ADD COLUMN politica_esquema text,
+    ADD COLUMN politica_id text,
+    ADD COLUMN politica_version text,
+    ADD COLUMN zona_negocio text,
+    ADD COLUMN vigencia_unidad text,
+    ADD COLUMN vigencia_cantidad integer,
+    ADD COLUMN extension_alcance text,
+    ADD COLUMN reserva_limite_post_vencimiento_dias integer,
+    ADD COLUMN cancelacion_anticipacion_segundos bigint,
+    ADD COLUMN cancelacion_cuota_mensual integer,
+    ADD COLUMN recuperacion_unidad text,
+    ADD COLUMN recuperacion_cantidad integer,
+    ADD COLUMN recuperacion_politica_id text,
+    ADD COLUMN recuperacion_politica_version text,
+    ADD COLUMN reembolso_alcance text,
+    ADD COLUMN reembolso_ventana_adicional boolean,
+    ADD COLUMN reembolso_politica_id text,
+    ADD COLUMN reembolso_politica_version text,
+    ADD COLUMN unidad_monetaria_exponente smallint,
+    ADD CONSTRAINT pn14_s2_compra_linea_unique UNIQUE (orden_venta_id,numero_linea),
+    ADD CONSTRAINT pn14_s2_compra_cliente_unique UNIQUE (id,cliente_snapshot_id),
+    ADD CONSTRAINT pn14_s2_compra_orden_fk FOREIGN KEY (orden_venta_id,cliente_snapshot_id,moneda_snapshot_iso)
+        REFERENCES public.orden_venta(id,cliente_id,moneda_iso) ON DELETE RESTRICT;
+
+CREATE TABLE public.compra_componente_snapshot (
+    id uuid PRIMARY KEY,
+    compra_id uuid NOT NULL,
+    cliente_id uuid NOT NULL,
+    numero integer NOT NULL CHECK (numero > 0),
+    actividad_id uuid NOT NULL REFERENCES public.tipo_actividad(id) ON DELETE RESTRICT,
+    nombre_actividad text NOT NULL CHECK (nombre_actividad !~ '^\s*$'),
+    cantidad integer NOT NULL CHECK (cantidad > 0),
+    politica_version text NOT NULL CHECK (politica_version !~ '^\s*$'),
+    UNIQUE (compra_id,numero), UNIQUE (compra_id,actividad_id),
+    FOREIGN KEY (compra_id,cliente_id) REFERENCES public.compra(id,cliente_snapshot_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE public.informe_backfill_snapshot (
+    id uuid PRIMARY KEY,
+    scope_key text NOT NULL,
+    fuente_payload_hash char(64) NOT NULL CHECK (fuente_payload_hash ~ '^[0-9a-f]{64}$'),
+    estado text NOT NULL CHECK (estado IN ('CONGELADA','REPLAY','REQUIERE_REVISION')),
+    fuente_raw text NOT NULL,
+    fuente_raw_hash char(64) NOT NULL CHECK (fuente_raw_hash ~ '^[0-9a-f]{64}$'),
+    fuentes_canonicas text NOT NULL,
+    faltantes_canonicos text NOT NULL,
+    causas_canonicas text NOT NULL,
+    compra_ids_canonicos text NOT NULL,
+    conteo_observado integer NOT NULL CHECK (conteo_observado >= 0),
+    total_observado_unidades_minimas numeric(20,0),
+    moneda_observada text,
+    evidencia_en timestamptz(6) NOT NULL,
+    regla_version text NOT NULL CHECK (regla_version = 'PN14_S2_1'),
+    UNIQUE (scope_key,fuente_payload_hash)
+);

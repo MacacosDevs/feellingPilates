@@ -941,3 +941,757 @@ del recibo final=NO. Los SHA finales se entregan externamente, sin self-hash o c
   "auditoria/reviews/PN14-SLICE1-REVIEW-CIERRE-PUBLICACION-SAFETY-NET-CARACTERIZACION.md"
 ]
 ```
+
+## Payments & Notifications — PN14 Slice2 contrato candidato Orden + snapshot inmutable
+
+Date2026-09-16; run_ee58d2f04418 / task_19170b463870 / ctx_ab71f1dc4817.
+DOCUMENTER/SINGLE_WRITER/DOCUMENTATION_ONLY, sin selfaudit ni implementación. Completo50823bytes
+de entrada de este canónico preservado como prefix. La evidencia recuperada de Slice1 supersede
+sólo pendientes históricos del recibo final documental; no reescribe contratos/reviews/checkpoints.
+
+```text
+PN13: MATERIALIZED / ACCEPTED / PUBLISHED / CLOSED; workflow PUBLISHED / TERMINAL
+PN14 SLICE1: SAFETY_NET / CHARACTERIZATION / IMPLEMENTED / VALIDATED / AUDITED / ACCEPTED / PUBLISHED / CLOSED
+SLICE1 INTEGRITY FINAL: task_dc94763289fe COMPLETED/PASS; local/upstream/live1564, CLEAN/EMPTY, final466raw83cb…
+SLICE1 FRESH FINAL VERIFIER: task_08274ee203b6 / ctx_851b989d4a25 / msg_f8a7ba22808d / msg_4c416c4dcd57 succeeded/accepted/released/PASS
+SLICE1 DOCUMENTATION / PUBLICATION / CLOSURE / FINAL_RECEIPT_GATES: PASS / PASS / PASS / PASS
+SLICE1 ACTUAL FOUR: gate_f163c0193bdb / gate_2ae21ec12eac / gate_d1154275fd3e / gate_3a084176596d
+SLICE1 TECHNICAL SCOPE / TESTS / IMPLEMENTATION / HOST: PASS ajeno gate_bc4ce966cb51; baseline590/focal67/full638, zero failures/errors/skips
+PN14 SLICE2: AUTHORIZATION_CONTRACT / CANDIDATE / MATERIALIZED / PENDING_FRESH_DOCUMENT_AUDIT / NOT_APPROVED / NOT_ACTIVE
+SLICE2 CANDIDATE HANDOFF: auditoria/handoffs/HANDOFF-PN14-SLICE2-ORDEN-SNAPSHOT-INMUTABLE.md
+SLICE2 CANDIDATE CHECKPOINT: auditoria/fase-pn14-slice2-autorizacion-orden-snapshot-inmutable.md
+PN LANE ACTIVE IMPLEMENTATION HANDOFF: NO NEW ACTIVE HANDOFF; Slice1 historical accepted contract preserved
+INITIAL DOCUMENT_AUDITOR: task_8984e1bf2a90 APPLICABLE/PENDING
+INITIAL COORDINATOR: task_42c555e7bf1d / gate_e031cf779ca1 APPLICABLE/PENDING
+SEPARATE ACCEPTANCE DOCUMENTER / AJENO REVIEW / MANIFEST: APPLICABLE/PENDING, not created by this Task
+FINAL FRESH VERIFIER: task_807e559a0955 APPLICABLE/PENDING
+FINAL COORDINATOR: task_fe41eb6e6c0d / gate_6f54babec421 APPLICABLE/PENDING
+CURRENT IMPLEMENTATION / TESTS / HOST: NOT_APPLICABLE / NOT_EXECUTED, no PASS
+SLICE2 IMPLEMENTATION / LOCAL EXECUTION ENTRY: NOT_AUTHORIZED / NOT_SATISFIED
+CURRENT AUTO_PUBLISH: false; PUBLICATION_PERMISSION: NONE; PUBLICATION: NOT_PERFORMED
+NEW P0 / P1 / P2 BY THIS WRITER: NOT_ASSESSED / NOT_ASSESSED / NOT_ASSESSED
+REQUIRES_HUMAN_DECISION: false at candidate materialization; independent audit still required
+NEW-PN13-017: OPEN/P2/EDITORIAL/NON_BLOCKING/IMPLEMENTATION_INDEPENDENT; other PN13 findings CLOSED
+SLICES3–12 / TARGET PRODUCTIVE ACTIVATION / FENCE / CUTOVER: NOT_AUTHORIZED
+SOURCE / EXISTING TESTS / POM / CONFIG / MIGRATIONS / WRAPPERS / RUNTIME / LEGACY AUTHORITY / F2D / F2E: UNCHANGED
+NEXT ALLOWED ACTION: INITIAL FRESH INDEPENDENT DOCUMENT AUDIT ONLY
+```
+
+Este scope documental prepara PN13§13 fila2; no inventa siguiente implementación. Handoff§§3–8
+define dominio Java puro/puertos/JDBC separado del único mapping JPA actual Compra, orden1..N
+compras1..N componentes, cliente canónico/FKs compuestas, monedaISO/unidad mínima y precio
+histórico de importe adquirido/pagado, fullpolicy/version/hash inmutable, producto mixto entero.
+Sólo tablas foundation/columnas NULL aditivas y guards acotados; updates financieros legacy
+siguen, sin reader/writer/payment/API switch. No Pago/Acreditacion/ledger ni settlement.
+
+Backfill exige sobre histórico trusted verificable por campo y groupmembership/total completos;
+catálogo mutable/nombre/categoria no reconstruyen términos perdidos. Missing/inconsistent
+REQUIERE_REVISION conserva exactraw+hash+faltantes y cero snapshot guessed; fixture synthetic
+no es data audit live. Queries históricas sólo frozen projection, no Paquete access ni cambio
+del JSON HTTP actual. V48/V49 filenames exactos condicionados a actual50/maxV47, revalidación
+en entryfuture y AUTHORIZATION_MISMATCH→STOP/NO_WRITES sin silentrenumber.32paths finitos CREATE,
+once clases nuevas/T01–T18 y fullSlice1M01–M12 unchanged, PostgreSQL16fresh/upgradeV47 dummy,
+baselinefull BEFOREANYfuturewrite y focused/full comandos exactos en handoff§8; no tests aquí.
+
+Aceptación/activación NO adquiridas. Sólo regla de checkpoint§6: initialfreshaudit/firstGate reales
+PASS sobre cuatro docs permite separate acceptance DOCUMENTER crear AJENOreview/manifest y
+append competente; luego freshfinalverify/finalGate reales PASS con candidateFileSHA256 exact6,
+authorityFileSHA256/localEntryManifestSHA256 idénticos a bytes materializador/verificador/gate
+y activación explícita LOCAL_UNCOMMITTED_AUDITED_DOCUMENTATION_ENTRY sobre HEAD1564/stagingEMPTY
+permiten FUTURA ejecución Slice2only. Ese append competente aún NO existe. Hashes externos sin
+selfhashcycles, handoff inmutable acceptedSHA y ninguna edición tras finalgate. No otra dirtywaiver,
+HEAD diferente/candidato existente/hash faltante/gateunknown → STOP/NO_WRITES; no publicación
+previa inferida ni permiso commit/push. Seisdocmanifest/future32absence/protected466 obligatorios.
+
+Baseline propio físico clean466/raw83cbda445a593d825edbb4501f13dde4d543aaf27bc6c1c550277b77897e3ec4,
+indexd19d3b5f32c37fa739275daeefa5426dc758dcc7f5a0e17696edb2b8e371809c, local/upstream/live
+1564fb5b2e6f9465b83adce8d6c53a418c99330b. Exact4docdelta sólo createhandoff/checkpoint y append
+ESTADO/mapa, completo50823/40907prefixes; otros464raw y source362/13pins intactos. No Git writes.
+Futureimplementation→realtests/technicalfreshaudit/gate→separateddocs/freshaudit/gate; publicación/
+cierre únicamente separadamente autorizados. STOP conserva oldwriter/evidencia, sin reset/clean/
+deletion/cutover. Slice3 necesita handoff/trust/dataaudit/gate propios; NEW17 no se corrige/reabre.
+
+## Payments & Notifications — PN14 Slice2 aceptación limitada / entrada local condicional
+
+Date: 2026-09-16. Run/task/dispatch: run_ee58d2f04418 / task_26e0f2daa5b4 / ctx_91fb0e481208.
+Rol PAYMENTS_SLICE2_LIMITED_AUTHORIZATION_ACCEPTANCE_MATERIALIZER / DOCUMENTER,
+DOCUMENTATION_ONLY / SINGLE_WRITER / EVIDENCE_BOUND; no auditor ni executor.
+Derivación: checkpoint Slice2 §§5–6 y PN14 original §6; no regla de producto nueva.
+
+La aceptación documental competente ocurrió por audit AJENO fresh y primer gate real.
+Supersede sólo pendientes iniciales y estado candidato del lifecycle; los snapshots históricos
+y el handoff congelado conservan íntegros sus bytes y etiquetas del corte original.
+
+```text
+PN13: MATERIALIZED / ACCEPTED / PUBLISHED / CLOSED; PUBLISHED / TERMINAL
+PN14 CONTRACT: ACCEPTED / ACTIVE; SLICE1: ACCEPTED / PUBLISHED / CLOSED / TERMINAL / NO_FURTHER_WRITES
+SLICE2 CONTRACT: ACCEPTED / ACTIVE_BY_EXACT_HANDOFF_SHA
+ACCEPTED IMMUTABLE HANDOFF SHA256: 4d7e7803557f75a3d62afe67a757687a63b9c627b0fdbf2580d89feab36fdd7d
+INITIAL FRESH AUDIT: task_8984e1bf2a90 / ctx_86c046d108aa / done msg_0791ed29c509 / status msg_2a701d7800e5
+INITIAL AUDIT VERDICTS: SLICE2_AUTHORIZATION_AUDIT=PASS / DOCUMENTATION_AUDIT=PASS; AJENO
+INITIAL GATE: task_42c555e7bf1d / gate_e031cf779ca1 — COMPLETED / RESOLVED / PASS
+INITIAL GATE PROVENANCE: coordinator_gate_resolution; DOCUMENTARY_CONTRACT_ACCEPTANCE_ONLY
+ACCEPTANCE / LOCAL ENTRY MATERIALIZATION: LOCAL_UNCOMMITTED_AUDITED_DOCUMENTATION_ENTRY / CONDITIONAL
+FUTURE EXECUTION: CONDITIONAL / PENDING_FINAL_VERIFY_AND_FINAL_GATE / NOT_AUTHORIZED_AT_THIS_CUT
+SLICE2 IMPLEMENTATION: NOT_STARTED; CURRENT EXECUTION ENTRY: NOT_SATISFIED
+FINAL VERIFIER: task_807e559a0955 — APPLICABLE / PENDING / no result
+FINAL GATE: task_fe41eb6e6c0d / gate_6f54babec421 — APPLICABLE / PENDING / no resolution
+SLICES3–12 / PRODUCTIVE ACTIVATION / FENCE / CUTOVER: NOT_AUTHORIZED
+LEGACY / F2D / F2E / RESERVAS / PROGRAMACION / RUNTIME: UNCHANGED
+PUBLICATION: NOT_PERFORMED; AUTO_PUBLISH=false; PUBLICATION_PERMISSION=NONE
+CURRENT TESTS / MAVEN / HOST: NOT_APPLICABLE / NOT_EXECUTED; no PASS
+WRITER NEW FINDINGS P0/P1/P2: NOT_ASSESSED
+AJENO INITIAL AUDIT NEW FINDINGS: 0/0/0; AJENO COMBINED OPEN: 0/0/1 solely NEW-PN13-017
+NEW-PN13-017: OPEN / P2 / EDITORIAL / NON_BLOCKING / IMPLEMENTATION_INDEPENDENT; no fix/reopen
+NEXT ALLOWED ACTION: FRESH_INDEPENDENT_FINAL_AUTHORIZATION_VERIFICATION, then final coordinator gate
+```
+
+Initialwriter task_19170b463870/ctx_ab71f1dc4817/done msg_a7a69c2da884/status msg_16f0fdb0a766
+y auditor arriba: cada uno COMPLETED/succeeded/settled/accepted/released, un único worker_done
+en inbox real por Task/Dispatch. FirstGate resuelto 2026-09-16 19:24:17 acepta exact4 rawpins;
+no permiso actual de implementación. Review AJENO literal y resultado JSON completo del gate:
+`auditoria/reviews/PN14-SLICE2-REVIEW-AUTORIZACION-ORDEN-SNAPSHOT-INMUTABLE.md`.
+No selfaudit: la evidencia del review es AJENO_EVIDENCE_ONLY / NOT_NORMATIVE / NOT_SELF_AUTHORIZING.
+
+Entrada local expresa, efectiva **si y sólo si** concurren las condiciones reales siguientes:
+
+1. task_807e559a0955 fresh e independiente completa succeeded, un único worker_done competente
+   accepted del Dispatch real, SLICE2_FINAL_AUTHORIZATION_VERIFICATION=PASS, P0=P1=0 y
+   filesModified=[]; comprueba los seis docs, protected baseline y ausencia de future32.
+2. task_fe41eb6e6c0d completa y gate_6f54babec421 está realmente RESOLVED/PASS, provenance
+   coordinator_gate_resolution. candidateFileSHA256 **y** authorityFileSHA256 son el mapa exacto
+   de SEIS paths de checkpoint§5, sin extras/omisiones, incluyendo SHA del propio manifest
+   recibido externamente; localEntryManifestSHA256 coincide. Todos iguales a los bytes físicos
+   finales del materializador, verificador y comprobación independiente del coordinador;
+   count470/raw entry digest también concuerda entre ellos. Ninguna mutación posterior,
+   decisión humana, SECURITY_STOP o control exigible pendiente.
+3. Se mantienen worktree/branch exactos, localHEAD=upstream=liveorigin
+   1564fb5b2e6f9465b83adce8d6c53a418c99330b, ahead/behind0/0, stagingEMPTY e índice original.
+   El manifest local exacto es
+   `auditoria/reviews/PN14-SLICE2-MANIFEST-ENTRADA-LOCAL-ORDEN-SNAPSHOT-INMUTABLE.md`.
+   Esta declaración autoriza esa entrada local sin publicación documental previa requerida,
+   exclusivamente después del resultado final real; no stage/commit/push en este Run ni
+   en la primera ejecución futura.
+4. Antes de **cualquier write futuro**, EXECUTOR recupera Task/Dispatch/messages/gates reales
+   y revalida seisrawpins/manifest/protected466/prefixes/index y todos32 CREATE ABSENT.
+   Revalida las 50 migraciones, checksums y máximo47 idénticos, versiones V48/V49 ABSENT,
+   nombres condicionales exactos de handoff§§5,7; ninguna producción/test/SQL/config existente
+   dirty desconocida. Ejecuta fullbaseline competente BEFORE ANY WRITE con los comandos
+   completos del handoff§8; sólo baseline válido permite iniciar el exact32.
+
+Sólo cuando la condición final sea real el lifecycle vivo se interpreta:
+SLICE2_AUTHORIZED_TO_IMPLEMENT / IMPLEMENTATION_NOT_STARTED /
+IMPLEMENTATION_AUTHORITY_SLICE2_ONLY / LOCAL_UNCOMMITTED_AUDITED_DOCUMENTATION_ENTRY.
+No se fabrica aquí un PASS futuro: condición NOT_SATISFIED al materializar.
+No se requiere ninguna edición documental después del finalgate; esta regla condicional
+protege todos los bytes. Candidato CREATE existente, HEAD distinto, mismatch documental/
+manifest/prefix/rawbaseline, evidencia absent/stale/UNKNOWN/FAIL/SKIPPED/BLOCKED:
+STOP / AUTHORIZATION_MISMATCH / NO_WRITES; pedir reconciliación competente, nunca silentrenumber,
+silentrebinding, otro HEAD inferido o waiver genérico de dirty.
+
+Scope futuro permanece el contrato **completo** inmutable, handoff§§1–9: sólo fundación interna
+Orden + snapshot, 32 CREATE finitos, SQL aditivo NULL/guards bounded, dominio puro/puertos/JDBC;
+único mapping JPA legacy Compra sin edición. Sin cambio de API, reader/writer, payments/credits,
+settlement/ledger, catálogo como fuente histórica o cutover. Backfill sólo sobres trusted por
+campo y membership/total íntegros; REQUIERE_REVISION conserva raw/hash/faltantes, cero guessing;
+fixture synthetic no data audit live. T01–T18/once nuevas clases, PostgreSQL16 dummy fresh/
+upgradeV47, locks/concurrency/rollback/replay/conflict/immutability, frozen query y M01–M12
+Slice1 íntegros; comandos exactos originales siguen obligatorios. No simplificación de contrato.
+
+Después de ejecución: auditor técnico fresh/gates → documentación autorizada separada →
+document auditor fresh/gate; publicación/cierre sólo autorización separada. Slice3 exige
+handoff/trust/data audit/gate propios; later3–12 no autorizados, Slice1 terminal sin furtherwrites.
+Rollback STOP conserva oldwriter, historia/evidencia/dirty; sin reset/clean/stash/delete.
+
+Preflight propio: before468raw ac186d04179d105bfa9b5e2110462007e61ec06a52b88ec08db7e05458d498cf,
+exact4 dirty/indexd19d3b5f32c37fa739275daeefa5426dc758dcc7f5a0e17696edb2b8e371809c/stagingEMPTY
+y local/upstream/live1564 verificados. Prefixes publicados ESTADO50823/mapa40907 y candidatos
+ESTADO56562/mapa46456/checkpoint15452 íntegros. Otros464 originales publicados y handoff íntegros.
+Own delta exact5: append-only END ESTADO/mapa/checkpoint; crear sólo reviewAJENO y manifest,
+review/manifest ABSENT en entry; total finaldirty6 incluyendo handoff ajeno inmutable.
+Manifest se construye último con cinco corephysicalSHA y tabla completa466; su propioSHA y
+rawafter470 se reportan externamente sin selfhash/ciclos. Snapshots completos retenidos en sesión.
+Launch requested/effective model+effort null/null; effort UNREPORTED. Provider propio recuperado
+por worker-show: codex / gpt-5.6-sol (observación operacional, no elección de modelo).
+Auditor literal modelObserved=UNREPORTED/effortObserved=UNREPORTED; coordinador observó
+codex/gpt-5.6-sol antes de release: fuentes distintas, no se reescribe el claim del auditor.
+
+## Payments & Notifications — PN14 Slice2 reconciliación candidata de scope / Flyway
+
+Date2026-09-16; run_bc3f744161b5 / task_f874df8d2b86 / ctx_f5256d16cee2.
+Rol PAYMENTS_SLICE2_SCOPE_AUTHORIZATION_CORRECTION_DOCUMENTER / DOCUMENTATION_ONLY /
+SINGLE_WRITER / EVIDENCE_BOUND. No corrector/auditor, no implementación propia ni selfaudit.
+Se conserva como prefix el COMPLETO64649bytes de entrada de este canónico,
+rawSHA256 f21576b6a909b904ab1cdb2c6616b31199904150a35d320e1e0f7c27b4ee77d0.
+Este append sólo actualiza lifecycle presente, sin rewrite de contratos/historia/reviews/checkpoints.
+
+```text
+PN13: ACCEPTED / PUBLISHED / CLOSED / TERMINAL; closed findings no reopen
+PN14 SLICE1: ACCEPTED / PUBLISHED / CLOSED / TERMINAL / NO_FURTHER_WRITES
+PN14 SLICE2 ORIGINAL AUTHORIZATION: HISTORICAL_ACCEPTED_BY_EXACT_HANDOFF_SHA / original contract preserved
+SLICE2 CURRENT TECHNICAL CANDIDATE: LOCAL_CANDIDATE_PRESERVED / STOPPED / TECHNICAL_IMPLEMENTATION_NOT_RESUMED
+SLICE2 HISTORICAL FULL: FAIL — 683tests / 1failure / 0errors / 0skips / exit1; T18FAIL
+SLICE2 HISTORICAL BEFORE_INITIAL_32WRITE BASELINE: PASS — 638tests / 0failure / 0errors / 0skips
+SLICE2 HISTORICAL NEW / PUBLISHED FOCALS: PASS — 45/11classes / 67/13classes, historical only
+SCOPE RECONCILIATION: CORRECTIVE_AUTHORIZATION_CANDIDATE / PENDING_FRESH_AUTHORIZATION_AUDIT / NOT_ACTIVE
+CURRENT TECHNICAL CORRECTION / EXECUTION ENTRY: NOT_AUTHORIZED / NOT_SATISFIED
+NEW CANDIDATE HANDOFF: auditoria/handoffs/HANDOFF-PN14-SLICE2-REANUDACION-SNAPSHOT-FLYWAY.md
+NEW CHECKPOINT: auditoria/fase-pn14-slice2-reconciliacion-scope-flyway.md
+INITIAL FRESH AUDITOR: task_8be2fd0f4dfe APPLICABLE/PENDING; exact3docs
+INITIAL COORDINATOR: task_48dc5aedfde6 / gate_0bc68ac55878 APPLICABLE/PENDING
+SEPARATE ACCEPTANCE MATERIALIZER / AJENO REVIEW / MANIFEST: APPLICABLE/PENDING / not yet materialized
+FINAL FRESH VERIFIER: task_4153eb194c80 APPLICABLE/PENDING
+FINAL COORDINATOR: task_86f0daaa60b1 / gate_6dff94e12724 APPLICABLE/PENDING
+CURRENT TESTS / HOST / TECHNICAL AUDIT / TECHNICAL GATES: NOT_APPLICABLE / NOT_PERFORMED; no PASS
+CURRENT PUBLICATION / CLOSURE: NOT_PERFORMED / NOT_AUTHORIZED; auto_publish=false / Git_permission=NONE
+WRITER NEW P0 / P1 / P2: NOT_ASSESSED / NOT_ASSESSED / NOT_ASSESSED
+NEW-PN13-017: OPEN/P2/EDITORIAL/NON_BLOCKING/IMPLEMENTATION_INDEPENDENT, unchanged
+DOMAIN / PRODUCTION AUTHORITY / COEXISTENCE / RUNTIME / LEGACY / F2D / F2E / FENCE / CUTOVER: UNCHANGED
+SLICES3–12 / PRODUCTIVE ACTIVATION / LIVE BACKFILL: NOT_AUTHORIZED
+NEXT ALLOWED ACTION: FRESH_INDEPENDENT_AUTHORIZATION_DOCUMENT_AUDIT_EXACT3_ONLY, then initial gate
+```
+
+Recon AJENO fresh task_278e350687f3/ctx_a60b73f296ac, uniqueDone msg_79c9a1ead968 count1,
+succeeded/settled/accepted/released, filesModified=[]; **BODY msg_6c82d77b9408** autoritativo,
+supersede msg_a1eb81d8b6e5. RECON_RESULT=PASS / SOLE_OBSERVED_BLOCKER_CONFIRMED=true es
+diagnóstico scope/causa observada, NO fullPASS ni audit/gate técnico.
+Rootentry actual task_80829775fcb9 contiene full502rawmap y32pins; coincide con recon y
+stoppedTechnicalRun run_e786453bf13f/task_5021af20f143. Anterior executor
+task_c52eef681f84/ctx_44bb26db1747 uniqueDone msg_d58b8a0dd91f outcome failed/settled/released,
+status **BODY msg_f11194b6b025** STOP/SCOPE_EXPANSION_REQUIRED; se preserva failed.
+Logs/XML/causal/history completos en NEWhandoff§§2–3 y NUEVOcheckpoint§2.
+
+Clase ProgramacionPersistenciaTest tiene15 tests; sólo flywayMigraDesdeV1HastaV47 pinnea la
+cadena global47/50 en líneas47–48. Historial físico41/44→43/46→46/49→47/50 confirma intención
+global. Con sólo V48/V49 autorizadas la cadena49/52 es observada; countassertion48 no alcanzada
+por fallo47,52 demostrado por inventario/fresh/T14/T15/upgrade/log.
+Los otros14 safeguards semánticos PostgreSQL tuvieron PASS histórico y conservan CADA byte.
+Ninguna decisión de producto/arquitectura faltante ni requiredpath adicional observados por recon;
+limitación: no audit exhaustivo ni promesa futura del candidato.
+
+Propósito correctivo exclusivo futuro, condicionado a finalscopegate:
+`src/test/java/com/feelingpilates/programacion/ProgramacionPersistenciaTest.java`,
+beforeSHA0a4ca66231d7f0545568ecbef6bb09e58270b4d68c4f567ebaac22d7a9ae9ea7:
+línea47 .isEqualTo("47")→.isEqualTo("49"); línea48 .hasSize(50)→.hasSize(52).
+Todo otro byte/nombre flywayMigraDesdeV1HastaV47/imports/annotations/wiring/fixtures/
+14métodos/assertions intacto. Hypothetical memory-only afterSHA
+f6d81bd5cb6b57d8440ab581da967e2bc77570c988f2db5f84fdc1c1b26d4372 NO escrito ahora.
+No weaken/dynamicpins/skips/renumber/configFlyway ni otra edición existente/productiva.
+
+Precedencia estrecha NEWhandoff§4: sólo tras autoridad final real supersede entry original
+para exact32PRESENT/pinsunchanged versus CREATE32ABSENT,52/max49/V48V49PRESENTsha versus
+50/max47/ABSENT y conocida RED entrycorrectiva versus nuevo pre-correctionfullgreen.
+El beforeINITIAL32write638PASS histórico sigue cumplido; no repetir generación32 y ninguna
+renuncia al fullgreen del conjunto.683FAIL permanece FAIL. Aftertwofix, completefreshgreen
+REQUIRED, no unlimitedwaiver/unknownfailure. Cualquier otra contradicción/requiredpath/
+decisión no derivable STOP PRODUCT_OR_ARCHITECTURAL_AUTHORITY_REQUIRED /
+SCOPE_EXPANSION_REQUIRED / NO_WRITES. Resto del contrato original §§1–9 permanece íntegro.
+
+Preflight físico propio BEFORE502 raw841da81baa66226a5ef9049a7273683070905edcea142e2870cf6c68a00d8fd0
+MATCH, original470 intactos raw953a14964a4f5d11f75b852753fc28aa0b7f3fb7857b7077022fa6084d18e72d,
+original6sha match task_fe41eb6e6c0d/run_ee58d2f04418. LocalHEAD=upstream=liveorigin
+1564fb5b2e6f9465b83adce8d6c53a418c99330b, branchpagos/pagos-notificaciones-r1,0/0,
+stagingEMPTY/indexd19d3b5f32c37fa739275daeefa5426dc758dcc7f5a0e17696edb2b8e371809c.
+Los32 pins completos en NEWhandoff§5 quedan PRESERVE/NO_WRITE THISRun y futureinitialresume,
+sin regeneración.50oldmigrations unchanged; V48edc12860431820d634d4bc837eae79a5f3604718f83d99207b1ac8765459248e,
+V491aa858e265a389e9feeca1c691ace72e36fe87bc48fbdc79ff2e632fc3da280e.
+Ownexact3: createNEWhandoff/NUEVOcheckpoint, appendEND ESTADO64649prefix.
+Otros501 entrada intactos, original5 de6/raws y TODO originalhandoff/review/checkpoint inmutables.
+MAPA no edit: no cambió dominio/productividad/coexistencia/cutover.
+
+Separate initialdocumenter→freshaudit→firstGate→acceptance materializer→freshfinalverify→finalGate:
+audit task_8be2fd0f4dfe succeeded/uniqueDoneaccepted,
+SCOPE_RECONCILIATION_AUTHORIZATION_AUDIT=PASS,P0=P1=0/filesModified=[] y firstGate
+task_48dc5aedfde6/gate_0bc68ac55878 COMPLETED/RESOLVED/PASS reales con exact3rawsha idénticos
+writer/auditor/físico/coordinator permiten sólo acceptance documental separado.
+Acceptancewriter appendEND ESTADO y NUEVOcheckpoint (completeowninitialprefixes también protegidos),
+CREATE AJENOreview/manifest; NEWhandoff immutableacceptedhash. Sólo fivefinalpaths:
+
+```json
+[
+  "auditoria/ESTADO-ACTUAL.md",
+  "auditoria/handoffs/HANDOFF-PN14-SLICE2-REANUDACION-SNAPSHOT-FLYWAY.md",
+  "auditoria/fase-pn14-slice2-reconciliacion-scope-flyway.md",
+  "auditoria/reviews/PN14-SLICE2-REVIEW-RECONCILIACION-SCOPE-FLYWAY.md",
+  "auditoria/reviews/PN14-SLICE2-MANIFEST-REANUDACION-LOCAL-SNAPSHOT-FLYWAY.md"
+]
+```
+
+Manifest ÚLTIMO después otros4; original502fulltable y prefixESTADO64649,32pins,
+50oldmigration/test/index/HEAD/WT y finiteappend/prefixes. Four coreSHA internos físicos,
+manifestpropioSHA/candidateFileSHA256/authorityFileSHA256 exact5 y wholecurrentcount/raw/map
+EXTERNOS en materializador/verificador/finalGate, sin selfhashcycle.
+Finalfreshverifier task_4153eb194c80 succeeded/uniqueDone competente accepted,
+FINAL_SCOPE_RECONCILIATION_VERIFICATION=PASS,P0=P1=0/filesModified=[] y finalGate
+task_86f0daaa60b1/gate_6dff94e12724 COMPLETED/RESOLVED/PASS provenance coordinator_gate_resolution
+con exact5 candidate/authoritysha, localEntryManifestSHA256 y wholecurrentraw/count/map
+idénticos a físico/materializador/verificador/integridadcoordinator, sin extras/omisiones,
+mutación posterior/decisión/SECURITY_STOP pendientes, son conjuntamente obligatorios.
+
+Sólo todos esos resultados reales y append competente hacen eficaz
+LOCAL_UNCOMMITTED_AUDITED_DOCUMENTATION_ENTRY / EXACT_PRESERVED_CANDIDATE_RESUME:
+READY_TO_RESUME_BOUNDED_CORRECTION / IMPLEMENTATION_NOT_RESUMED.
+**Hoy todos cuatro audit/gate inicial/final APPLICABLE/PENDING, entry NOT_SATISFIED**.
+No permiso técnico actual ni technicalgatePASS; no edición después finalGate.
+Futurecorrector revalida resultados/gates/Dispatch/done, HEAD/indexEMPTY/upstream/live/0–0,
+original502map salvo prefixESTADO finito, exactfinalmanifest5 y externos,32PRESENTunchanged,
+50oldmigrationSHA y52/max49/twoSQLsha, protectedtestbefore intacto, no dirty/new/deleted
+inesperado. ÚNICA futureinitialwrite: dos literales; docs y32 sin escritura.
+
+Después correction: protected15focal→T01–T18/11newclasses→M01–M12/13publishedclasses→full→
+comprobar realPG/Testcontainers/fresh52/V47upgrade50→52/TODOS50checksums/legacycompatibility/
+independentPIDs/rollback/replay/conflict→requiredSkips0→freshindependenttechnicalaudit→separategate.
+Comandos LITERALES físicos handofforiginal§8 copiados NEWhandoff§8, adicional protectedfocal
+-Dtest=ProgramacionPersistenciaTest -DfailIfNoTests=true; JDK21/PostgreSQL16/Docker/dummy/
+parallelfalse/skipfalse originales. Counts/exit/XML/logs nuevos capturados, no638/45/67/683
+históricos sustituidos. Dockerblocked HostValidator separado, nunca skipverde.
+No producción/userdomain/backend switch/livebackfill/cutover/ledger/StripeInbox/refund/Outbox/
+emailpush/resources/pom/testhelpers/config/F2E/slices3–12/publicación/cierre/Gitstagecommitpush.
+STOP conserva oldwriter/candidato/evidencia, sin reset/clean/stash/delete. PN13 no reopen.
+
+## Payments & Notifications — PN14 Slice2 aceptación documental ajena / entrada local finita condicional
+
+Date2026-09-16; run_bc3f744161b5 / task_8b1e56ae86f0 / ctx_25d9756f1da3.
+Rol DOCUMENTATION_ACCEPTANCE_ACTIVATION_MATERIALIZER / SEPARATE_DOCUMENTER / DOCUMENTATION_ONLY /
+SINGLE_WRITER / EVIDENCE_BOUND. Derivación exclusiva handoff nuevo §7 y checkpoint §§4–5.
+Este append supersede sólo los pendientes iniciales vivos; no reescribe contratos/historia.
+
+Audit AJENO fresh `task_8be2fd0f4dfe / ctx_95cd697fecd8`, BODY JSON COMPLETO
+`msg_9174b578aff1` recuperado por structured Orca inbox; el payload lifecycle NO es report.
+UniqueDone `msg_f8caacbe69e5`, count1, outcome succeeded, taskcompleted/settled/accepted/released
+confirmados por task-list/inbox/worker-show; filesModified=[], no builds/tests/writes.
+`SCOPE_RECONCILIATION_AUTHORIZATION_AUDIT=PASS / DOCUMENTATION_AUDIT=PASS`, P0=0/P1=0/newP2=0;
+combinedOpen0/0/1 sólo NEW-PN13-017 preexistente nonblocking, sin reapertura.
+Initial coordinator `task_48dc5aedfde6` COMPLETED / `gate_0bc68ac55878` RESOLVED/PASS,
+resolved_at `2026-09-16 21:20:59`, provenance `coordinator_gate_resolution`,
+scope DOCUMENTARY_ACCEPTANCE_ONLY / NO_TECHNICAL_WRITES. Result JSON COMPLETO realmente
+recuperado por task-list --run run_bc3f744161b5; candidate/authority EXACT3 y whole504map
+idénticos a writer/auditor/físico/coordinator. Ese gate habilita este rol documental separado.
+Sus marcas PENDING previas siguen como snapshot histórico inmutable, no estado vivo.
+
+Review persistente AJENO:
+`auditoria/reviews/PN14-SLICE2-REVIEW-RECONCILIACION-SCOPE-FLYWAY.md`, completo audit BODY
+sin cambiar el claim original initialGatePENDING de su corte y completo resultado posterior
+coordinatorPASS. AJENO_EVIDENCE_ONLY / NOT_NORMATIVE / NOT_SELF_AUTHORIZING;
+materializador no auditor ni resolvergate. Writer P0/P1/P2=NOT_ASSESSED.
+Accepted immutable NEW handoff SHA256
+`0168c3825b16c8dbace6ebb9c22fbbeefb1aabf5efecf5922f9c4c5fe1b340d8`.
+
+```text
+INITIAL AJENO AUDIT: ACTUAL_PASS / completed / succeeded / settled / accepted / released
+INITIAL GATE: ACTUAL_RESOLVED_PASS / completed / DOCUMENTARY_ACCEPTANCE_ONLY
+ACCEPTANCE DOCUMENTATION: MATERIALIZED_BY_SEPARATE_DOCUMENTER / NOT_SELF_AUDITED
+LOCAL ENTRY: LOCAL_UNCOMMITTED_AUDITED_DOCUMENTATION_ENTRY / EXACT_PRESERVED_CANDIDATE_RESUME / CONDITIONAL
+AUTHORITY: PENDING_FINAL_FRESH_VERIFICATION_AND_FINAL_GATE / NOT_ACTIVE_AT_THIS_CUT
+CURRENT CANDIDATE: LOCAL_CANDIDATE_PRESERVED / IMPLEMENTATION_NOT_RESUMED / NOT_RESUMED_YET
+FINAL VERIFIER: task_4153eb194c80 / APPLICABLE / PENDING / no result; actual task ready
+FINAL GATE: task_86f0daaa60b1 / gate_6dff94e12724 / APPLICABLE / PENDING / unresolved; task blocked
+TECHNICAL FULL: HISTORICAL_FAIL / T18FAIL / NOT_AUDITED / GATE_NOT_REACHED
+CURRENT TESTS / MAVEN / HOST / TECHNICAL AUDIT / TECHNICAL GATES: NOT_APPLICABLE / NOT_EXECUTED
+PUBLICATION / CLOSURE: NOT_PERFORMED / NOT_AUTHORIZED; auto_publish=false / Git_permission=NONE
+NEXT ALLOWED ACTION: FRESH_INDEPENDENT_FINAL_SCOPE_RECONCILIATION_VERIFICATION, then final coordinator gate
+```
+
+Entrada local expresa, efectiva **si y sólo si** se cumple la conjunción real de handoff nuevo §7:
+
+1. `task_4153eb194c80`, fresh READ_ONLY e independiente de todos los escritores, completa
+   succeeded con un único worker_done competente accepted del Dispatch real,
+   `FINAL_SCOPE_RECONCILIATION_VERIFICATION=PASS`, P0=P1=0 y filesModified=[]. Verifica
+   íntegramente los cinco documentos finales, prefixes y baseline/candidato protegido.
+2. `task_86f0daaa60b1` completa y `gate_6dff94e12724` está realmente RESOLVED/PASS,
+   provenance `coordinator_gate_resolution`. `candidateFileSHA256` y `authorityFileSHA256`
+   contienen EXACTAMENTE los cinco paths siguientes, sin extras ni omisiones:
+
+   ```json
+   [
+     "auditoria/ESTADO-ACTUAL.md",
+     "auditoria/handoffs/HANDOFF-PN14-SLICE2-REANUDACION-SNAPSHOT-FLYWAY.md",
+     "auditoria/fase-pn14-slice2-reconciliacion-scope-flyway.md",
+     "auditoria/reviews/PN14-SLICE2-REVIEW-RECONCILIACION-SCOPE-FLYWAY.md",
+     "auditoria/reviews/PN14-SLICE2-MANIFEST-REANUDACION-LOCAL-SNAPSHOT-FLYWAY.md"
+   ]
+   ```
+
+   Ambos mapas, SHA externo del propio manifest / `localEntryManifestSHA256`, y
+   wholecurrent506 count/rawSHA256/map completo deben coincidir exhaustivamente entre
+   bytes físicos finales, BODY estructurado del materializador, verificador y comprobación
+   independiente del coordinador/gate final. No aliases de prosa, resultados ausentes ni
+   hashes históricos sustituyen estos bindings; ningún humano, SECURITY_STOP o control
+   exigible pendiente, ni mutación posterior.
+3. Worktree Payments y branch `pagos/pagos-notificaciones-r1` exactos;
+   HEAD=upstream=liveorigin `1564fb5b2e6f9465b83adce8d6c53a418c99330b`, ahead/behind0/0,
+   stagingEMPTY e índice `d19d3b5f32c37fa739275daeefa5426dc758dcc7f5a0e17696edb2b8e371809c`.
+   Se preservan todos los original502 salvo APPEND_ONLY_END finito de ESTADO, íntegros sus
+   64649 y74494 prefixes, checkpoint14737 completo, handoff nuevo SHA aceptado inmutable,
+   original5 de6 completos, los32 rawpins y testbefore/50oldmigrations.
+4. Antes de cualquier initialwrite futura, corrector recupera Task/Dispatch/status BODY/
+   uniqueDone/outcomes/gates reales y revalida TODO lo anterior: manifest exacto cinco docs,
+   hashes internos de cuatro core y externos, original502individualmap con única excepción
+   prefixESTADO,32PRESENTunchanged,50oldmigrationSHA/checksums,52/max49 y V48/V49 exactsha,
+   protectedtest beforeSHA, ningún dirty/new/deleted inesperado. Esta entrada local no
+   requiere publicación previa ni concede stage/commit/push. No es waiver genérico dirty/RED.
+
+Sólo esa conjunción real activa `LOCAL_UNCOMMITTED_AUDITED_DOCUMENTATION_ENTRY /
+EXACT_PRESERVED_CANDIDATE_RESUME`; lifecycle eficaz:
+`LOCAL_CANDIDATE_PRESERVED / AUTHORITY_RECONCILED / READY_TO_RESUME_TECHNICAL_VALIDATION`
+y `READY_TO_RESUME_BOUNDED_CORRECTION / IMPLEMENTATION_NOT_RESUMED`.
+Al materializar: condición NOT_SATISFIED, autoridad técnica NOT_ACTIVE, implementación
+`NOT_RESUMED_YET`; final verifier/gate APPLICABLE/PENDING. No se declara finalPASS.
+La condición es finita y permite interpretar el resultado real sin editar documentos después
+del finalgate: **NO_POST_FINAL_GATE_DOCUMENT_EDITS**. Cualquier cambio de bytes requiere
+nueva autorización; evidencia absent/stale/UNKNOWN/FAIL/SKIPPED/BLOCKED o mismatch:
+STOP / AUTHORIZATION_MISMATCH / NO_WRITES, sin silentrebinding.
+
+ÚNICA futureinitialwrite permitida por la condición final: existingfile
+`src/test/java/com/feelingpilates/programacion/ProgramacionPersistenciaTest.java`,
+beforeSHA `0a4ca66231d7f0545568ecbef6bb09e58270b4d68c4f567ebaac22d7a9ae9ea7`:
+línea47 `.isEqualTo("47")`→`.isEqualTo("49")`; línea48 `.hasSize(50)`→`.hasSize(52)`.
+TODOS otros bytes/imports/annotations/wiring/fixtures/nombre `flywayMigraDesdeV1HastaV47`
+y14 safeguards semánticos preservados. AfterSHA memory-only
+`f6d81bd5cb6b57d8440ab581da967e2bc77570c988f2db5f84fdc1c1b26d4372`: NOT_WRITTEN.
+No dynamicpins/skips/configuration/renumber/otro path; no regeneración u overwrite32.
+
+Precedencia estrecha handoff nuevo §4, eficaz sólo con condición final:32PRESENTexactpins
+versus originalCREATE32ABSENT;52/max49/exactV48V49PRESENT versus50/max47/ABSENT;
+knownREDguard entry correctiva versus nuevo pre-correctionfullgreen. Baseline638PASS
+BEFORE_INITIAL32WRITE histórico sigue cumplido; full683/1failure/0errors/0skips/exit1 y
+T18 permanecen FAIL / TECHNICAL_NOT_AUDITED / TECHNICAL_GATE_NOT_REACHED. Focals45/11classes
+y67/13classes PASS históricos no son evidencia nueva. Después DOS literales, completefreshgreen
+obligatorio, nunca waiver ilimitado de fullgreen/unknownRED.
+
+Validación futura handoff nuevo §8 y original §§1–9 completos: focal protegido15 → T01–T18/
+11nuevas clases → M01–M12/13publicadas → full → realPG16/Testcontainers fresh52/max49,
+upgradeV47 50→52/all50checksums/compatibilidadlegacy, conexiones/transactions/PIDs independientes,
+barreras/timeouts/winner/replay/conflict/rollback/atomicidad/canon/inmutabilidad → requiredSkips0
+→ fresh auditor técnico AJENO → gate técnico separado. Comandos físicos literales/entorno dummy
+JDK21/Docker/Ryuk/api1.44/parallelfalse/skipfalse originales, protectedfocal
+`-Dtest=ProgramacionPersistenciaTest -DfailIfNoTests=true`. Counts/exit/XML/logs nuevos completos;
+Docker ambiental BLOCKED requiere HostValidator competente separado, nunca skippedgreen.
+Cualquier otro fallo/contradicción/requiredpath/decisión no derivable STOP
+PRODUCT_OR_ARCHITECTURAL_AUTHORITY_REQUIRED / SCOPE_EXPANSION_REQUIRED / NO_WRITES.
+
+No producción/HTTP readerwriter/backend switch/livebackfill/cutover/fence/ledger/settlement/
+StripeInbox/refund/Outbox/emailpush/resources/pom/config/helpers/wrappers/F2E/slices3–12/
+publicación/cierre/Gitwrites. Autoridad productiva/domain/coexistencia/runtime unchanged;
+PN13/Slice1 terminal, NEW-PN13-017 OPEN/P2/EDITORIAL/NON_BLOCKING/IMPLEMENTATION_INDEPENDENT
+sin fix/reopen. Rollback STOP conserva oldwriter/candidato/historia/evidencia/dirty,
+sin reset/clean/stash/delete/downgrade. No selfaudit por testsverde.
+
+Snapshot propio BEFORE:504 raw
+`aa70b28dbb67c045f338bf94278bc2bc64772011294119e4300e3333f89e12d6`, dirty40
+preexistente autorizado, fullSHAmap retenido externo; index/HEAD/upstream/live/0–0/stagingEMPTY
+revalidados físicamente. Algoritmo UTF8 sorted exactpath + NUL + lowercaseSHA256(rawbytes) + LF,
+SHA256 concatenación. Rootentry `task_80829775fcb9` all502map coincide con recon autoritativo
+BODY `msg_6c82d77b9408` y stopped `task_5021af20f143` actualRun `run_e786453bf13f`;
+original502 raw841da81baa66226a5ef9049a7273683070905edcea142e2870cf6c68a00d8fd0;
+original470 raw953a14964a4f5d11f75b852753fc28aa0b7f3fb7857b7077022fa6084d18e72d.
+Original501 salvo ESTADO íntegros;32pins y protectedtest unchanged;50oldmigration raw
+`e2848476012dc44133776cad500f2bb0870ecf7c1b66cdd9dbcab0ee5fddb398` intactos,
+V48 `edc12860431820d634d4bc837eae79a5f3604718f83d99207b1ac8765459248e`,
+V49 `1aa858e265a389e9feeca1c691ace72e36fe87bc48fbdc79ff2e632fc3da280e`, count52/max49.
+
+Own EXACT4: append-only END ESTADO preservando íntegros74494bytes/
+`e96a292da67591caab20daa7c596750861c5927a155237b37098c3a009e8ea2d` y64649bytes/
+`f21576b6a909b904ab1cdb2c6616b31199904150a35d320e1e0f7c27b4ee77d0`;
+append-only END NUEVOcheckpoint preservando14737bytes/
+`20d6984f3a708179cf36013e32db6f1de080a24a64db7a68ba6beb5694b5f06c`;
+CREATE NUEVOreview y CREATE LAST NUEVOmanifest. Ningún oldMAPA/checkpoint/handoff/review edit.
+Final Run sólo cuatro NEWdocs (dos initialwriter + review/manifest); finaltotal506/dirty42,
+baseline32 preserved. `apply_patch` ONLY repoedits. No código/tests/builds/subagents/Gitwrites.
+
+Manifest último:
+`auditoria/reviews/PN14-SLICE2-MANIFEST-REANUDACION-LOCAL-SNAPSHOT-FLYWAY.md`.
+Pin ALL original502individualSHA/fullmap, exact32, old6authority,50oldmigrations/test,
+original64649/accepted74494 ESTADO yinitial14737checkpoint prefixes. Incluye cuatro corefinalSHA
+físicos internos (ESTADO/newhandoff/newcheckpoint/newreview); excluye su propioSHA ywhole506raw
+para evitar ciclos. ManifestselfSHA/localEntryManifestSHA256 yexact5candidate/authoritySHA/
+whole506count/raw/fullmap se entregan EXTERNOS en BODY estructurado materializador, luego
+fresh verifier/coordinator/finalgate. No mutación de documentos después finalgate.
+
+## Payments & Notifications — perfil autónomo V1 / bootstrap documental local condicional
+
+Run `run_37c80ed04ef3`; writer `task_40811b9a8e32 / ctx_8ab6e7127f3e`.
+Referencias operativas: [PAYMENTS-AUTONOMOUS-RUNBOOK.md](orquestacion/PAYMENTS-AUTONOMOUS-RUNBOOK.md)
+y [PAYMENTS-AUTONOMOUS-STATE.json](orquestacion/PAYMENTS-AUTONOMOUS-STATE.json), versiones1,
+artefactos locales no committed/publicados; entry profile documental expresamente autorizado,
+ORQ-PROTOCOL-V1 preservado, canónicos de producto normativos. Control: lane milestone →
+checkpoint RUNBOOK+STATE → evidencia Run → Tasks/Dispatches. No Autopilot ni HostValidator revival.
+
+Milestone SLICE_2_TECHNICAL_ACCEPTANCE / phase CORRECTION_AUTHORITY_RECONCILIATION_REQUIRED /
+lifecycle HUMAN_GATE_REQUIRED (generic HUMAN_STOP) / technical gate NOT_REACHED.
+Candidato LOCAL_CANDIDATE_PRESERVED / REQUIRED_VALIDATION_PASS / FRESH_TECHNICAL_AUDIT_FAIL.
+Latest audit AJENO run_a2b8c785481f/task_0729f669a723/ctx_da38057f91b2, BODY msg_5362ee6f05d6,
+uniqueDone msg_a26a30e0b193 completed/succeeded/settled/accepted/released:
+new0/1/0, combinedOpen0/1/1. PN14-S2-FRESH-TA-001 P1 OPEN/T12; proposed BackfillOrdenSnapshot.java
+y BackfillOrdenSnapshotTest.java siguen NO_WRITE, los32 PRESERVE/NO_WRITE.
+HUMAN_GATE exactamente UNRESOLVED_P1_REQUIRING_AUTHORITY, SCOPE_EXPANSION_REQUIRED,
+AUTHORITY_RECONCILIATION_REQUIRED; STOP_AT_HUMAN_GATE /
+NO_FURTHER_TECHNICAL_WRITES_UNTIL_COMPETENT_RECONCILIATION. Presupuesto técnico0/2 suspendido;
+bootstrap documental separado0/2. Sólo este exact3 bootstrap avanza mientras gate humano abierto.
+PN13 y Slice1 publicados/cerrados; PN14 aceptado; NEW-PN13-017 OPEN/P2/EDITORIAL/NON_BLOCKING/
+IMPLEMENTATION_INDEPENDENT preservado. Slices3–12/activación/cutover/remotepublication NOT_AUTHORIZED.
+
+Entrada propia506/raw ce3271830c4ebf180fc96a66df98c9fbf12abe730e9093732580a519ede28c50/fullmapSTATE;
+worktree Payments/branch pagos/pagos-notificaciones-r1, HEAD/upstream/liveorigin
+1564fb5b2e6f9465b83adce8d6c53a418c99330b,0/0,stagingEMPTY/index
+d19d3b5f32c37fa739275daeefa5426dc758dcc7f5a0e17696edb2b8e371809c.
+Exact3: CREATE RUNBOOK/STATE, APPEND_ONLY_END ESTADO preservando completos85948bytes/
+a05c8347cd6e8e975f89516d5c52229deaf497cd465f72077d685e1b4734296d; otros505 y32/software intactos.
+Finalwhole508/fullmap/digest yownSTATEsha EXTERNOS writer/freshauditor/coordinator/gate; no selfhash.
+Entry506 histórico no se confunde con final508. Runtime compara finalizedwholecurrentmanifest
+ligado al bootstrapGate competente; ninguna dirtywaiver implícita. Gitwrites/tests/builds prohibidos.
+
+Profile bootstrap: scope/documentationfresh/bootstrap-onlyGate APPLICABLE/PENDING;
+technicaltests/HostValidator/technicalGate/publication/closure/localGitcheckpoint NOT_APPLICABLE
+para este bootstrap, nunca PASS. TechnicalGate de Slice2 conserva NOT_REACHED.
+Activación SI Y SÓLO SI verificador fresh READ_ONLY independiente `task_a71f68a0d5d4` completa
+succeeded con bootstrapauditPASS, único worker_done Task/Dispatch reales accepted/settled/released,
+filesModified=[]; **sólo después** se crea gate separado en run_37c80ed04ef3 con pregunta EXACTA:
+
+> Does the independently verified Payments autonomous bootstrap activate PAYMENTS_AUTONOMOUS_RUNBOOK_ACTIVE and PAYMENTS_STATE_ACTIVE while preserving CURRENT_HUMAN_GATE_PRESERVED, without authorizing technical correction?
+
+Uniquegate actual RESOLVED/PASS y Task competente completed/provenance coordinator_gate_resolution
+deben ligar exact3 candidateFileSHA256/authorityFileSHA256 ywhole508count/rawSHA256/fullmap,
+idénticos a bytes finales writer/freshauditor/físico/coordinator, protectedscope verificado,
+sin extras/omisiones/mutación posterior ni ambigüedad/security pendiente del bootstrap.
+Sólo esa conjunción hace eficaz PAYMENTS_AUTONOMOUS_RUNBOOK_ACTIVE/PAYMENTS_STATE_ACTIVE;
+currentHUMAN_GATE permanece requerido sin corrección/aceptación técnica/publicación/cierre.
+Al escribir: candidato PENDING, Dispatch/done del verificador y GateTask/GateID ausentes,
+ningún PASS anticipado. Recuperar gate-list/task-list --run run_37c80ed04ef3 y STATUS BODY/
+worker-show reales; no postgateedit ni chat-only. Reanudar técnico exige nueva autoridad
+competente persistida, exactscope reconciliado, fresh audit/gates y revalidación física completa.
+
+
+## Payments & Notifications — PN14-S2-FRESH-TA-001 / decisión humana acotada y reconciliación condicional V2
+
+Milestone `SLICE_2_TECHNICAL_ACCEPTANCE`; run `run_8a13daf26e26`;
+writer DOCUMENTATION_ONLY `task_9e718ea43fa6 / ctx_7026614a7613`, rol
+PAYMENTS_BOUNDED_AUTHORITY_RECONCILIATION_DOCUMENTER / SINGLE_WRITER / NOT_AUDITOR.
+Decisión competente actual **HUMAN_GATE DECISION AUTHORIZE**, registrada físicamente aquí y en
+STATE: no se deriva permiso del chat, de tests verdes ni de la especificación del antiguo audit.
+Fuente durable: Task coordinador `task_90e5821e06a0` completed, result JSON íntegro
+`humanDecision` y `wholeCurrentFileSHA256` all508, recuperable mediante
+`orca orchestration task-list --run run_8a13daf26e26 --json`.
+
+Control operativo vigente: STATE `schemaVersion=1 / version=2`, local no committed/publicado;
+RUNBOOK V1 conserva íntegros sus bytes y su certificación histórica. Se preservan bootstrap,
+entry506, incidentLog, validaciones y checkpoints previos; STATE distingue snapshot histórico
+de control y checkpoint vivo. El nuevo alcance supersede mínimamente los DENIED de DOS rutas y
+la suspensión del presupuesto sólo cuando se cumpla la nueva condición audit/gate siguiente.
+Las frases bootstrap-only/STOP/all32NO_WRITE del RUNBOOK y apéndices anteriores describen su
+corte histórico: no anulan esta autorización competente posterior ni conceden otro alcance.
+Dominio §13, DA014/021/022, arquitectura, MAPA y contratos Slice2 permanecen normativos e intactos.
+
+Bootstrap AJENO realmente recuperado: `run_37c80ed04ef3 / task_86808315f606` completed,
+`gate_c66f6949b7ab` resolved/PASS, provenance `coordinator_gate_resolution`, BOOTSTRAP_ONLY;
+resolved_at `2026-09-16 23:13:54`. Audit fresh `task_a71f68a0d5d4 / ctx_fcad308e4d3c`,
+STATUS BODY completo `msg_ce2ec2d3db47`, uniqueDone `msg_a47d38d43f6e` count1,
+completed/succeeded/settled/accepted/released, filesModified=[], BOOTSTRAP_DOCUMENTATION_AUDIT=PASS.
+Exact3 docSHA y full508 de bootstrap root/writer/auditor coinciden con la entrada física actual
+y Task actual de entrada; su PASS certifica sólo aquel bootstrap, nunca corrección técnica.
+La modificación documental nueva requiere certificación nueva: no rebinding silencioso de V1.
+
+ÚNICO scope técnico de la decisión humana, **condicional para corrector separado**:
+
+| Ruta exacta | SHA256 raw de entrada actual protegido hasta la condición |
+| --- | --- |
+| src/main/java/com/feelingpilates/pagos/ventas/aplicacion/BackfillOrdenSnapshot.java | b24e1b829431e5a91f7ca32af5d4b690b52c45c95ed75530d79eb08c729d4a0f |
+| src/test/java/com/feelingpilates/pagos/ventas/BackfillOrdenSnapshotTest.java | 4adff58b23be5225ea236d6f95ff05a39f85607ab9fe83b177a8ccbba96fe80f |
+
+Considerar todas las fuentes trusted relevantes y validar su relación de provenance completa
+contra metadata/contrato propios: tipo/origen, referencia, raw/hash, actor, instante, regla/versión,
+fuente por campo, membership y total conforme a los contratos existentes. Una incompatibilidad
+de metadata no puede omitirse por elegir el primer sobre ni por igualdad de hash/membership/total.
+Adjudicación determinista independiente de orden/permutaciones; contradicción relevante produce
+REQUIERE_REVISION conservando evidencia raw completa y cero mutaciones snapshot/invocaciones freeze.
+Sólo regresiones necesarias dentro del test autorizado: mismo contrato/hash con provenance
+incompatible, ambas órdenes/permutaciones, freeze nunca invocado y ambas fuentes conservadas;
+variantes relevantes del finding, sin helpers ni otro testpath. No nueva regla de producto/API/
+finanzas/refund/estado/dependencia/migración. Los otros30 candidatos, TODAS52 migraciones,
+V48/V49 y test legacy `ProgramacionPersistenciaTest.java` quedan PRESERVE/NO_WRITE.
+STATE conserva mapa actual32 completo y subset protegido30, cotejados con Task full508 y físico.
+
+Al materializar:
+
+```text
+CURRENT HUMAN DECISION: EXPLICIT_AUTHORIZE_PERSISTED / original authority decision answered
+PHASE: AUTHORITY_RECONCILIATION_PENDING_FRESH_AUDIT_AND_GATE
+LIFECYCLE: AUTHORITY_RECONCILIATION_DOCUMENTED_PENDING_VERIFICATION
+TECHNICAL WRITE PERMISSION: CONDITIONAL / NOT_EFFECTIVE_AT_WRITE
+AUTHORITY_RECONCILIATION_AUDIT: APPLICABLE/PENDING; no actual new auditor result or IDs
+CURRENT AUTHORITY GATE: APPLICABLE/PENDING/NOT_CREATED; no future PASS/IDs claimed
+TECHNICAL BUDGET: consumed0/max2; atwrite suspended/availableNow0
+AFTER ACTUAL AUTHORITY CONDITION ONLY: ACTIVE consumed0/max2/available2
+PN14-S2-FRESH-TA-001: P1 OPEN / T12 / technical acceptance blocker
+KNOWN REQUIRED VALIDATION: HISTORICAL_PASS; latest technical audit: HISTORICAL_FAIL
+TECHNICAL GATE: NOT_REACHED; no technical acceptance, P1 closure or milestone completion
+```
+
+Permiso técnico eficaz **SI Y SÓLO SI** se cumple íntegramente esta conjunción real:
+
+1. Auditoría nueva fresh READ_ONLY AJENA e independiente de los escritores/correctores entrega
+   STATUS BODY estructurado completo `AUTHORITY_RECONCILIATION_AUDIT=PASS`, P0=P1=0,
+   filesModified=[], autoridad exact2 técnica, presupuesto y protección íntegra verificados.
+   Task/Dispatch reales completed/succeeded, un único worker_done accepted que identifica ambos
+   IDs de intento real, settled/released; payload lifecycle distinto del report. IDs ausentes
+   hoy se descubren en Task/inbox/worker-show del Run, nunca se inventan ni se sustituye el audit
+   nuevo por bootstrapPASS o el antiguo audit técnicoFAIL.
+2. Después existe UN ÚNICO gate competente en `run_8a13daf26e26` con pregunta EXACTA:
+
+   > Does the persisted human decision competently reconcile PN14-S2-FRESH-TA-001 corrective authority for exactly two technical paths, with active 0/2 budget and no other scope?
+
+   Gate actual RESOLVED/PASS y root Task coordinador completed, provenance
+   `coordinator_gate_resolution`. Ambos mapas `candidateFileSHA256` y `authorityFileSHA256`
+   contienen EXACTAMENTE STATE y ESTADO, sin tercer path: SHA raw finales idénticos a físico,
+   writer, nuevo auditor y comprobación independiente root. `wholeCurrentCount=508`, digest
+   `wholeCurrentRawSHA256` y mapa COMPLETO `wholeCurrentFileSHA256` iguales entre todos ellos,
+   sin omisiones/extras ni mutación documental posterior, ambigüedad/security/control pendientes.
+3. Antes de primera escritura técnica se recupera esa evidencia real y se revalida exact508
+   certificado, completos90265bytes prefixESTADO,32pins actuales, otros506 preservados,
+   branch/worktree exactos, HEAD=upstream=liveorigin1564,0/0,indexd19d,stagingEMPTY,dirty45
+   exactos, todas52 migraciones y test legacy protegido intactos. Ausente/stale/UNKNOWN/FAIL/
+   SKIPPED/BLOCKED/mismatch falla cerrado STOP/NO_WRITES; contradicción de autoridad o scope/
+   decisión adicional reentra HUMAN_GATE_REQUIRED/HUMAN_STOP. No waiver genérico dirty/RED.
+
+Sólo esa conjunción actual habilita READY_FOR_BOUNDED_TWO_PATH_CORRECTION y presupuesto técnico
+ACTIVE0/2/available2. El documenter no ejecuta audit, gate, código, tests/builds ni delegación.
+El permiso y los controles de validación futuros están en STATE, sin prohibiciones bootstrap
+stale que bloqueen al corrector/validador separado una vez satisfecha la conjunción. Ningún
+ciclo consumido por documentar, verificar autoridad/gate ni incidente pre-semántico preservado.
+Máximo2 ciclos técnicos FAIL→corrección autorizada→fresh re-audit; después2 sin éxito HUMAN_GATE /
+CORRECTION_BUDGET_EXHAUSTED, sin reset por Run nuevo.
+
+Próxima secuencia autorizada: authorityfreshAudit → separateauthorityGate → separatebounded2
+correction → validación NUEVA completa requerida → newfreshtechnicalAudit → separategatetécnico
+sólo con TODOS controles requeridos PASS → checkpoint STATE autorizado/versionado →
+**STOP MILESTONE_COMPLETE / HUMAN_GATE**. Validación usa comandos físicos literales completos
+original/resume §8: protectedfocal15 → Slice2 T01–T18/11classes → Slice1 M01–M12/13classes → full;
+JDK21/Docker/Ryuk/PG16 dummy reales, fresh52/V49 y upgrade50/V47→52/V49/all50checksums,
+compatibilidad legacy y conexiones/transacciones/PIDs/barriers/timeouts/winner/replay/conflict/
+rollback/canon/inmutabilidad; logs/XML/counts nuevos, exit0/failures0/errors0/requiredSkips0.
+Históricos15/45/67/683 PASS y auditFAIL no sustituyen evidencia postcorrección. BLOCKED ambiental
+no es skipverde ni revive workflow HostValidator histórico. Green no autoaprueba arquitectura.
+
+Entry authority gate liga snapshot PREcorrección de una transición finita. Tras su satisfacción,
+las DOS mutaciones técnicas autorizadas se miden con snapshots propios corrector before/after;
+no se exige comparar un candidato corregido con el fullmap PREcorrección como si no hubiera
+permiso de delta. Otros506 siguen intactos; nueva aprobación técnica requiere su propio fullmap,
+validación/audit/gate. No modificar docs después authoritygate para insertar PASS/ID/selfSHA;
+checkpoint STATE posterior sólo por rol autorizado, actualización completa válida/versionada,
+historia retenida y controles/snapshots/certificación aplicables nuevos. Nunca Gitcheckpoint.
+
+Snapshot propio BEFORE externo:508 raw
+`53c301210279d66c8fe7e047e0003ba790e38fa9a236690cc78c55512d6d07d4`, igual completo a
+Task `task_90e5821e06a0` y bootstrap root. HEAD/configured upstream/liveorigin
+`1564fb5b2e6f9465b83adce8d6c53a418c99330b`, branch `pagos/pagos-notificaciones-r1`,0/0,
+stagingEMPTY/indexSHA `d19d3b5f32c37fa739275daeefa5426dc758dcc7f5a0e17696edb2b8e371809c`.
+Dirty45 preexistente (3trackedM/42untracked), no atribuible a este writer. Ownership EXACT2:
+completevalidJSON update STATE version2/schemaVersion1 y APPEND_ONLY_END ESTADO preservando
+completos90265bytes/SHA `99869f99acffdd1a9518f861f12d17d3a9454fe7ec3f2e9de994726c67603386`.
+RUNBOOK y otros506 byte-identical. apply_patch exclusivamente, draft/physical JSON validado,
+wholeafter508 count/raw/fullmap y exact2docSHA/ownSTATEsha EXTERNOS en STATUS BODY writer,
+freshauditor/rootgate, nunca selfhash/ciclo ni postgateedit. Snapshot mechanical no es auditPASS.
+
+Incidente anterior EXECUTOR_PREFLIGHT_PROHIBITED_GIT_WRITE_TREE se preserva íntegro,
+PRE_SEMANTIC/RECOVERED/NON_BLOCKING sin ciclo ni counters semánticos inventados. No nueva
+invocación write-tree, stage/commit/push/fetch/pull/checkpointGit. Sin publicación remota/cierre,
+cutover/activación productiva ni Slice3–12. PN13/Slice1 terminales y NEW-PN13-017 OPEN/P2/
+EDITORIAL/NON_BLOCKING/IMPLEMENTATION_INDEPENDENT intactos; no F2E unpublishedinspection,
+producto/API/financial/refund/dependency/migration/otros technicalpaths/livebackfill/readwriter
+switch/ledger/settlement/StripeInbox/Outbox/emailpush/config/helpers. STOP preserva candidato,
+oldwriter, incidentes e historia; sin reset/clean/stash/delete ni rollback destructivo.
+
+
+## Payments & Notifications — PN14 Slice2 implementación aceptada técnicamente / documentación y publicación condicionales
+
+Run `run_6859a7f36296`, writer `task_bebb3d8cc9be / ctx_c31a508a6092`, DOCUMENTATION_ONLY /
+SINGLE_WRITER / NOT_AUDITOR / NOT_PUBLISHER. Autorización humana actual acotada a documentación,
+publicación y cierre Slice2 en este Run, materializada por EntryTask `task_8020d35c11af`;
+sin permiso Git para el writer ni autorización de código/optimización.
+
+```text
+SLICE2: IMPLEMENTED / VALIDATED / AUDITED / TECHNICALLY_ACCEPTED
+TECHNICAL_GATE: PASS — task_fe0ff2ab6f3b / gate_180145ac5766 (AJENO real)
+PN14-S2-FRESH-TA-001: CLOSED — T12 / technical audit AJENO
+DOCUMENTARY_ACCEPTANCE / DOCUMENTATION_GATE: PENDING
+READY_FOR_PUBLICATION: CONDITIONAL / NOT_EFFECTIVE_AT_WRITE
+PUBLICATION / PUBLICATION_GATE: NOT_PERFORMED / PENDING
+PUBLICATION_CLOSURE / CLOSURE_GATE: NOT_CLOSED / PENDING
+RUNTIME FOUNDATION: IMPLEMENTADO_NO_PRODUCTIVO / INTERNAL / INACTIVE
+PRODUCTIVE_AUTHORITY / LEGACY / API / CUTOVER: UNCHANGED / cutover=false
+SLICES3–12: NOT_AUTHORIZED; NO_AUTOMATIC_NEXT_SLICE
+FINAL STOP: HUMAN_GATE_MILESTONE_COMPLETE
+```
+
+Este apéndice supersede sólo el estado operativo Slice2 stale de las entradas anteriores.
+Las referencias V1/V2, bootstrap, control STATE/RUNBOOK/policy y gates de optimización son
+HISTORICAL / PROVENANCE / LOCAL_UNPUBLISHED; no son requisitos ni autoridad operativa vigente.
+Los runs fallidos con sufijos AC/0f/01c permanecen HISTORICAL_EVIDENCE_ONLY /
+NON_AUTHORITATIVE_FOR_MVP_CONTINUATION / DEFERRED_UNTIL_POST_MVP. No se reparan ni se copian
+sus políticas/controles; no se deriva de ellos permiso de publicación. La autoridad vigente
+es ESTADO, este checkpoint competente y ORQ-PROTOCOL-V1, dentro de la autorización humana
+acotada de este Run. Si el mínimo canónico requiriera editar los tres excluidos: STOP /
+AMBIGUOUS_AUTHORITY. Las etiquetas originales32ABSENT/NO_UPDATE/versión47 describen entradas
+históricas de transiciones finitas ya ejecutadas con autoridad competente; no son condiciones
+perpetuas para negar las posteriores modificaciones técnicas aceptadas. Los documentos de
+entrada/autorización/reanudación quedan íntegros e inmutables.
+
+Checkpoint competente vigente:
+`auditoria/fase-pn14-slice2-orden-snapshot-inmutable.md`; review técnico AJENO:
+`auditoria/reviews/PN14-SLICE2-REVIEW-TECNICO-ORDEN-SNAPSHOT-INMUTABLE.md`.
+Auditor `task_31b5fa20fa0d/ctx_894271bb43cb`, BODY real `msg_8d2897a11fb2`, uniqueDone
+`msg_1992ac1809e6` completed/succeeded/accepted/settled/released, READ_ONLY, filesModified=[],
+T01–T18 PASS; nueva validación15/48/67/686,0failures/errors/skips/requiredSkips,exit0,
+PG16/Testcontainers/Ryuk fresh52V49 upgrade50V47→52V49/all50checksums/concurrencyPASS.
+No Maven/build/rerun por este documenter. foundation32+Programacion f6 permanecen idénticos;
+legacy Compra único mappingJPA, snapshot JDBC interno sin wiring/API/backfill productivos.
+Nueva arquitectura§17.3 distingue existencia interna de autoridad productiva.
+
+Publication exact46 en checkpoint§5 (33técnico+10autoridaddocs+ARQ/new2), EXCLUDED3 exactos
+runbook/state/policy allí listados y pinneados: intactos/localunpublished, nunca publicados ni
+usados como reglas actuales. Own5: appendESTADO/MAPA, mínimoARQ17.2/17.3, CREATEcheckpoint/review;
+entry509→final511, prefixes completos101088/54543bytes preservados; SHA/map finales externos.
+
+La aceptación documental **ACCEPTED / READY_FOR_PUBLICATION** se vuelve eficaz SI Y SÓLO SI:
+
+1. El nuevo auditor `task_3a8018ef45ec`, fresh, READ_ONLY e independiente de este escritor,
+   completa succeeded, con Task/Dispatch reales completed, un único worker_done accepted,
+   settled/released, filesModified=[], P0=P1=0 y veredicto literal
+   `PUBLICATION_DOCUMENTATION_AUDIT=PASS`. Debe verificar evidencia AJENA, scope, canónicos,
+   prefixes completos, protecciones y ausencia de autoridad de los tres artefactos excluidos.
+2. Después el Task root actual `task_099742bc80da` completa con provenance
+   `coordinator_gate_resolution`; su gate NUEVO real, único y RESOLVED/PASS responde exactamente:
+
+   > Is Payments Slice 2 documentary acceptance verified and ready for exact-path publication of the accepted snapshot foundation and required authority evidence, excluding all three failed optimization artifacts?
+
+   Su GateID y los nuevos Dispatch/BODY/done del auditor se descubren en Orca; son desconocidos
+   al escribir y no se inventan. `candidateFileSHA256` y `authorityFileSHA256` deben contener
+   EXACTAMENTE los 46 publication paths de §5 del checkpoint, con SHA raw finales idénticos
+   entre escritor, auditor fresh, root y comprobación física. El wholecurrent final es 511
+   (entrada seleccionada509 + dos nuevos), con count/raw/map completo igualmente concordante;
+   ningún extra, omisión, mutación posterior, P0/P1, ambigüedad, decisión humana o SECURITY_STOP.
+3. La aceptación se evalúa una sola vez sobre la base `1564fb5b2e6f9465b83adce8d6c53a418c99330b`,
+   branch Payments exacta, upstream/live read-only iguales, 0/0, stagingEMPTY e índice preservado.
+   Antes de stage el PUBLISHER separado recupera los resultados reales y revalida los 46 SHA,
+   técnico33, RAW90, excluidos3 y baseline protegido. Este writer carece de permiso Git.
+
+La conjunción es PENDING / NOT_SATISFIED al materializar. No hay selfPASS ni edición postgate
+para insertar GateID, PASS o selfSHA. Ausente/stale/UNKNOWN/FAIL/SKIPPED/BLOCKED/mismatch falla
+cerrado: STOP / NO_PUBLICATION. Tras satisfacerla, el commit/push autorizado de esos mismos
+bytes aceptados no revoca la aceptación por avanzar HEAD; los pins/base previos pasan a ser
+provenance ancestral, sin autorizar delta técnico. Publicación y cierre conservan PENDING
+hasta sus verificaciones físicas y gates competentes propios.
+
+Cierre posterior mínimo EXACT5 en checkpoint§8: appendESTADO/MAPA/implementationcheckpoint,
+CREATE reviewPUBLICACION y CREATE reviewCIERRE. Sólo tras actualpublicationGatePASS; no se crean
+ahora. CLOSED condicionado a nuevo freshcierreAudit+actualRootGatePASS/exact5SHA antes closurecommit,
+sin futura evidencia fabricada ni selfhash; publisher/verificación de closurecommit separados.
+
+PN13 permanece MATERIALIZED / ACCEPTED / PUBLISHED / CLOSED / TERMINAL; PN14 contrato
+ACCEPTED, Slice1 ACCEPTED / PUBLISHED / CLOSED / TERMINAL. NEW-PN13-017 sigue OPEN / P2 /
+EDITORIAL / NON_BLOCKING / IMPLEMENTATION_INDEPENDENT; es el único residual combinado,
+sin fix ni reapertura. No nuevo producto, pago/acreditación/derechos/ledger/settlement,
+regla de estado/transferencia/refund, API, dependencia, reader/writer switch, live backfill,
+activación productiva, fence, cutover, integración/inspección de candidatos F2E o slices3–12.
+No handoff, task ni autorización Slice3. Final de este Run: STOP / HUMAN_GATE_MILESTONE_COMPLETE;
+ninguna continuación funcional automática.

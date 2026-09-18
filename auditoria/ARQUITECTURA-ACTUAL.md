@@ -490,11 +490,14 @@ como implementación PN.
 
 Estado:
 
-**DISEÑADO_NO_IMPLEMENTADO / NOT_PRODUCTIVE / IMPLEMENTATION_NOT_AUTHORIZED**
+**OBJETIVO RESTANTE: DISEÑADO_NO_IMPLEMENTADO / NOT_PRODUCTIVE / IMPLEMENTATION_NOT_AUTHORIZED**
 
-No existen todavía los límites físicos, tipos, tablas o servicios objetivo definidos por
-DA-014–DA-022 y el checkpoint PN-13: orden/compra/pago/acreditación separados, snapshot comercial,
-derechos y ledgers, compromisos, Inbox, reembolso, disputa, Outbox ni workers idempotentes.
+La ausencia física de orden/snapshot comercial indicada por el inventario legacy §17.1 se
+limita a su modelo productivo; la fundación interna existente se clasifica en §17.3.
+La ausencia de tests pagos de aquel inventario es histórica: existe safety net de caracterización.
+Fuera de esa fundación, siguen sin existir los límites, tipos, tablas o servicios objetivo de
+pago/acreditación separados, derechos y ledgers, compromisos, Inbox, reembolso, disputa,
+Outbox ni workers idempotentes definidos por DA-014–DA-022 y el checkpoint PN-13.
 
 La corrección residual de autoridad especifica además seis buckets separados de ledger,
 settlement pointer y FKs de cliente, FEFO serializado, vigencia con `fechaVencimiento` incluida y
@@ -504,6 +507,29 @@ payment-scoped, contención exacta refund/disputa por origen y precedencia termi
 Notificación. Todo ello permanece **DISEÑADO_NO_IMPLEMENTADO**: no existen sus tablas, columnas,
 constraints, índices, migraciones, jobs ni código runtime en este worktree. La mayor precisión
 documental no cambia autoridad productiva ni autoriza PN-14.
+
+## 17.3 Fundación interna Orden + snapshot comercial
+
+Estado: **IMPLEMENTADO_NO_PRODUCTIVO / INTERNAL_FOUNDATION / NOT_PRODUCTIVE**.
+
+`com.feelingpilates.pagos.ventas.dominio` contiene OrdenVenta, Compra,
+CompraComponenteSnapshot, ImporteMonetario, PoliticaComercialSnapshot, ProvenienciaSnapshot y
+ContenidoSnapshotCanonico: identidad comercial, importes checked, políticas/versiones,
+componentes defensivos inmutables y representación canónica/hash, sin Spring/JPA/Stripe.
+Aplicación contiene CongelarOrdenSnapshot, sus puertos, BackfillOrdenSnapshot e informe
+append-only, ConsultaHistoricaSnapshot y CompraHistoricaSnapshot. Infraestructura contiene
+cuatro adapters JDBC para freeze transaccional, fuente legacy raw, informe y consulta frozen.
+Las dependencias apuntan hacia dominio/puertos; no hay controller, scheduler, configuración,
+bean o wiring productivo que active esta fundación.
+
+V48 añade orden_venta, compra_componente_snapshot e informe_backfill_snapshot y columnas
+snapshot nullable aditivas en compra; V49 protege canon, ownership por FKs compuestas,
+inmutabilidad y sello atómico. La Compra legacy sigue siendo el único mapping JPA writable
+sobre compra. JDBC escribe exclusivamente columnas snapshot nuevas de compras existentes;
+los writers legacy mantienen sus campos financieros/estado/vigencia/motivo. La consulta
+histórica interna proyecta valores congelados sin catálogo ni fallback para bundle NULL.
+Los adapters se instancian explícitamente; persistencia existente no implica uso productivo,
+backfill live, cambio de readers/writers, activación de beneficios o cutover.
 
 # 18. Reservas y Notificaciones — verdad física PN-13
 

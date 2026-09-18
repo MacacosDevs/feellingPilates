@@ -44,8 +44,8 @@ class ProgramacionPersistenciaTest {
 
     @Test
     void flywayMigraDesdeV1HastaV47() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("47");
-        assertThat(flyway.info().applied()).hasSize(50);
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("49");
+        assertThat(flyway.info().applied()).hasSize(52);
     }
 
     @Test

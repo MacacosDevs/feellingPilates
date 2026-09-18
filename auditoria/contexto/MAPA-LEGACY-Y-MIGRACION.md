@@ -759,3 +759,231 @@ del recibo final=NO. Los SHA finales se entregan externamente, sin self-hash o c
 ```
 
 La matriz REUSE/REWORK/RETIRE, coexistencia y compatibilidad API anteriores permanecen íntegros.
+
+## PN14 Slice2 — fundación candidata Orden + contrato histórico inmutable
+
+Date2026-09-16; Run/task/dispatch run_ee58d2f04418/task_19170b463870/ctx_ab71f1dc4817.
+DOCUMENTER DOCUMENTATION_ONLY/SINGLE_WRITER, no selfaudit. Completo40907bytes prefix conservado.
+Slice1 finalreceipt fue verificado/publicado/cerrado: integridad AJENA task_dc94763289fe y fresh
+verifier task_08274ee203b6/ctx_851b989d4a25/msg_f8a7ba22808d/statusmsg_4c416c4dcd57 PASS sobre
+local/upstream/live1564 clean466/raw83cb…/indexd19d…, filesModified=[]; cuatro gates reales del
+run190c06410cef gate_f163c0193bdb/gate_2ae21ec12eac/gate_d1154275fd3e/gate_3a084176596d PASS.
+Supersede sólo pendientes históricos del lifecycle finalreceipt, sin reescribir evidencia anterior.
+PN13 y Slice1 permanecen PUBLISHED/CLOSED terminal; técnico gate_bc4ce966cb51 y M01–M12 ajenos
+preservados, full638/focal67/requiredSkips0 realPG, no nueva ejecución técnica en este Run.
+
+```text
+ACTUAL PRODUCTIVE AUTHORITY: EXISTING LEGACY / UNCHANGED
+SLICE2 HANDOFF: auditoria/handoffs/HANDOFF-PN14-SLICE2-ORDEN-SNAPSHOT-INMUTABLE.md
+SLICE2 CHECKPOINT: auditoria/fase-pn14-slice2-autorizacion-orden-snapshot-inmutable.md
+SLICE2: CANDIDATE / PENDING_FRESH_DOCUMENT_AUDIT / NOT_APPROVED / NOT_ACTIVE
+INITIAL DOCUMENT AUDIT / FIRST COORDINATOR GATE: APPLICABLE/PENDING — task_8984e1bf2a90; task_42c555e7bf1d/gate_e031cf779ca1
+SEPARATE ACCEPTANCE DOCUMENTER REVIEW AJENO / MANIFEST / EXPLICIT LOCAL ACTIVATION: APPLICABLE/PENDING
+FINAL FRESH VERIFY / FINAL COORDINATOR GATE: APPLICABLE/PENDING — task_807e559a0955; task_fe41eb6e6c0d/gate_6f54babec421
+CURRENT IMPLEMENTATION/TESTS/HOST: NOT_APPLICABLE / NOT_EXECUTED, not PASS
+EXECUTION ENTRY / CODE: NOT_SATISFIED / NOT_AUTHORIZED
+AUTO_PUBLISH: false; PUBLICATION: NO_PERMISSION / NOT_PERFORMED
+NEW P0/P1/P2: NOT_ASSESSED; requires_human_decision=false at candidate snapshot, no independent verdict
+NEW-PN13-017: OPEN/P2/EDITORIAL/NON_BLOCKING/IMPLEMENTATION_INDEPENDENT; nofix/noreopen
+SLICES3–12 / FENCE / CUTOVER / PRODUCTIVE ACTIVATION / F2D / F2E: NOT_AUTHORIZED / UNCHANGED
+NEXT: FRESH INITIAL DOCUMENT AUDIT ONLY
+```
+
+La matriz legacy REUSE/REWORK/RETIRE se conserva. Slice2 no materializa aún esa transición:
+prepara exclusivamente PN13§13 fila2, posterior a safety net PASS y antes de derechos/ledger.
+Futuro boundedscope: OrdenVenta Java puro con cliente/importe/membership, Compra adquirida con
+policy/version/wholeproduct frozen y componentes actividad/cantidad. Puertos inward y adapters
+JDBC foundation nuevos, no JPA Compra competidora ni segunda autoridad comercial. Tabla compra
+actual expandida con campos NULL seguros, único mapping JPA legacy sin edición; financieros/
+estado/vigencia/motivo y oldwriters siguen iguales. Guards sólo protegen contrato snapshot
+sellado/identidad, no impiden updates financieros legacy. No Pago/Acreditacion/settlement impl.
+
+Contrato fullpolicy explícito incluye vigencia DIAS/MESES/zona, reserva/cutoff/cuota, recuperación,
+refund PRODUCTO_ENTERO sin ventana automática/versiones/provenance/hash; sólo storage sin aplicar
+crédito o devolver dinero. Importe mínimo ISO frozen desde compra paidamount, no precio catálogo.
+Paquete/PaqueteActividad actuales jamás prueban historia perdida: sólo sobre contemporáneo trusted
+por campo y groupmembership/total completo puede congelar. Missing/ambiguous/inconsistent data
+produce REQUIERE_REVISION con exactraw/sourcehash/faltantes/cause y cero snapshot guessed. Group
+cliente/currency/números/sumas validado wholetransaction bajo locks; repetición samekeys/hash replay,
+contradictorypayload failclosed stablewinner. Tests synthetic no claim de auditoría de datos live;
+sin scheduler/backfill startup/liveDB. Consulta histórica interna proyecta frozen sin catálogo,
+NULL no fallback, no cambios retroactivos HTTP JSON ni quirks públicos caracterizados M06/M08.
+
+Flyway50/maxV47 existente; nombres conditionalCREATE V48__pn14_slice2_orden_snapshot_expand.sql y
+V49__pn14_slice2_snapshot_inmutabilidad.sql sólo baseline unchanged. Revalidar entryfuture:
+50checksums/max47 y dosversions ABSENT; mismatch AUTHORIZATION_MISMATCH→STOP/NO_WRITES, no
+silentrelabel. Allowlist32exact CREATE handoff§7, tests T01–T18/11nuevasclases + M01–M12 íntegros,
+realPostgreSQL16fresh/upgradeV47 dummy/concurrency/rollback/immutability/provenance/historicalquery,
+fullbaseline BEFOREANYfuturewrite y focused/full comandos handoff§8. No source/pom/config edit aquí.
+
+Activación sólo futura condición checkpoint§6: initialfreshaudit/firstGatePASS→separate acceptance
+DOCUMENTER persiste review AJENO/manifest y append competente→freshfinalverify/finalGatePASS con
+exact6raw candidateFileSHA256/authorityFileSHA256/localEntryManifestSHA256 y explícito
+LOCAL_UNCOMMITTED_AUDITED_DOCUMENTATION_ENTRY baselineHEAD1564/stagingEMPTY. No condición cumplida
+ni append de activación existente aquí. Handoff acceptedhash inmutable, finalbindings externos sin
+selfhashcycles/noeditingafterfinalgate; sixdocdirty boundedmanifest y published466 protection,
+completeprefixes50823/40907 y32CREATEABSENT. HEADchange/unknownhash/extra dirty/candidateexists STOP.
+No selfaudit, publicación previa inferida o permiso commit/push. Futuretechnicalexecution/audit/gate
+y separateddocs/freshaudit/gate; publicación/cierre sólo separadamente autorizados, no cutover.
+STOP conserva oldwriter/evidencia/dirty, sin reset/clean/deletion. Slice3 exige propio trust/dataaudit/
+handoff/gate; este contrato candidato no lo autoriza ni corrige NEW17.
+
+## PN14 Slice2 — contrato aceptado por SHA / ejecución condicionada a verificación final
+
+Date: 2026-09-16. Run/task/dispatch: run_ee58d2f04418 / task_26e0f2daa5b4 / ctx_91fb0e481208.
+Rol PAYMENTS_SLICE2_LIMITED_AUTHORIZATION_ACCEPTANCE_MATERIALIZER / DOCUMENTER,
+DOCUMENTATION_ONLY / SINGLE_WRITER / EVIDENCE_BOUND; no auditor ni executor.
+Derivación: checkpoint Slice2 §§5–6 y PN14 original §6; no regla de producto nueva.
+
+La aceptación documental competente ocurrió por audit AJENO fresh y primer gate real.
+Supersede sólo pendientes iniciales y estado candidato del lifecycle; los snapshots históricos
+y el handoff congelado conservan íntegros sus bytes y etiquetas del corte original.
+
+```text
+PN13: MATERIALIZED / ACCEPTED / PUBLISHED / CLOSED; PUBLISHED / TERMINAL
+PN14 CONTRACT: ACCEPTED / ACTIVE; SLICE1: ACCEPTED / PUBLISHED / CLOSED / TERMINAL / NO_FURTHER_WRITES
+SLICE2 CONTRACT: ACCEPTED / ACTIVE_BY_EXACT_HANDOFF_SHA
+ACCEPTED IMMUTABLE HANDOFF SHA256: 4d7e7803557f75a3d62afe67a757687a63b9c627b0fdbf2580d89feab36fdd7d
+INITIAL FRESH AUDIT: task_8984e1bf2a90 / ctx_86c046d108aa / done msg_0791ed29c509 / status msg_2a701d7800e5
+INITIAL AUDIT VERDICTS: SLICE2_AUTHORIZATION_AUDIT=PASS / DOCUMENTATION_AUDIT=PASS; AJENO
+INITIAL GATE: task_42c555e7bf1d / gate_e031cf779ca1 — COMPLETED / RESOLVED / PASS
+INITIAL GATE PROVENANCE: coordinator_gate_resolution; DOCUMENTARY_CONTRACT_ACCEPTANCE_ONLY
+ACCEPTANCE / LOCAL ENTRY MATERIALIZATION: LOCAL_UNCOMMITTED_AUDITED_DOCUMENTATION_ENTRY / CONDITIONAL
+FUTURE EXECUTION: CONDITIONAL / PENDING_FINAL_VERIFY_AND_FINAL_GATE / NOT_AUTHORIZED_AT_THIS_CUT
+SLICE2 IMPLEMENTATION: NOT_STARTED; CURRENT EXECUTION ENTRY: NOT_SATISFIED
+FINAL VERIFIER: task_807e559a0955 — APPLICABLE / PENDING / no result
+FINAL GATE: task_fe41eb6e6c0d / gate_6f54babec421 — APPLICABLE / PENDING / no resolution
+SLICES3–12 / PRODUCTIVE ACTIVATION / FENCE / CUTOVER: NOT_AUTHORIZED
+LEGACY / F2D / F2E / RESERVAS / PROGRAMACION / RUNTIME: UNCHANGED
+PUBLICATION: NOT_PERFORMED; AUTO_PUBLISH=false; PUBLICATION_PERMISSION=NONE
+CURRENT TESTS / MAVEN / HOST: NOT_APPLICABLE / NOT_EXECUTED; no PASS
+WRITER NEW FINDINGS P0/P1/P2: NOT_ASSESSED
+AJENO INITIAL AUDIT NEW FINDINGS: 0/0/0; AJENO COMBINED OPEN: 0/0/1 solely NEW-PN13-017
+NEW-PN13-017: OPEN / P2 / EDITORIAL / NON_BLOCKING / IMPLEMENTATION_INDEPENDENT; no fix/reopen
+NEXT ALLOWED ACTION: FRESH_INDEPENDENT_FINAL_AUTHORIZATION_VERIFICATION, then final coordinator gate
+```
+
+Initialwriter task_19170b463870/ctx_ab71f1dc4817/done msg_a7a69c2da884/status msg_16f0fdb0a766
+y auditor arriba: cada uno COMPLETED/succeeded/settled/accepted/released, un único worker_done
+en inbox real por Task/Dispatch. FirstGate resuelto 2026-09-16 19:24:17 acepta exact4 rawpins;
+no permiso actual de implementación. Review AJENO literal y resultado JSON completo del gate:
+`auditoria/reviews/PN14-SLICE2-REVIEW-AUTORIZACION-ORDEN-SNAPSHOT-INMUTABLE.md`.
+No selfaudit: la evidencia del review es AJENO_EVIDENCE_ONLY / NOT_NORMATIVE / NOT_SELF_AUTHORIZING.
+
+Entrada local expresa, efectiva **si y sólo si** concurren las condiciones reales siguientes:
+
+1. task_807e559a0955 fresh e independiente completa succeeded, un único worker_done competente
+   accepted del Dispatch real, SLICE2_FINAL_AUTHORIZATION_VERIFICATION=PASS, P0=P1=0 y
+   filesModified=[]; comprueba los seis docs, protected baseline y ausencia de future32.
+2. task_fe41eb6e6c0d completa y gate_6f54babec421 está realmente RESOLVED/PASS, provenance
+   coordinator_gate_resolution. candidateFileSHA256 **y** authorityFileSHA256 son el mapa exacto
+   de SEIS paths de checkpoint§5, sin extras/omisiones, incluyendo SHA del propio manifest
+   recibido externamente; localEntryManifestSHA256 coincide. Todos iguales a los bytes físicos
+   finales del materializador, verificador y comprobación independiente del coordinador;
+   count470/raw entry digest también concuerda entre ellos. Ninguna mutación posterior,
+   decisión humana, SECURITY_STOP o control exigible pendiente.
+3. Se mantienen worktree/branch exactos, localHEAD=upstream=liveorigin
+   1564fb5b2e6f9465b83adce8d6c53a418c99330b, ahead/behind0/0, stagingEMPTY e índice original.
+   El manifest local exacto es
+   `auditoria/reviews/PN14-SLICE2-MANIFEST-ENTRADA-LOCAL-ORDEN-SNAPSHOT-INMUTABLE.md`.
+   Esta declaración autoriza esa entrada local sin publicación documental previa requerida,
+   exclusivamente después del resultado final real; no stage/commit/push en este Run ni
+   en la primera ejecución futura.
+4. Antes de **cualquier write futuro**, EXECUTOR recupera Task/Dispatch/messages/gates reales
+   y revalida seisrawpins/manifest/protected466/prefixes/index y todos32 CREATE ABSENT.
+   Revalida las 50 migraciones, checksums y máximo47 idénticos, versiones V48/V49 ABSENT,
+   nombres condicionales exactos de handoff§§5,7; ninguna producción/test/SQL/config existente
+   dirty desconocida. Ejecuta fullbaseline competente BEFORE ANY WRITE con los comandos
+   completos del handoff§8; sólo baseline válido permite iniciar el exact32.
+
+Sólo cuando la condición final sea real el lifecycle vivo se interpreta:
+SLICE2_AUTHORIZED_TO_IMPLEMENT / IMPLEMENTATION_NOT_STARTED /
+IMPLEMENTATION_AUTHORITY_SLICE2_ONLY / LOCAL_UNCOMMITTED_AUDITED_DOCUMENTATION_ENTRY.
+No se fabrica aquí un PASS futuro: condición NOT_SATISFIED al materializar.
+No se requiere ninguna edición documental después del finalgate; esta regla condicional
+protege todos los bytes. Candidato CREATE existente, HEAD distinto, mismatch documental/
+manifest/prefix/rawbaseline, evidencia absent/stale/UNKNOWN/FAIL/SKIPPED/BLOCKED:
+STOP / AUTHORIZATION_MISMATCH / NO_WRITES; pedir reconciliación competente, nunca silentrenumber,
+silentrebinding, otro HEAD inferido o waiver genérico de dirty.
+
+Scope futuro permanece el contrato **completo** inmutable, handoff§§1–9: sólo fundación interna
+Orden + snapshot, 32 CREATE finitos, SQL aditivo NULL/guards bounded, dominio puro/puertos/JDBC;
+único mapping JPA legacy Compra sin edición. Sin cambio de API, reader/writer, payments/credits,
+settlement/ledger, catálogo como fuente histórica o cutover. Backfill sólo sobres trusted por
+campo y membership/total íntegros; REQUIERE_REVISION conserva raw/hash/faltantes, cero guessing;
+fixture synthetic no data audit live. T01–T18/once nuevas clases, PostgreSQL16 dummy fresh/
+upgradeV47, locks/concurrency/rollback/replay/conflict/immutability, frozen query y M01–M12
+Slice1 íntegros; comandos exactos originales siguen obligatorios. No simplificación de contrato.
+
+Después de ejecución: auditor técnico fresh/gates → documentación autorizada separada →
+document auditor fresh/gate; publicación/cierre sólo autorización separada. Slice3 exige
+handoff/trust/data audit/gate propios; later3–12 no autorizados, Slice1 terminal sin furtherwrites.
+Rollback STOP conserva oldwriter, historia/evidencia/dirty; sin reset/clean/stash/delete.
+
+Preflight propio: before468raw ac186d04179d105bfa9b5e2110462007e61ec06a52b88ec08db7e05458d498cf,
+exact4 dirty/indexd19d3b5f32c37fa739275daeefa5426dc758dcc7f5a0e17696edb2b8e371809c/stagingEMPTY
+y local/upstream/live1564 verificados. Prefixes publicados ESTADO50823/mapa40907 y candidatos
+ESTADO56562/mapa46456/checkpoint15452 íntegros. Otros464 originales publicados y handoff íntegros.
+Own delta exact5: append-only END ESTADO/mapa/checkpoint; crear sólo reviewAJENO y manifest,
+review/manifest ABSENT en entry; total finaldirty6 incluyendo handoff ajeno inmutable.
+Manifest se construye último con cinco corephysicalSHA y tabla completa466; su propioSHA y
+rawafter470 se reportan externamente sin selfhash/ciclos. Snapshots completos retenidos en sesión.
+Launch requested/effective model+effort null/null; effort UNREPORTED. Provider propio recuperado
+por worker-show: codex / gpt-5.6-sol (observación operacional, no elección de modelo).
+Auditor literal modelObserved=UNREPORTED/effortObserved=UNREPORTED; coordinador observó
+codex/gpt-5.6-sol antes de release: fuentes distintas, no se reescribe el claim del auditor.
+
+
+## PN14 Slice2 — fundación interna implementada / coexistencia legacy preservada
+
+Estado actual de transición: fundación Orden + contrato histórico inmutable
+IMPLEMENTADO_NO_PRODUCTIVO / IMPLEMENTED / VALIDATED / AUDITED / TECHNICALLY_ACCEPTED;
+legacy sigue PRODUCTIVO_PARCIAL / LEGACY_EVOLUTION_SOURCE. No doble autoridad productiva.
+Paquete/PaqueteActividad siguen catálogo mutable y consumers públicos actuales; Compra legacy
+sigue único mapping JPA writable. JDBC foundation adjunta sólo bundle snapshot aditivo sobre
+IDs existentes, conserva CRUD/estado/monto/vigencia/motivo legacy y añade orden_venta,
+compra_componente_snapshot/informe_backfill_snapshot (V48/V49). Consulta histórica interna usa
+sólo valores congelados/ownershipcliente, sin catálogo ni fallback NULL; ningún reader/writer
+público cambia, ningún consumidor productivo se conecta, no backfill/live data audit ni cutover.
+
+Backfill explícito synthetic/trusted, provenance de cada sobre completa, membership/importe/
+moneda, determinismo y reportes append-only; contradicción conserva raw y REQUIERE_REVISION,
+cero freeze. PG16 dummy valida fresh52V49/upgrade50V47→52V49/all50checksums/legacycompatibility,
+concurrencia/replay/conflict/rollback/canon/inmutabilidad; no se infiere migración live completa.
+
+Gate técnico AJENO actual `task_fe0ff2ab6f3b / gate_180145ac5766` PASS, freshaudit18criterios
+PASS y PN14-S2-FRESH-TA-001 CLOSED; evidencia15/48/67/686PASS0f/e/s persistida en
+`auditoria/reviews/PN14-SLICE2-REVIEW-TECNICO-ORDEN-SNAPSHOT-INMUTABLE.md`.
+Checkpoint competente `auditoria/fase-pn14-slice2-orden-snapshot-inmutable.md` §§5–8:
+publicationEXACT46 yEXCLUDED3, nuevo documentaryaudit/rootgate pendientes, aceptación y
+READY_FOR_PUBLICATION condicionales; publicationGate/closureGate PENDING, no PUBLISHED/CLOSED
+anticipados. Condición vigente de ESTADO/checkpoint§6: nuevo task_3a8018ef45ec freshREADONLY
+completed/succeeded/uniqueDone accepted/settled/released/P0=P1=0/
+PUBLICATION_DOCUMENTATION_AUDIT=PASS, luego task_099742bc80da actualrootGateRESOLVED/PASS,
+provenancecoordinator_gate_resolution/pregunta literal checkpoint§6, exact46SHA idénticos
+writer/auditor/root/físico ywhole511 concordante. GateID no conocido al escribir.
+Aceptación one-shot base1564; commit/push autorizado de mismo snapshot no la revoca por HEAD
+ancestral. Cierre exact5 posterior sólo tras publicación física ygatePASS real, con freshaudit/
+rootgate/exact5SHA antesclosurecommit; scope checkpoint§8, sus dos reviews NO escritos ahora.
+
+Este apéndice supersede sólo el estado operativo Slice2 stale de las entradas anteriores.
+Las referencias V1/V2, bootstrap, control STATE/RUNBOOK/policy y gates de optimización son
+HISTORICAL / PROVENANCE / LOCAL_UNPUBLISHED; no son requisitos ni autoridad operativa vigente.
+Los runs fallidos con sufijos AC/0f/01c permanecen HISTORICAL_EVIDENCE_ONLY /
+NON_AUTHORITATIVE_FOR_MVP_CONTINUATION / DEFERRED_UNTIL_POST_MVP. No se reparan ni se copian
+sus políticas/controles; no se deriva de ellos permiso de publicación. La autoridad vigente
+es ESTADO, este checkpoint competente y ORQ-PROTOCOL-V1, dentro de la autorización humana
+acotada de este Run. Si el mínimo canónico requiriera editar los tres excluidos: STOP /
+AMBIGUOUS_AUTHORITY. Las etiquetas originales32ABSENT/NO_UPDATE/versión47 describen entradas
+históricas de transiciones finitas ya ejecutadas con autoridad competente; no son condiciones
+perpetuas para negar las posteriores modificaciones técnicas aceptadas. Los documentos de
+entrada/autorización/reanudación quedan íntegros e inmutables.
+
+PN13 permanece MATERIALIZED / ACCEPTED / PUBLISHED / CLOSED / TERMINAL; PN14 contrato
+ACCEPTED, Slice1 ACCEPTED / PUBLISHED / CLOSED / TERMINAL. NEW-PN13-017 sigue OPEN / P2 /
+EDITORIAL / NON_BLOCKING / IMPLEMENTATION_INDEPENDENT; es el único residual combinado,
+sin fix ni reapertura. No nuevo producto, pago/acreditación/derechos/ledger/settlement,
+regla de estado/transferencia/refund, API, dependencia, reader/writer switch, live backfill,
+activación productiva, fence, cutover, integración/inspección de candidatos F2E o slices3–12.
+No handoff, task ni autorización Slice3. Final de este Run: STOP / HUMAN_GATE_MILESTONE_COMPLETE;
+ninguna continuación funcional automática.

@@ -1,34 +1,51 @@
 {
-  "schemaVersion": "F2E-STATE-V1",
+  "schemaVersion": "F2E-STATE-V2",
   "classification": "DERIVED / NON_PRODUCT_AUTHORITY / OPERATIONAL_CACHE",
   "lane": "F2E",
   "repository": "/Users/jesusaldaircruzortiz/Desktop/Feelingpilates/feelingpilates",
   "branch": "operacion/excepciones-horario-fecha",
-  "head": "ab9705db6463ebef4576aff4f6559808cc0fdb9f",
+  "head": {
+    "source": "GIT_HEAD",
+    "ref": "HEAD",
+    "anchorHead": "e5ba4c2b8b5885703cb18da5fbf0d7694d0b1646",
+    "resolvedValueType": "SHA40_LOWERCASE",
+    "binding": "EXACT_ACTIVATION_CANDIDATE_COMMIT_AND_REAL_GATES"
+  },
   "upstream": {
     "ref": "origin/operacion/excepciones-horario-fecha",
-    "head": "ab9705db6463ebef4576aff4f6559808cc0fdb9f",
+    "head": {
+      "source": "GIT_REV_PARSE_UPSTREAM",
+      "ref": "@{u}",
+      "anchorHead": "e5ba4c2b8b5885703cb18da5fbf0d7694d0b1646",
+      "resolvedValueType": "SHA40_LOWERCASE"
+    },
     "ahead": 0,
-    "behind": 0
+    "behind": 0,
+    "equalityRequired": "HEAD == UPSTREAM == LIVE_REMOTE"
   },
   "liveRemote": {
     "remote": "origin",
     "ref": "refs/heads/operacion/excepciones-horario-fecha",
-    "head": "ab9705db6463ebef4576aff4f6559808cc0fdb9f",
+    "head": {
+      "source": "GIT_LS_REMOTE_NON_MUTATING",
+      "anchorHead": "e5ba4c2b8b5885703cb18da5fbf0d7694d0b1646",
+      "resolvedValueType": "SHA40_LOWERCASE"
+    },
     "receipt": {
-      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_748f43974201/MATERIALIZER-LIVE-REMOTE.txt",
-      "sha256": "dcff197b4d5d086df76d6ff11ec828377a9af1250be8f59fe4951fe37027d10e",
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/LIVE-START.json",
+      "sha256": "763d92c848a1616acecec73e23f19d6f4d07f939fc62c9fa5cc6adb71dbaf5a8",
       "availability": "LOCAL_RETAINED",
       "retentionOwner": "RUN_COORDINATOR",
       "externalBackup": "NOT_GUARANTEED"
     },
+    "freshQueryRequiredBeforeDispatchAuditGate": true,
     "fetchExecuted": false
   },
   "lifecycle": {
-    "selected": "F2E_OPTIMIZED_EXECUTION_BOOTSTRAP_R1",
+    "selected": "F2E_OPTIMIZED_EXECUTION_PROCESS_ACTIVATION_PUBLICATION_CLOSURE_R1",
     "selection": "USER_SELECTED_PROCESS_ONLY",
     "profile": "PROCESS_ONLY / DOCUMENTATION_ONLY",
-    "candidateStage": "DOCUMENT_MATERIALIZED_PRE_AUDIT",
+    "candidateStage": "ACTIVATION_DOCUMENTED_PRE_AUDIT",
     "r1": [
       "CLOSED",
       "ACCEPTED",
@@ -52,10 +69,72 @@
     "darkLaunch": "PRESERVED",
     "cutover": "NOT_AUTHORIZED",
     "r3r6": "NOT_AUTHORIZED_IN_R2",
-    "processPublication": "NOT_AUTHORIZED",
-    "processActivation": "NOT_AUTHORIZED"
+    "processPublication": "PUBLISHED",
+    "processActivation": {
+      "declaredStatus": "ACTIVE",
+      "capturedEffectiveStatus": "NOT_ACTIVE",
+      "effectiveWhen": "AUDIT_PASS_PUBLICATION_GATE_PASS_EXACT_ACTIVATION_COMMIT_LIVE",
+      "futureUseWhen": "POST_ACTIVATION_AUDIT_PASS_FINAL_ACTIVATION_GATE_PASS",
+      "otherwise": "FAIL_CLOSED_NO_FUTURE_DISPATCH"
+    },
+    "processBootstrap": "ACCEPTED",
+    "processPublicationClosure": {
+      "capturedStatus": "PENDING",
+      "terminalStatus": "CLOSED",
+      "effectiveWhen": "NEW_POST_AUDIT_PASS_AND_FINAL_GATE_PASS"
+    },
+    "authorityPrecedence": [
+      "PUBLISHED_PRODUCT_DESIGN",
+      "ACTIVE_IMPLEMENTATION_HANDOFF",
+      "COMPETENT_AUDITS",
+      "RESOLVED_DECISION_GATES",
+      "ESTADO_ACTUAL",
+      "PHYSICAL_GIT_FACTS",
+      "DERIVED_F2E_STATE"
+    ],
+    "policyActivation": {
+      "ACTIVE_IMMEDIATELY": "ACTIVE_AFTER_VERIFIED_ACTIVATION",
+      "PILOT_FIRST": "ACTIVE_AS_AUTHORIZED_PILOTS_AFTER_FINAL_GATE",
+      "DEFER": "INACTIVE",
+      "silentFallback": "FORBIDDEN"
+    },
+    "metricsBaseline": {
+      "scope": "FUTURE_OPTIMIZED_EXECUTION_ONLY",
+      "startsAtSource": "FINAL_ACTIVATION_GATE_RESOLVED_AT",
+      "capturedStartsAt": null,
+      "counters": {
+        "wallClockMinutes": 0,
+        "workersLaunched": 0,
+        "lunaTasks": 0,
+        "terraTasks": 0,
+        "solTasks": 0,
+        "targetedValidations": 0,
+        "fullValidations": 0,
+        "postgresValidations": 0,
+        "testcontainersValidations": 0,
+        "realHostValidations": 0,
+        "correctionCycles": 0,
+        "freshAuditFindings": 0,
+        "humanGates": 0,
+        "summaryEvidenceBytes": 0,
+        "rawEvidenceBytes": 0,
+        "gateFailures": 0,
+        "auditReopens": 0,
+        "baselineDriftEvents": 0,
+        "crossLaneReviews": 0,
+        "validationReruns": 0,
+        "defectsFoundFAST": 0,
+        "defectsFoundGATE": 0
+      },
+      "lunaByEffort": {},
+      "terraByEffort": {},
+      "solByEffort": {},
+      "terraPilotMetrics": "NOT_COLLECTED",
+      "terraPilotRecords": [],
+      "historicalBootstrapAndPublicationExcludedFromFutureCounters": true
+    }
   },
-  "activeMilestone": "F2E_OPTIMIZED_EXECUTION_BOOTSTRAP_R1",
+  "activeMilestone": "F2E_OPTIMIZED_EXECUTION_PROCESS_ACTIVATION_PUBLICATION_CLOSURE_R1",
   "authorityRefs": {
     "agents": "AGENTS.md",
     "navigation": "auditoria/README-REESTRUCTURACION.md",
@@ -74,12 +153,14 @@
     "orqWorkflow": "auditoria/orquestacion/WORKFLOW.md",
     "orqStates": "auditoria/orquestacion/STATE-MACHINE.md",
     "orqGates": "auditoria/orquestacion/GATES.md",
-    "orqRoles": "auditoria/orquestacion/ROLES.md"
+    "orqRoles": "auditoria/orquestacion/ROLES.md",
+    "f2eRunbook": "auditoria/orquestacion/F2E-RUNBOOK.md",
+    "f2eExecutionPolicy": "auditoria/orquestacion/F2E-EXECUTION-POLICY.md"
   },
   "authorityHashes": {
     "agents": "1d70ebbc5bfef3c0004a7ca53ce8a91bf6a9660a4085e2c7ff2a44a5d58038c4",
     "navigation": "747227acc83ad7337d8a1214646ee089def5ed42ec6eee637d22ff96969ce2b2",
-    "lifecycle": "64af036ef6f4bd0249dcfb77712d2aa093a9e9aff3ef60561c857566d2b5f857",
+    "lifecycle": "dd6bf7a45a6b54335a5afd5500e5cc6357a8c9e026ed37937ef498a29a13ebaf",
     "workRules": "84799b8946e428e7e907bc20b96362e699347e7307d0ba886c4d85c06ffa55ea",
     "architecture": "63733821b86e89aacecbc1573c1e6d4d4b396fe6162f6871b7f810060bc81a7c",
     "decisions": "6dc6fb6230ce794449883cd858864eebab2bdfb6cd2bc5c7ac4fa4e023ce579b",
@@ -94,7 +175,9 @@
     "orqWorkflow": "107857275a38dfb23f094ec35054113b88de404e0ae7100c2bf527071de130d1",
     "orqStates": "0641e4725947d1fb2f16cf304255b0b30739090bb810488672503a206f6f13d8",
     "orqGates": "b3137de84aa171dd6f11bf439c79b937e44a52de54a5cb841fd57048678d490b",
-    "orqRoles": "8c19f5981cad4941a34356fecde833168b1754620e167fd323b36c35490dbb50"
+    "orqRoles": "8c19f5981cad4941a34356fecde833168b1754620e167fd323b36c35490dbb50",
+    "f2eRunbook": "f4915d09f524fc5b472dd1d15907256f853fd699e9339c2237ade584802edbb3",
+    "f2eExecutionPolicy": "84ec1c761d92e98cecd092eeb2aa368be28bd380b56b1c4b20a084254c86e44e"
   },
   "handoffRefs": {
     "activeImplementation": null,
@@ -107,64 +190,49 @@
     "r1Consumed": "3fd71faca4d4c049ad5cb37b52bc6fd512509cf5b696bdc5c28d28cb966af8ef"
   },
   "candidateIdentity": {
-    "stage": "PRE_AUDIT_SNAPSHOT",
-    "payloadManifestRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_748f43974201/CANDIDATE-PAYLOAD.tsv",
-    "payloadSHA256": "17203d1e0b2ef3e33d4133d2b4fcb0900fae03fcc0ec357bf8852985631683ed",
+    "stage": "PRE_AUDIT_ACTIVATION_CANDIDATE",
+    "payloadManifestRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/ACTIVATION-PAYLOAD.tsv",
+    "payloadSHA256": "c25e2e306c413b14b9d57314ee25f5766f4df24f32dbe43fbd778396263eb431",
     "payloadPaths": {
-      "auditoria/orquestacion/F2E-EXECUTION-POLICY.md": "84ec1c761d92e98cecd092eeb2aa368be28bd380b56b1c4b20a084254c86e44e",
-      "auditoria/orquestacion/F2E-RUNBOOK.md": "a7007c34ad999bdbe0e31f1d50cd04ec3b142ea5d6523a3debce310106d795b2"
+      "auditoria/ESTADO-ACTUAL.md": "dd6bf7a45a6b54335a5afd5500e5cc6357a8c9e026ed37937ef498a29a13ebaf",
+      "auditoria/orquestacion/F2E-RUNBOOK.md": "f4915d09f524fc5b472dd1d15907256f853fd699e9339c2237ade584802edbb3"
     },
     "payloadExcludedPaths": [
       "auditoria/orquestacion/F2E-STATE.json",
       "EXTERNAL_DERIVED_RECEIPTS"
     ],
-    "fullThreeFilesManifestRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_748f43974201/CANDIDATE-MANIFEST.tsv",
+    "fullFilesManifestRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/ACTIVATION-MANIFEST.tsv",
     "fullManifestDigestLocation": "EXTERNAL_RECEIPT_ONLY_NOT_EMBEDDED",
     "bindingRequiredBeforeDispatchAuditGate": true,
-    "selfHashingRuleRef": "auditoria/orquestacion/F2E-RUNBOOK.md#10-schema-state-identidad-y-reconstrucción",
-    "postAuditEditsRequireNewAudit": true
+    "postAuditEditsRequireNewAudit": true,
+    "anchorParent": "e5ba4c2b8b5885703cb18da5fbf0d7694d0b1646"
   },
   "allowlistIdentity": {
-    "frozenRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_748f43974201/ALLOWLIST.json",
-    "sha256": "132ddc5fd2d81c62b0ec9df8f530d49693685481176b972776ab880211f4aad5",
+    "frozenRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/ALLOWLIST.json",
+    "sha256": "948a45861121f06f8da90d361d6906284e6546e2bb069cd33b317c4c7a4b2210",
     "paths": [
+      "auditoria/ESTADO-ACTUAL.md",
       "auditoria/orquestacion/F2E-RUNBOOK.md",
-      "auditoria/orquestacion/F2E-STATE.json",
-      "auditoria/orquestacion/F2E-EXECUTION-POLICY.md"
+      "auditoria/orquestacion/F2E-STATE.json"
     ],
-    "mutationClass": "NEW_ONLY"
+    "mutationClass": "MODIFIED_ONLY_PROCESS_ACTIVATION_CLOSURE"
   },
   "repositoryShape": {
     "baseline": {
-      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_748f43974201/BASELINE.json",
-      "sha256": "049128ef66615785653afc565f1e596dd7ef245f8bbd6ebd642e413faf568ee3",
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/BASELINE.json",
+      "sha256": "76952efe28187495ce1c8d6ffe5335823c839fdd57efca0744d00de4e9a0c604",
       "availability": "LOCAL_RETAINED",
       "retentionOwner": "RUN_COORDINATOR",
       "externalBackup": "NOT_GUARANTEED"
     },
-    "before": {
-      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_748f43974201/MATERIALIZER-BEFORE.json",
-      "sha256": "049128ef66615785653afc565f1e596dd7ef245f8bbd6ebd642e413faf568ee3",
-      "availability": "LOCAL_RETAINED",
-      "retentionOwner": "RUN_COORDINATOR",
-      "externalBackup": "NOT_GUARANTEED"
-    },
-    "comparison": {
-      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_748f43974201/MATERIALIZER-BEFORE-COMPARISON.json",
-      "sha256": "6784b354552ba77fb512166e12131677787c030b27c8ee5c96976a1b3836a66c",
-      "availability": "LOCAL_RETAINED",
-      "retentionOwner": "RUN_COORDINATOR",
-      "externalBackup": "NOT_GUARANTEED"
-    },
-    "tracked": 463,
+    "tracked": 466,
     "ignored": 660,
     "initialTrackedDirty": 0,
     "initialIndexDelta": 0,
     "initialUntracked": 0,
     "authorizedDirtyBaseline": [],
-    "requiredAfterUntrackedPaths": 3,
-    "afterComparisonRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_748f43974201/MATERIALIZER-AFTER-COMPARISON.json",
-    "afterBinding": "EXTERNAL_RECEIPT_REQUIRED",
+    "requiredAfterUntrackedPaths": 0,
+    "terminalShape": "CLEAN_INDEX_EMPTY_UNTRACKED_0_AHEAD_BEHIND_0_0",
     "r1": {
       "main": 11,
       "test": 10,
@@ -182,18 +250,43 @@
   "validationState": {
     "scope": {
       "applicability": "APPLICABLE",
-      "status": "PENDING",
-      "requiredActor": "RUN_COORDINATOR"
+      "statusAtCapture": "PENDING",
+      "resolutionSource": "REAL_RECEIPTS_AND_ORCA_GATES_OF_run_4ba4573df505"
     },
-    "independentProcessAudit": {
+    "independentActivationAudit": {
       "applicability": "APPLICABLE",
-      "status": "PENDING",
-      "taskId": null
+      "statusAtCapture": "PENDING",
+      "resolutionSource": "REAL_RECEIPTS_AND_ORCA_GATES_OF_run_4ba4573df505"
     },
-    "bootstrapGate": {
+    "activationPublicationGate": {
       "applicability": "APPLICABLE",
-      "status": "PENDING",
-      "id": null
+      "statusAtCapture": "PENDING",
+      "resolutionSource": "REAL_RECEIPTS_AND_ORCA_GATES_OF_run_4ba4573df505"
+    },
+    "exactStaging": {
+      "applicability": "APPLICABLE",
+      "statusAtCapture": "PENDING",
+      "resolutionSource": "REAL_RECEIPTS_AND_ORCA_GATES_OF_run_4ba4573df505"
+    },
+    "cachedHygiene": {
+      "applicability": "APPLICABLE",
+      "statusAtCapture": "PENDING",
+      "resolutionSource": "REAL_RECEIPTS_AND_ORCA_GATES_OF_run_4ba4573df505"
+    },
+    "commitAndLivePublication": {
+      "applicability": "APPLICABLE",
+      "statusAtCapture": "PENDING",
+      "resolutionSource": "REAL_RECEIPTS_AND_ORCA_GATES_OF_run_4ba4573df505"
+    },
+    "independentPostActivationAudit": {
+      "applicability": "APPLICABLE",
+      "statusAtCapture": "PENDING",
+      "resolutionSource": "REAL_RECEIPTS_AND_ORCA_GATES_OF_run_4ba4573df505"
+    },
+    "finalActivationGate": {
+      "applicability": "APPLICABLE",
+      "statusAtCapture": "PENDING",
+      "resolutionSource": "REAL_RECEIPTS_AND_ORCA_GATES_OF_run_4ba4573df505"
     },
     "implementation": {
       "applicability": "NOT_APPLICABLE",
@@ -211,8 +304,7 @@
       "applicability": "NOT_APPLICABLE",
       "execution": "NOT_EXECUTED"
     },
-    "newAuditFindingState": "NOT_YET_EVALUATED",
-    "deterministicDocumentReceiptRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_748f43974201/MATERIALIZER-VALIDATION.json"
+    "newAuditFindingState": "NOT_YET_EVALUATED"
   },
   "databaseEvidenceRefs": [],
   "rawEvidenceRefs": [
@@ -292,13 +384,64 @@
       "availability": "LOCAL_RETAINED",
       "retentionOwner": "RUN_COORDINATOR",
       "externalBackup": "NOT_GUARANTEED"
+    },
+    {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/PUBLICATION-GATES.json",
+      "sha256": "8a144a712ae6efd7b5ef2371e174848a5fb8ee1f1f0038aefc0fb2613e1cceda",
+      "availability": "LOCAL_RETAINED",
+      "retentionOwner": "RUN_COORDINATOR",
+      "externalBackup": "NOT_GUARANTEED"
+    },
+    {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/BOOTSTRAP-GATES.json",
+      "sha256": "9f4daafdd276397389c41774c14533bbc46d9f47bdf06a72f8b30d160ba76be4",
+      "availability": "LOCAL_RETAINED",
+      "retentionOwner": "RUN_COORDINATOR",
+      "externalBackup": "NOT_GUARANTEED"
+    },
+    {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/R2-CLOSURE-GATES.json",
+      "sha256": "4d5bde4b810781ef530188625ee1f5ebc92f1fb9f3bb80888407bb662a4781cf",
+      "availability": "LOCAL_RETAINED",
+      "retentionOwner": "RUN_COORDINATOR",
+      "externalBackup": "NOT_GUARANTEED"
+    },
+    {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_ef219776d9be/OPERATIONAL-RECOVERY.json",
+      "sha256": "e3f32ce0369ee5646c81486b75a893018646d0348f393b180f66555f75d6d017",
+      "availability": "LOCAL_RETAINED",
+      "retentionOwner": "RUN_COORDINATOR",
+      "externalBackup": "NOT_GUARANTEED"
+    },
+    {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_ef219776d9be/AUDITOR-STARTUP-RECOVERY.json",
+      "sha256": "e6400aef995bc6fb3b7cec7242531762cc7d72b88bd99ca5fab0f1ea19031267",
+      "availability": "LOCAL_RETAINED",
+      "retentionOwner": "RUN_COORDINATOR",
+      "externalBackup": "NOT_GUARANTEED"
+    },
+    {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_ef219776d9be/STAGED-AUDIT.md",
+      "sha256": "02651151fc814f9b5c71f6dc3b597dd3834d695c572d4469c8b6dc1a3d2ba2b3",
+      "availability": "LOCAL_RETAINED",
+      "retentionOwner": "RUN_COORDINATOR",
+      "externalBackup": "NOT_GUARANTEED"
+    },
+    {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_ef219776d9be/POST-PUBLICATION-AUDIT.md",
+      "sha256": "df71ca3e10f4d93f6017dc376a239a499dcd1e1acbaab00a82290db90029cdd2",
+      "availability": "LOCAL_RETAINED",
+      "retentionOwner": "RUN_COORDINATOR",
+      "externalBackup": "NOT_GUARANTEED"
     }
   ],
   "summaryEvidence": {
-    "reportRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_748f43974201/MATERIALIZER-REPORT.md",
-    "digestLocation": "EXTERNAL_REPORT_RECEIPT",
-    "statusAtSnapshot": "PENDING_AUTHOR_REPORT",
-    "schemaRef": "auditoria/orquestacion/F2E-RUNBOOK.md#7-raw-summary-retención-y-contrato-worker"
+    "reportRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/FINAL-REPORT.md",
+    "resolvedStateRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/RESOLVED-STATE.json",
+    "terminalReceiptRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/FINAL-STATE-RECEIPT.json",
+    "digestLocation": "EXTERNAL_TERMINAL_RECEIPT_AFTER_REAL_AUDITS_GATES_PUBLICATION",
+    "availabilityAtCapture": "PENDING_NOT_AUTHORITY",
+    "mustReconstructAndVerifyHigherSourcesBeforeUse": true
   },
   "openFindings": [
     {
@@ -308,6 +451,21 @@
       "sourceKey": "r1Review",
       "sourceSection": "5",
       "newEvidenceRepairAuthorized": false
+    },
+    {
+      "id": "F2E-PROCESS-P2-01",
+      "severity": "P2",
+      "status": "NON_BLOCKING / PRESERVED",
+      "route": "cursor/claude-opus-4-8",
+      "eligibility": "INELIGIBLE_ALL_MATRIX_CELLS",
+      "source": {
+        "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_748f43974201/PROCESS-FINDINGS.json",
+        "sha256": "d58a46b88fcfeafc2aedc6eff8b677a9034ac5dc23fbb7672d81037448ed0863",
+        "availability": "LOCAL_RETAINED",
+        "retentionOwner": "RUN_COORDINATOR",
+        "externalBackup": "NOT_GUARANTEED"
+      },
+      "repairAuthorized": false
     }
   ],
   "crossLaneGuards": {
@@ -343,7 +501,7 @@
   "modelRoutingState": {
     "policyRef": "auditoria/orquestacion/F2E-EXECUTION-POLICY.md",
     "policySHA256": "84ec1c761d92e98cecd092eeb2aa368be28bd380b56b1c4b20a084254c86e44e",
-    "activation": "NOT_ACTIVE",
+    "activation": "RESOLVE_FROM_VERIFIED_PROCESS_ACTIVATION_GATES",
     "catalog": {
       "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_748f43974201/MATERIALIZER-FULL-LAUNCH-CATALOG.txt",
       "sha256": "8a99293ec5aa5d76cb0d60fafb935494f59460de778f0230541f282afa07a4c2",
@@ -393,47 +551,79 @@
     "provenDefaults": [],
     "actualTerraPilots": [],
     "actualLunaPilots": [],
-    "silentFallbackAllowed": false
+    "silentFallbackAllowed": false,
+    "classifications": {
+      "Luna": "PILOT_FIRST",
+      "Terra": "PILOT_FIRST",
+      "Sol": "ESCALATION_ONLY"
+    },
+    "pilotCounters": {
+      "lunaTasks": 0,
+      "terraTasks": 0
+    },
+    "terraPilotMetrics": "NOT_COLLECTED",
+    "currentRunWorkersArePreActivationProcessNotPilotEvidence": true
   },
   "currentGate": {
     "predecessor": {
-      "runId": "run_9e2fc3f4c74f",
-      "id": "gate_11bf6b2c5681",
+      "runId": "run_ef219776d9be",
+      "id": "gate_84206560034d",
       "status": "resolved",
       "resolution": "PASS",
       "receipt": {
-        "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_748f43974201/STARTING-GATES.json",
-        "sha256": "7b65647e8f7605bfb52e1288021d06a4d6d2dcf00a0ba5d49991a853bbec4345",
+        "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/PUBLICATION-GATES.json",
+        "sha256": "8a144a712ae6efd7b5ef2371e174848a5fb8ee1f1f0038aefc0fb2613e1cceda",
         "availability": "LOCAL_RETAINED",
         "retentionOwner": "RUN_COORDINATOR",
         "externalBackup": "NOT_GUARANTEED"
       }
     },
-    "bootstrap": {
-      "id": null,
-      "status": "PENDING",
-      "authorityToResolve": "AFTER_NEW_FRESH_INDEPENDENT_PROCESS_AUDIT"
+    "activationPublication": {
+      "source": "ORCA_GATE_LIST_BY_RUN_AND_EXACT_SEMANTIC",
+      "runId": "run_4ba4573df505",
+      "idAtCapture": null,
+      "statusAtCapture": "PENDING",
+      "semantic": "PASS — AUTHORIZED_TO_PUBLISH_F2E_OPTIMIZED_PROCESS_ACTIVATION_CLOSURE",
+      "requireExactCandidateBinding": true
+    },
+    "activationFinal": {
+      "source": "ORCA_GATE_LIST_BY_RUN_AND_EXACT_SEMANTIC",
+      "runId": "run_4ba4573df505",
+      "idAtCapture": null,
+      "statusAtCapture": "PENDING",
+      "semantic": "PASS — F2E OPTIMIZED EXECUTION PROCESS ACTIVE / READY_FOR_R2_IMPLEMENTATION_HANDOFF_MATERIALIZATION",
+      "requireUniqueResolvedPASSAndExactCommitManifestHashes": true
     }
   },
   "humanGate": {
     "pendingJudgmentForAuthorizedMaterialization": false,
-    "terminalDecision": "MILESTONE_COMPLETE",
-    "publicationDecision": "PUBLICATION_REQUIRED",
-    "activationDecision": "COMPETENT_PROCESS_ACTIVATION_AUTHORITY_REQUIRED",
-    "unilateralCoordinatorJudgmentAllowed": false
+    "unilateralCoordinatorJudgmentAllowed": false,
+    "currentLifecycleAuthority": "EXPLICIT_USER_PROCESS_ACTIVATION_CLOSURE_WITH_CONDITIONAL_CONTROLLED_PUBLICATION",
+    "futurePublication": "PUBLICATION_REQUIRED",
+    "productActivation": "PRODUCTIVE_ACTIVATION_REQUIRED",
+    "cutover": "CUTOVER_REQUIRED",
+    "failClosedOnStateDriftOrInsufficientBinding": true
   },
   "nextAuthorizedTransition": {
-    "action": "COORDINATOR_SCOPE_VERIFICATION_THEN_NEW_FRESH_INDEPENDENT_PROCESS_AUDIT",
+    "action": "R2_IMPLEMENTATION_HANDOFF_MATERIALIZATION",
+    "kind": "READINESS_FOR_SEPARATE_DOCUMENTATION_LIFECYCLE",
+    "enabledWhen": "NEW_POST_ACTIVATION_AUDIT_TERMINAL_PASS_AND_FINAL_ACTIVATION_GATE_RESOLVED_PASS",
+    "authorityRefs": [
+      "auditoria/fase-2e-r2-diseno-lector-turno-legacy-integracion.md#11-r2-profile--lifecycle-competente-seleccionado",
+      "auditoria/handoffs/HANDOFF-F2E-R2-DISENO-LECTOR-TURNO-LEGACY.md#4",
+      "auditoria/ESTADO-ACTUAL.md"
+    ],
     "implementationTransfer": false,
-    "publicationNow": false,
-    "activationNow": false
+    "materializeInThisRun": false,
+    "handoffApprovalPublicationActivationStillRequired": true
   },
   "lastRun": {
-    "runId": "run_748f43974201",
-    "taskId": "task_b9b61bc7bb77",
-    "dispatchId": "ctx_64051785e565",
-    "role": "PROCESS_MATERIALIZER / DOCUMENTER",
-    "capturedAt": "2026-09-18T05:09:38Z",
-    "cut": "PRE_AUDIT / NOT_ACCEPTANCE / NOT_TERMINAL_GATE_RECEIPT"
+    "runId": "run_4ba4573df505",
+    "taskId": null,
+    "dispatchId": null,
+    "role": "PROCESS_ACTIVATION_COORDINATOR / STATE_RECONCILIATION_COORDINATOR",
+    "capturedAt": "2026-09-18T23:31:50.410440+00:00",
+    "cut": "PRE_AUDIT_CAPTURE_WITH_FAIL_CLOSED_TERMINAL_SOURCE_SELECTORS",
+    "futureUseOfOptimizedPolicyRequiresTerminalGate": true
   }
 }

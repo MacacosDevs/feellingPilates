@@ -1101,3 +1101,137 @@ capacity/cupos requieren `CROSS_LANE_DEPENDENCY_REQUIRED` antes de escribir.
 No se transfiere ownership: F2E observa Reserva; Reservations posee write/state/
 capacity; Payments posee semántica financiera; Notifications delivery infrastructure.
 TurnoInstructor sigue productivo. Cero integración, cutover o activación.
+
+## F2E — activación del proceso optimizado y cierre de publicación R1
+
+Corte documental de activación: Run `run_4ba4573df505`, 2026-09-18 America/Mexico_City.
+Profile `F2E_OPTIMIZED_EXECUTION_PROCESS_ACTIVATION_PUBLICATION_CLOSURE_R1`:
+PROCESS_ONLY / DOCUMENTATION_ONLY / STRICT_MINIMUM_CLOSURE_SCOPE.
+Este bloque es autoridad de lifecycle **de proceso**, subordinada a diseño/producto;
+no altera producto, dominio, implementación, R1, diseño R2, APIs, DB, migraciones,
+configuración ni runtime. Los bloques anteriores y sus FAIL/PENDING son historia.
+
+### Publicación previa reconciliada y provenance
+
+Bootstrap `run_748f43974201 / gate_1f3b69eceac0`, resolved/PASS:
+`PASS — F2E OPTIMIZED EXECUTION BOOTSTRAP ACCEPTED / READY_FOR_CONTROLLED_PROCESS_PUBLICATION`.
+Publicación `run_ef219776d9be`, commit
+`e5ba4c2b8b5885703cb18da5fbf0d7694d0b1646`, único parent
+`ab9705db6463ebef4576aff4f6559808cc0fdb9f`.
+Exact3 NEW documentos RUNBOOK/STATE/EXECUTION POLICY; manifest UTF-8 TSV
+path/status/sha256/classification, sorted/LF/final LF SHA-256
+`094f6234f1e5f67884c19a2e7ca2276f440bfce0acd0ad1e402200c8d958a46c`.
+Identidades publicadas iniciales: RUNBOOK
+`a7007c34ad999bdbe0e31f1d50cd04ec3b142ea5d6523a3debce310106d795b2`;
+STATE `61e4fb6a966355b02bfa545ec8a784d3979c394325e9b5d9fee77377d3354f5d`;
+POLICY `84ec1c761d92e98cecd092eeb2aa368be28bd380b56b1c4b20a084254c86e44e`.
+Esos blobs se conservan como historia en el commit anterior; POLICY permanece
+byte-for-byte inmutable en este cierre. RUNBOOK cambia sólo extensión STATE V2 y
+navegación de corte; STATE se reconcilia bajo allowlist propio.
+
+Staged audit `task_aca9cdb17008 / ctx_8a0d0c5681c3`:
+`PASS — F2E OPTIMIZED PROCESS STAGED SNAPSHOT VERIFIED`, P0=0/P1=0/NEW P2=0.
+Gate `task_f67905604121 / gate_fe66af787469`, resolved/PASS:
+`PASS — AUTHORIZED_TO_COMMIT_AND_PUSH_EXACT_F2E_OPTIMIZED_PROCESS_SNAPSHOT`.
+Un commit y push normal non-force, sólo branch autorizada, cero tags/otros refs.
+Post-publication audit nuevo `task_7056d4705490 / ctx_0575c05bdd05`:
+`PASS — F2E OPTIMIZED EXECUTION PROCESS PUBLISHED EXACTLY`, P0=0/P1=0/NEW P2=0.
+Ambos settled/released, transcript captured y Done ACK después de release.
+Completion `task_4356c8476e8b / gate_84206560034d`, resolved/PASS:
+`PASS — F2E OPTIMIZED EXECUTION PROCESS PUBLISHED / READY_FOR_PROCESS_ACTIVATION_CLOSURE`.
+Fresh preflight de este cierre: HEAD/upstream/live iguales al commit publicado,
+0/0, CLEAN/index EMPTY/untracked0, parent/blobs/manifest/checks PASS y gates reales
+consultados no-mutante. Evidencia local durable:
+`/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/`.
+Historia original en directorios hermanos run_748f43974201 y run_ef219776d9be;
+retención local, sin promesa de backup externo. No /tmp como autoridad durable.
+
+### Activación operacional y límites de efecto
+
+Semántica autorizada únicamente:
+`F2E OPTIMIZED EXECUTION PROCESS ACTIVE FOR FUTURE AUTHORIZED F2E LIFECYCLES`.
+No reasigna tasks existentes ni crea autoridad de implementación/producto.
+Autoridad normativa de producto/diseño → implementation handoff activo → audits
+competentes → Decision Gates resueltos → ESTADO → hechos Git → STATE derivado.
+RUNBOOK/POLICY gobiernan HOW, nunca WHAT. Contradicción falla cerrado.
+
+En el corte de materialización: bootstrap ACCEPTED, proceso PUBLISHED, activación
+NOT_ACTIVE / ACTIVATION_DOCUMENTED_PENDING_AUDIT_PUBLICATION, cierre PENDING.
+Este texto es la declaración **condicionada** de activación. Efecto ACTIVE exige
+primer audit independiente terminal PASS, gate de autorización de publicación PASS
+y commit de cierre publicado exactamente con parent checkpoint anterior. Ninguna
+optimización se usa para dispensar el rigor del presente cierre.
+Uso futuro y cierre CLOSED requieren además auditor post-activación NUEVO terminal
+PASS y gate final resolved/PASS del Run run_4ba4573df505 con semantic exacto:
+`PASS — F2E OPTIMIZED EXECUTION PROCESS ACTIVE / READY_FOR_R2_IMPLEMENTATION_HANDOFF_MATERIALIZATION`.
+Manifest/hashes/commit/gates finales se bindan en receipts externos reales; IDs y
+SHA todavía no existentes no se inventan dentro de este commit. Antes de usarlos,
+reconstruir por RUNBOOK §10.1: Git/ls-remote + hashes + audits/gates reales. Si falta
+binding/evidencia o hay drift, stop. No modificar bytes después del audit/push.
+
+| Clase tras activación verificada | Prácticas / estado |
+| --- | --- |
+| ACTIVE_IMMEDIATELY → ACTIVE | Tool-first/delta-first; contrato compacto EXTENDS AgentResult; RAW/SUMMARY; debugging sistemático falsable; fan-out adaptativo; no silent fallback; precedencia; fail-closed Human Gates; métricas ligeras. |
+| PILOT_FIRST → ACTIVE_AS_PILOTS | Luna mechanical/deterministic validation; Terra bounded technical/documentation/provenance; L0–L4 sin ocultar autoridad; FAST/GATE; presupuestos correctivos; STATE packaging. Sólo tasks futuros autorizados y medición independiente; nunca calidad/defaults por nombre. |
+| DEFER → INACTIVE | Luna backend high-risk audit; Terra high-risk acceptance; automatic publication/productive activation/cutover; aggressive RAW deletion; automatic schema/migration reconciliation; unsupported tooling. Silent fallback sigue FORBIDDEN. |
+
+Routing intacto: Luna PILOT_FIRST, Terra PILOT_FIRST, Sol ESCALATION_ONLY;
+PROVEN_DEFAULT NONE. Capabilities/catalog/matriz originales no cambiados. Terra
+pilots0, métricas NOT_COLLECTED; Luna pilots0. Sol para riesgo/ambigüedad crítica,
+JPA/TX/snapshot/JDBC/concurrency/ownership y audit high-risk competente/fresh.
+FAST nunca acepta; GATE conserva pruebas competentes frescas PG/Testcontainers,
+Flyway actual compatible, JPA owner/isolation/readOnly/native physical JDBC,
+RR multi-statement snapshot, catálogo/capture/binds, SELECT-only/denied writes,
+checksum/no-write, concurrency/architecture/absence, host real cuando requerido,
+auditor NUEVO independiente y Decision Gate. No rebaja ninguna autoridad técnica.
+Corrección/fan-out/Human Gates permanecen policy §§5–7 exactos. Tests/backend/host
+execution de este cierre exclusivamente documental NOT_APPLICABLE/NOT_EXECUTED.
+
+### STATE, métricas e incidentes preservados
+
+STATE V2 continúa DERIVED / NON_PRODUCT_AUTHORITY / OPERATIONAL_CACHE. Selectores
+HEAD/upstream/live/gate se resuelven de herramientas y receipts con binding estricto;
+ningún SHA autorreferencial, gate futuro ficticio ni cache superior al producto.
+Actualizar versión de contrato operacional requiere esta autorización documental y
+fresh audits; no es un cambio de schema de base de datos. Snapshot V1 queda histórico.
+Métricas FUTURE_OPTIMIZED_EXECUTION_ONLY tienen frontera en gate final resolved_at:
+contadores0 y arrays de pilotos vacíos, sin importar los workers de bootstrap/cierre
+como pilotos. Wallclock0 inicia medición futura; RAW/SUMMARY bytes0 miden sólo evidencia
+futura. Historia previa se referencia aparte; no inventar tokens/costo/cuota/éxitos.
+
+Incidentes de publicación preservados: nueve archivos RAW/evidencia temporalmente
+en repo root, movidos fuera antes de staging, sin drift residual; dos starts
+bloqueados por update notice, released y same-task retry después de skip, sin package
+update. Receipts originales OPERATIONAL-RECOVERY y AUDITOR-STARTUP-RECOVERY e informes
+independientes permanecen en run_ef219776d9be. RUNBOOK §§1/7 ya exige snapshots/reportes
+externos bajo evidencia designada; no se añade cleanup ni cambio de policy. La raíz
+externa absoluta se valida antes de escribir RAW. Errores operacionales recuperables
+se registran conforme ORQ, no se ocultan ni se convierten en ciclos técnicos.
+Known process P2 F2E-PROCESS-P2-01 NON_BLOCKING/PRESERVED: Cursor table/routing clarity;
+route cursor/claude-opus-4-8 INELIGIBLE en todas las celdas de matriz restrictiva.
+No reparación ni promoción silenciosa. Historical P2-EVIDENCE-01 preservado.
+
+### Producto/cross-lane y siguiente lifecycle exacto
+
+R1 CLOSED/ACCEPTED/PUBLISHED; R2 design COMPLETE/AUDITED/PUBLISHED/CLOSED;
+R2 implementation handoff NOT_MATERIALIZED/NOT_ACTIVE; ACTIVE IMPLEMENTATION HANDOFF
+NINGUNO; R2 implementation NOT_AUTHORIZED/NOT_STARTED. TurnoInstructor
+LEGACY_VIVO/PRODUCTIVO; dark launch PRESERVED; cutover NOT_AUTHORIZED;
+R3–R6 NOT_AUTHORIZED_IN_R2. Ninguna activación de runtime/producto aquí.
+Payments/Notifications separado; coordinación SHARED_BUT_COMPATIBLE +
+INTEGRATION_POINTS_IDENTIFIED, Payments Slice2 CLOSED/PUBLISHED V49/52 conocido por
+coordinación. Ownership F2E observa Reserva/snapshot y Programación/Turno autorizado;
+Reservations write/state/capacity, Payments financial rights, Notifications delivery.
+CROSS_LANE_DEPENDENCY_REQUIRED antes de escribir superficies compartidas Reserva/
+Programación/Turno/capacity/cupos. Validación integrada futura determina Flyway actual
+compatible con migraciones F2E; V47/50 histórico nunca globalmente terminal. Cero
+integración Payments, SQL, migración o reconciliación automática aquí.
+
+Diseño R2 §11, research handoff §4 y el cierre R2 anterior sustentan el único siguiente
+lifecycle, condicionado al gate final de activación:
+`R2_IMPLEMENTATION_HANDOFF_MATERIALIZATION`.
+Es readiness de materialización **documental** bajo su propio scope/preflight; NO
+handoff creado/activo aquí y NO implementación. Secuencia: cierre de activación de
+proceso → materialización de implementation handoff R2 → audit/gate/publicación/
+activación competente del handoff → implementación sólo después de autoridad propia.
+No abrir workers de ese siguiente lifecycle en este Run, ni inferir R3–R6/cutover.

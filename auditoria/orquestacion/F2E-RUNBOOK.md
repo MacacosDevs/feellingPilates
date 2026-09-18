@@ -9,6 +9,14 @@ allowlist de implementación ni siguiente fase funcional. Reutiliza por referenc
 en este bootstrap. Rige el rigor Product Delivery actual. Routing y propuestas
 versionadas se encuentran en [F2E-EXECUTION-POLICY](F2E-EXECUTION-POLICY.md).
 
+
+Vista operacional de activación R1: contrato `F2E-STATE-V2`, autorizado por el cierre
+process-only en [ESTADO-ACTUAL](../ESTADO-ACTUAL.md#f2e--activación-del-proceso-optimizado-y-cierre-de-publicación-r1).
+Los headers y §§1–11 del bootstrap conservan su corte histórico V1; la extensión
+§10.1 gobierna sólo la reconstrucción del STATE nuevo. La política sigue subordinada
+al producto. Este candidato no se autoactiva: publicación exacta auditada y gates
+competentes condicionan su efecto; uso futuro sólo tras el gate terminal de activación.
+
 ## 1. Entrada física, selección y límites
 
 Evidencia local durable `E`:
@@ -366,6 +374,57 @@ con igual framing y hash externo, sin incrustar éste en STATE. El report/dispat
 transporta ese full3 hash y hashes por archivo. El coordinador/gate externo bindará
 exactamente bytes auditados; no editar STATE post-audit para insertar veredictos.
 Todo cambio posterior crea candidato nuevo y exige nuevo audit competente.
+
+## 10.1. STATE V2 — checkpoint operacional derivado sin autorreferencia
+
+Scope de esta extensión: activación/cierre de proceso R1, no nuevo producto ni
+reducción de freshness. V1 se preserva en el commit publicado de bootstrap y la tabla
+anterior describe ese snapshot histórico. El STATE actual usa `F2E-STATE-V2` y conserva
+exactamente los campos required de §10, con las diferencias de tipos siguientes:
+
+- `head`, `upstream.head` y `liveRemote.head` son objetos selectores de fuente física;
+  cada valor **resuelto** debe ser SHA40 lowercase. `anchorHead` conserva el checkpoint
+  observado, nunca se presenta como HEAD terminal. El resolved STATE externo contiene
+  los valores concretos de HEAD/upstream/live medidos, timestamp y receipts.
+- `currentGate` y las fases de `validationState` conservan precedentes reales y
+  selectores de gates nuevos por Run + semantic exacto + candidate binding; IDs no
+  creados son null/PENDING. Nunca poner PASS por intención ni inventar un ID futuro.
+- `lifecycle` contiene ejes bootstrap/publicación/activación/cierre y métricas futuras
+  con frontera temporal. No contar bootstrap/cierre como pilotos Luna/Terra ni
+  fabricar calidad, costo, tokens o quota. Los otros objetos mantienen tipos de §10.
+
+Resolución obligatoria antes de cada task/audit/gate, bajo autoridad competente:
+1. Abrir fuentes superiores en orden §2 y rehash authority/handoff/payload/allowlist;
+   verificar clasificación DERIVED, versión conocida, keysets/tipos y RAW disponible.
+2. Ejecutar Git status/refs/index/HEAD y ls-remote no-mutante. Resolver HEAD, upstream
+   y live desde herramientas; comparar sus SHA40, branch y snapshot autorizado.
+3. Antes de publicar este cierre, HEAD debe ser su anchor y sólo puede existir el
+   delta documental exacto autorizado. Activación efectiva sigue NOT_ACTIVE; gates
+   futuros aplicables son PENDING. Esta fase no habilita uso de política optimizada.
+4. Después de publicar, probar commit con parent exacto anchor, diff exacto allowlist,
+   blobs iguales a candidate auditado/gate de publicación, repo CLEAN/index EMPTY y
+   HEAD=upstream=live,0/0. Sólo esa prueba hace la activación declarada operacional
+   ACTIVE; uso en nuevos lifecycles permanece bloqueado mientras falta cierre final.
+5. Abrir Orca/receipts reales del Run de activación: gate de autorización posterior a
+   audit fresh PASS, publicación controlada y auditor post-publicación NUEVO PASS.
+   Gate terminal debe ser único, resolved/PASS, semantic exacto, binding del commit,
+   manifest y hashes actuales; nunca resolver por un título o un cache. Sólo entonces
+   cierre CLOSED y nextAuthorizedTransition habilitado como readiness documental.
+6. Materializar fuera del repo el resolved STATE concreto con HEAD/upstream/live,
+   hashes vigentes, gate ID/resolution/timestamp, estado efectivo, métricas y next
+   lifecycle. Registrar hash en receipt externo y snapshots. Ningún selector es
+   permiso para omitir una medición, audit, gate ni para seguir una ref sin binding.
+
+Este diseño evita almacenar dentro de un commit su propio SHA o gates todavía no
+creados. Preservar archivos auditados: no editar STATE post-audit/post-push para
+insertar resultados. Los receipts finales bindan los bytes completos, incluido STATE;
+payload excluye STATE/receipts y contiene sólo los otros documentos del allowlist.
+Falta de fuente/binding, contradicción, candidato cambiado, remote movido, selector
+no soportado o gate ambiguo → fail closed STATE_DRIFT / EVIDENCE_INSUFFICIENT /
+AUTHORITY_RECONCILIATION_REQUIRED según dato. Nunca reutilizar un resolved STATE sin
+freshness. HEAD posterior en otro lifecycle requiere reconstrucción/binding fresco
+bajo su autorización; no aceptar por mera descendencia del anchor. Las fuentes
+superiores y los gates F2E/JPA/PG/snapshot/no-write/Human Gates permanecen intactos.
 
 ## 11. Medición, terminales y entrega
 

@@ -1,14 +1,14 @@
 package com.feelingpilates.ubicaciones.repositorio;
 
-import com.feelingpilates.ubicaciones.entidad.SalonMaquina;
+import com.feelingpilates.ubicaciones.entidad.SalonRecurso;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface SalonMaquinaRepository extends JpaRepository<SalonMaquina, SalonMaquina.Id> {
+public interface SalonRecursoRepository extends JpaRepository<SalonRecurso, SalonRecurso.Id> {
 
-    List<SalonMaquina> findBySalonId(UUID salonId);
+    List<SalonRecurso> findBySalonId(UUID salonId);
 
     void deleteBySalonId(UUID salonId);
 }

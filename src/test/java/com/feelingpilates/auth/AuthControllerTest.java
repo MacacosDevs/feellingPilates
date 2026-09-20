@@ -9,10 +9,12 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -27,6 +29,9 @@ class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockitoBean
+    private GoogleTokenVerifier googleTokenVerifier;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -129,9 +134,15 @@ class AuthControllerTest {
     void googleStubDevuelve501() throws Exception {
         mockMvc.perform(post("/api/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+                .content("""
                                 {"idToken": "fake-token"}
                                 """))
-                .andExpect(status().isNotImplemented());
+                .andExpect(status().isNotImplemented())
+                .andExpect(jsonPath("$.status").value(501))
+                .andExpect(jsonPath("$.error").value("Not Implemented"))
+                .andExpect(jsonPath("$.message").value("El inicio de sesión con Google está deshabilitado"))
+                .andExpect(jsonPath("$.path").value("/api/auth/google"));
+
+        verifyNoInteractions(googleTokenVerifier);
     }
 }

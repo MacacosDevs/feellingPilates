@@ -4,23 +4,23 @@ import com.feelingpilates.exception.ResourceNotFoundException;
 import com.feelingpilates.exception.ValidacionException;
 import com.feelingpilates.ubicaciones.dto.HorarioOperacionRequest;
 import com.feelingpilates.ubicaciones.dto.HorarioOperacionResponse;
-import com.feelingpilates.ubicaciones.dto.MaquinaItem;
-import com.feelingpilates.ubicaciones.dto.MaquinaItemResponse;
+import com.feelingpilates.ubicaciones.dto.RecursoItem;
+import com.feelingpilates.ubicaciones.dto.RecursoItemResponse;
 import com.feelingpilates.ubicaciones.dto.SalonDetalleResponse;
 import com.feelingpilates.ubicaciones.dto.SalonRequest;
 import com.feelingpilates.ubicaciones.dto.TipoActividadResponse;
 import com.feelingpilates.ubicaciones.entidad.HorarioOperacion;
 import com.feelingpilates.ubicaciones.entidad.Municipio;
 import com.feelingpilates.ubicaciones.entidad.Salon;
-import com.feelingpilates.ubicaciones.entidad.SalonMaquina;
+import com.feelingpilates.ubicaciones.entidad.SalonRecurso;
 import com.feelingpilates.ubicaciones.entidad.TipoActividad;
-import com.feelingpilates.ubicaciones.entidad.TipoMaquina;
+import com.feelingpilates.ubicaciones.entidad.TipoRecurso;
 import com.feelingpilates.ubicaciones.repositorio.HorarioOperacionRepository;
 import com.feelingpilates.ubicaciones.repositorio.MunicipioRepository;
-import com.feelingpilates.ubicaciones.repositorio.SalonMaquinaRepository;
+import com.feelingpilates.ubicaciones.repositorio.SalonRecursoRepository;
 import com.feelingpilates.ubicaciones.repositorio.SalonRepository;
 import com.feelingpilates.ubicaciones.repositorio.TipoActividadRepository;
-import com.feelingpilates.ubicaciones.repositorio.TipoMaquinaRepository;
+import com.feelingpilates.ubicaciones.repositorio.TipoRecursoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,22 +35,22 @@ public class SalonService {
     private final SalonRepository salonRepository;
     private final HorarioOperacionRepository horarioOperacionRepository;
     private final TipoActividadRepository tipoActividadRepository;
-    private final TipoMaquinaRepository tipoMaquinaRepository;
-    private final SalonMaquinaRepository salonMaquinaRepository;
+    private final TipoRecursoRepository tipoRecursoRepository;
+    private final SalonRecursoRepository salonRecursoRepository;
     private final MunicipioRepository municipioRepository;
 
     public SalonService(
             SalonRepository salonRepository,
             HorarioOperacionRepository horarioOperacionRepository,
             TipoActividadRepository tipoActividadRepository,
-            TipoMaquinaRepository tipoMaquinaRepository,
-            SalonMaquinaRepository salonMaquinaRepository,
+            TipoRecursoRepository tipoRecursoRepository,
+            SalonRecursoRepository salonRecursoRepository,
             MunicipioRepository municipioRepository) {
         this.salonRepository = salonRepository;
         this.horarioOperacionRepository = horarioOperacionRepository;
         this.tipoActividadRepository = tipoActividadRepository;
-        this.tipoMaquinaRepository = tipoMaquinaRepository;
-        this.salonMaquinaRepository = salonMaquinaRepository;
+        this.tipoRecursoRepository = tipoRecursoRepository;
+        this.salonRecursoRepository = salonRecursoRepository;
         this.municipioRepository = municipioRepository;
     }
 
@@ -66,7 +66,7 @@ public class SalonService {
         aplicarDatosBase(salon, request);
         salon = salonRepository.save(salon);
         reemplazarHorarios(salon, request.horarios());
-        reemplazarMaquinas(salon, request.maquinas());
+        reemplazarRecursos(salon, request.recursos());
         return mapDetalle(salon);
     }
 
@@ -76,7 +76,7 @@ public class SalonService {
         aplicarDatosBase(salon, request);
         salon = salonRepository.save(salon);
         reemplazarHorarios(salon, request.horarios());
-        reemplazarMaquinas(salon, request.maquinas());
+        reemplazarRecursos(salon, request.recursos());
         return mapDetalle(salon);
     }
 
@@ -98,7 +98,6 @@ public class SalonService {
         salon.setReferencias(request.referencias());
         salon.setLatitud(request.latitud());
         salon.setLongitud(request.longitud());
-        salon.setPermitePareja(request.permitePareja());
 
         List<UUID> tipoActividadIds = request.tipoActividadIds() == null ? List.of() : request.tipoActividadIds();
         List<TipoActividad> tipos = tipoActividadRepository.findAllById(tipoActividadIds);
@@ -126,15 +125,15 @@ public class SalonService {
         }
     }
 
-    private void reemplazarMaquinas(Salon salon, List<MaquinaItem> maquinas) {
-        salonMaquinaRepository.deleteBySalonId(salon.getId());
-        salonMaquinaRepository.flush();
-        if (maquinas == null) return;
+    private void reemplazarRecursos(Salon salon, List<RecursoItem> recursos) {
+        salonRecursoRepository.deleteBySalonId(salon.getId());
+        salonRecursoRepository.flush();
+        if (recursos == null) return;
 
-        for (MaquinaItem m : maquinas) {
-            TipoMaquina tipoMaquina = tipoMaquinaRepository.findById(m.tipoMaquinaId())
-                    .orElseThrow(() -> new ValidacionException("Tipo de máquina inválido"));
-            salonMaquinaRepository.save(new SalonMaquina(salon, tipoMaquina, m.cantidad()));
+        for (RecursoItem r : recursos) {
+            TipoRecurso tipoRecurso = tipoRecursoRepository.findById(r.tipoRecursoId())
+                    .orElseThrow(() -> new ValidacionException("Tipo de recurso inválido"));
+            salonRecursoRepository.save(new SalonRecurso(salon, tipoRecurso, r.cantidad()));
         }
     }
 
@@ -144,7 +143,9 @@ public class SalonService {
                 .orElseThrow(() -> new ResourceNotFoundException("Municipio no encontrado"));
 
         List<TipoActividadResponse> tiposActividad = salon.getTiposActividad().stream()
-                .map(t -> new TipoActividadResponse(t.getId(), t.getNombre(), t.getDescripcion(), t.isActivo(), t.getDuracionMinutos()))
+                .map(t -> new TipoActividadResponse(
+                    t.getId(), t.getNombre(), t.getDescripcion(), t.isActivo(), t.getDuracionMinutos(),
+                    t.getParticipantesPorReserva(), t.getEtiquetas()))
                 .sorted((a, b) -> a.nombre().compareTo(b.nombre()))
                 .toList();
 
@@ -153,8 +154,8 @@ public class SalonService {
                 .map(h -> new HorarioOperacionResponse(h.getId(), h.getDiaSemana(), h.getHoraApertura(), h.getHoraCierre()))
                 .toList();
 
-        List<MaquinaItemResponse> maquinas = salonMaquinaRepository.findBySalonId(salon.getId()).stream()
-                .map(sm -> new MaquinaItemResponse(sm.getTipoMaquina().getId(), sm.getTipoMaquina().getNombre(), sm.getCantidad()))
+        List<RecursoItemResponse> recursos = salonRecursoRepository.findBySalonId(salon.getId()).stream()
+                .map(sr -> new RecursoItemResponse(sr.getTipoRecurso().getId(), sr.getTipoRecurso().getNombre(), sr.getCantidad()))
                 .toList();
 
         return new SalonDetalleResponse(
@@ -164,6 +165,6 @@ public class SalonService {
                 salon.getTelefono(), salon.getCalle(), salon.getNumeroExterior(), salon.getNumeroInterior(),
                 salon.getColonia(), salon.getCodigoPostal(), salon.getReferencias(), salon.getDireccion(),
                 salon.getLatitud(), salon.getLongitud(),
-                salon.isActivo(), tiposActividad, horarios, salon.isPermitePareja(), maquinas);
+                salon.isActivo(), tiposActividad, horarios, recursos);
     }
 }

@@ -1,7 +1,6 @@
 package com.feelingpilates.auth;
 
 import com.feelingpilates.auth.dto.CompletarInvitacionRequest;
-import com.feelingpilates.auth.dto.GoogleTokenRequest;
 import com.feelingpilates.auth.dto.InvitacionInfoResponse;
 import com.feelingpilates.auth.dto.LoginRequest;
 import com.feelingpilates.auth.dto.RegistroRequest;
@@ -32,7 +31,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AltaUsuarioService altaUsuarioService;
-    private final GoogleTokenVerifier googleTokenVerifier;
 
     public AuthService(UsuarioRepository usuarioRepository, InvitacionUsuarioRepository invitacionRepository,
                        PermisoResolver permisoResolver, PasswordEncoder passwordEncoder, JwtService jwtService,
@@ -64,26 +62,6 @@ public class AuthService {
         return generarRespuesta(usuario);
     }
 
-    @Transactional
-    public TokenResponse loginConGoogle(GoogleTokenRequest request) {
-        GoogleTokenVerifier.GooglePerfil perfil = googleTokenVerifier.verificar(request.idToken())
-                .orElseThrow(() -> new BadCredentialsException("Token de Google inválido"));
-
-        Usuario usuario = usuarioRepository.findByCorreo(perfil.correo())
-                .orElseGet(() -> altaUsuarioService.crearClienteGoogle(perfil.correo(), perfil.nombre(), perfil.fotoUrl()));
-
-        // Completa la foto en cuentas que ya existían sin una (p. ej. creadas antes
-        // de este cambio); no pisa una foto que el usuario ya haya subido.
-        if ((usuario.getFotoUrl() == null || usuario.getFotoUrl().isBlank())
-                && perfil.fotoUrl() != null && !perfil.fotoUrl().isBlank()) {
-            usuario.setFotoUrl(perfil.fotoUrl());
-        }
-
-        if (usuario.getEstatus() != Usuario.EstatusUsuario.activo) {
-            throw new BadCredentialsException("Credenciales inválidas");
-        }
-        return generarRespuesta(usuario);
-    }
 
     @Transactional(readOnly = true)
     public InvitacionInfoResponse obtenerInvitacion(String token) {

@@ -1,5 +1,6 @@
 package com.feelingpilates.exception;
 
+import com.feelingpilates.auth.GoogleLoginDisabledException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -63,6 +64,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest request) {
         return build(HttpStatus.CONFLICT, "Conflicto de datos: el recurso ya existe o viola una restricción", request, null);
+    }
+
+    @ExceptionHandler(GoogleLoginDisabledException.class)
+    public ResponseEntity<ErrorResponse> handleGoogleLoginDisabled(GoogleLoginDisabledException ex, HttpServletRequest request) {
+        return build(HttpStatus.NOT_IMPLEMENTED, ex.getMessage(), request, null);
     }
 
     @ExceptionHandler(Exception.class)

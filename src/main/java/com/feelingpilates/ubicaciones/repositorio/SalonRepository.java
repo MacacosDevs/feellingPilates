@@ -4,6 +4,7 @@ import com.feelingpilates.ubicaciones.entidad.Salon;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,7 +14,7 @@ public interface SalonRepository extends JpaRepository<Salon, UUID> {
             select s.id as id, s.nombre as nombre, s.direccion as direccion,
                    s.estado_id as estadoId, e.nombre as estadoNombre,
                    s.municipio_id as municipioId, m.nombre as municipioNombre,
-                   s.permite_pareja as permitePareja
+                   s.creado_en as creadoEn
             from salon s
             join estado e on e.id = s.estado_id
             join municipio m on m.estado_id = s.estado_id and m.id = s.municipio_id
@@ -32,6 +33,6 @@ public interface SalonRepository extends JpaRepository<Salon, UUID> {
         String getEstadoNombre();
         Short getMunicipioId();
         String getMunicipioNombre();
-        boolean getPermitePareja();
+        Instant getCreadoEn();
     }
 }

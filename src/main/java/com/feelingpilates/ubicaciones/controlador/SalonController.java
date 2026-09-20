@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,7 +40,7 @@ public class SalonController {
                         p.getId(), p.getNombre(), p.getDireccion(),
                         p.getEstadoId(), p.getEstadoNombre(),
                         p.getMunicipioId(), p.getMunicipioNombre(),
-                        p.getPermitePareja()))
+                        p.getCreadoEn().atOffset(ZoneOffset.UTC)))
                 .toList();
     }
 

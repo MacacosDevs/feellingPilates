@@ -2,6 +2,7 @@ package com.feelingpilates.ubicaciones.servicio;
 
 import com.feelingpilates.exception.ResourceNotFoundException;
 import com.feelingpilates.exception.ValidacionException;
+import com.feelingpilates.seguridad.AutorizadorSalon;
 import com.feelingpilates.ubicaciones.dto.GuardarExcepcionSalonRequest;
 import com.feelingpilates.ubicaciones.dto.SalonHorarioExcepcionResponse;
 import com.feelingpilates.ubicaciones.entidad.Salon;
@@ -22,22 +23,30 @@ public class SalonHorarioExcepcionService {
 
     private final SalonHorarioExcepcionRepository excepcionRepository;
     private final SalonRepository salonRepository;
+    private final AutorizadorSalon autorizadorSalon;
 
     public SalonHorarioExcepcionService(
-            SalonHorarioExcepcionRepository excepcionRepository, SalonRepository salonRepository) {
+            SalonHorarioExcepcionRepository excepcionRepository,
+            SalonRepository salonRepository,
+            AutorizadorSalon autorizadorSalon) {
         this.excepcionRepository = excepcionRepository;
         this.salonRepository = salonRepository;
+        this.autorizadorSalon = autorizadorSalon;
     }
 
     @Transactional(readOnly = true)
-    public List<SalonHorarioExcepcionResponse> listarPorRango(UUID salonId, LocalDate desde, LocalDate hasta) {
+    public List<SalonHorarioExcepcionResponse> listarPorRango(
+            UUID actorId, UUID salonId, LocalDate desde, LocalDate hasta) {
+        autorizadorSalon.verificarAccesoSalon(actorId, "salon.leer", salonId);
         return excepcionRepository.findBySalonIdAndFechaBetweenAndActivoTrueOrderByFecha(salonId, desde, hasta)
                 .stream()
                 .map(this::aResponse)
                 .toList();
     }
 
-    public SalonHorarioExcepcionResponse guardar(UUID salonId, GuardarExcepcionSalonRequest request) {
+    public SalonHorarioExcepcionResponse guardar(
+            UUID actorId, UUID salonId, GuardarExcepcionSalonRequest request) {
+        autorizadorSalon.verificarAccesoSalon(actorId, "salon.administrar", salonId);
         Salon salon = salonRepository.findById(salonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Salón no encontrado"));
 
@@ -63,9 +72,14 @@ public class SalonHorarioExcepcionService {
         return aResponse(excepcionRepository.save(excepcion));
     }
 
-    public void eliminar(UUID id) {
+    public void eliminar(UUID actorId, UUID salonIdContextual, UUID id) {
         SalonHorarioExcepcion excepcion = excepcionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Excepción no encontrada"));
+        UUID salonIdReal = excepcion.getSalon().getId();
+        if (!salonIdReal.equals(salonIdContextual)) {
+            throw new ResourceNotFoundException("Excepción no encontrada");
+        }
+        autorizadorSalon.verificarAccesoSalon(actorId, "salon.administrar", salonIdReal);
         excepcion.setActivo(false);
         excepcionRepository.save(excepcion);
     }

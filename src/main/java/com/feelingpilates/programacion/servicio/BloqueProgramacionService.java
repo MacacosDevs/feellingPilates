@@ -6,12 +6,15 @@ import com.feelingpilates.programacion.entidad.Asignacion;
 import com.feelingpilates.programacion.entidad.BloqueProgramacion;
 import com.feelingpilates.programacion.repositorio.AsignacionRepository;
 import com.feelingpilates.programacion.repositorio.BloqueProgramacionRepository;
+import com.feelingpilates.ubicaciones.dominio.CoberturaVigencia;
+import com.feelingpilates.ubicaciones.dominio.RangoVigencia;
 import com.feelingpilates.ubicaciones.entidad.HorarioOperacion;
 import com.feelingpilates.ubicaciones.entidad.Salon;
 import com.feelingpilates.ubicaciones.entidad.TipoActividad;
 import com.feelingpilates.ubicaciones.repositorio.HorarioOperacionRepository;
 import com.feelingpilates.ubicaciones.repositorio.SalonRepository;
 import com.feelingpilates.ubicaciones.repositorio.TipoActividadRepository;
+import com.feelingpilates.ubicaciones.servicio.SalonLock;
 import com.feelingpilates.usuarios.entidad.Rol;
 import com.feelingpilates.usuarios.entidad.Usuario;
 import com.feelingpilates.usuarios.repositorio.UsuarioRepository;
@@ -34,6 +37,7 @@ public class BloqueProgramacionService {
     private final HorarioOperacionRepository horarioOperacionRepository;
     private final UsuarioRepository usuarioRepository;
     private final TipoActividadRepository tipoActividadRepository;
+    private final SalonLock salonLock;
 
     public BloqueProgramacionService(
             BloqueProgramacionRepository bloqueRepository,
@@ -41,17 +45,30 @@ public class BloqueProgramacionService {
             SalonRepository salonRepository,
             HorarioOperacionRepository horarioOperacionRepository,
             UsuarioRepository usuarioRepository,
-            TipoActividadRepository tipoActividadRepository) {
+            TipoActividadRepository tipoActividadRepository,
+            SalonLock salonLock) {
         this.bloqueRepository = bloqueRepository;
         this.asignacionRepository = asignacionRepository;
         this.salonRepository = salonRepository;
         this.horarioOperacionRepository = horarioOperacionRepository;
         this.usuarioRepository = usuarioRepository;
         this.tipoActividadRepository = tipoActividadRepository;
+        this.salonLock = salonLock;
     }
 
+    /**
+     * Unico entry point que crea un bloque activo, es decir que vuelve visible programacion nueva
+     * capaz de volverse incompatible con el horario del salon. Por eso participa en el protocolo
+     * de lock compartido: {@link SalonLock} se adquiere <b>antes</b> de leer el horario contra el
+     * que se valida, en la misma transaccion que el {@code save}.
+     *
+     * <p>El orden importa. Validar primero y bloquear despues no serializaria nada: un versionado
+     * concurrente del horario y este alta habrian leido el estado viejo y podrian commitear ambos,
+     * dejando un bloque fuera del horario que acaba de entrar en vigor.
+     */
     public BloqueProgramacion crearBloque(CrearBloque comando) {
         validarComandoBloque(comando);
+        salonLock.adquirir(comando.salonId());
         Salon salon = salonRepository.findById(comando.salonId())
                 .orElseThrow(() -> new ResourceNotFoundException("Salón no encontrado"));
         if (!salon.isActivo()) {
@@ -165,14 +182,32 @@ public class BloqueProgramacionService {
         }
     }
 
+    /**
+     * El bloque ya trae su propia vigencia explicita ({@code vigenteDesde} obligatorio,
+     * {@code vigenteHasta} nullable = abierta), asi que no necesita reloj: su objetivo temporal es
+     * exactamente esa vigencia. Las versiones del horario del salon para ese dia deben
+     *
+     * <ol>
+     *   <li>CUBRIR completa la vigencia del bloque -- sin huecos, y llegando a +infinito si el
+     *       bloque es abierto; un horario cuya cobertura termina dejaria al bloque sin respaldo;</li>
+     *   <li>y TODAS contener el rango horario del bloque, no solo alguna.</li>
+     * </ol>
+     *
+     * El barrido de cobertura es por intervalos, nunca dia por dia.
+     */
     private void validarDentroDelHorarioOperacion(CrearBloque comando) {
-        List<HorarioOperacion> horarios = horarioOperacionRepository
-                .findBySalonIdOrderByDiaSemana(comando.salonId());
-        boolean contenido = horarios.stream()
-                .filter(h -> h.getDiaSemana() != null && h.getDiaSemana() == comando.diaSemana())
-                .anyMatch(h -> !comando.horaInicio().isBefore(h.getHoraApertura())
+        List<HorarioOperacion> versiones = horarioOperacionRepository.findVersionesQueIntersectan(
+                comando.salonId(), comando.diaSemana(), comando.vigenteDesde(), comando.vigenteHasta());
+
+        RangoVigencia objetivo = new RangoVigencia(comando.vigenteDesde(), comando.vigenteHasta());
+        boolean cubierto = CoberturaVigencia.cubreCompletamente(objetivo, versiones.stream()
+                .map(h -> new RangoVigencia(h.getVigenteDesde(), h.getVigenteHasta()))
+                .toList());
+        boolean todasLoContienen = !versiones.isEmpty() && versiones.stream()
+                .allMatch(h -> !comando.horaInicio().isBefore(h.getHoraApertura())
                         && !comando.horaFin().isAfter(h.getHoraCierre()));
-        if (!contenido) {
+
+        if (!cubierto || !todasLoContienen) {
             throw new ValidacionException("El bloque debe estar contenido en el horario de operación del salón");
         }
     }
@@ -235,10 +270,13 @@ public class BloqueProgramacionService {
         return aInicio.isBefore(bFin) && bInicio.isBefore(aFin);
     }
 
+    /**
+     * Delega en {@link RangoVigencia#intersecta}: una sola implementacion de la semantica de
+     * interseccion de vigencias en todo el proyecto, para que no puedan divergir.
+     */
     static boolean vigenciasSeIntersectan(
             LocalDate aDesde, LocalDate aHasta, LocalDate bDesde, LocalDate bHasta) {
-        return (bHasta == null || !aDesde.isAfter(bHasta))
-                && (aHasta == null || !bDesde.isAfter(aHasta));
+        return new RangoVigencia(aDesde, aHasta).intersecta(new RangoVigencia(bDesde, bHasta));
     }
 
     private void requerir(Object valor, String mensaje) {

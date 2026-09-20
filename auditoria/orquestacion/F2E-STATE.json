@@ -49,7 +49,7 @@
     "selected": "CLEAN_MAIN_RECONCILIATION",
     "selection": "CLEAN_MAIN_GENUINE_DELTA_TRANSPLANT",
     "profile": "PROCESS_ONLY / DOCUMENTATION_ONLY",
-    "candidateStage": "CLEAN_MAIN_RECONCILIATION_PRE_AUDIT",
+    "candidateStage": "CLEAN_MAIN_FOUNDATION_MATERIALIZED_PENDING_REAUDIT",
     "r1": [
       "CLOSED",
       "ACCEPTED",
@@ -62,11 +62,14 @@
       "PUBLISHED",
       "CLOSED"
     ],
-    "r2ImplementationHandoff": [
-      "PUBLISHED",
-      "NOT_ACTIVE"
-    ],
-    "r2Implementation": "NOT_AUTHORIZED",
+    "r2ImplementationHandoff": {
+      "documentInternalHistoricalMarker": "MATERIALIZED_CANDIDATE / NOT_APPROVED / NOT_PUBLISHED / NOT_ACTIVE",
+      "artifactPublicationEvent": "PUBLISHED_VIA_HISTORICAL_COMMIT_6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c",
+      "implementationApproval": "NOT_AUTHORIZED",
+      "activation": "NOT_ACTIVE",
+      "allowlistStatus": "HANDOFF_ALLOWLIST_RECONCILIATION_REQUIRED"
+    },
+    "r2Implementation": "NOT_AUTHORIZED / NOT_IMPLEMENTED",
     "turnoInstructor": [
       "LEGACY_VIVO",
       "PRODUCTIVO"
@@ -144,58 +147,36 @@
   },
   "activeMilestone": "F2E_OPTIMIZED_EXECUTION_PROCESS_ACTIVATION_PUBLICATION_CLOSURE_R1",
   "authorityRefs": {
-    "agents": "AGENTS.md",
-    "navigation": "auditoria/README-REESTRUCTURACION.md",
     "lifecycle": "auditoria/ESTADO-ACTUAL.md",
-    "workRules": "auditoria/REGLAS-DE-TRABAJO-IA.md",
-    "architecture": "auditoria/ARQUITECTURA-ACTUAL.md",
-    "decisions": "auditoria/DECISIONES-ARQUITECTONICAS.md",
-    "domain": "auditoria/contexto/DOMINIO-FUNCIONAL.md",
-    "legacy": "auditoria/contexto/MAPA-LEGACY-Y-MIGRACION.md",
     "designD": "auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md",
     "semanticDesign": "auditoria/fase-2e-identidad-semantica-detector-read-only.md",
     "r2PublishedDesign": "auditoria/fase-2e-r2-diseno-lector-turno-legacy-integracion.md",
     "r2Review": "auditoria/reviews/F2E-R2-REVIEW-DISENO-LECTOR-TURNO-LEGACY.md",
     "r1Review": "auditoria/reviews/F2E-R1-PROVENANCE-VALIDACION-ACEPTACION.md",
-    "orqReadme": "auditoria/orquestacion/README.md",
-    "orqWorkflow": "auditoria/orquestacion/WORKFLOW.md",
-    "orqStates": "auditoria/orquestacion/STATE-MACHINE.md",
-    "orqGates": "auditoria/orquestacion/GATES.md",
-    "orqRoles": "auditoria/orquestacion/ROLES.md",
     "f2eRunbook": "auditoria/orquestacion/F2E-RUNBOOK.md",
     "f2eExecutionPolicy": "auditoria/orquestacion/F2E-EXECUTION-POLICY.md"
   },
   "authorityHashes": {
-    "agents": "1d70ebbc5bfef3c0004a7ca53ce8a91bf6a9660a4085e2c7ff2a44a5d58038c4",
-    "navigation": "747227acc83ad7337d8a1214646ee089def5ed42ec6eee637d22ff96969ce2b2",
     "lifecycle": "dd6bf7a45a6b54335a5afd5500e5cc6357a8c9e026ed37937ef498a29a13ebaf",
-    "workRules": "84799b8946e428e7e907bc20b96362e699347e7307d0ba886c4d85c06ffa55ea",
-    "architecture": "63733821b86e89aacecbc1573c1e6d4d4b396fe6162f6871b7f810060bc81a7c",
-    "decisions": "6dc6fb6230ce794449883cd858864eebab2bdfb6cd2bc5c7ac4fa4e023ce579b",
-    "domain": "1abce9e0bc187a1cfb34d384faa4b340150eebd7a8e8213922e90f853cb266df",
-    "legacy": "ee3739a10435e19e2a1f123c95a9c3446c7c7c3c72b85e56c7ef40147e72ce8f",
     "designD": "6c72cba1f83fbc2bcf3b3219d8252d2410ec482e30ae85d30fd2eeb04e8883d8",
     "semanticDesign": "6f850e9723f9861456d646039e4b233cff20d013ff956cab98f7370dffac4670",
     "r2PublishedDesign": "db4673dd0705c41e62d0b77339d45b2cd1e87c51e26064112ad95b843dafe9cf",
     "r2Review": "742590c0a15fdc2455a3d35c27ff0a1fbb0f63e2559078a02915a69416c90654",
     "r1Review": "b324a51ddae26e00bb9b8714c48402a3001f0c99ef5f2fd1db7038ebd5adfde9",
-    "orqReadme": "21d094499f49a7c7f0878e4c183114c4ff8525446dca5e8db1151a90e7146a7c",
-    "orqWorkflow": "107857275a38dfb23f094ec35054113b88de404e0ae7100c2bf527071de130d1",
-    "orqStates": "0641e4725947d1fb2f16cf304255b0b30739090bb810488672503a206f6f13d8",
-    "orqGates": "b3137de84aa171dd6f11bf439c79b937e44a52de54a5cb841fd57048678d490b",
-    "orqRoles": "8c19f5981cad4941a34356fecde833168b1754620e167fd323b36c35490dbb50",
     "f2eRunbook": "f4915d09f524fc5b472dd1d15907256f853fd699e9339c2237ade584802edbb3",
     "f2eExecutionPolicy": "84ec1c761d92e98cecd092eeb2aa368be28bd380b56b1c4b20a084254c86e44e"
   },
   "handoffRefs": {
     "activeImplementation": null,
     "r2ResearchProvenance": "auditoria/handoffs/HANDOFF-F2E-R2-DISENO-LECTOR-TURNO-LEGACY.md",
-    "r1Consumed": "auditoria/handoffs/HANDOFF-F2E-R1-RESERVA-READER-JPA-READ-ONLY.md"
+    "r1Consumed": "auditoria/handoffs/HANDOFF-F2E-R1-RESERVA-READER-JPA-READ-ONLY.md",
+    "r2ImplementationHandoffHistorical": "auditoria/handoffs/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY.md"
   },
   "handoffHashes": {
     "activeImplementation": null,
     "r2ResearchProvenance": "221347b46c5032b384a306c61908c8fd0f2c26076455609fb880098be8f0d2d4",
-    "r1Consumed": "3fd71faca4d4c049ad5cb37b52bc6fd512509cf5b696bdc5c28d28cb966af8ef"
+    "r1Consumed": "3fd71faca4d4c049ad5cb37b52bc6fd512509cf5b696bdc5c28d28cb966af8ef",
+    "r2ImplementationHandoffHistorical": "7463798e80c898cc78d731012afc3b737f74c328a134d4da09d65ea79adad8e8"
   },
   "candidateIdentity": {
     "stage": "PRE_AUDIT_ACTIVATION_CANDIDATE",
@@ -633,5 +614,35 @@
     "capturedAt": "2026-09-18T23:31:50.410440+00:00",
     "cut": "PRE_AUDIT_CAPTURE_WITH_FAIL_CLOSED_TERMINAL_SOURCE_SELECTORS",
     "futureUseOfOptimizedPolicyRequiresTerminalGate": true
+  },
+  "historicalProvenanceRefs": {
+    "historicalCommit": "6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c",
+    "status": "HISTORICAL_PROVENANCE_ONLY / EXTERNAL_GIT_OBJECT_ACCESSIBLE",
+    "agents": "AGENTS.md",
+    "navigation": "auditoria/README-REESTRUCTURACION.md",
+    "workRules": "auditoria/REGLAS-DE-TRABAJO-IA.md",
+    "architecture": "auditoria/ARQUITECTURA-ACTUAL.md",
+    "decisions": "auditoria/DECISIONES-ARQUITECTONICAS.md",
+    "domain": "auditoria/contexto/DOMINIO-FUNCIONAL.md",
+    "legacy": "auditoria/contexto/MAPA-LEGACY-Y-MIGRACION.md",
+    "orqReadme": "auditoria/orquestacion/README.md",
+    "orqWorkflow": "auditoria/orquestacion/WORKFLOW.md",
+    "orqStates": "auditoria/orquestacion/STATE-MACHINE.md",
+    "orqGates": "auditoria/orquestacion/GATES.md",
+    "orqRoles": "auditoria/orquestacion/ROLES.md"
+  },
+  "historicalProvenanceHashes": {
+    "agents": "1d70ebbc5bfef3c0004a7ca53ce8a91bf6a9660a4085e2c7ff2a44a5d58038c4",
+    "navigation": "747227acc83ad7337d8a1214646ee089def5ed42ec6eee637d22ff96969ce2b2",
+    "workRules": "84799b8946e428e7e907bc20b96362e699347e7307d0ba886c4d85c06ffa55ea",
+    "architecture": "63733821b86e89aacecbc1573c1e6d4d4b396fe6162f6871b7f810060bc81a7c",
+    "decisions": "6dc6fb6230ce794449883cd858864eebab2bdfb6cd2bc5c7ac4fa4e023ce579b",
+    "domain": "1abce9e0bc187a1cfb34d384faa4b340150eebd7a8e8213922e90f853cb266df",
+    "legacy": "ee3739a10435e19e2a1f123c95a9c3446c7c7c3c72b85e56c7ef40147e72ce8f",
+    "orqReadme": "21d094499f49a7c7f0878e4c183114c4ff8525446dca5e8db1151a90e7146a7c",
+    "orqWorkflow": "107857275a38dfb23f094ec35054113b88de404e0ae7100c2bf527071de130d1",
+    "orqStates": "0641e4725947d1fb2f16cf304255b0b30739090bb810488672503a206f6f13d8",
+    "orqGates": "b3137de84aa171dd6f11bf439c79b937e44a52de54a5cb841fd57048678d490b",
+    "orqRoles": "8c19f5981cad4941a34356fecde833168b1754620e167fd323b36c35490dbb50"
   }
 }

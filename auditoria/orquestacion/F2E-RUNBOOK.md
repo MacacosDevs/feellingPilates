@@ -57,7 +57,7 @@ Invariantes de entrada y salida, verificables desde fuentes competentes:
 | --- | --- |
 | R1 | CLOSED / ACCEPTED / PUBLISHED; exact21 main11/test10 inmutable en esta unidad |
 | R2 diseño | COMPLETE / AUDITED / PUBLISHED / CLOSED |
-| R2 implementation handoff | NOT_MATERIALIZED / NOT_ACTIVE; ACTIVE HANDOFF NINGUNO |
+| R2 implementation handoff | HISTORICAL ARTIFACT REPOSITORY-PUBLISHED (commit 6140978) / NOT_ACTIVE / ALLOWLIST_RECONCILIATION_REQUIRED; ACTIVE HANDOFF NINGUNO |
 | Implementación R2 | NOT_AUTHORIZED / NOT_STARTED |
 | TurnoInstructor | LEGACY_VIVO / PRODUCTIVO |
 | Dark launch / cutover | PRESERVED / NOT_AUTHORIZED |
@@ -105,6 +105,17 @@ Interpretación de este corte: PENDING/NOT_PUBLISHED en headers R2 y cierre ESTA
 son preimages históricos sellados. Gate real precedente y Git corroboran cierre
 posterior publicado; conservar historia y FAIL originales. No editar esos documentos
 ni reabrir R1 por su antigüedad. Registrar fuentes/hashes en STATE y report externo.
+En cuanto al handoff de implementación R2, se distinguen cuatro ejes: (1) el marcador interno
+del documento pre-publicación como fue escrito históricamente (`MATERIALIZED_CANDIDATE / NOT_PUBLISHED`),
+(2) el evento de publicación física en repositorio mediante el commit histórico `6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c`,
+(3) la autorización implementativa (`NOT_AUTHORIZED`), y (4) la activación operativa (`NOT_ACTIVE`).
+Asimismo, las cinco dependencias históricas de orquestación (`README.md`, `WORKFLOW.md`, `STATE-MACHINE.md`,
+`GATES.md`, `ROLES.md`) pertenecen al protocolo multiagente legacy (ORQ-1), cuyo equivalente de proceso
+vigente es Orca Product Delivery (RUNBOOK y POLICY). Dichos documentos son `LEGACY_PROTOCOL_PROVENANCE_ONLY`,
+accesibles vía objetos Git históricos, y no se trasplantan a la base limpia. El estado de la allowlist
+del handoff es `HANDOFF_ALLOWLIST_RECONCILIATION_REQUIRED`; la integración de la fundación F2E es
+completamente independiente de la activación de R2, la cual requerirá reconciliación explícita en su
+propio ciclo futuro.
 
 ## 3. Lifecycle y gates por profile
 

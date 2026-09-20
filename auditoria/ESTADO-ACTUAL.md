@@ -9,7 +9,7 @@ Historical F2E source HEAD: 6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c
 Current reconciliation lifecycle: CLEAN_MAIN_RECONCILIATION
 R1: CLOSED / ACCEPTED / PUBLISHED historically; transplanted pending fresh validation
 R2 Design: COMPLETE / AUDITED / PUBLISHED / CLOSED
-R2 Implementation Handoff: PUBLISHED / NOT_ACTIVE
+R2 Implementation Handoff: HISTORICAL_ARTIFACT_PUBLISHED (commit 6140978) / NOT_ACTIVE / ALLOWLIST_RECONCILIATION_REQUIRED
 R2 Implementation: NOT_AUTHORIZED
 R3-R6: NOT_AUTHORIZED
 TurnoInstructor: LEGACY_VIVO / PRODUCTIVO
@@ -1056,7 +1056,7 @@ R2 design-publication lifecycle: CLOSED — AUTHORITY_RECONCILIATION_MATERIALIZE
 CURRENT CLOSURE AUDIT / AUTHORIZATION GATE: PENDING / NOT_EXECUTED
 CURRENT CLOSURE-DOC PUBLICATION / POST-CLOSURE AUDIT / FINAL GATE: PENDING / NOT_EXECUTED
 R2 DESIGN/RESEARCH handoff: PUBLISHED_PROVENANCE_ONLY / NOT_IMPLEMENTATION_AUTHORITY
-R2 implementation handoff: NOT_MATERIALIZED / NOT_ACTIVE
+R2 implementation handoff: HISTORICAL_ARTIFACT_PUBLISHED (commit 6140978) / NOT_ACTIVE / ALLOWLIST_RECONCILIATION_REQUIRED
 ACTIVE IMPLEMENTATION HANDOFF: NINGUNO
 R2 implementation: NOT_AUTHORIZED / NOT_STARTED
 R2 designed runtime: DARK_LAUNCH / NON_PRODUCTIVE; NO_ACTIVATION
@@ -1223,7 +1223,7 @@ No reparación ni promoción silenciosa. Historical P2-EVIDENCE-01 preservado.
 ### Producto/cross-lane y siguiente lifecycle exacto
 
 R1 CLOSED/ACCEPTED/PUBLISHED; R2 design COMPLETE/AUDITED/PUBLISHED/CLOSED;
-R2 implementation handoff NOT_MATERIALIZED/NOT_ACTIVE; ACTIVE IMPLEMENTATION HANDOFF
+R2 implementation handoff HISTORICAL_ARTIFACT_PUBLISHED (commit 6140978) / NOT_ACTIVE / ALLOWLIST_RECONCILIATION_REQUIRED; ACTIVE IMPLEMENTATION HANDOFF
 NINGUNO; R2 implementation NOT_AUTHORIZED/NOT_STARTED. TurnoInstructor
 LEGACY_VIVO/PRODUCTIVO; dark launch PRESERVED; cutover NOT_AUTHORIZED;
 R3–R6 NOT_AUTHORIZED_IN_R2. Ninguna activación de runtime/producto aquí.
@@ -1244,3 +1244,34 @@ handoff creado/activo aquí y NO implementación. Secuencia: cierre de activaci�
 proceso → materialización de implementation handoff R2 → audit/gate/publicación/
 activación competente del handoff → implementación sólo después de autoridad propia.
 No abrir workers de ese siguiente lifecycle en este Run, ni inferir R3–R6/cutover.
+
+## Reconciliación operacional Clean-Main: Corrección 2 (Auditabilidad y Estado R2)
+
+Fecha: 2026-09-20.
+
+### 1. Resolución P0 — Auditabilidad de fuentes históricas mediante objetos Git locales
+El repositorio de reconciliación comparte el almacén de objetos Git con el historial original. El commit histórico `6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c` está localmente disponible de forma inmutable (`git cat-file -e 6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c^{commit}`).
+Cualquier auditoría independiente en entorno sandboxed debe verificar la integridad y bytes de las fuentes históricas mediante inspección directa de objetos Git (`git show 6140978...:<path>`, `git cat-file`, `git ls-tree`, `git diff`) dentro del sandbox local, sin requerir acceso al sistema de archivos del worktree externo.
+
+### 2. Resolución P1-1 — Distinción de ejes del handoff de implementación R2
+Se distinguen estrictamente los cuatro ejes de estado del handoff R2 para eliminar contradicciones entre artefactos:
+- **Marcador interno del documento**: El texto del archivo [`HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY.md`](handoffs/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY.md) conserva su encabezado histórico inmutable: `MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_HANDOFF_AUDIT / NOT_APPROVED / NOT_PUBLISHED / NOT_ACTIVE`.
+- **Evento de publicación en repositorio**: Publicado formalmente mediante el commit histórico `6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c` (`docs(auditoria): publica handoff de implementación F2E R2`).
+- **Aprobación implementativa**: `NOT_AUTHORIZED`.
+- **Activación operativa**: `NOT_ACTIVE`.
+- **Implementación R2**: `NOT_IMPLEMENTED / NOT_AUTHORIZED` (0 archivos de código R2 en el repositorio).
+
+### 3. Resolución P1-2 — Clasificación de dependencias de protocolo legacy y estado de allowlist R2
+El handoff R2 cita cinco documentos de orquestación en su lista de dependencias `READ_ONLY_DEPENDENCY`:
+- `auditoria/orquestacion/README.md`
+- `auditoria/orquestacion/WORKFLOW.md`
+- `auditoria/orquestacion/STATE-MACHINE.md`
+- `auditoria/orquestacion/GATES.md`
+- `auditoria/orquestacion/ROLES.md`
+
+**Clasificación técnica**:
+- Todos ellos corresponden al protocolo multiagente previo (ORQ-1 / FeelingPilatesOrchestrator), clasificados como `CURRENT_PROCESS_EQUIVALENT_EXISTS` (el proceso actual es Orca Product Delivery: RUNBOOK y POLICY) y `LEGACY_PROTOCOL_PROVENANCE_ONLY`.
+- Ninguno de estos documentos constituye autoridad de dominio/producto, ni dependencia de compilación/implementación ni dependencia de tests.
+- Por tanto, **NO** se trasplantan a la fundación clean-main. Permanecen accesibles como procedencia histórica vía objetos Git (`orquestacion/orq-1-protocolo` / `6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c`).
+- El estado de la allowlist del handoff R2 se clasifica formalmente como: `HANDOFF_ALLOWLIST_RECONCILIATION_REQUIRED`.
+- **Separación de lifecycles**: La publicación e integración de la **FUNDACIÓN CLEAN-MAIN** (Detector Pure Core, ReferenciaOcurrencia, R1 Reserva JPA Reader, y autoridades F2E) es completamente independiente de la activación de R2. El handoff R2 permanece publicado como artefacto histórico, no activo, y con reconciliación de allowlist pendiente para el siguiente ciclo competente.

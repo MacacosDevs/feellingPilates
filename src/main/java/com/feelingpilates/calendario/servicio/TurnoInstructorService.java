@@ -11,14 +11,18 @@ import com.feelingpilates.calendario.repositorio.TurnoInstructorRepository;
 import com.feelingpilates.exception.ResourceNotFoundException;
 import com.feelingpilates.exception.ValidacionException;
 import com.feelingpilates.seguridad.AutorizadorSalon;
+import com.feelingpilates.ubicaciones.dominio.CoberturaVigencia;
+import com.feelingpilates.ubicaciones.dominio.DiaSemanaOperacion;
+import com.feelingpilates.ubicaciones.dominio.HorarioEfectivo;
+import com.feelingpilates.ubicaciones.dominio.RangoVigencia;
 import com.feelingpilates.ubicaciones.entidad.HorarioOperacion;
 import com.feelingpilates.ubicaciones.entidad.Salon;
-import com.feelingpilates.ubicaciones.entidad.SalonHorarioExcepcion;
 import com.feelingpilates.ubicaciones.entidad.TipoActividad;
 import com.feelingpilates.ubicaciones.repositorio.HorarioOperacionRepository;
-import com.feelingpilates.ubicaciones.repositorio.SalonHorarioExcepcionRepository;
 import com.feelingpilates.ubicaciones.repositorio.SalonRepository;
 import com.feelingpilates.ubicaciones.repositorio.TipoActividadRepository;
+import com.feelingpilates.ubicaciones.servicio.HorarioEfectivoSalon;
+import com.feelingpilates.ubicaciones.servicio.SalonLock;
 import com.feelingpilates.usuarios.entidad.Rol;
 import com.feelingpilates.usuarios.entidad.Usuario;
 import com.feelingpilates.usuarios.repositorio.UsuarioRepository;
@@ -27,7 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -38,7 +42,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -53,8 +56,10 @@ public class TurnoInstructorService {
     private final SalonRepository salonRepository;
     private final HorarioOperacionRepository horarioOperacionRepository;
     private final TipoActividadRepository tipoActividadRepository;
-    private final SalonHorarioExcepcionRepository salonHorarioExcepcionRepository;
+    private final HorarioEfectivoSalon horarioEfectivoSalon;
     private final AutorizadorSalon autorizadorSalon;
+    private final SalonLock salonLock;
+    private final Clock reloj;
 
     public TurnoInstructorService(
             TurnoInstructorRepository turnoRepository,
@@ -63,16 +68,20 @@ public class TurnoInstructorService {
             SalonRepository salonRepository,
             HorarioOperacionRepository horarioOperacionRepository,
             TipoActividadRepository tipoActividadRepository,
-            SalonHorarioExcepcionRepository salonHorarioExcepcionRepository,
-            AutorizadorSalon autorizadorSalon) {
+            HorarioEfectivoSalon horarioEfectivoSalon,
+            AutorizadorSalon autorizadorSalon,
+            SalonLock salonLock,
+            Clock reloj) {
         this.turnoRepository = turnoRepository;
         this.asignacionRepository = asignacionRepository;
         this.usuarioRepository = usuarioRepository;
         this.salonRepository = salonRepository;
         this.horarioOperacionRepository = horarioOperacionRepository;
         this.tipoActividadRepository = tipoActividadRepository;
-        this.salonHorarioExcepcionRepository = salonHorarioExcepcionRepository;
+        this.horarioEfectivoSalon = horarioEfectivoSalon;
         this.autorizadorSalon = autorizadorSalon;
+        this.salonLock = salonLock;
+        this.reloj = reloj;
     }
 
     @Transactional(readOnly = true)
@@ -105,6 +114,17 @@ public class TurnoInstructorService {
             case CANCELACION -> new String[]{"calendario.gestionar", "calendario.cancelar"};
         };
         autorizadorSalon.verificarAccesoSalon(actorId, request.salonId(), permisos);
+        // Protocolo de lock compartido: un turno RECURRENTE es programacion abierta al futuro que
+        // puede volverse incompatible con el horario del salon, asi que se serializa contra los
+        // writers de horario ANTES de leer/validar nada de ese horario. La autorizacion va primero
+        // a proposito: no se retiene un lock por peticiones que no tienen permiso.
+        //
+        // EXCEPCION y CANCELACION NO lo toman: EXCEPCION esta fuera de la Politica A (su invariante
+        // ya no la mantiene el sistema hoy, ver ImpactoTurnosRecurrentesEnHorario) y CANCELACION ni
+        // siquiera valida horario. Tomar el lock ahi daria falsa sensacion de proteccion.
+        if (request.tipo() == TurnoInstructor.Tipo.RECURRENTE) {
+            salonLock.adquirir(request.salonId());
+        }
         Map<Usuario, AsignacionResuelta> asignaciones = resolverAsignaciones(request.asignaciones());
         Set<Usuario> instructores = new LinkedHashSet<>(asignaciones.keySet());
         Salon salon = salonRepository.findById(request.salonId())
@@ -128,7 +148,7 @@ public class TurnoInstructorService {
                 if (request.fecha() == null || request.diaSemana() != null) {
                     throw new ValidacionException("Una excepción o cancelación requiere fecha y no día de la semana");
                 }
-                yield (short) diaSemanaIso(request.fecha().getDayOfWeek());
+                yield DiaSemanaOperacion.desde(request.fecha().getDayOfWeek());
             }
         };
 
@@ -187,6 +207,11 @@ public class TurnoInstructorService {
         instructores.forEach(usuario -> validarEsInstructorDelSalon(usuario, turno.getSalon().getId()));
         validarRangosDeAsignaciones(asignaciones, request.horaInicio(), request.horaFin());
 
+        // Lock ANTES de validar contra el horario. Cargar el turno antes del lock es correcto: el
+        // salon de un turno no puede cambiarse (el request no lo lleva), asi que esa lectura es de
+        // identidad, no del estado sobre el que se decide. Como el lock es por salon, una sola
+        // adquisicion cubre tanto el dia de origen como el de destino del movimiento.
+        salonLock.adquirir(turno.getSalon().getId());
         validarDentroDeHorarioSalon(turno.getSalon().getId(), diaSemana, null, request.horaInicio(), request.horaFin());
         validarSinTraslape(
                 turno.getSalon().getId(), TurnoInstructor.Tipo.RECURRENTE, diaSemana, null,
@@ -306,34 +331,64 @@ public class TurnoInstructorService {
     }
 
     /**
-     * Valida el rango de horas contra el horario del salon. Si se pasa una fecha (turnos
-     * EXCEPCION), primero se revisa si el salon tiene una excepcion para esa fecha exacta:
-     * si esta cerrado ese dia no hay horario valido; si tiene horario especial, se valida
-     * contra ese en vez del patron semanal. Los turnos RECURRENTE (fecha null) siempre
-     * validan contra el patron semanal, ya que definen una regla general, no una fecha.
+     * Valida el rango de horas contra el horario del salon. Un turno con fecha (EXCEPCION) se
+     * valida contra el horario EFECTIVO de esa fecha; uno sin fecha (RECURRENTE) contra las
+     * versiones del horario semanal que rigen de hoy en adelante.
      */
     private void validarDentroDeHorarioSalon(
             UUID salonId, short diaSemana, LocalDate fecha, LocalTime inicio, LocalTime fin) {
         if (fecha != null) {
-            Optional<SalonHorarioExcepcion> excepcion =
-                    salonHorarioExcepcionRepository.findBySalonIdAndFechaAndActivoTrue(salonId, fecha);
-            if (excepcion.isPresent()) {
-                SalonHorarioExcepcion e = excepcion.get();
-                if (e.isCerrado()) {
-                    throw new ValidacionException("El salón está cerrado ese día (" + fecha + ")");
-                }
-                if (inicio.isBefore(e.getHoraApertura()) || fin.isAfter(e.getHoraCierre())) {
-                    throw new ValidacionException("El turno debe caer dentro del horario especial del salón ese día");
-                }
-                return;
-            }
+            validarContraHorarioEfectivo(salonId, fecha, inicio, fin);
+            return;
         }
+        validarContraHorarioSemanalVigenteHaciaElFuturo(salonId, diaSemana, inicio, fin);
+    }
 
-        List<HorarioOperacion> horarios = horarioOperacionRepository.findBySalonIdOrderByDiaSemana(salonId);
-        boolean cabeEnHorario = horarios.stream()
-                .filter(h -> h.getDiaSemana() == diaSemana)
-                .anyMatch(h -> !inicio.isBefore(h.getHoraApertura()) && !fin.isAfter(h.getHoraCierre()));
-        if (!cabeEnHorario) {
+    /**
+     * Turno EXCEPCION: existe en una fecha concreta, asi que se resuelve el horario efectivo de
+     * ese dia (excepcion puntual sobre plantilla semanal versionada) y el turno debe caber dentro.
+     */
+    private void validarContraHorarioEfectivo(UUID salonId, LocalDate fecha, LocalTime inicio, LocalTime fin) {
+        HorarioEfectivo efectivo = horarioEfectivoSalon.resolver(salonId, fecha);
+        if (efectivo.estaCerrado()) {
+            throw new ValidacionException("El salón está cerrado ese día (" + fecha + ")");
+        }
+        if (efectivo.contiene(inicio, fin)) {
+            return;
+        }
+        throw new ValidacionException(efectivo.vieneDeExcepcion()
+                ? "El turno debe caer dentro del horario especial del salón ese día"
+                : "El turno debe caer dentro del horario de atención del salón ese día");
+    }
+
+    /**
+     * Turno RECURRENTE: no tiene vigencia propia, es una regla abierta al futuro. Por eso su
+     * objetivo temporal es {@code [hoy, +infinito)} y no basta con que ALGUNA version del horario
+     * semanal lo admita:
+     *
+     * <ol>
+     *   <li>las versiones aplicables deben CUBRIR ese objetivo completo, sin huecos y llegando a
+     *       +infinito (si la ultima version termina en fecha finita, el turno quedaria huerfano);</li>
+     *   <li>y TODAS ellas deben contener el rango de horas, no solo la que rige hoy.</li>
+     * </ol>
+     *
+     * Un salon abierto 08-20 hasta agosto y 09-20 desde septiembre rechaza un recurrente 08-09,
+     * aunque hoy quepa.
+     */
+    private void validarContraHorarioSemanalVigenteHaciaElFuturo(
+            UUID salonId, short diaSemana, LocalTime inicio, LocalTime fin) {
+        LocalDate fechaNegocio = LocalDate.now(reloj);
+        List<HorarioOperacion> versiones = horarioOperacionRepository
+                .findVersionesQueIntersectan(salonId, diaSemana, fechaNegocio, null);
+
+        RangoVigencia objetivo = new RangoVigencia(fechaNegocio, null);
+        boolean cubierto = CoberturaVigencia.cubreCompletamente(objetivo, versiones.stream()
+                .map(h -> new RangoVigencia(h.getVigenteDesde(), h.getVigenteHasta()))
+                .toList());
+        boolean todasLoAdmiten = !versiones.isEmpty() && versiones.stream()
+                .allMatch(h -> !inicio.isBefore(h.getHoraApertura()) && !fin.isAfter(h.getHoraCierre()));
+
+        if (!cubierto || !todasLoAdmiten) {
             throw new ValidacionException("El turno debe caer dentro del horario de atención del salón ese día");
         }
     }
@@ -359,11 +414,6 @@ public class TurnoInstructorService {
         if (traslapa) {
             throw new ValidacionException("Ese horario se cruza con otro bloque de este salón ese día");
         }
-    }
-
-    /** DayOfWeek de java (1=lunes..7=domingo) al formato del sistema (0=domingo..6=sabado). */
-    private int diaSemanaIso(DayOfWeek dayOfWeek) {
-        return dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue();
     }
 
     private TurnoInstructorResponse aResponse(TurnoInstructor t) {

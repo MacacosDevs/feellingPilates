@@ -63,6 +63,66 @@ class UbicacionesPersistenciaTest {
     }
 
     @Test
+    void v42RechazaVentanaReservaInvertida() {
+        UUID salonId = jdbcTemplate.queryForObject("select id from salon limit 1", UUID.class);
+
+        assertThatThrownBy(() -> jdbcTemplate.update("""
+                update salon
+                set anticipacion_minima_reserva_horas = 48,
+                    anticipacion_maxima_reserva_horas = 24
+                where id = ?
+                """, salonId))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    void v42PermiteVentanaReservaValidaYLimitesAbiertos() {
+        UUID salonId = jdbcTemplate.queryForObject("select id from salon limit 1", UUID.class);
+
+        // Caso max > min
+        jdbcTemplate.update("""
+                update salon
+                set anticipacion_minima_reserva_horas = 24,
+                    anticipacion_maxima_reserva_horas = 48
+                where id = ?
+                """, salonId);
+
+        var fila = jdbcTemplate.queryForMap(
+                "select anticipacion_minima_reserva_horas, anticipacion_maxima_reserva_horas from salon where id = ?",
+                salonId);
+        assertThat(((Number) fila.get("anticipacion_minima_reserva_horas")).intValue()).isEqualTo(24);
+        assertThat(((Number) fila.get("anticipacion_maxima_reserva_horas")).intValue()).isEqualTo(48);
+
+        // Caso igualdad max == min
+        jdbcTemplate.update("""
+                update salon
+                set anticipacion_minima_reserva_horas = 24,
+                    anticipacion_maxima_reserva_horas = 24
+                where id = ?
+                """, salonId);
+
+        fila = jdbcTemplate.queryForMap(
+                "select anticipacion_minima_reserva_horas, anticipacion_maxima_reserva_horas from salon where id = ?",
+                salonId);
+        assertThat(((Number) fila.get("anticipacion_minima_reserva_horas")).intValue()).isEqualTo(24);
+        assertThat(((Number) fila.get("anticipacion_maxima_reserva_horas")).intValue()).isEqualTo(24);
+
+        // Caso max NULL con min > 0
+        jdbcTemplate.update("""
+                update salon
+                set anticipacion_minima_reserva_horas = 12,
+                    anticipacion_maxima_reserva_horas = null
+                where id = ?
+                """, salonId);
+
+        fila = jdbcTemplate.queryForMap(
+                "select anticipacion_minima_reserva_horas, anticipacion_maxima_reserva_horas from salon where id = ?",
+                salonId);
+        assertThat(((Number) fila.get("anticipacion_minima_reserva_horas")).intValue()).isEqualTo(12);
+        assertThat(fila.get("anticipacion_maxima_reserva_horas")).isNull();
+    }
+
+    @Test
     void v43AgregaVigenciaAHorarioOperacionYPreservaFilasLegadas() {
         UUID salonId = jdbcTemplate.queryForObject("select id from salon limit 1", UUID.class);
         UUID horarioId = insertarHorarioLegado(salonId, (short) 2);

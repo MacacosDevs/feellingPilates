@@ -15,6 +15,8 @@ ALTER TABLE salon
         CHECK (anticipacion_minima_reserva_horas >= 0),
     ADD CONSTRAINT chk_salon_anticipacion_maxima_positiva
         CHECK (anticipacion_maxima_reserva_horas IS NULL OR anticipacion_maxima_reserva_horas > 0),
+    ADD CONSTRAINT chk_salon_anticipacion_reserva_coherente
+        CHECK (anticipacion_maxima_reserva_horas IS NULL OR anticipacion_maxima_reserva_horas >= anticipacion_minima_reserva_horas),
     ADD CONSTRAINT chk_salon_plazo_respuesta_confirmacion_no_negativo
         CHECK (plazo_respuesta_confirmacion_horas IS NULL OR plazo_respuesta_confirmacion_horas >= 0),
     ADD CONSTRAINT chk_salon_margen_materializacion_no_negativo

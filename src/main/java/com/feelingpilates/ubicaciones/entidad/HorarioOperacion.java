@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
@@ -33,4 +34,12 @@ public class HorarioOperacion extends EntidadBase {
 
     @Column(name = "hora_cierre", nullable = false)
     private LocalTime horaCierre;
+
+    /** NULL = sin limite inferior. Transicionalmente, filas legadas quedan NULL. */
+    @Column(name = "vigente_desde")
+    private LocalDate vigenteDesde;
+
+    /** NULL = sin limite superior. Transicionalmente, filas legadas quedan NULL. */
+    @Column(name = "vigente_hasta")
+    private LocalDate vigenteHasta;
 }

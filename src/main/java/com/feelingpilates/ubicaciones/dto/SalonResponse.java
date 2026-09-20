@@ -1,5 +1,6 @@
 package com.feelingpilates.ubicaciones.dto;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record SalonResponse(
@@ -10,5 +11,5 @@ public record SalonResponse(
         String estadoNombre,
         Short municipioId,
         String municipioNombre,
-        boolean permitePareja) {
+        OffsetDateTime creadoEn) {
 }

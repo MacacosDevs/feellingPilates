@@ -1,9 +1,9 @@
 package com.feelingpilates.ubicaciones.controlador;
 
 import com.feelingpilates.ubicaciones.dto.CatalogoItemRequest;
-import com.feelingpilates.ubicaciones.dto.TipoMaquinaResponse;
-import com.feelingpilates.ubicaciones.entidad.TipoMaquina;
-import com.feelingpilates.ubicaciones.repositorio.TipoMaquinaRepository;
+import com.feelingpilates.ubicaciones.dto.TipoRecursoResponse;
+import com.feelingpilates.ubicaciones.entidad.TipoRecurso;
+import com.feelingpilates.ubicaciones.repositorio.TipoRecursoRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,25 +20,25 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/tipos-maquina")
-public class TipoMaquinaController {
+@RequestMapping("/api/tipos-recurso")
+public class TipoRecursoController {
 
-    private final TipoMaquinaRepository repository;
+    private final TipoRecursoRepository repository;
 
-    public TipoMaquinaController(TipoMaquinaRepository repository) {
+    public TipoRecursoController(TipoRecursoRepository repository) {
         this.repository = repository;
     }
 
     @GetMapping
     @PreAuthorize("hasAuthority('salon.leer')")
-    public List<TipoMaquinaResponse> listar() {
+    public List<TipoRecursoResponse> listar() {
         return repository.findByActivoTrueOrderByNombre().stream().map(this::aResponse).toList();
     }
 
     @PostMapping
     @PreAuthorize("hasAuthority('salon.administrar')")
-    public ResponseEntity<TipoMaquinaResponse> crear(@Valid @RequestBody CatalogoItemRequest request) {
-        TipoMaquina tipo = new TipoMaquina();
+    public ResponseEntity<TipoRecursoResponse> crear(@Valid @RequestBody CatalogoItemRequest request) {
+        TipoRecurso tipo = new TipoRecurso();
         tipo.setNombre(request.nombre());
         tipo.setDescripcion(request.descripcion());
         return ResponseEntity.status(HttpStatus.CREATED).body(aResponse(repository.save(tipo)));
@@ -46,13 +46,13 @@ public class TipoMaquinaController {
 
     @PatchMapping("/{id}/desactivar")
     @PreAuthorize("hasAuthority('salon.administrar')")
-    public TipoMaquinaResponse desactivar(@PathVariable UUID id) {
-        TipoMaquina tipo = repository.findById(id).orElseThrow();
+    public TipoRecursoResponse desactivar(@PathVariable UUID id) {
+        TipoRecurso tipo = repository.findById(id).orElseThrow();
         tipo.setActivo(false);
         return aResponse(repository.save(tipo));
     }
 
-    private TipoMaquinaResponse aResponse(TipoMaquina t) {
-        return new TipoMaquinaResponse(t.getId(), t.getNombre(), t.getDescripcion(), t.isActivo());
+    private TipoRecursoResponse aResponse(TipoRecurso t) {
+        return new TipoRecursoResponse(t.getId(), t.getNombre(), t.getDescripcion(), t.isActivo());
     }
 }

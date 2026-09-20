@@ -7,6 +7,11 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tipo_actividad")
@@ -26,4 +31,13 @@ public class TipoActividad extends EntidadBase {
     /** Duracion de una clase de este tipo; define el tamano del bloque al reservar. */
     @Column(name = "duracion_minutos", nullable = false)
     private Short duracionMinutos = 60;
+
+    /** Cuantas personas representa una reserva de esta actividad (1 = individual, 2 = en pareja, etc). */
+    @Column(name = "participantes_por_reserva", nullable = false)
+    private Short participantesPorReserva = 1;
+
+    /** Terminos de busqueda libres, independientes del nombre (ej. "Reformer" en "Duo Reformer" y "Reformer Inicial"). */
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(name = "etiquetas", columnDefinition = "text[]", nullable = false)
+    private List<String> etiquetas = new ArrayList<>();
 }

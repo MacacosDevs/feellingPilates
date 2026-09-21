@@ -143,7 +143,7 @@ class ReservaJpaReaderPostgreSqlTest {
     }
 
     @Test
-    void hostRealCumpleImagenRedFlywayV47YJpaValidate() throws Exception {
+    void hostRealCumpleImagenRedFlywayV46YJpaValidate() throws Exception {
         assertTrue(container.isRunning());
         assertEquals("postgres:16-alpine", container.getDockerImageName());
         assertTrue(container.getMappedPort(5432) > 0);
@@ -181,7 +181,7 @@ class ReservaJpaReaderPostgreSqlTest {
                 Set.of(F2ePostgresTestConfiguration.RESERVA_UNO));
         assertEquals(estable, lectura.getFirst().provenance().schemaFingerprint());
         assertEquals(estable, F2ePostgresTestConfiguration.calcularHuellaEsquema(privilegedDataSource));
-        System.out.println("F2E GAP3 live schema+Flyway V47 fingerprint=" + estable + " stable=true metadata=SELECT_ONLY");
+        System.out.println("F2E GAP3 live schema+Flyway V46 fingerprint=" + estable + " stable=true metadata=SELECT_ONLY");
     }
 
     @Test
@@ -211,7 +211,7 @@ class ReservaJpaReaderPostgreSqlTest {
         for (int i = 0; i < 10; i++) catalogos.add(new java.util.ArrayList<>());
         catalogos.get(1).add(java.util.Arrays.asList("reserva", "estado", "2", tipo, "true", defecto, "", ""));
         catalogos.get(1).add(java.util.List.of("reserva", "id", "1", "uuid", "true", "", "", ""));
-        catalogos.get(9).add(java.util.Arrays.asList("47", "V47__fixture.sql", checksum, success));
+        catalogos.get(9).add(java.util.Arrays.asList("46", "V46__fixture.sql", checksum, success));
         catalogos.get(9).add(java.util.Arrays.asList(null, "R__fixture.sql", null, "true"));
         return catalogos;
     }

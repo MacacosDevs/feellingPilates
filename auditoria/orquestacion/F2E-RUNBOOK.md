@@ -3,11 +3,11 @@
 Estado: `MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_PROCESS_AUDIT`.
 Profile: `F2E_OPTIMIZED_EXECUTION_BOOTSTRAP_R1 / PROCESS_ONLY / DOCUMENTATION_ONLY`.
 Este anexo explica **cómo operar** una unidad autorizada. No define dominio, diseño,
-allowlist de implementación ni siguiente fase funcional. Reutiliza por referencia
-[ORQ-PROTOCOL-V1](README.md), [WORKFLOW](WORKFLOW.md), [STATE-MACHINE](STATE-MACHINE.md),
-[GATES](GATES.md) y [ROLES](ROLES.md); ninguna propuesta de optimización está activa
-en este bootstrap. Rige el rigor Product Delivery actual. Routing y propuestas
-versionadas se encuentran en [F2E-EXECUTION-POLICY](F2E-EXECUTION-POLICY.md).
+allowlist de implementación ni siguiente fase funcional. Los documentos del protocolo
+multiagente legacy ORQ-1 (`README.md`, `WORKFLOW.md`, `STATE-MACHINE.md`, `GATES.md`,
+`ROLES.md`) corresponden a `LEGACY_PROTOCOL_PROVENANCE_ONLY` y no constituyen enlaces de
+navegación ni dependencias activas; rige el rigor Orca Product Delivery actual como autoridad
+de proceso activa. Routing y propuestas versionadas se encuentran en [F2E-EXECUTION-POLICY](F2E-EXECUTION-POLICY.md).
 
 
 Vista operacional de activación R1: contrato `F2E-STATE-V2`, autorizado por el cierre

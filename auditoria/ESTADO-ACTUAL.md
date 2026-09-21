@@ -3,14 +3,15 @@
 Status: CANONICAL / CLEAN_MAIN_RECONCILIATION
 Last updated: 2026-09-20
 Repository verification: VERIFIED
-Canonical base commit: 7298b98231b164e37e090003175ba4dd0c57e060
+Canonical base commit: 103ebe5ca25c0726559040f48b4668e9cffb0a4c
 Flyway head: V46
 Historical F2E source HEAD: 6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c
-Current reconciliation lifecycle: CLEAN_MAIN_RECONCILIATION
-R1: CLOSED / ACCEPTED / PUBLISHED historically; transplanted pending fresh validation
+Current reconciliation lifecycle: F2E_R2_HANDOFF_RECONCILIATION
+R1: CLOSED / ACCEPTED / PUBLISHED / INTEGRATED
 R2 Design: COMPLETE / AUDITED / PUBLISHED / CLOSED
-R2 Implementation Handoff: HISTORICAL_ARTIFACT_PUBLISHED (commit 6140978) / NOT_ACTIVE / ALLOWLIST_RECONCILIATION_REQUIRED
-R2 Implementation: NOT_AUTHORIZED
+Historical R2 Implementation Handoff: REPOSITORY_PUBLISHED_HISTORICAL_ARTIFACT (commit 6140978) / PROVENANCE_ONLY
+Current Clean-Main R2 Implementation Handoff: MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_HANDOFF_AUDIT / NOT_APPROVED / NOT_ACTIVE
+R2 Implementation: NOT_AUTHORIZED / NOT_IMPLEMENTED
 R3-R6: NOT_AUTHORIZED
 TurnoInstructor: LEGACY_VIVO / PRODUCTIVO
 Dark launch: PRESERVED
@@ -1275,3 +1276,33 @@ El handoff R2 cita cinco documentos de orquestación en su lista de dependencias
 - Por tanto, **NO** se trasplantan a la fundación clean-main. Permanecen accesibles como procedencia histórica vía objetos Git (`orquestacion/orq-1-protocolo` / `6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c`).
 - El estado de la allowlist del handoff R2 se clasifica formalmente como: `HANDOFF_ALLOWLIST_RECONCILIATION_REQUIRED`.
 - **Separación de lifecycles**: La publicación e integración de la **FUNDACIÓN CLEAN-MAIN** (Detector Pure Core, ReferenciaOcurrencia, R1 Reserva JPA Reader, y autoridades F2E) es completamente independiente de la activación de R2. El handoff R2 permanece publicado como artefacto histórico, no activo, y con reconciliación de allowlist pendiente para el siguiente ciclo competente.
+
+## Reconciliación Clean-Main: Handoff de Implementación R2
+
+Fecha: 2026-09-20.
+
+### 1. Resolución de Reconciliación de Allowlist y Sucesor Canónico
+Se ha materializado el artefacto sucesor canónico del handoff histórico de implementación R2:
+- **Artefacto sucesor**: [`auditoria/handoffs/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-RECONCILIATION.md`](handoffs/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-RECONCILIATION.md)
+- **Handoff histórico**: [`auditoria/handoffs/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY.md`](handoffs/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY.md) (SHA-256: `7463798e80c898cc78d731012afc3b737f74c328a134d4da09d65ea79adad8e8`, publicado en commit `6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c`) se preserva inmutable como procedencia histórica.
+- **Base canónica**: `103ebe5ca25c0726559040f48b4668e9cffb0a4c` (`origin/main`).
+- **Estado del sucesor**: `MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_HANDOFF_AUDIT / NOT_APPROVED / NOT_ACTIVE`.
+- **Implementación R2**: `NOT_AUTHORIZED / NOT_IMPLEMENTED` (cero archivos bajo `src/` modificados o creados).
+
+### 2. Reclasificación Determinista del Árbol de Trabajo
+Se reclasificaron las 65 rutas del handoff histórico frente al árbol de `origin/main`:
+- **`CURRENT_R2_AUTHORIZED_NEW` (22 rutas)**: 12 de producción y 10 de prueba. Todas ausentes en el árbol actual (`hash=ABSENT`), autorizadas exclusivamente para su creación en un ciclo futuro de implementación tras activación formal. Path-set hash: `21a2300e72ad63e0b3d06f5fdb81ff4215952ee5bdbf6f234ad7fc55adfd09f3`.
+- **`CURRENT_R2_AUTHORIZED_MODIFIED` (4 rutas)**: `F2eSelectOnlyRole.java`, `F2eStatementPolicyInspector.java`, `F2eSliceChecksum.java`, `ReservaJpaReaderArchitectureTest.java`. Las cuatro existen en `origin/main` y sus hashes de entrada coinciden byte a byte con los registrados en la autoridad histórica. Path-set hash: `0249c0508404ae27f855457440501175153c73701a28f88e804ca3466d0a5c6a`.
+- **`WRITE_SCOPE` (`NEW` ∪ `MODIFIED`, 26 rutas)**: Path-set hash: `e32e6c04c5fec4f9c406ff27f57abec39b61f58ad77f75cf9e192007d4cb6028` (coincide exactamente con el hash del allowlist histórico).
+- **`CURRENT_R2_READ_ONLY` (34 rutas)**: 7 de documentación y proceso activo, 10 de pure core / esquema / entidades legacy, 11 de R1 main y 6 de R1 test. Las 34 existen en el árbol actual de `main`. Path-set hash: `da34f1a22e865b5993386ec07f675a2c20c5785e0ee3922c31047b6abbfc4457`.
+- **`CURRENT_R2_PROVENANCE_ONLY` (6 rutas)**: 5 documentos del protocolo multiagente legacy ORQ-1 (`README.md`, `WORKFLOW.md`, `STATE-MACHINE.md`, `GATES.md`, `ROLES.md`) ausentes del árbol de trabajo y reclasificados como procedencia histórica pura, más el handoff histórico. Path-set hash: `8557d930091c525532da43da098e6730179083403da6bd3d9239c18e0dfc8262`.
+- **`TOTAL_ACTIVE_PATHS` (`WRITE_SCOPE` ∪ `READ_ONLY`, 60 rutas)**: Path-set hash: `0e429c517bd93ec94ade3ae6c92c33bd1d8e5f00153ab4fb7bdc331abd007ace`.
+
+### 3. Preservación de Fronteras de Producto y Proceso
+- `TurnoInstructor`: autoridad productiva viva preservada (`LEGACY_VIVO / PRODUCTIVO`).
+- Dark launch: preservado (sin endpoints, sin beans productivos, sin wiring).
+- Cutover: `NOT_AUTHORIZED`.
+- Fases R3 a R6: `NOT_AUTHORIZED`.
+- Migraciones Flyway: techo preservado en `V46`; `V47` ausente; cero modificaciones de base de datos.
+- Pagos / Notificaciones: fuera de alcance.
+- Siguiente lifecycle autorizado: Únicamente **Activación del Handoff R2** (`R2_HANDOFF_ACTIVATION`). No autoriza implementación.

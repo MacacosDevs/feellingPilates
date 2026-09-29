@@ -1334,3 +1334,13 @@ Se reclasificaron las 65 rutas del handoff histórico frente al árbol de `origi
 - Migraciones Flyway: techo preservado en `V46`; `V47` ausente; cero modificaciones de base de datos.
 - Pagos / Notificaciones: fuera de alcance.
 - Siguiente lifecycle autorizado: Únicamente **Activación del Handoff R2** (`R2_HANDOFF_ACTIVATION`). No autoriza implementación.
+
+## F2E R2 — cierre post-merge de implementación
+
+Corte de cierre: 2026-09-28. Base canónica verificada: `c4ac3bc20f8797e0b96b23a544e6983be443cdf0` (PR #12, merge commit). La línea publicada comprende `707a514a76e599918dcd5fbd36f9516cff83177c` → `ac794da0c0b44b11a4333edf2113a4da05279cbb` → revisión independiente `a6bb5e06e6ebba49311595c033a43f8f71b474e0` → merge `c4ac3bc20f8797e0b96b23a544e6983be443cdf0`.
+
+R2 design: **CLOSED**. Handoff de implementación R2: **RECONCILED / AUDITED / PUBLISHED / ACTIVE_FOR_COMPLETED_R2_IMPLEMENTATION_LIFECYCLE**; su actividad histórica no habilita trabajo posterior. Implementación R2: **IMPLEMENTED / LOCALLY_VALIDATED / INDEPENDENTLY_AUDITED / ACCEPTED / PUBLISHED / INTEGRATED / CLOSED**. El review publicado `auditoria/reviews/F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-REVIEW.md` registra `APPROVED`, P0=0, P1=0, P2=0 y los seis hallazgos P1 previos cerrados. El handoff activo conserva SHA-256 `77995cb58e3c838024e567c48f44c8e10f9b7df9f26dbcf501dc7fbddb291a32`; el review conserva SHA-256 `dc47b8158a8e26dc95a8b09eacd669e5b81a588cc147fae78ca381a8fdef78d1`.
+
+Recibo técnico post-merge: `./mvnw clean compile` PASS, 207 fuentes Java productivas; R2 35/35 PASS; R1 59/59 PASS; regresión completa 513/513 PASS; BUILD SUCCESS; git diff --check PASS. Código R2 permanece dark launch. TurnoInstructor **LEGACY_VIVO / PRODUCTIVO**; routing productivo R2 **ABSENT**; dark launch **PRESERVED**; cutover **NOT_AUTHORIZED**. Flyway V46; V47 **ABSENT**; AjusteProgramacionFecha **ABSENT**; Pagos / Notificaciones **OUT_OF_SCOPE**.
+
+R3, R4, R5 y R6 permanecen **NOT_AUTHORIZED**. El cierre de R2 no autoriza R3. La única siguiente lifecycle es **F2E SUCCESSOR / R3 AUTHORITY PREFLIGHT**, modo **READ_ONLY / FRESH / NO_IMPLEMENTATION**, que determinará el alcance R3 desde autoridad canónica del repositorio. No se presume alcance ni comportamiento R3.

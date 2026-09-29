@@ -6,13 +6,31 @@
 Lifecycle: F2E_R2_HANDOFF_ACTIVATION
 Parent canonical main: 6fd7818a8390950688497167a6a96a8ff4147dd6
 Operational branch: AldairCruz7/f2e-r2-handoff-activation-v2
-Candidate status: MATERIALIZED_ACTIVATION_CANDIDATE / PENDING_FRESH_INDEPENDENT_ACTIVATION_AUDIT / NOT_APPROVED / NOT_ACTIVE
+Candidate status: INDEPENDENTLY_AUDITED / APPROVED / READY_FOR_ACTIVATION_TRANSITION / NOT_ACTIVE
 Implementation authority: NOT_AUTHORIZED
 R2 implementation: NOT_IMPLEMENTED
 Mode: FRESH / AUTHORITY_FIRST / FAIL_CLOSED / PROCESS_ONLY / BOUNDED_WRITE
 ```
 
-This document materializes the exact process state for a fresh independent activation audit. It does not activate the R2 handoff, authorize implementation, perform an activation audit, or publish externally.
+This document materializes the exact process state and records the result of the subsequent fresh independent activation audit. It does not activate the R2 handoff, authorize implementation, or publish externally.
+
+## Fresh independent activation audit receipt
+
+```text
+Candidate reviewed: a19cb460e101f869eb10985b0ef36ec4bdf717bc
+Audit mode: FRESH / INDEPENDENT / READ_ONLY / NO_SUBAGENTS
+Verdict: APPROVED
+P0: 0
+P1: 0
+P2: 0
+CIRCULAR_AUTHORITY: PASS
+PROCESS_STATE: PASS
+PRODUCT_BOUNDARIES: PASS
+SRC_DELTA: ZERO
+ACTIVATION_READINESS: READY_FOR_ACTIVATION_TRANSITION
+```
+
+The audit approved the exact candidate above for the subsequent activation transition. This receipt records that completed audit before activation; it does not itself activate R2 or authorize implementation.
 
 ## Approval provenance already present on canonical main
 
@@ -77,7 +95,7 @@ R2 implementation: NOT_AUTHORIZED / NOT_IMPLEMENTED
 
 ## Circular-authority guard
 
-This candidate records only the already-published handoff approval and the next required audit gate. It contains no current declaration that the handoff is active, that implementation may start, or that activation has passed an audit or approval gate. Any such state remains unavailable until a separate fresh independent activation audit and subsequent competent gate.
+This artifact records the already-published handoff approval and the completed fresh independent activation audit. It contains no current declaration that the handoff is active or that implementation may start. Those states remain unavailable until the subsequent activation transition.
 
 ## Scope proof
 
@@ -87,8 +105,8 @@ Test changes: 0
 Migration changes: 0
 Configuration changes: 0
 src delta: ZERO
-Independent activation audit: NOT_RUN
+Independent activation audit: APPROVED / READY_FOR_ACTIVATION_TRANSITION
 Subagents: 0
 ```
 
-This is exactly one bounded process-only candidate artifact. No handoff bytes, product code, test code, migration, configuration, cutover, push, pull request, or merge are performed by this candidate.
+This is exactly one bounded process-only audit receipt. No handoff bytes, product code, test code, migration, configuration, cutover, push, pull request, or merge are performed by this receipt.

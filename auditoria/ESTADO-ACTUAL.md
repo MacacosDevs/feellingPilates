@@ -1410,3 +1410,15 @@ Artefacto candidato: [`fase-2e-r3-diseno-reader-programacion-nominal-reconciliad
 - Flyway: V46. TurnoInstructor: **LEGACY_VIVO / PRODUCTIVO**. Dark launch preservado; cutover no autorizado.
 
 Este estado es derivado/documental y no habilita implementación, migración, DB access, activación ni cambio de autoridad. El JSON de orquestación permanece como cache operacional derivado de un lifecycle/HEAD anterior y no se actualiza en este corte.
+
+## F2E R3 — cierre post-merge del handoff de implementación
+
+Corte de cierre: 2026-09-28. Base canónica previa verificada: `543c60af9ac74a65b2c8630d4cdb0ca8ba269307` (PR #16, merge commit). La rama `AldairCruz7/f2e-r3-handoff-process-closure` partió directamente de esa base; `origin/main` local y remoto coincidían antes de publicar.
+
+Diseño R3: **CLOSED**. Handoff de implementación R3 [`HANDOFF-F2E-R3-IMPLEMENTACION-READER-PROGRAMACION-NOMINAL-CLEAN-MAIN.md`](handoffs/HANDOFF-F2E-R3-IMPLEMENTACION-READER-PROGRAMACION-NOMINAL-CLEAN-MAIN.md): **MATERIALIZED / RECONCILED / INDEPENDENTLY_AUDITED / APPROVED / PUBLISHED / INTEGRATED / NOT_ACTIVE**, SHA-256 `a74d139ca6c924dcbb98c368d80f38a17cf423408c7db30054e621b67b4cefa9`. El candidato `30379f343b81f653173e4cb78806aeb50e9b1317`, Correction.1 `fe5035a78b4e7bb6af558da6101354cf0686ce3a` y recibo independiente `c9f28f2dd1901a1af8a874e3ced89c66e9b5f02b` están integrados. PR #16 está merged en `543c60af9ac74a65b2c8630d4cdb0ca8ba269307`. El review independiente registra **APPROVED**, P0/P1/P2 `0/0/0`, `P1_1_JDBC_BINDING=CLOSED`, `P1_2_CHECKSUM=CLOSED` y revisión de Correction.1.
+
+Implementación R3: **NOT_AUTHORIZED / NOT_IMPLEMENTED**; no existe handoff activo R3. R4–R6 **NOT_AUTHORIZED**. Siguiente lifecycle: **R3 HANDOFF ACTIVATION**; ese lifecycle futuro podrá evaluar `ACTIVE / AUTHORIZED_TO_START`. Este cierre no activa ni autoriza implementación.
+
+Contrato preservado: Flyway V46; V47 **ABSENT / NOT_REQUIRED_FOR_R3**; migración R3 **NONE**; duplicados serie/fecha **READ_TIME_FAIL_CLOSED**; reader `f2eReaderTransactionManager / MANDATORY / readOnly=true`; owner individual `REQUIRES_NEW / REPEATABLE_READ / readOnly=true`; owner multi-reader R6 **NOT_AUTHORIZED**. `TurnoInstructor` permanece **LEGACY_VIVO / PRODUCTIVO**; autoridad productiva de Programación sin cambio; R3 **DARK_LAUNCH**; client API/web/reservations sin cambio; cutover **NOT_AUTHORIZED**; Pagos/Notificaciones **OUT_OF_SCOPE**.
+
+La allowlist terminal conserva 18 NEW, 2 MODIFIED, WRITE_SCOPE 20, READ_ONLY 17, PROVENANCE_ONLY 4 y DEFAULT_DENY **ENFORCED**; los seis path-set hashes publicados se reprodujeron exactamente. Handoff y review permanecen byte por byte inmutables. Cierre documental/proceso únicamente; `src/` sin delta.

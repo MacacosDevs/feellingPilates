@@ -3,23 +3,23 @@
   "classification": "DERIVED / NON_PRODUCT_AUTHORITY / OPERATIONAL_CACHE",
   "lane": "F2E",
   "repository": "/Users/jesusaldaircruzortiz/orca/workspaces/feelingpilates/f2e-clean-main-reconciliation",
-  "branch": "AldairCruz7/f2e-r3-design-process-closure",
+  "branch": "AldairCruz7/f2e-r3-handoff-process-closure",
   "head": {
     "source": "GIT_HEAD",
     "ref": "HEAD",
-    "anchorHead": "f61bdb7237c133ebcb7f5171366e9d9e8b7c3a89",
+    "anchorHead": "543c60af9ac74a65b2c8630d4cdb0ca8ba269307",
     "resolvedValueType": "SHA40_LOWERCASE",
-    "canonicalBase": "f61bdb7237c133ebcb7f5171366e9d9e8b7c3a89",
+    "canonicalBase": "543c60af9ac74a65b2c8630d4cdb0ca8ba269307",
     "historicalEvidenceHead": "6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c",
     "flywayHead": "V46",
-    "binding": "F2E_R3_DESIGN_PROCESS_CLOSURE"
+    "binding": "F2E_R3_HANDOFF_PROCESS_CLOSURE"
   },
   "upstream": {
     "ref": "origin/main",
     "head": {
       "source": "GIT_REV_PARSE_UPSTREAM",
       "ref": "@{u}",
-      "anchorHead": "f61bdb7237c133ebcb7f5171366e9d9e8b7c3a89",
+      "anchorHead": "543c60af9ac74a65b2c8630d4cdb0ca8ba269307",
       "resolvedValueType": "SHA40_LOWERCASE"
     },
     "ahead": 0,
@@ -31,7 +31,7 @@
     "ref": "refs/heads/main",
     "head": {
       "source": "GIT_LS_REMOTE_NON_MUTATING",
-      "anchorHead": "f61bdb7237c133ebcb7f5171366e9d9e8b7c3a89",
+      "anchorHead": "543c60af9ac74a65b2c8630d4cdb0ca8ba269307",
       "resolvedValueType": "SHA40_LOWERCASE"
     },
     "receipt": {
@@ -42,14 +42,14 @@
       "externalBackup": "NOT_GUARANTEED"
     },
     "freshQueryRequiredBeforeDispatchAuditGate": true,
-    "fetchExecuted": false,
-    "anchorHead": "f61bdb7237c133ebcb7f5171366e9d9e8b7c3a89"
+    "fetchExecuted": true,
+    "anchorHead": "543c60af9ac74a65b2c8630d4cdb0ca8ba269307"
   },
   "lifecycle": {
-    "selected": "F2E_R3_DESIGN_PROCESS_CLOSURE",
-    "selection": "POST_MERGE_R3_DESIGN_TERMINAL_CLOSURE",
+    "selected": "F2E_R3_HANDOFF_PROCESS_CLOSURE",
+    "selection": "POST_MERGE_R3_HANDOFF_TERMINAL_CLOSURE",
     "profile": "PROCESS_ONLY / MECHANICAL_CLOSURE",
-    "candidateStage": "R3_DESIGN_PUBLISHED_INTEGRATED_CLOSED",
+    "candidateStage": "R3_HANDOFF_PUBLISHED_INTEGRATED_NOT_ACTIVE",
     "r1": [
       "CLOSED",
       "ACCEPTED",
@@ -114,9 +114,9 @@
     },
     "r2Implementation": "IMPLEMENTED / LOCALLY_VALIDATED / INDEPENDENTLY_AUDITED / ACCEPTED / PUBLISHED / INTEGRATED / CLOSED",
     "turnoInstructor": "LEGACY_VIVO / PRODUCTIVO",
-    "darkLaunch": "PRESERVED",
+    "darkLaunch": "PRESERVED / R3 DARK_LAUNCH",
     "cutover": "NOT_AUTHORIZED",
-    "r3r6": "NOT_AUTHORIZED",
+    "r3r6": "R4-R6 NOT_AUTHORIZED",
     "paymentsNotifications": "OUT_OF_SCOPE",
     "processPublication": "PUBLISHED",
     "processActivation": {
@@ -188,16 +188,42 @@
     "flywayHead": "V46",
     "v47": "ABSENT / NOT_REQUIRED_FOR_R3",
     "r3Design": [
-      "RECONCILED",
-      "INDEPENDENTLY_AUDITED",
-      "APPROVED",
-      "PUBLISHED",
-      "INTEGRATED",
       "CLOSED"
     ],
     "r3Implementation": "NOT_AUTHORIZED / NOT_IMPLEMENTED",
-    "r3ImplementationHandoff": "NONE_ACTIVE",
-    "nextLifecycle": "R3 IMPLEMENTATION HANDOFF",
+    "r3ImplementationHandoff": {
+      "artifact": "auditoria/handoffs/HANDOFF-F2E-R3-IMPLEMENTACION-READER-PROGRAMACION-NOMINAL-CLEAN-MAIN.md",
+      "sha256": "a74d139ca6c924dcbb98c368d80f38a17cf423408c7db30054e621b67b4cefa9",
+      "candidateCommit": "30379f343b81f653173e4cb78806aeb50e9b1317",
+      "correctedCandidateCommit": "fe5035a78b4e7bb6af558da6101354cf0686ce3a",
+      "independentAuditReceiptCommit": "c9f28f2dd1901a1af8a874e3ced89c66e9b5f02b",
+      "publicationPullRequest": 16,
+      "status": "MATERIALIZED / RECONCILED / INDEPENDENTLY_AUDITED / APPROVED / PUBLISHED / INTEGRATED / NOT_ACTIVE",
+      "approval": "APPROVED / P0_0 / P1_0 / P2_0 / P1_1_JDBC_BINDING_CLOSED / P1_2_CHECKSUM_CLOSED",
+      "activation": "NOT_ACTIVE",
+      "implementation": "NOT_AUTHORIZED / NOT_IMPLEMENTED",
+      "defaultDeny": "ENFORCED",
+      "pathSets": {
+        "authorizedNewCount": 18,
+        "authorizedNewPathSetHash": "594afab1a5107aa5ab22d35dfa9409249d7e7caecbbb4588b926f23b8146ce07",
+        "authorizedModifiedCount": 2,
+        "authorizedModifiedPathSetHash": "2168358dbf50ccae22d0bcfa9d15499e26e3d1f3e5a0fd5d16669860c0c71f29",
+        "writeScopeCount": 20,
+        "writeScopePathSetHash": "b1a7180e430b916b56a87363a2a01992f0cf8c3b55af2a0011a0f62ce4e4e12a",
+        "readOnlyCount": 17,
+        "readOnlyPathSetHash": "1deff2786d5b591ec044c2249bda7eb6c1f30c7e7771e9770f040cf37e9d091e",
+        "provenanceOnlyCount": 4,
+        "provenanceOnlyPathSetHash": "17786d6343b0b676797a85d829fc727db13e62208f3861ca4ec96777b740e31e",
+        "totalActivePathsCount": 37,
+        "totalActivePathsHash": "bb86bc48c4ea9f9fb5e64249ec8bd46070a12705048a74b7b9b4cfa7fa9ccb8d"
+      },
+      "approvalReview": {
+        "artifact": "auditoria/reviews/F2E-R3-REVIEW-HANDOFF-IMPLEMENTACION-READER-PROGRAMACION-NOMINAL-CLEAN-MAIN.md",
+        "sha256": "94c6063a66c918a9a88dc6e77bd3b3e72b913161610c0e1dde060796136bcfce",
+        "reviewedCommit": "fe5035a78b4e7bb6af558da6101354cf0686ce3a"
+      }
+    },
+    "nextLifecycle": "R3 HANDOFF ACTIVATION",
     "r3DesignLineage": [
       "a26bfa5b9769fdb38cb5514773cc65679b81d468",
       "a9902a37593bd6ecde26fd671ca753bb59c4a4e7",
@@ -633,32 +659,32 @@
   },
   "currentGate": {
     "publication": {
-      "pullRequest": 14,
-      "mergeCommit": "f61bdb7237c133ebcb7f5171366e9d9e8b7c3a89",
+      "pullRequest": 16,
+      "mergeCommit": "543c60af9ac74a65b2c8630d4cdb0ca8ba269307",
       "status": "MERGED"
     },
     "closure": "PROCESS_ONLY / LOCAL_CHANGES_PENDING_PUBLICATION"
   },
   "humanGate": {
     "pendingJudgmentForClosure": false,
-    "currentLifecycleAuthority": "EXPLICIT_USER_R3_DESIGN_PROCESS_CLOSURE_AND_CONTROLLED_PUBLICATION",
+    "currentLifecycleAuthority": "EXPLICIT_USER_R3_HANDOFF_PROCESS_CLOSURE_AND_CONTROLLED_PUBLICATION",
     "r3Implementation": "NOT_AUTHORIZED",
     "cutover": "NOT_AUTHORIZED",
     "failClosedOnStateDrift": true
   },
   "nextAuthorizedTransition": {
-    "action": "R3 IMPLEMENTATION HANDOFF",
-    "kind": "FUTURE_HANDOFF_AUTHORITY_PREPARATION",
-    "purpose": "Derive exact clean-main implementation allowlist and acceptance contract from the closed R3 design",
+    "action": "R3 HANDOFF ACTIVATION",
+    "kind": "FUTURE_HANDOFF_ACTIVATION",
+    "purpose": "Evaluate transition of the published R3 implementation handoff to ACTIVE / AUTHORIZED_TO_START under a separate lifecycle",
     "implementationTransfer": false,
     "materializeInThisRun": false,
     "r3Authorized": false,
     "activeR3ImplementationHandoff": false
   },
   "lastRun": {
-    "role": "F2E_R3_DESIGN_PROCESS_CLOSURE_COORDINATOR",
+    "role": "F2E_R3_HANDOFF_PROCESS_CLOSURE_COORDINATOR",
     "capturedAt": "2026-09-28",
-    "cut": "PRE_PUBLICATION_CLOSURE_CANDIDATE",
+    "cut": "POST_MERGE_R3_HANDOFF_CLOSURE_CANDIDATE",
     "subagents": 0,
     "independentAudit": "NOT_RUN"
   },

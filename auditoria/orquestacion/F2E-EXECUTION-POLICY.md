@@ -1,11 +1,11 @@
-# F2E — policy operacional candidata R1
+# F2E — policy operacional candidata R2 activation pre-audit
 
 Version: `F2E-EXECUTION-POLICY-V1`; authority class: `PROCESS_PROPOSAL / NON_PRODUCT_AUTHORITY`.
-Status: `MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_PROCESS_AUDIT`.
+Status: `MATERIALIZED / READY_FOR_FRESH_INDEPENDENT_ACTIVATION_AUDIT / NOT_APPROVED / NOT_ACTIVE`.
 Annex version-bound to installed Orca `1.4.205`; no modifica ORQ-PROTOCOL-V1.
 El [RUNBOOK](F2E-RUNBOOK.md) explica el HOW y el [STATE](F2E-STATE.json) es cache derivada.
-Scope presente `F2E_OPTIMIZED_EXECUTION_BOOTSTRAP_R1 / PROCESS_ONLY / DOCUMENTATION_ONLY`.
-Ninguna optimización propuesta está aceptada/activa por este archivo o este Run.
+Scope presente `F2E_R2_HANDOFF_ACTIVATION / PROCESS_ONLY / DOCUMENTATION_ONLY`.
+Ninguna activación propuesta está aceptada/activa por este archivo o este Run.
 
 ## 1. Autoridad, alcance y activación prospectiva
 
@@ -16,14 +16,13 @@ no se copian/duplican sus reglas para reemplazar autoridad. Las referencias y ha
 competentes están en STATE y el mapping §11 distingue norma previa, propuesta y hecho.
 Contradicción: fail closed, AUTHORITY_RECONCILIATION_REQUIRED, sin override tácito.
 
-La selección USER_SELECTED_PROCESS_ONLY del gate `gate_11bf6b2c5681` abre sólo
-materialización de tres documentos, verificación coordinadora, audit independiente
-fresh y bootstrap gate; terminal competente máximo READY_FOR_CONTROLLED_PROCESS_PUBLICATION.
-Autor puede entregar MATERIALIZED, nunca self-audit acceptance. Publicación de
-proceso, activación de proceso, implementation handoff R2 e implementación son
-lifecycles separados, todavía NOT_AUTHORIZED aquí. No nuevo requisito funcional.
+La aprobación independiente del handoff R2 está publicada en PR #10, pero este Run
+abre sólo la materialización de un candidato de activación, su verificación
+coordinadora y una auditoría fresh independiente posterior. Autor puede entregar
+MATERIALIZED, nunca self-audit acceptance. Activación de proceso e implementación
+son lifecycles separados. No nuevo requisito funcional.
 R1 cerrado/aceptado/publicado, R2 diseño completo/auditado/publicado/cerrado,
-ACTIVE HANDOFF NINGUNO, R2 implementation NOT_AUTHORIZED, legacy productivo,
+R2 handoff publicado/aprobado independientemente/no activo, R2 implementation NOT_AUTHORIZED, legacy productivo,
 dark launch preservado, cutover y R3–R6 no autorizados; sin integración Payments.
 
 Las clases siguientes sólo rigen **después** de publicación/activación de proceso
@@ -312,8 +311,9 @@ Auto publication=false. Bootstrap gate PASS sólo habilita readiness competente
 para futura **publicación controlada de proceso** con autoridad/profile/gates propios.
 Process activation requiere autoridad competente aparte, seleccionando prácticas
 aceptadas y condiciones de piloto; no activa todas por poner ACTIVE_IMMEDIATELY.
-Implementation handoff R2 no materializado/activo y R2 implementation NOT_AUTHORIZED;
-después de proceso seleccionado, sus lifecycles requieren autorizaciones propias.
+Implementation handoff R2 publicado/aprobado independientemente/no activo y R2 implementation
+NOT_AUTHORIZED; el candidato de activación requiere su propia auditoría fresh antes de cualquier
+transición posterior.
 R2 design §11/research §4 son suficiencia de diseño para futuro authoring, no permiso
 de executor presente. Publicación nunca productive activation/cutover; aceptación
 nunca cutover. MILESTONE_COMPLETE no dispara fase funcional ni publicación automática.

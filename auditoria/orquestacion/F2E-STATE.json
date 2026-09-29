@@ -3,23 +3,23 @@
   "classification": "DERIVED / NON_PRODUCT_AUTHORITY / OPERATIONAL_CACHE",
   "lane": "F2E",
   "repository": "/Users/jesusaldaircruzortiz/orca/workspaces/feelingpilates/f2e-clean-main-reconciliation",
-  "branch": "AldairCruz7/f2e-r2-handoff-reconciliation",
+  "branch": "AldairCruz7/f2e-r2-handoff-activation-v2",
   "head": {
     "source": "GIT_HEAD",
     "ref": "HEAD",
-    "anchorHead": "103ebe5ca25c0726559040f48b4668e9cffb0a4c",
+    "anchorHead": "6fd7818a8390950688497167a6a96a8ff4147dd6",
     "resolvedValueType": "SHA40_LOWERCASE",
-    "canonicalBase": "103ebe5ca25c0726559040f48b4668e9cffb0a4c",
+    "canonicalBase": "6fd7818a8390950688497167a6a96a8ff4147dd6",
     "historicalEvidenceHead": "6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c",
     "flywayHead": "V46",
-    "binding": "F2E_R2_HANDOFF_RECONCILIATION_CANDIDATE"
+    "binding": "F2E_R2_HANDOFF_ACTIVATION_PRE_AUDIT_CANDIDATE"
   },
   "upstream": {
     "ref": "origin/main",
     "head": {
       "source": "GIT_REV_PARSE_UPSTREAM",
       "ref": "@{u}",
-      "anchorHead": "103ebe5ca25c0726559040f48b4668e9cffb0a4c",
+      "anchorHead": "6fd7818a8390950688497167a6a96a8ff4147dd6",
       "resolvedValueType": "SHA40_LOWERCASE"
     },
     "ahead": 0,
@@ -31,7 +31,7 @@
     "ref": "refs/heads/main",
     "head": {
       "source": "GIT_LS_REMOTE_NON_MUTATING",
-      "anchorHead": "103ebe5ca25c0726559040f48b4668e9cffb0a4c",
+      "anchorHead": "6fd7818a8390950688497167a6a96a8ff4147dd6",
       "resolvedValueType": "SHA40_LOWERCASE"
     },
     "receipt": {
@@ -43,13 +43,13 @@
     },
     "freshQueryRequiredBeforeDispatchAuditGate": true,
     "fetchExecuted": false,
-    "anchorHead": "103ebe5ca25c0726559040f48b4668e9cffb0a4c"
+    "anchorHead": "6fd7818a8390950688497167a6a96a8ff4147dd6"
   },
   "lifecycle": {
-    "selected": "F2E_R2_HANDOFF_RECONCILIATION",
-    "selection": "R2_IMPLEMENTATION_HANDOFF_CLEAN_MAIN_RECONCILIATION",
+    "selected": "F2E_R2_HANDOFF_ACTIVATION",
+    "selection": "R2_HANDOFF_ACTIVATION_PRE_AUDIT_CANDIDATE",
     "profile": "PROCESS_ONLY / DOCUMENTATION_ONLY",
-    "candidateStage": "CLEAN_MAIN_R2_HANDOFF_MATERIALIZED_PENDING_AUDIT",
+    "candidateStage": "ACTIVATION_CANDIDATE_MATERIALIZED_PENDING_FRESH_INDEPENDENT_ACTIVATION_AUDIT",
     "r1": [
       "CLOSED",
       "ACCEPTED",
@@ -72,7 +72,18 @@
       "cleanMainSuccessorHandoff": {
         "artifact": "auditoria/handoffs/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-RECONCILIATION.md",
         "sha256": "77995cb58e3c838024e567c48f44c8e10f9b7df9f26dbcf501dc7fbddb291a32",
-        "status": "MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_HANDOFF_AUDIT / NOT_APPROVED / NOT_ACTIVE"
+        "status": "PUBLISHED / INDEPENDENTLY_APPROVED / NOT_ACTIVE",
+        "approval": {
+          "artifact": "auditoria/reviews/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-RECONCILIATION-REVIEW.md",
+          "sha256": "32d6eb2714659e306d71138a78484d0db685afd8b95e548411a7aab292ef1a6f",
+          "publicationCommit": "6fd7818a8390950688497167a6a96a8ff4147dd6",
+          "pullRequest": 10,
+          "verdict": "APPROVED",
+          "p0": 0,
+          "p1": 0,
+          "p2": 0,
+          "activation": "NOT_APPROVED / NOT_ACTIVE"
+        }
       },
       "implementationApproval": "NOT_AUTHORIZED",
       "activation": "NOT_ACTIVE",
@@ -99,9 +110,11 @@
     "r3r6": "NOT_AUTHORIZED",
     "processPublication": "PUBLISHED",
     "processActivation": {
-      "declaredStatus": "ACTIVE",
+      "candidateStatus": "READY_FOR_FRESH_INDEPENDENT_ACTIVATION_AUDIT",
+      "approvalStatus": "NOT_APPROVED",
       "capturedEffectiveStatus": "NOT_ACTIVE",
-      "effectiveWhen": "AUDIT_PASS_PUBLICATION_GATE_PASS_EXACT_ACTIVATION_COMMIT_LIVE",
+      "auditStatus": "NOT_RUN",
+      "effectiveWhen": "FRESH_ACTIVATION_AUDIT_PASS_AND_COMPETENT_GATE_AND_EXACT_ACTIVATION_COMMIT_LIVE",
       "futureUseWhen": "POST_ACTIVATION_AUDIT_PASS_FINAL_ACTIVATION_GATE_PASS",
       "otherwise": "FAIL_CLOSED_NO_FUTURE_DISPATCH"
     },
@@ -161,11 +174,11 @@
       "terraPilotRecords": [],
       "historicalBootstrapAndPublicationExcludedFromFutureCounters": true
     },
-    "canonicalBase": "103ebe5ca25c0726559040f48b4668e9cffb0a4c",
+    "canonicalBase": "6fd7818a8390950688497167a6a96a8ff4147dd6",
     "flywayHead": "V46",
     "v47": "ABSENT"
   },
-  "activeMilestone": "F2E_R2_HANDOFF_RECONCILIATION",
+  "activeMilestone": "F2E_R2_HANDOFF_ACTIVATION_PRE_AUDIT",
   "authorityRefs": {
     "lifecycle": "auditoria/ESTADO-ACTUAL.md",
     "designD": "auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md",
@@ -174,24 +187,30 @@
     "r2Review": "auditoria/reviews/F2E-R2-REVIEW-DISENO-LECTOR-TURNO-LEGACY.md",
     "r1Review": "auditoria/reviews/F2E-R1-PROVENANCE-VALIDACION-ACEPTACION.md",
     "f2eRunbook": "auditoria/orquestacion/F2E-RUNBOOK.md",
-    "f2eExecutionPolicy": "auditoria/orquestacion/F2E-EXECUTION-POLICY.md"
+    "f2eExecutionPolicy": "auditoria/orquestacion/F2E-EXECUTION-POLICY.md",
+    "r2HandoffApproval": "auditoria/reviews/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-RECONCILIATION-REVIEW.md",
+    "activationCandidate": "auditoria/reviews/HANDOFF-F2E-R2-ACTIVATION-PRE-AUDIT-CANDIDATE.md"
   },
   "authorityHashes": {
-    "lifecycle": "0d81c3fbf63ff6d1cc941e6c06d8c71a8b1c249e826dcced384edb90495494cd",
+    "lifecycle": "649bc8a567b99d9b965c8de7f6531f3637e870d037f46733018cd8c3825d52f1",
     "designD": "6c72cba1f83fbc2bcf3b3219d8252d2410ec482e30ae85d30fd2eeb04e8883d8",
     "semanticDesign": "6f850e9723f9861456d646039e4b233cff20d013ff956cab98f7370dffac4670",
     "r2PublishedDesign": "db4673dd0705c41e62d0b77339d45b2cd1e87c51e26064112ad95b843dafe9cf",
     "r2Review": "742590c0a15fdc2455a3d35c27ff0a1fbb0f63e2559078a02915a69416c90654",
     "r1Review": "b324a51ddae26e00bb9b8714c48402a3001f0c99ef5f2fd1db7038ebd5adfde9",
-    "f2eRunbook": "4ef92b6d27bf2b795e7db67b34fc2fe6d5e10178c8731f05ea605bb80c708196",
-    "f2eExecutionPolicy": "b41561b7f45c19c272d40f9f38ef32b0115c29431b6ce18ee9ae4854aa35fd69"
+    "f2eRunbook": "69749a485731b1210e3454cda0c6e6ad15e57ab76c3718170b8edd49b0efca74",
+    "f2eExecutionPolicy": "9e9e09581e16ea719e51c0eee4cfbbec8bea2ecf2bf27d5f493140d82bef773b",
+    "r2HandoffApproval": "32d6eb2714659e306d71138a78484d0db685afd8b95e548411a7aab292ef1a6f",
+    "activationCandidate": "3d3eb624300a32b7ea3b7f7bf97c58059b12930faf5e41f8e2a841a0c6617483"
   },
   "handoffRefs": {
     "activeImplementation": null,
     "r2ResearchProvenance": "auditoria/handoffs/HANDOFF-F2E-R2-DISENO-LECTOR-TURNO-LEGACY.md",
     "r1Consumed": "auditoria/handoffs/HANDOFF-F2E-R1-RESERVA-READER-JPA-READ-ONLY.md",
     "r2ImplementationHandoffHistorical": "auditoria/handoffs/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY.md",
-    "r2ImplementationHandoffCleanMain": "auditoria/handoffs/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-RECONCILIATION.md"
+    "r2ImplementationHandoffCleanMain": "auditoria/handoffs/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-RECONCILIATION.md",
+    "r2HandoffApproval": "auditoria/reviews/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-RECONCILIATION-REVIEW.md",
+    "activationCandidate": "auditoria/reviews/HANDOFF-F2E-R2-ACTIVATION-PRE-AUDIT-CANDIDATE.md"
   },
   "handoffHashes": {
     "activeImplementation": null,
@@ -201,32 +220,28 @@
     "r2ImplementationHandoffCleanMain": "77995cb58e3c838024e567c48f44c8e10f9b7df9f26dbcf501dc7fbddb291a32"
   },
   "candidateIdentity": {
-    "stage": "PRE_AUDIT_ACTIVATION_CANDIDATE",
-    "payloadManifestRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/ACTIVATION-PAYLOAD.tsv",
-    "payloadSHA256": "c25e2e306c413b14b9d57314ee25f5766f4df24f32dbe43fbd778396263eb431",
-    "payloadPaths": {
-      "auditoria/ESTADO-ACTUAL.md": "dd6bf7a45a6b54335a5afd5500e5cc6357a8c9e026ed37937ef498a29a13ebaf",
-      "auditoria/orquestacion/F2E-RUNBOOK.md": "f4915d09f524fc5b472dd1d15907256f853fd699e9339c2237ade584802edbb3"
-    },
-    "payloadExcludedPaths": [
-      "auditoria/orquestacion/F2E-STATE.json",
-      "EXTERNAL_DERIVED_RECEIPTS"
-    ],
-    "fullFilesManifestRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/ACTIVATION-MANIFEST.tsv",
-    "fullManifestDigestLocation": "EXTERNAL_RECEIPT_ONLY_NOT_EMBEDDED",
-    "bindingRequiredBeforeDispatchAuditGate": true,
-    "postAuditEditsRequireNewAudit": true,
-    "anchorParent": "e5ba4c2b8b5885703cb18da5fbf0d7694d0b1646"
+    "stage": "MATERIALIZED_ACTIVATION_CANDIDATE",
+    "status": "READY_FOR_FRESH_INDEPENDENT_ACTIVATION_AUDIT / NOT_APPROVED / NOT_ACTIVE",
+    "parentCanonicalMain": "6fd7818a8390950688497167a6a96a8ff4147dd6",
+    "handoffApproval": "PUBLISHED / INDEPENDENTLY_APPROVED",
+    "handoffStatus": "NOT_ACTIVE",
+    "implementationAuthority": "NOT_AUTHORIZED",
+    "implementation": "NOT_IMPLEMENTED",
+    "activationAudit": "NOT_RUN",
+    "candidateArtifact": "auditoria/reviews/HANDOFF-F2E-R2-ACTIVATION-PRE-AUDIT-CANDIDATE.md",
+    "bindingRequiredBeforeFreshActivationAudit": true,
+    "postAuditEditsRequireNewAudit": true
   },
   "allowlistIdentity": {
-    "frozenRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_4ba4573df505/ALLOWLIST.json",
-    "sha256": "948a45861121f06f8da90d361d6906284e6546e2bb069cd33b317c4c7a4b2210",
+    "frozenRef": "auditoria/handoffs/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-RECONCILIATION.md",
+    "sha256": "77995cb58e3c838024e567c48f44c8e10f9b7df9f26dbcf501dc7fbddb291a32",
     "paths": [
-      "auditoria/ESTADO-ACTUAL.md",
-      "auditoria/orquestacion/F2E-RUNBOOK.md",
-      "auditoria/orquestacion/F2E-STATE.json"
+      "CURRENT_R2_AUTHORIZED_NEW[22]",
+      "CURRENT_R2_AUTHORIZED_MODIFIED[4]",
+      "CURRENT_R2_READ_ONLY[34]",
+      "CURRENT_R2_PROVENANCE_ONLY[6]"
     ],
-    "mutationClass": "MODIFIED_ONLY_PROCESS_ACTIVATION_CLOSURE"
+    "mutationClass": "PROCESS_ONLY_PRE_AUDIT_CANDIDATE / DEFAULT_DENY"
   },
   "repositoryShape": {
     "baseline": {

@@ -1,16 +1,18 @@
 # FeelingPilates — Estado actual de la reestructuración
 
 Status: CANONICAL / CLEAN_MAIN_RECONCILIATION
-Last updated: 2026-09-20
+Last updated: 2026-09-28
 Repository verification: VERIFIED
-Canonical base commit: 103ebe5ca25c0726559040f48b4668e9cffb0a4c
+Canonical base commit: 6fd7818a8390950688497167a6a96a8ff4147dd6
 Flyway head: V46
 Historical F2E source HEAD: 6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c
-Current reconciliation lifecycle: F2E_R2_HANDOFF_RECONCILIATION
+Current lifecycle: F2E_R2_HANDOFF_ACTIVATION_PRE_AUDIT
 R1: CLOSED / ACCEPTED / PUBLISHED / INTEGRATED
 R2 Design: COMPLETE / AUDITED / PUBLISHED / CLOSED
 Historical R2 Implementation Handoff: REPOSITORY_PUBLISHED_HISTORICAL_ARTIFACT (commit 6140978) / PROVENANCE_ONLY
-Current Clean-Main R2 Implementation Handoff: MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_HANDOFF_AUDIT / NOT_APPROVED / NOT_ACTIVE
+Current Clean-Main R2 Implementation Handoff: PUBLISHED / INDEPENDENTLY_APPROVED / NOT_ACTIVE
+Activation candidate: MATERIALIZED / READY_FOR_FRESH_INDEPENDENT_ACTIVATION_AUDIT / NOT_APPROVED / NOT_ACTIVE
+Independent approval review: auditoria/reviews/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-RECONCILIATION-REVIEW.md (commit 6fd7818)
 R2 Implementation: NOT_AUTHORIZED / NOT_IMPLEMENTED
 R3-R6: NOT_AUTHORIZED
 TurnoInstructor: LEGACY_VIVO / PRODUCTIVO
@@ -19,6 +21,21 @@ Cutover: NOT_AUTHORIZED
 V47: ABSENT
 
 ---
+
+## Estado vigente — candidato de pre-auditoría de activación R2
+
+El handoff R2 reconciliado conserva sus bytes exactos y está respaldado por la revisión independiente publicada en PR #10. La activación no está aprobada ni activa: el siguiente gate único es una auditoría fresh e independiente del candidato materializado en `auditoria/reviews/HANDOFF-F2E-R2-ACTIVATION-PRE-AUDIT-CANDIDATE.md`.
+
+```text
+HANDOFF APPROVAL: PUBLISHED / APPROVED / INDEPENDENTLY_APPROVED
+HANDOFF: NOT_ACTIVE
+ACTIVATION CANDIDATE: MATERIALIZED / READY_FOR_FRESH_INDEPENDENT_ACTIVATION_AUDIT / NOT_APPROVED / NOT_ACTIVE
+R2 IMPLEMENTATION AUTHORITY: NOT_AUTHORIZED
+R2 IMPLEMENTATION: NOT_IMPLEMENTED
+INDEPENDENT ACTIVATION AUDIT: NOT_RUN
+```
+
+This process-only transition does not change product authority, dark-launch boundaries, migrations, or the R2 implementation scope.
 ## Snapshot del repositorio verificado en 3B.0
 
 Branch verificada (snapshot 3B.0):

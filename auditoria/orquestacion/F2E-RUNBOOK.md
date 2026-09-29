@@ -1,13 +1,22 @@
-# F2E — runbook operacional candidato R1
+# F2E — runbook operacional candidato R2 activation pre-audit
 
-Estado: `MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_PROCESS_AUDIT`.
-Profile: `F2E_OPTIMIZED_EXECUTION_BOOTSTRAP_R1 / PROCESS_ONLY / DOCUMENTATION_ONLY`.
+Estado: `MATERIALIZED / READY_FOR_FRESH_INDEPENDENT_ACTIVATION_AUDIT / NOT_APPROVED / NOT_ACTIVE`.
+Profile: `F2E_R2_HANDOFF_ACTIVATION / PROCESS_ONLY / DOCUMENTATION_ONLY`.
 Este anexo explica **cómo operar** una unidad autorizada. No define dominio, diseño,
 allowlist de implementación ni siguiente fase funcional. Los documentos del protocolo
 multiagente legacy ORQ-1 (`README.md`, `WORKFLOW.md`, `STATE-MACHINE.md`, `GATES.md`,
 `ROLES.md`) corresponden a `LEGACY_PROTOCOL_PROVENANCE_ONLY` y no constituyen enlaces de
 navegación ni dependencias activas; rige el rigor Orca Product Delivery actual como autoridad
 de proceso activa. Routing y propuestas versionadas se encuentran en [F2E-EXECUTION-POLICY](F2E-EXECUTION-POLICY.md).
+
+La aprobación independiente del handoff R2 ya está publicada en PR #10, commit
+`6fd7818a8390950688497167a6a96a8ff4147dd6`, y conserva el handoff `NOT_ACTIVE`.
+Este runbook sólo materializa el candidato previo a la auditoría fresh de activación;
+no declara aprobación de activación ni autoriza implementación.
+
+La escritura acotada de este lifecycle se limita a los cuatro archivos de autoridad
+de proceso y a un único artefacto nuevo de review: `auditoria/reviews/HANDOFF-F2E-R2-ACTIVATION-PRE-AUDIT-CANDIDATE.md`.
+No se modifica el handoff reconciliado.
 
 
 Vista operacional de activación R1: contrato `F2E-STATE-V2`, autorizado por el cierre
@@ -57,8 +66,9 @@ Invariantes de entrada y salida, verificables desde fuentes competentes:
 | --- | --- |
 | R1 | CLOSED / ACCEPTED / PUBLISHED; exact21 main11/test10 inmutable en esta unidad |
 | R2 diseño | COMPLETE / AUDITED / PUBLISHED / CLOSED |
-| R2 implementation handoff | HISTORICAL ARTIFACT REPOSITORY-PUBLISHED (commit 6140978) / NOT_ACTIVE / ALLOWLIST_RECONCILIATION_REQUIRED; ACTIVE HANDOFF NINGUNO |
-| Implementación R2 | NOT_AUTHORIZED / NOT_STARTED |
+| R2 implementation handoff | PUBLISHED / INDEPENDENTLY_APPROVED / NOT_ACTIVE; review publicada en PR #10 |
+| Candidato de activación R2 | MATERIALIZED / READY_FOR_FRESH_INDEPENDENT_ACTIVATION_AUDIT / NOT_APPROVED / NOT_ACTIVE |
+| Implementación R2 | NOT_AUTHORIZED / NOT_IMPLEMENTED |
 | TurnoInstructor | LEGACY_VIVO / PRODUCTIVO |
 | Dark launch / cutover | PRESERVED / NOT_AUTHORIZED |
 | R3–R6 | NOT_AUTHORIZED_IN_R2 |
@@ -113,9 +123,9 @@ Asimismo, las cinco dependencias históricas de orquestación (`README.md`, `WOR
 `GATES.md`, `ROLES.md`) pertenecen al protocolo multiagente legacy (ORQ-1), cuyo equivalente de proceso
 vigente es Orca Product Delivery (RUNBOOK y POLICY). Dichos documentos son `LEGACY_PROTOCOL_PROVENANCE_ONLY`,
 accesibles vía objetos Git históricos, y no se trasplantan a la base limpia. El estado de la allowlist
-del handoff es `HANDOFF_ALLOWLIST_RECONCILIATION_REQUIRED`; la integración de la fundación F2E es
-completamente independiente de la activación de R2, la cual requerirá reconciliación explícita en su
-propio ciclo futuro.
+del handoff es `RECONCILED_CLEAN_MAIN_ALLOWLIST`; la integración de la fundación F2E es
+completamente independiente de la activación de R2. La aprobación del handoff está publicada,
+pero el candidato de activación requiere una auditoría fresh e independiente propia.
 
 ## 3. Lifecycle y gates por profile
 

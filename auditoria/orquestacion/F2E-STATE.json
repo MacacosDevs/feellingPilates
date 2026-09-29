@@ -3,23 +3,23 @@
   "classification": "DERIVED / NON_PRODUCT_AUTHORITY / OPERATIONAL_CACHE",
   "lane": "F2E",
   "repository": "/Users/jesusaldaircruzortiz/orca/workspaces/feelingpilates/f2e-clean-main-reconciliation",
-  "branch": "AldairCruz7/f2e-r3-handoff-process-closure",
+  "branch": "AldairCruz7/f2e-r3-handoff-activation",
   "head": {
     "source": "GIT_HEAD",
     "ref": "HEAD",
-    "anchorHead": "543c60af9ac74a65b2c8630d4cdb0ca8ba269307",
+    "anchorHead": "636a08f791197a5537032afb8885dd32bf058c35",
     "resolvedValueType": "SHA40_LOWERCASE",
-    "canonicalBase": "543c60af9ac74a65b2c8630d4cdb0ca8ba269307",
+    "canonicalBase": "636a08f791197a5537032afb8885dd32bf058c35",
     "historicalEvidenceHead": "6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c",
     "flywayHead": "V46",
-    "binding": "F2E_R3_HANDOFF_PROCESS_CLOSURE"
+    "binding": "F2E_R3_HANDOFF_ACTIVATION_CANDIDATE"
   },
   "upstream": {
     "ref": "origin/main",
     "head": {
       "source": "GIT_REV_PARSE_UPSTREAM",
       "ref": "@{u}",
-      "anchorHead": "543c60af9ac74a65b2c8630d4cdb0ca8ba269307",
+      "anchorHead": "636a08f791197a5537032afb8885dd32bf058c35",
       "resolvedValueType": "SHA40_LOWERCASE"
     },
     "ahead": 0,
@@ -31,7 +31,7 @@
     "ref": "refs/heads/main",
     "head": {
       "source": "GIT_LS_REMOTE_NON_MUTATING",
-      "anchorHead": "543c60af9ac74a65b2c8630d4cdb0ca8ba269307",
+      "anchorHead": "636a08f791197a5537032afb8885dd32bf058c35",
       "resolvedValueType": "SHA40_LOWERCASE"
     },
     "receipt": {
@@ -43,13 +43,13 @@
     },
     "freshQueryRequiredBeforeDispatchAuditGate": true,
     "fetchExecuted": true,
-    "anchorHead": "543c60af9ac74a65b2c8630d4cdb0ca8ba269307"
+    "anchorHead": "636a08f791197a5537032afb8885dd32bf058c35"
   },
   "lifecycle": {
-    "selected": "F2E_R3_HANDOFF_PROCESS_CLOSURE",
-    "selection": "POST_MERGE_R3_HANDOFF_TERMINAL_CLOSURE",
-    "profile": "PROCESS_ONLY / MECHANICAL_CLOSURE",
-    "candidateStage": "R3_HANDOFF_PUBLISHED_INTEGRATED_NOT_ACTIVE",
+    "selected": "F2E_R3_HANDOFF_ACTIVATION",
+    "selection": "PUBLISHED_R3_HANDOFF_ACTIVATION_CANDIDATE",
+    "profile": "PROCESS_ONLY / FRESH_INDEPENDENT_AUDIT_REQUIRED",
+    "candidateStage": "R3_HANDOFF_ACTIVATION_MATERIALIZED_CANDIDATE_PENDING_FRESH_INDEPENDENT_AUDIT",
     "r1": [
       "CLOSED",
       "ACCEPTED",
@@ -223,7 +223,17 @@
         "reviewedCommit": "fe5035a78b4e7bb6af558da6101354cf0686ce3a"
       }
     },
-    "nextLifecycle": "R3 HANDOFF ACTIVATION",
+    "r3Activation": {
+      "artifact": "auditoria/reviews/HANDOFF-F2E-R3-ACTIVATION-PRE-AUDIT-CANDIDATE.md",
+      "status": "MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_AUDIT / NOT_APPROVED / NOT_PUBLISHED",
+      "approved": false,
+      "published": false,
+      "active": false,
+      "implementationAuthority": "NOT_AUTHORIZED",
+      "implementation": "NOT_IMPLEMENTED",
+      "effectiveOnlyAfter": "FRESH_INDEPENDENT_APPROVAL_PUBLISHED_AND_DETERMINISTIC_FINALIZATION_MERGED"
+    },
+    "nextLifecycle": "R3 HANDOFF ACTIVATION AUDIT",
     "r3DesignLineage": [
       "a26bfa5b9769fdb38cb5514773cc65679b81d468",
       "a9902a37593bd6ecde26fd671ca753bb59c4a4e7",
@@ -253,7 +263,8 @@
     "activationCandidate": "auditoria/reviews/HANDOFF-F2E-R2-ACTIVATION-PRE-AUDIT-CANDIDATE.md",
     "r2ImplementationReview": "auditoria/reviews/F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-REVIEW.md",
     "r3PublishedDesign": "auditoria/fase-2e-r3-diseno-reader-programacion-nominal-reconciliado.md",
-    "r3IndependentReview": "auditoria/reviews/F2E-R3-REVIEW-DISENO-READER-PROGRAMACION-NOMINAL-RECONCILIADO.md"
+    "r3IndependentReview": "auditoria/reviews/F2E-R3-REVIEW-DISENO-READER-PROGRAMACION-NOMINAL-RECONCILIADO.md",
+    "r3HandoffActivationCandidate": "auditoria/reviews/HANDOFF-F2E-R3-ACTIVATION-PRE-AUDIT-CANDIDATE.md"
   },
   "authorityHashes": {
     "lifecycle": "23c9e941c5367e3511303bd19f147046fb9f537ba85f873e160f9cade5542583",
@@ -663,28 +674,29 @@
       "mergeCommit": "543c60af9ac74a65b2c8630d4cdb0ca8ba269307",
       "status": "MERGED"
     },
-    "closure": "PROCESS_ONLY / LOCAL_CHANGES_PENDING_PUBLICATION"
+    "closure": "R3_HANDOFF_PROCESS_CLOSURE_PUBLISHED",
+    "r3Activation": "MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_AUDIT / NOT_APPROVED / NOT_PUBLISHED / NOT_ACTIVE"
   },
   "humanGate": {
     "pendingJudgmentForClosure": false,
-    "currentLifecycleAuthority": "EXPLICIT_USER_R3_HANDOFF_PROCESS_CLOSURE_AND_CONTROLLED_PUBLICATION",
+    "currentLifecycleAuthority": "EXPLICIT_USER_R3_HANDOFF_ACTIVATION_CLOSED_LOOP",
     "r3Implementation": "NOT_AUTHORIZED",
     "cutover": "NOT_AUTHORIZED",
     "failClosedOnStateDrift": true
   },
   "nextAuthorizedTransition": {
-    "action": "R3 HANDOFF ACTIVATION",
-    "kind": "FUTURE_HANDOFF_ACTIVATION",
-    "purpose": "Evaluate transition of the published R3 implementation handoff to ACTIVE / AUTHORIZED_TO_START under a separate lifecycle",
+    "action": "R3 HANDOFF ACTIVATION FRESH INDEPENDENT AUDIT",
+    "kind": "CURRENT_CANDIDATE_AUDIT_GATE",
+    "purpose": "Audit this exact process-only activation candidate before approval publication and deterministic finalization",
     "implementationTransfer": false,
-    "materializeInThisRun": false,
+    "materializeInThisRun": true,
     "r3Authorized": false,
     "activeR3ImplementationHandoff": false
   },
   "lastRun": {
-    "role": "F2E_R3_HANDOFF_PROCESS_CLOSURE_COORDINATOR",
+    "role": "F2E_R3_HANDOFF_ACTIVATION_COORDINATOR",
     "capturedAt": "2026-09-28",
-    "cut": "POST_MERGE_R3_HANDOFF_CLOSURE_CANDIDATE",
+    "cut": "R3_HANDOFF_ACTIVATION_CANDIDATE",
     "subagents": 0,
     "independentAudit": "NOT_RUN"
   },

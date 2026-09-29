@@ -1,13 +1,24 @@
-# F2E — runbook operacional candidato R1
+# F2E — runbook operacional de activación del handoff R2
 
-Estado: `MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_PROCESS_AUDIT`.
-Profile: `F2E_OPTIMIZED_EXECUTION_BOOTSTRAP_R1 / PROCESS_ONLY / DOCUMENTATION_ONLY`.
+Estado: `RECONCILED / PUBLISHED / INDEPENDENTLY_APPROVED / PREACTIVATION_AUDITED / ACTIVE`.
+Profile: `F2E_R2_HANDOFF_ACTIVATION / PROCESS_ONLY / DOCUMENTATION_ONLY`.
 Este anexo explica **cómo operar** una unidad autorizada. No define dominio, diseño,
 allowlist de implementación ni siguiente fase funcional. Los documentos del protocolo
 multiagente legacy ORQ-1 (`README.md`, `WORKFLOW.md`, `STATE-MACHINE.md`, `GATES.md`,
 `ROLES.md`) corresponden a `LEGACY_PROTOCOL_PROVENANCE_ONLY` y no constituyen enlaces de
 navegación ni dependencias activas; rige el rigor Orca Product Delivery actual como autoridad
 de proceso activa. Routing y propuestas versionadas se encuentran en [F2E-EXECUTION-POLICY](F2E-EXECUTION-POLICY.md).
+
+La aprobación independiente del handoff R2 ya está publicada en PR #10, commit
+`6fd7818a8390950688497167a6a96a8ff4147dd6`. La auditoría fresh independiente aprobó
+el candidato exacto `a19cb460e101f869eb10985b0ef36ec4bdf717bc` para la transición de
+activación. El receipt se registró primero en el commit
+`a360a536022207ebe231eb2588f5a9ea1620e835`; después se activó el handoff exacto.
+La autoridad R2 queda `AUTHORIZED_TO_START` y la implementación `NOT_IMPLEMENTED`.
+
+La escritura acotada de este lifecycle se limitó primero al receipt en el artefacto
+de review existente y después a los cuatro archivos de autoridad de proceso/estado.
+No se modifica el handoff reconciliado ni su allowlist.
 
 
 Vista operacional de activación R1: contrato `F2E-STATE-V2`, autorizado por el cierre
@@ -57,11 +68,14 @@ Invariantes de entrada y salida, verificables desde fuentes competentes:
 | --- | --- |
 | R1 | CLOSED / ACCEPTED / PUBLISHED; exact21 main11/test10 inmutable en esta unidad |
 | R2 diseño | COMPLETE / AUDITED / PUBLISHED / CLOSED |
-| R2 implementation handoff | HISTORICAL ARTIFACT REPOSITORY-PUBLISHED (commit 6140978) / NOT_ACTIVE / ALLOWLIST_RECONCILIATION_REQUIRED; ACTIVE HANDOFF NINGUNO |
-| Implementación R2 | NOT_AUTHORIZED / NOT_STARTED |
+| R2 implementation handoff | RECONCILED / PUBLISHED / INDEPENDENTLY_APPROVED / PREACTIVATION_AUDITED / ACTIVE |
+| Auditoría de preactivación R2 | APPROVED / READY_FOR_ACTIVATION_TRANSITION; candidate `a19cb460e101f869eb10985b0ef36ec4bdf717bc` |
+| Autoridad / implementación R2 | AUTHORIZED_TO_START / NOT_IMPLEMENTED |
 | TurnoInstructor | LEGACY_VIVO / PRODUCTIVO |
 | Dark launch / cutover | PRESERVED / NOT_AUTHORIZED |
+| Flyway / V47 | V46 / ABSENT |
 | R3–R6 | NOT_AUTHORIZED_IN_R2 |
+| Payments / Notifications | OUT_OF_SCOPE |
 | P2-EVIDENCE-01 | NON_BLOCKING / PRESERVED; no reparación de originales |
 
 R1 path-set SHA-256 `f400a0602f95e318845da670bee4f819f057842adf8a60506564d5bd75e41d14`;
@@ -108,14 +122,15 @@ ni reabrir R1 por su antigüedad. Registrar fuentes/hashes en STATE y report ext
 En cuanto al handoff de implementación R2, se distinguen cuatro ejes: (1) el marcador interno
 del documento pre-publicación como fue escrito históricamente (`MATERIALIZED_CANDIDATE / NOT_PUBLISHED`),
 (2) el evento de publicación física en repositorio mediante el commit histórico `6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c`,
-(3) la autorización implementativa (`NOT_AUTHORIZED`), y (4) la activación operativa (`NOT_ACTIVE`).
+(3) la autorización implementativa actual (`AUTHORIZED_TO_START / NOT_IMPLEMENTED`), y
+(4) la activación operativa actual (`PREACTIVATION_AUDITED / ACTIVE`).
 Asimismo, las cinco dependencias históricas de orquestación (`README.md`, `WORKFLOW.md`, `STATE-MACHINE.md`,
 `GATES.md`, `ROLES.md`) pertenecen al protocolo multiagente legacy (ORQ-1), cuyo equivalente de proceso
 vigente es Orca Product Delivery (RUNBOOK y POLICY). Dichos documentos son `LEGACY_PROTOCOL_PROVENANCE_ONLY`,
 accesibles vía objetos Git históricos, y no se trasplantan a la base limpia. El estado de la allowlist
-del handoff es `HANDOFF_ALLOWLIST_RECONCILIATION_REQUIRED`; la integración de la fundación F2E es
-completamente independiente de la activación de R2, la cual requerirá reconciliación explícita en su
-propio ciclo futuro.
+del handoff es `RECONCILED_CLEAN_MAIN_ALLOWLIST`; la integración de la fundación F2E es
+completamente independiente de la activación de R2. La aprobación del handoff está publicada
+y el candidato de activación ya recibió la auditoría fresh e independiente requerida.
 
 ## 3. Lifecycle y gates por profile
 
@@ -135,7 +150,8 @@ WORKFLOW; no lo degrada ni fabrica gates. No trasladar un recorrido ilustrativo 
 requisito universal. Para cada transición exigir PASS sólo de gates aplicables que
 deban estar resueltos antes de ella; futuros aplicables PENDING, ajenos NOT_APPLICABLE.
 
-Profile presente, bajo protocolo normal, sin usar optimizaciones candidatas:
+El siguiente bloque conserva el profile histórico del candidato antes del audit,
+bajo protocolo normal y sin usar optimizaciones candidatas:
 
 ```text
 PREPARE → DOCUMENT → coordinator scope verification
@@ -143,29 +159,27 @@ PREPARE → DOCUMENT → coordinator scope verification
 → READY_FOR_CONTROLLED_PROCESS_PUBLICATION (terminal de este profile)
 ```
 
-El autor entrega `F2E_OPTIMIZED_EXECUTION_BOOTSTRAP_MATERIALIZED`; no entrega PASS
-independiente ni declara alcanzado el terminal competente. Scope verification,
-audit y bootstrap gate de los nuevos bytes siguen PENDING; IDs futuros null.
-La siguiente acción tras materializar es verificación coordinadora y audit nuevo.
-Correcciones actuales siguen ORQ normal y el scope correctivo competente; los
-presupuestos propuestos de la policy no se aplican en este Run.
+En ese corte histórico el autor entregó `F2E_OPTIMIZED_EXECUTION_BOOTSTRAP_MATERIALIZED`
+sin entregar PASS independiente. La auditoría fresh posterior ya resolvió el candidato
+exacto con `APPROVED / P0=0 / P1=0 / P2=0 / READY_FOR_ACTIVATION_TRANSITION`.
+Este lifecycle no crea IDs futuros ni ejecuta una auditoría nueva.
 
 | Bloque presente | Aplicabilidad / estado al corte del autor |
 | --- | --- |
 | Autoridad/scope/safety/identidad | APPLICABLE; medición del autor, resolución competente pendiente |
-| Audit independiente de proceso | APPLICABLE / PENDING / NOT_EXECUTED |
-| Bootstrap Decision Gate | APPLICABLE / PENDING / no ID futuro inventado |
+| Audit independiente de proceso | APPLICABLE / APPROVED / P0=0 / P1=0 / P2=0 |
+| Activation transition | APPLICABLE / AUTHORIZED / MATERIALIZED_AFTER_AUDIT_RECEIPT |
 | Implementation/tests/host/DB | NOT_APPLICABLE / NOT_EXECUTED; nunca technical PASS |
-| Publicación en este profile | NOT_AUTHORIZED / NOT_EXECUTED; lifecycle separado |
-| Activación de proceso | NOT_AUTHORIZED / NOT_EXECUTED; autoridad competente separada |
+| Publicación en este profile | AUTHORIZED / CONTROLLED_PUBLICATION_ONLY |
+| Activación del handoff R2 | ACTIVE; implementación AUTHORIZED_TO_START / NOT_IMPLEMENTED |
 
 La inaplicabilidad técnica se funda conjuntamente en scope documental puro,
 bytes de implementación aceptados sin cambio, autoridad aplicable sin obligación
 de rerun y evidencia física sin drift. Si cualquiera falla, detener/reclasificar
 por fuente competente; no omitir evidencia técnica cuando sí corresponda.
-Tras bootstrap PASS, publicación controlada de proceso necesita profile/gates/rol
-publisher propios; activación de proceso necesita decisión competente propia.
-Nada de ello materializa/activa handoff R2 ni autoriza implementación por continuidad.
+La publicación controlada conserva el historial lineal exacto, sin squash, rebase,
+amend ni force push. La activación materializada autoriza sólo el inicio de un lifecycle
+R2 separado dentro de la allowlist exacta; no implementa R2 ni autoriza cutover.
 
 ## 4. Coordinación, dispatch e independencia
 
@@ -377,14 +391,16 @@ reconciliación competente falla cerrado. Refresh requiere scope documental prop
 cache stale no autoriza editar canónicos ni implementar. Antes de cada dispatch,
 validación, audit o gate, repetir freshness y enlazar snapshot exacto.
 
-Evitar circular self-hashing: payload `E/CANDIDATE-PAYLOAD.tsv` contiene sólo RUNBOOK
+Evitar circular self-hashing: el payload histórico `E/CANDIDATE-PAYLOAD.tsv` contiene sólo RUNBOOK
 y POLICY, líneas `SHA256  relativePath\n`, paths sorted UTF-8/LF/finalLF, sin header.
 STATE contiene su SHA, se excluye del payload junto con receipts derivados. Tras
 escribir STATE, `E/CANDIDATE-MANIFEST.tsv` registra **los tres archivos completos**
 con igual framing y hash externo, sin incrustar éste en STATE. El report/dispatch
-transporta ese full3 hash y hashes por archivo. El coordinador/gate externo bindará
-exactamente bytes auditados; no editar STATE post-audit para insertar veredictos.
-Todo cambio posterior crea candidato nuevo y exige nuevo audit competente.
+transporta ese full3 hash y hashes por archivo. El coordinador/gate externo vinculó
+los bytes auditados. Para este lifecycle, la autoridad explícita permite después del
+audit únicamente (1) el receipt exacto y (2) la transición mecánica exacta de
+activación; cualquier otro cambio semántico, de diseño, allowlist o producto exige
+detener y obtener nueva autoridad/auditoría.
 
 ## 10.1. STATE V2 — checkpoint operacional derivado sin autorreferencia
 
@@ -397,9 +413,9 @@ exactamente los campos required de §10, con las diferencias de tipos siguientes
   cada valor **resuelto** debe ser SHA40 lowercase. `anchorHead` conserva el checkpoint
   observado, nunca se presenta como HEAD terminal. El resolved STATE externo contiene
   los valores concretos de HEAD/upstream/live medidos, timestamp y receipts.
-- `currentGate` y las fases de `validationState` conservan precedentes reales y
-  selectores de gates nuevos por Run + semantic exacto + candidate binding; IDs no
-  creados son null/PENDING. Nunca poner PASS por intención ni inventar un ID futuro.
+- `currentGate` y las fases de `validationState` conservan precedentes reales y la
+  autoridad explícita de esta transición; IDs no creados permanecen null. Nunca se
+  inventa un ID futuro.
 - `lifecycle` contiene ejes bootstrap/publicación/activación/cierre y métricas futuras
   con frontera temporal. No contar bootstrap/cierre como pilotos Luna/Terra ni
   fabricar calidad, costo, tokens o quota. Los otros objetos mantienen tipos de §10.
@@ -409,18 +425,14 @@ Resolución obligatoria antes de cada task/audit/gate, bajo autoridad competente
    verificar clasificación DERIVED, versión conocida, keysets/tipos y RAW disponible.
 2. Ejecutar Git status/refs/index/HEAD y ls-remote no-mutante. Resolver HEAD, upstream
    y live desde herramientas; comparar sus SHA40, branch y snapshot autorizado.
-3. Antes de publicar este cierre, HEAD debe ser su anchor y sólo puede existir el
-   delta documental exacto autorizado. Activación efectiva sigue NOT_ACTIVE; gates
-   futuros aplicables son PENDING. Esta fase no habilita uso de política optimizada.
-4. Después de publicar, probar commit con parent exacto anchor, diff exacto allowlist,
-   blobs iguales a candidate auditado/gate de publicación, repo CLEAN/index EMPTY y
-   HEAD=upstream=live,0/0. Sólo esa prueba hace la activación declarada operacional
-   ACTIVE; uso en nuevos lifecycles permanece bloqueado mientras falta cierre final.
-5. Abrir Orca/receipts reales del Run de activación: gate de autorización posterior a
-   audit fresh PASS, publicación controlada y auditor post-publicación NUEVO PASS.
-   Gate terminal debe ser único, resolved/PASS, semantic exacto, binding del commit,
-   manifest y hashes actuales; nunca resolver por un título o un cache. Sólo entonces
-   cierre CLOSED y nextAuthorizedTransition habilitado como readiness documental.
+3. Antes de publicar, HEAD debe ser el activation commit cuyo parent inmediato es el
+   receipt commit y cuyo ancestro inmediato anterior es el candidato auditado. Sólo
+   puede existir el delta documental exacto autorizado; la activación queda ACTIVE y
+   R2 `AUTHORIZED_TO_START / NOT_IMPLEMENTED`.
+4. Después de publicar y fusionar, probar el historial exacto, diff exacto, allowlist
+   inmutable, repo CLEAN/index EMPTY y que los tres commits sean ancestros de main.
+5. Verificar PR MERGED y el resulting `origin/main` mediante Git/GitHub. Este lifecycle
+   no lanza auditor post-publicación ni inventa gate, task, dispatch o receipt IDs.
 6. Materializar fuera del repo el resolved STATE concreto con HEAD/upstream/live,
    hashes vigentes, gate ID/resolution/timestamp, estado efectivo, métricas y next
    lifecycle. Registrar hash en receipt externo y snapshots. Ningún selector es

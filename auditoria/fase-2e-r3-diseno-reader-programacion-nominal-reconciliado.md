@@ -5,7 +5,7 @@
 ```text
 Tipo: DESIGN / RECONCILIATION
 Base canónica: 2422ee555f6e49e7edb27bfca9c71f66c2ef2c7a
-Estado: MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_DESIGN_AUDIT / NOT_APPROVED / NOT_PUBLISHED
+Estado: CORRECTION1_CANDIDATE / PENDING_FRESH_INDEPENDENT_DESIGN_REAUDIT / NOT_APPROVED / NOT_PUBLISHED
 Implementación R3: NOT_AUTHORIZED
 V47: ABSENT / NOT_AUTHORIZED
 Flyway canónico: V46
@@ -22,6 +22,7 @@ Este documento reconcilia el subconjunto histórico R3 con el esquema canónico 
 - `auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md`, especialmente §§9, 12.1–12.2, 19, 33.3 y 34.
 - `auditoria/reviews/F2E-ADAPTERS-SNAPSHOT-DESIGN-REVIEW.md`, que conserva R3 como candidato no autorizado y el audit histórico del diseño amplio.
 - `auditoria/fase-2e-identidad-semantica-detector-read-only.md`, especialmente §§4, 5, 8.1 y la matriz de identidad E/F.
+- Autoridad transaccional histórica §§15, 17–18 y enmienda R1 §37.9 del diseño adapters; diseño R2 §6.1–6.3; `ReadSnapshotContext.java`, `ReservaJpaReader.java` y `LegacyTurnJpaReader.java` actuales. R1 usa manager `f2eReaderTransactionManager`/`MANDATORY` con owner test `READ_COMMITTED`; R2 usa manager `f2eR2ReaderTransactionManager`/`MANDATORY` con owner test `REPEATABLE_READ`. Ninguno autoriza por sí mismo una composición R6.
 - Canonical migrations V41–V46; entities `Asignacion`/`BloqueProgramacion`, `ReferenciaOcurrencia`; `AsignacionRepository` actual.
 - Contenido histórico de `V47__programacion_ajustes_fecha.sql`, leído directamente del objeto Git `95900d8` (no materializado en el worktree). La copia histórica declara F2D.2 y no es autoridad para restaurar V47.
 
@@ -53,7 +54,7 @@ Los nombres ingleses del port/read-set/row se retienen porque el contrato histó
 
 ### No especificado históricamente
 
-- Política para estado preexistente contradictorio que el motor de base de datos no impide (en particular solapamientos activos por serie antes de instalar garantía física): se cierra aquí como preflight obligatorio y rechazo fail-closed.
+- Política para estado preexistente contradictorio que V46 no impide: se cierra aquí mediante detección de duplicados aplicables durante la lectura y rechazo completo, sin migración ni reparación.
 - Propagación/isolation exactas y owner de transacción del R3 aislado; se fijan abajo usando infraestructura aceptada R1/R2, sin atribuirle a esos readers datos R3.
 - Hash/slice concreto de R3 en el harness compartido; requiere extensión aislada descrita abajo.
 
@@ -66,7 +67,7 @@ Los nombres ingleses del port/read-set/row se retienen porque el contrato histó
 | Rangos internos válidos y día 0–6 | AVAILABLE_IN_V46 | V41 CHECK de horas/vigencia y día. |
 | Índices por bloque, instructor/vigencia y series; bloque salón/día/vigencia y serie | AVAILABLE_IN_V46 | V41. Los índices apoyan filtros generales; ninguno establece unicidad por serie/fecha. |
 | Filtro de dos activos + vigencias inclusivas + día exacto | AVAILABLE_IN_V46 | Columnas presentes y semántica ejecutable en SQL. |
-| Una versión de asignación activa por `serie_id` en fecha dada | ABSENT_UNTIL_HISTORICAL_V47 | No hay UNIQUE/EXCLUDE equivalente en V41–V46. R3 requiere la garantía para su cardinalidad nominal. |
+| Una versión de asignación activa por `serie_id` en fecha dada | NOT_ENFORCED_IN_V46 | No hay UNIQUE/EXCLUDE equivalente en V41–V46. R3 impone la cardinalidad del read set exitoso detectando repetición aplicable y fallando cerrado. Un estado V46 inválido sigue siendo posible. |
 | Una única fila física de bloque por serie/fecha | PARTIALLY_AVAILABLE_IN_V46 | No hay exclusión por serie de bloque. R3 no define serie de bloque como cardinalidad candidate; `bloque_id` es provenance y cada asignación referencia un bloque único. La repetición de candidate assignment-series sigue gobernada por la regla de asignación. |
 | `btree_gist` | AVAILABLE_IN_V46 | V44 instala extensión requerida para EXCLUDE; V45 la usa con `daterange` en horario. La extensión sola no añade garantía a asignaciones. |
 | Esquema de ajustes por fecha | ABSENT_UNTIL_HISTORICAL_V47 | No se necesita para nominal R3; consumer R4+. |
@@ -78,22 +79,22 @@ La migración histórica contiene tres efectos conceptuales. Ninguno autoriza re
 
 | Operación histórica | Objeto/propósito | Consumidor | ¿Lo usa R3? | Equivalente en V46 |
 | --- | --- | --- | --- | --- |
-| Bloque `DO`: detectar solapamientos de `daterange(vigente_desde, vigente_hasta, '[]')` entre asignaciones activas de igual `serie_id`; abortar sin reparar filas | Preflight de integridad para poder añadir exclusión sin ocultar conflictos existentes | R3 cardinalidad nominal y cualquier consumidor de versiones de asignación | Sí, como precondición para imponer la garantía; no es query de lectura | No. V46 no ejecuta este preflight de programación. |
-| `ALTER TABLE programacion_asignacion ADD CONSTRAINT ex_programacion_asignacion_serie_vigencia EXCLUDE USING gist (serie_id WITH =, daterange(...) WITH &&) WHERE (activo)` | Evita versiones activas de igual serie con vigencias inclusivas solapadas | Integridad general del versionado; R3 consume la unicidad por serie/fecha | Sí. Necesaria para respaldar máximo 1 nominal por serie/fecha | No. V41–V46 sólo tienen checks de rango e índices no únicos. |
+| Bloque `DO`: detectar solapamientos de `daterange(vigente_desde, vigente_hasta, '[]')` entre asignaciones activas de igual `serie_id`; abortar sin reparar filas | Preflight histórico para instalar exclusión | Integridad general del versionado | No. PROVENANCE_ONLY; R3 detecta duplicados aplicables en su resultado | No. V46 no ejecuta ese preflight. |
+| `ALTER TABLE programacion_asignacion ADD CONSTRAINT ex_programacion_asignacion_serie_vigencia EXCLUDE USING gist (serie_id WITH =, daterange(...) WITH &&) WHERE (activo)` | Evita versiones activas solapadas de igual serie | Integridad general del versionado | No. PROVENANCE_ONLY / NOT_R3_PREREQUISITE | No. R3 falla cerrado si aparecen dos versiones aplicables. |
 | `CREATE TABLE programacion_ajuste_fecha` con PK/FKs, checks de tipo y forma, vigencia puntual implícita por fecha, flags/timestamps | Persistencia de cancelación/reemplazo/adición por fecha | R4 y composición posterior R5 | No | No, pero no es necesidad R3. |
 | Índice único parcial `(asignacion_serie_id, fecha)` activo para cancelación/reemplazo | Un ajuste nominal targeteado por serie/fecha | R4/R5 | No | No, fuera de contrato R3. |
 | Índices parciales de ajustes por salón/fecha, instructor/fecha y fecha | Lecturas de ajustes por fecha y dimensiones | R4/R5 | No | No, fuera de contrato R3. |
-| Habilitación/uso de `btree_gist` para exclusión de asignaciones | Soporte técnico de la restricción | R3/general | Sí, el soporte está ya presente desde V44 | Sí: extensión disponible; falta sólo la constraint. |
+| Habilitación/uso de `btree_gist` para exclusión de asignaciones | Soporte técnico histórico de la restricción | Integridad general | No. PROVENANCE_ONLY | Sí: extensión presente desde V44, sin exclusión de asignaciones. |
 
-La constraint es una regla de integridad compartida del versionado que R3 necesita para sustentar su cardinalidad. La tabla y los índices de ajustes no deben adelantarse a R4/R5.
+La constraint histórica no es requisito de R3. La tabla y los índices de ajustes pertenecen a R4+ y quedan fuera de este diseño.
 
 ## R3_V47_DECISION
 
-**B. `R3_REQUIRES_A_SMALL_NEW_SCHEMA_CHANGE_BUT_NOT_HISTORICAL_V47`.**
+**`R3_CAN_FAIL_CLOSED_ON_V46_WITHOUT_SCHEMA_CHANGE`.**
 
-Evidencia: el contrato histórico exige máximo una versión activa por serie de asignación en la fecha y falla ante duplicidad; V41–V46 no restringe solapamientos activos entre filas de `programacion_asignacion`; el SQL de lectura no puede convertir un estado duplicado en una nominal confiable. La mitad R3-relevante de V47 es únicamente el preflight de conflictos preexistentes y la exclusión por serie/rango inclusivo sobre `programacion_asignacion`. `btree_gist` ya existe por V44. La tabla de ajustes, sus checks, índices y unique parcial son scope R4/R5 y quedan excluidos.
+Evidencia: el contrato histórico exige máximo una occurrence por `serie_id`/fecha **en una lectura exitosa** y rechazo de duplicados. V46 contiene todas las tablas/columnas para consultar las filas aplicables, aunque no impide solapamientos activos. La consulta expone todas las versiones físicas; R3 detecta repetición lógica y descarta la lectura completa. No selecciona una versión, deduplica, repara ni presenta un vacío exitoso. La ausencia de exclusión de esquema es una condición conocida de la autoridad V46, no una afirmación de limpieza de sus datos.
 
-Diseño futuro condicionado: una migración nueva, con numeración posterior que se resuelva en lifecycle autorizado, debe validar primero conflictos existentes y fallar sin reparar; sólo después instalar una restricción equivalente acotada a `programacion_asignacion`. No es autorización para escribir migración ni para elevar Flyway desde V46 en este ciclo. No se declara aquí SQL ejecutable ni WRITE_SCOPE.
+Contrato canónico R3: Flyway `V1→V46` (49 migraciones), migración nueva **NONE**, dependencia de autoridad de migración **NONE**, V47 **NOT_REQUIRED_FOR_R3 / ABSENT**, `programacion_ajuste_fecha` **R4+ / OUT_OF_SCOPE**. La exclusión histórica V47 queda como procedencia, sin requisito de lifecycle R3.
 
 ## NOMINAL_OCCURRENCE_SEMANTICS
 
@@ -107,7 +108,7 @@ Diseño futuro condicionado: una migración nueva, con numeración posterior que
 - **Candidate identity/reference:** `ReferenciaOcurrencia(SERIE_ASIGNACION, a.serie_id, fecha)`. No usar `AJUSTE`; éste requiere autoridad y semántica posterior.
 - **Provenance/backing:** IDs de ambas versiones, ambas series, relación bloque, horas de bloque y asignación, ambas vigencias/activos, fecha/día derivado y timestamps técnicos. Backing no altera identidad ni orden de preferencia.
 - **Orden:** serie de asignación ascendente, luego `a.id` ascendente para diagnóstico determinista. El orden no expresa autoridad.
-- **Duplicados:** varios candidates de series diferentes permitidos. Una repetición de la misma serie-fecha, aunque provenga de diferente `a.id`, es invariante rota y aborta la lectura completa; no deduplicar ni elegir.
+- **Duplicados:** para la `LocalDate` exacta solicitada, si el resultado contiene más de una fila aplicable de `programacion_asignacion` activa con el mismo `a.serie_id` lógico (normalmente distintos `a.id` físicos/versiones), la lectura completa falla `DUPLICATE_SERIES_ON_DATE`. Se conservan privadamente los IDs físicos `a.id`, `a.bloque_id`/`b.id`, ambas series, flags y vigencias de las filas para diagnosticar el conflicto; no se publica candidate ni read set. Varios candidates de series diferentes sí son válidos.
 - **Datos inválidos:** no se convierten en ausencia. Cualquier forma inesperada impide éxito del read set; error de input/invariante tipado y fail-closed.
 
 ## QUERY_CONTRACT
@@ -134,17 +135,17 @@ WHERE a.activo = :assignmentActive
 ORDER BY a.serie_id, a.id
 ```
 
-Bind `fecha` as `LocalDate`, day as derived scalar 0–6, and active flags as `true`, using named typed scalar binding consistent with accepted reader infrastructure. No user-provided lists/IDs, entity hydration, adjustments, salon/instructor/activity master joins, locks or writes. Map every selected row to a concrete `NominalProjectionRow`, validate row shape/ranges/containment and detect repeated `serie_id`, then produce the immutable set. Zero rows is a valid empty universe.
+Bind `fecha` as `LocalDate`, day as derived scalar 0–6, and active flags as `true`, using named typed scalar binding consistent with accepted reader infrastructure. No user-provided lists/IDs, entity hydration, adjustments, salon/instructor/activity master joins, locks or writes. Expose **every** applicable physical assignment/version row and its block provenance to the mapper; no `DISTINCT`, `DISTINCT ON`, deduplicating `GROUP BY`, `LIMIT 1` per series, winner-selecting window filter or application deduplication before duplicate validation. `ORDER BY` is diagnostic only, never winner selection. Validate all row shapes/ranges/containment, then detect repeated `serie_id` over the complete result before constructing any successful output. Zero rows is a valid empty universe only when the query completes successfully.
 
-The query cannot see malformed rows excluded by applicability predicates (for example inactive or out-of-date rows); R3’s claim is the set applicable under those predicates. Constraint preflight/installation prevents the active overlap that could otherwise duplicate an applicable assignment series. No filtering by productive reservation state or runtime authority is allowed.
+The query cannot see malformed rows excluded by applicability predicates (for example inactive or out-of-date rows); R3’s claim is the set applicable under those predicates. V46 does not prevent active overlap. The read-time duplicate check is therefore mandatory and fails the whole operation. No filtering by productive reservation state or runtime authority is allowed.
 
 ## PORT_READSET_CONTRACT
 
-Keep historically frozen names:
+Conservar los nombres históricos de operación/read set/proyección; reconciliar sólo el tipo del contexto, como se explica abajo:
 
 ```text
 NominalProgrammingReadPort
-  readNominalOnDate(ReadSnapshotContext context, LocalDate fecha)
+  readNominalOnDate(NominalReadSnapshotContext context, LocalDate fecha)
       -> NominalProgrammingReadSet
 
 NominalProgrammingReadSet
@@ -155,32 +156,43 @@ NominalProjectionRow
   concrete scalar projection of the columns in QUERY_CONTRACT
 ```
 
-`ProgrammingCandidateSnapshot` is the existing detector vocabulary, candidate type exactly `NOMINAL_OCCURRENCE`, reference type exactly `SERIE_ASIGNACION`. Candidate and backing collections have equal cardinality and row order; backing must correspond one-to-one by `ReferenciaOcurrencia`, while physical version IDs distinguish evidence versions. There is no partial-success result. Invalid context/date is `ADAPTER_INPUT_INVALID` before SQL; malformed or duplicate rows abort with typed reader/invariant failure; SQL/resource errors remain operational failures and never map to an empty set. Use defensive copies and immutable scalar values. Do not rename shared F2E contracts.
+La firma histórica usaba el nombre conceptual `ReadSnapshotContext`; la clase Java canónica actual está sellada a `R1_RESERVA_V1` y `SINGLE_READER_TEST`. No se puede pasar a R3 ni ampliar sus enums sin quebrar la autoridad R1. La decisión R3 es un contexto propio `NominalReadSnapshotContext` persistence-agnostic, según el precedente R2, con el mismo papel de carrier de identidad y evidencia; ésta es una reconciliación explícita de la firma histórica, no una dependencia del contexto de Reserva. El futuro handoff debe materializar esta firma exacta y dejar intacto el tipo R1.
+
+`ProgrammingCandidateSnapshot` is the existing detector vocabulary, candidate type exactly `NOMINAL_OCCURRENCE`, reference type exactly `SERIE_ASIGNACION` including exact `LocalDate`. Candidate and backing collections have equal cardinality and deterministic row order; backing must correspond one-to-one by `ReferenciaOcurrencia`, while physical version IDs distinguish evidence versions. One logical series/date occurs at most once in a successful read set. There is no partial-success result. Use defensive copies and immutable scalar values.
+
+Modelo de fallo tipado conceptual, sin crear clases ahora: `INVALID_INPUT` (fecha/contexto inválido, antes de SQL); `TRANSACTION_CONTEXT_INVALID` (owner, manager, recurso, aislamiento, snapshot o evidencia inválidos); `MALFORMED_PROJECTION` (fila/tipo/rango/relación inválidos); `DUPLICATE_SERIES_ON_DATE` (más de una versión aplicable para la serie/fecha); `CARDINALITY_OR_BACKING_MISMATCH` (candidates/backing o referencia no biyectivos); `DATABASE_READ_FAILURE` (JDBC/JPA/política SQL/privilegios/completion). Son categorías de rechazo, no nombres de excepciones nuevas. Un fallo operacional jamás se convierte en read set vacío ni en rechazo semántico del detector.
 
 ## TRANSACTION_SNAPSHOT_CONTRACT
 
-- Reuse the accepted R1/R2 transaction infrastructure patterns and shared `ReadSnapshotContext` identity carrier; do not inject or call their readers/read sets. R3 reads a distinct slice.
-- One transaction owns the complete single-query read and mapping. Propagation `REQUIRED`; `readOnly=true`; same datasource/transaction manager and connection identity as any enclosing evaluation transaction. No separate manager is justified by the current single-source query.
-- Require repeatable snapshot semantics for the R3 read if called inside a multi-reader evaluation. Use the established owner-controlled transaction approach from R1/R2; final isolation configuration for R3’s enclosing evaluation must prove PostgreSQL snapshot behavior rather than silently copying weaker `READ COMMITTED`. A standalone one-query transaction is statement-consistent, but does not itself promise a cross-reader snapshot.
-- No locks intended to write. Candidate snapshot is detached immutable data before transaction ends. Resource/snapshot identity is recorded in `ReadSnapshotContext` and must match the evaluation owner’s identity.
-- Extend shared test infrastructure only with R3’s projection slice checksum/table allowlist and transaction owner assertions. Preserve existing R1/R2 checksums, SQL allowlists, owner contracts and reader boundaries unchanged.
-- Any checksum is an acceptance identity for the R3 schema slice (`programacion_asignacion`, `programacion_bloque`, relevant constraint/index metadata), not a business-data hash or proof that rows are clean.
+### Owner, propagation y llamadas permitidas
+
+- El método público proxied R3 usa exactamente `@Transactional(transactionManager="f2eReaderTransactionManager", propagation=MANDATORY, readOnly=true)`. Es el nombre de manager compartible fijado por la enmienda R1 §37.9.2; en aceptación R3 un ApplicationContext de prueba aislado registra un bean R3 con ese nombre, sin alterar el bean/owner R1 de su contexto de prueba ni registrar uno productivo. El reader nunca abre, suspende, reemplaza ni reintenta una transacción, ni cambia su isolation. Invocarlo directamente sin transacción owner, por `new`/self-invocation o con manager ausente/incorrecto está prohibido y falla antes de DATA.
+- Una invocación R3 individual sólo está permitida **dentro** de un owner R3 explícito. Para aceptación R3 el owner test-only, proxied y separado del reader, declara `@Transactional(transactionManager="f2eReaderTransactionManager", propagation=REQUIRES_NEW, isolation=REPEATABLE_READ, readOnly=true)` con timeout acotado. Abre y cierra una transacción física sobre el datasource PostgreSQL SELECT-only R3, crea el contexto tras probes válidos y retiene el read set provisional hasta validar snapshot/recurso/completion. Ningún caller abre por accidente una transacción mediante el port. Una sola query bajo RR tiene snapshot PostgreSQL estable durante esa transacción, pero este modo prueba sólo la lectura nominal individual; no declara simultaneidad con R1/R2 ni un claim multi-reader.
+- Para una **futura** evaluación multi-reader, el único owner conceptual es `DetectorReadCoordinator` de R6, todavía **NOT_AUTHORIZED**. Su método público proxied deberá abrir una sola transacción física `REQUIRES_NEW / REPEATABLE_READ / readOnly=true / timeout acotado` con el mismo manager `f2eReaderTransactionManager`. R3 y cada reader participante deberán resolver ese **mismo** manager y datasource/EMF/Session/Connection físicos con `MANDATORY`, sin segunda transacción ni cambio de snapshot. El owner captura `pg_current_snapshot()::text` inicial y final dentro de esa transacción y exige igualdad textual; todos los statements/resultados quedan ligados al mismo recurso y evidencia. Sólo tras validar cada read set, el conjunto, los probes finales y la completion se puede publicar un resultado. Una evaluación con R1/R2 actuales no es ejecutable: sus contextos/claims están sellados a pruebas individuales y R2 nombra otro manager; no se reinterpretan como autorización R6. Una futura integración requiere autoridad separada de R6 y reconciliación de esos contratos, sin modificar este principio de ownership R3.
+- El owner valida al inicio y al final `transaction_isolation=repeatable read`, `transaction_read_only=on`, identidad de manager/descriptor/DS/EMF/shared EM/Session, conexión JDBC y `PgConnection` nativos, database/schema/principal y texto de snapshot; comprueba misma conexión antes/después de DATA. El reader verifica transacción activa, read-only y RR y la asociación de su contexto con la reserva privada del owner antes de SQL. Manager/resource/owner/snapshot equivocados o faltantes son `TRANSACTION_CONTEXT_INVALID`; no fallback a manager default, RC, otro recurso o un segundo SELECT independiente. Las verificaciones de recurso/probes son evidencia interna del owner y deben formar parte del catálogo cerrado de SQL cuando emiten SQL.
+
+### `NominalReadSnapshotContext` y confianza
+
+- El caller puede aportar `runIdentity`, `attemptIdentity`, fecha exacta, `businessZone` y versión de reglas, sujetos a validación de forma y coherencia con el scope. No puede elegir `sourceName`, huella de esquema, catálogo R3, `readerInvocationIdentity`, claim, evidencia de snapshot ni compromiso de observación de statements.
+- El owner deriva fecha/día/scope canónico del input tipado; obtiene `sourceName`, `schemaFingerprint` de un descriptor R3 validado contra Flyway V46 y recurso real; fija catálogo de proyección R3; reserva una identidad de invocación; crea el contexto R3 sólo tras abrir la TX y validar probes/recurso iniciales. El claim individual es exclusivamente `R3_INTERNAL_RR_TEST`; el `snapshotEvidenceId` se deriva de descriptor, invocación/owner, manager, aislamiento/read-only y texto exacto de `pg_current_snapshot()` observado. El compromiso de statements se liga al catálogo/capture real y se verifica al final. Campos de contexto son evidencia transportada, **no prueba por construcción**.
+- El reader compara valores del contexto con descriptor/catálogo/scope y con la asociación privada de owner a esa transacción, recurso y snapshot observados. Un objeto equivalente fabricado por caller o reutilizado en otra TX/attempt no pasa. `logicalSnapshotId`, hashes de contenido o igualdad de strings aportados por caller nunca sustituyen probes PostgreSQL y mismo recurso físico. Para multi-reader el owner R6 futuro deberá crear una evidencia de claim distinta, autorizada para todos los participantes; `R3_INTERNAL_RR_TEST` no se promociona a `MULTI_READER_MVCC`.
+- Los snapshots candidatos/backing son records escalares inmutables antes de salir de la transacción; ninguna entity/proxy/Session escapa. Shared testinfra sólo puede extenderse aditivamente para slice R3, catálogo y ownership, sin alterar R1/R2.
 
 ## NO_WRITE_CONTRACT
 
-Future acceptance must prove all of the following against real PostgreSQL/Testcontainers:
+Future acceptance must prove all of the following against real PostgreSQL/Testcontainers with canonical Flyway `V1→V46` (49 migrations), `V47` absent and no R3 migration:
 
-- Dedicated SELECT-only role has `SELECT` only on allowlisted `programacion_asignacion` and `programacion_bloque` (and only required metadata access); no INSERT/UPDATE/DELETE/TRUNCATE/DDL/sequence/write privileges.
+- Dedicated SELECT-only role has `SELECT` only on allowlisted `programacion_asignacion` and `programacion_bloque` (and only the exact required built-in transaction/resource probes); no INSERT/UPDATE/DELETE/TRUNCATE/DDL/sequence/write privileges or adjustment-table access.
 - Attempts at forbidden writes fail with PostgreSQL insufficient-privilege SQLState `42501`; do not swallow or translate into success/empty read.
 - Closed SQL catalog allows the exact SELECT projection (and required metadata inspection) and rejects unrecognized SQL fail-closed. No repository writer reachable from R3.
-- Verify checksum of the declared R3 schema slice including the eventual assignment exclusion constraint; schema/migration history fingerprint stays V46 in this design-only lifecycle.
-- Query, mapper and architecture tests prove no entity/proxy escape, no flush/write, correct empty and multi-series results, duplicate rejection and transaction ownership/snapshot behavior.
+- Verify schema and migration-history checksum of the V46 R3 slice (columns, keys, constraints, indexes and applied migrations); do not expect an assignment exclusion constraint. A scoped data checksum where appropriate proves fixture integrity, not business validity.
+- A V46 fixture with two overlapping active assignment versions of one `serie_id`, both applicable on the requested day, must return all physical rows to validation and fail `DUPLICATE_SERIES_ON_DATE` with no read set. Query, mapper and architecture acceptance proves no entity/proxy escape, no flush/write, correct empty and multi-series results, owner/reader propagation, snapshot/resource guards and full output discard on failure.
 
 ## FUTURE_IMPLEMENTATION_SHAPE — advisory only
 
-- **Potential new:** R3 read port/context scope if needed without renaming shared context; immutable read set/backing snapshot; `NominalProjectionRow`; plain native query executor; mapper; plain JPA reader; R3-specific unit/architecture/PostgreSQL acceptance tests and isolated test configuration.
-- **Potential modified:** shared testinfra only through additive R3 registration, metadata slice checksum and SQL catalog entries; future migration authority may add a new narrowly scoped migration after conflict preflight. None is authorized here.
-- **Read-only dependencies:** `ReadSnapshotContext`, `ProgrammingCandidateSnapshot`, `ReferenciaOcurrencia`, `programacion_asignacion`, `programacion_bloque`, accepted transaction/testinfra contracts.
+- **Potential new:** R3 read port y `NominalReadSnapshotContext` propios; immutable read set/backing snapshot; `NominalProjectionRow`; plain native query executor; mapper; plain JPA reader; R3-specific unit/architecture/PostgreSQL acceptance tests and isolated test configuration.
+- **Potential modified:** shared testinfra only through additive R3 registration, V46 metadata slice checksum and SQL catalog entries. No migration or migration test is part of R3.
+- **Read-only dependencies:** R1 `ReadSnapshotContext` as a boundary precedent only; `ProgrammingCandidateSnapshot`, `ReferenciaOcurrencia`, `programacion_asignacion`, `programacion_bloque`, accepted transaction/testinfra contracts.
 - **Provenance-only:** historical V47 object and broad adapter design; no production dependency on `programacion_ajuste_fecha` or V47 adjustment indexes.
 
 No concrete paths are frozen beyond existing read-only dependencies because the implementation allowlist has not been reconciled/authorized.
@@ -194,14 +206,14 @@ No concrete paths are frozen beyond existing read-only dependencies because the 
 
 ## FUTURE_VALIDATION_CONTRACT
 
-Applicable eventual categories: unit mapping; exact-date/day derivation; inclusive validity/open end; range/containment; query binding and projection; zero/multiple-series cardinality; duplicate series fail-closed; deterministic order; backing/candidate one-to-one; transaction ownership and PostgreSQL snapshot consistency; Testcontainers; SELECT-only role and SQLState `42501`; closed SQL catalog; slice checksum; architecture isolation/no runtime reachability; cross-lane and authorized full regression. Migration tests and conflict preflight become applicable only under a separately authorized schema-change lifecycle. No tests or suites were run or added here.
+Applicable eventual categories: unit mapping; exact-date/day derivation; inclusive validity/open end; range/containment; query binding and all physical versions; zero/multiple-series cardinality; duplicate-overlap fixture fail-closed; deterministic order; backing/candidate one-to-one; transaction ownership and PostgreSQL snapshot consistency; Testcontainers on `V1→V46`/49 migrations with V47 absent; SELECT-only role and SQLState `42501`; closed SQL catalog/unexpected SQL rejection; V46 slice/data checksum; architecture isolation/no runtime reachability; cross-lane and authorized full regression. No R3 migration test or conflict preflight is required. No tests or suites were run or added here.
 
 ## Unresolved issues and next gate
 
-No P0-level ambiguity remains for the design choice. The exact future Flyway version, migration file/name, transaction integration point in a multi-reader owner, and additive shared testinfra paths are implementation-lifecycle details and remain unfrozen. Before any schema/implementation work, a fresh independent design audit must accept this artifact. Any discovered active overlap during a future migration preflight must stop the migration for separate data disposition; no automatic repair is allowed.
+The two P1 decisions are closed at design level: V46 read-time rejection replaces the unauthorized migration prerequisite, and the R3 reader/owner propagation is fixed above. A future multi-reader R6 integration remains outside current authority; its owner and compatibility gates are defined above, not silently implemented. Before any R3 implementation handoff, a fresh independent design re-audit must accept this correction, followed by design publication. Invalid active overlap in V46 stops the R3 read without repair or partial output.
 
 ```text
-R3 design: MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_DESIGN_AUDIT / NOT_APPROVED / NOT_PUBLISHED
+R3 design: CORRECTION1_CANDIDATE / PENDING_FRESH_INDEPENDENT_DESIGN_REAUDIT / NOT_APPROVED / NOT_PUBLISHED
 R3 implementation: NOT_AUTHORIZED
 R4-R6: NOT_AUTHORIZED
 ```

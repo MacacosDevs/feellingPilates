@@ -1349,8 +1349,9 @@ R3, R4, R5 y R6 permanecen **NOT_AUTHORIZED**. El cierre de R2 no autoriza R3. L
 
 Artefacto candidato: [`fase-2e-r3-diseno-reader-programacion-nominal-reconciliado.md`](fase-2e-r3-diseno-reader-programacion-nominal-reconciliado.md), reconciliado sobre `2422ee555f6e49e7edb27bfca9c71f66c2ef2c7a`.
 
-- Diseño R3: **MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_DESIGN_AUDIT / NOT_APPROVED / NOT_PUBLISHED**.
-- Decisión de esquema: R3 requiere diseñar en un lifecycle futuro una migración nueva, acotada a la prevalidación y exclusión de vigencias activas de `programacion_asignacion` por serie. Esto **no** restaura ni autoriza V47; V47 sigue ausente y no autorizada. La tabla/índices de ajustes quedan fuera de R3.
+- Diseño R3: candidato original `a26bfa5` auditado **BLOCKED** (P1=2); corrección.1 **CORRECTION1_CANDIDATE / PENDING_FRESH_INDEPENDENT_DESIGN_REAUDIT / NOT_APPROVED / NOT_PUBLISHED**.
+- Decisión de esquema corregida tras auditoría independiente `BLOCKED` (P1=2): **`R3_CAN_FAIL_CLOSED_ON_V46_WITHOUT_SCHEMA_CHANGE`**. V46 no impide solapamientos activos de `programacion_asignacion`; R3 debe exponer todas las versiones aplicables y rechazar completamente series duplicadas en la fecha exacta. Migración R3: **NONE**; V47: **ABSENT / NOT_REQUIRED_FOR_R3**. La exclusión histórica V47 es sólo procedencia. Tabla/índices de ajustes: R4+ fuera de alcance.
+- Decisión transaccional corregida: reader R3 `MANDATORY/readOnly` con manager explícito `f2eReaderTransactionManager` y owner individual test-only separado `REQUIRES_NEW/REPEATABLE_READ/readOnly`; sin invocación standalone sin owner. La composición multi-reader sigue **R6 NOT_AUTHORIZED** y requiere ese mismo manager, owner único/snapshot PostgreSQL compartido y autoridad de integración separada. La corrección no habilita implementación.
 - Implementación R3: **NOT_AUTHORIZED**. R4-R6: **NOT_AUTHORIZED**.
 - Flyway: V46. TurnoInstructor: **LEGACY_VIVO / PRODUCTIVO**. Dark launch preservado; cutover no autorizado.
 

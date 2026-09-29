@@ -1,11 +1,11 @@
-# F2E — policy operacional candidata R2 activation pre-audit
+# F2E — policy operacional vigente para activación del handoff R2
 
 Version: `F2E-EXECUTION-POLICY-V1`; authority class: `PROCESS_PROPOSAL / NON_PRODUCT_AUTHORITY`.
-Status: `MATERIALIZED / READY_FOR_FRESH_INDEPENDENT_ACTIVATION_AUDIT / NOT_APPROVED / NOT_ACTIVE`.
+Status: `PREACTIVATION_AUDITED / ACTIVE`.
 Annex version-bound to installed Orca `1.4.205`; no modifica ORQ-PROTOCOL-V1.
 El [RUNBOOK](F2E-RUNBOOK.md) explica el HOW y el [STATE](F2E-STATE.json) es cache derivada.
 Scope presente `F2E_R2_HANDOFF_ACTIVATION / PROCESS_ONLY / DOCUMENTATION_ONLY`.
-Ninguna activación propuesta está aceptada/activa por este archivo o este Run.
+Este archivo registra la transición de proceso autorizada; no es autoridad de producto y no implementa R2.
 
 ## 1. Autoridad, alcance y activación prospectiva
 
@@ -16,13 +16,15 @@ no se copian/duplican sus reglas para reemplazar autoridad. Las referencias y ha
 competentes están en STATE y el mapping §11 distingue norma previa, propuesta y hecho.
 Contradicción: fail closed, AUTHORITY_RECONCILIATION_REQUIRED, sin override tácito.
 
-La aprobación independiente del handoff R2 está publicada en PR #10, pero este Run
-abre sólo la materialización de un candidato de activación, su verificación
-coordinadora y una auditoría fresh independiente posterior. Autor puede entregar
-MATERIALIZED, nunca self-audit acceptance. Activación de proceso e implementación
-son lifecycles separados. No nuevo requisito funcional.
+La aprobación independiente del handoff R2 está publicada en PR #10. La auditoría
+fresh e independiente posterior aprobó el candidato exacto
+`a19cb460e101f869eb10985b0ef36ec4bdf717bc` como
+`READY_FOR_ACTIVATION_TRANSITION`; su receipt se registró antes de esta transición.
+La activación del handoff y la implementación siguen siendo lifecycles separados.
+No nuevo requisito funcional.
 R1 cerrado/aceptado/publicado, R2 diseño completo/auditado/publicado/cerrado,
-R2 handoff publicado/aprobado independientemente/no activo, R2 implementation NOT_AUTHORIZED, legacy productivo,
+R2 handoff reconciliado/publicado/aprobado independientemente/preactivation-auditado/ACTIVE,
+R2 implementation `AUTHORIZED_TO_START / NOT_IMPLEMENTED`, legacy productivo,
 dark launch preservado, cutover y R3–R6 no autorizados; sin integración Payments.
 
 Las clases siguientes sólo rigen **después** de publicación/activación de proceso
@@ -311,22 +313,24 @@ Auto publication=false. Bootstrap gate PASS sólo habilita readiness competente
 para futura **publicación controlada de proceso** con autoridad/profile/gates propios.
 Process activation requiere autoridad competente aparte, seleccionando prácticas
 aceptadas y condiciones de piloto; no activa todas por poner ACTIVE_IMMEDIATELY.
-Implementation handoff R2 publicado/aprobado independientemente/no activo y R2 implementation
-NOT_AUTHORIZED; el candidato de activación requiere su propia auditoría fresh antes de cualquier
-transición posterior.
+Implementation handoff R2 reconciliado/publicado/aprobado independientemente/
+preactivation-auditado/ACTIVE y R2 implementation `AUTHORIZED_TO_START / NOT_IMPLEMENTED`.
+`AUTHORIZED_TO_START` se limita al allowlist R2 exacto del handoff; no autoriza runtime
+productivo, cutover, V47, Payments/Notifications ni R3–R6.
 R2 design §11/research §4 son suficiencia de diseño para futuro authoring, no permiso
 de executor presente. Publicación nunca productive activation/cutover; aceptación
 nunca cutover. MILESTONE_COMPLETE no dispara fase funcional ni publicación automática.
 
 No schema/domain/API/dependency decision por optimización; unsupported tooling,
 silent fallback y pérdida de RAW no se vuelven legales tras piloto. Las reglas
-normativas se abren por referencia y se preservan. Candidate exact audited bytes se
-bindan externamente sin post-audit STATE edits; cambio → nuevo candidato/audit/gate.
+normativas se abren por referencia y se preservan. Después del audit del candidato
+exacto sólo se permiten el receipt factual y la transición mecánica que éste autorizó;
+cualquier otro cambio exige nuevo candidato, autoridad y audit.
 
 ## 11. Provenance de cada regla de esta policy
 
-N=normativa física preexistente; U=selección/propuesta nueva del usuario, candidata
-sin activación; F=SUPPORTING físico sin autoridad normativa. U complete persisted
+N=normativa física preexistente; U=selección/transición de proceso autorizada por el usuario;
+F=SUPPORTING físico sin autoridad normativa. U complete persisted
 E/MATERIALIZER-SPEC.txt SHA `49c8e847d30aea2cab2173c0b1f4912a6132a45da070177a6c1f9fef8744a8e4`.
 N paths y exact hashes: STATE.authorityRefs/authorityHashes/handoffRefs/handoffHashes;
 F paths/hashes: §2, E/MATERIALIZER-SOURCE-HASHES.json y external manifests/report.

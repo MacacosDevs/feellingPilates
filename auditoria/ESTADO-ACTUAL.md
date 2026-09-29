@@ -6,36 +6,47 @@ Repository verification: VERIFIED
 Canonical base commit: 6fd7818a8390950688497167a6a96a8ff4147dd6
 Flyway head: V46
 Historical F2E source HEAD: 6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c
-Current lifecycle: F2E_R2_HANDOFF_ACTIVATION_PRE_AUDIT
+Current lifecycle: F2E_R2_HANDOFF_ACTIVATION
 R1: CLOSED / ACCEPTED / PUBLISHED / INTEGRATED
 R2 Design: COMPLETE / AUDITED / PUBLISHED / CLOSED
 Historical R2 Implementation Handoff: REPOSITORY_PUBLISHED_HISTORICAL_ARTIFACT (commit 6140978) / PROVENANCE_ONLY
-Current Clean-Main R2 Implementation Handoff: PUBLISHED / INDEPENDENTLY_APPROVED / NOT_ACTIVE
-Activation candidate: MATERIALIZED / READY_FOR_FRESH_INDEPENDENT_ACTIVATION_AUDIT / NOT_APPROVED / NOT_ACTIVE
+Current Clean-Main R2 Implementation Handoff: RECONCILED / PUBLISHED / INDEPENDENTLY_APPROVED / PREACTIVATION_AUDITED / ACTIVE
+Preactivation audit: INDEPENDENTLY_AUDITED / APPROVED / READY_FOR_ACTIVATION_TRANSITION
 Independent approval review: auditoria/reviews/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-RECONCILIATION-REVIEW.md (commit 6fd7818)
-R2 Implementation: NOT_AUTHORIZED / NOT_IMPLEMENTED
+Preactivation audit receipt: auditoria/reviews/HANDOFF-F2E-R2-ACTIVATION-PRE-AUDIT-CANDIDATE.md (candidate a19cb460e101f869eb10985b0ef36ec4bdf717bc; receipt commit a360a536022207ebe231eb2588f5a9ea1620e835)
+R2 Implementation Authority: AUTHORIZED_TO_START
+R2 Implementation State: NOT_IMPLEMENTED
 R3-R6: NOT_AUTHORIZED
 TurnoInstructor: LEGACY_VIVO / PRODUCTIVO
 Dark launch: PRESERVED
 Cutover: NOT_AUTHORIZED
 V47: ABSENT
+Payments / Notifications: OUT_OF_SCOPE
 
 ---
 
-## Estado vigente — candidato de pre-auditoría de activación R2
+## Estado vigente — handoff de implementación R2 activo
 
-El handoff R2 reconciliado conserva sus bytes exactos y está respaldado por la revisión independiente publicada en PR #10. La activación no está aprobada ni activa: el siguiente gate único es una auditoría fresh e independiente del candidato materializado en `auditoria/reviews/HANDOFF-F2E-R2-ACTIVATION-PRE-AUDIT-CANDIDATE.md`.
+El handoff R2 reconciliado conserva sus bytes exactos, está respaldado por la revisión independiente publicada en PR #10 y por la auditoría fresh independiente del candidato exacto `a19cb460e101f869eb10985b0ef36ec4bdf717bc`. La auditoría aprobó exclusivamente la transición mecánica posterior registrada aquí.
 
 ```text
 HANDOFF APPROVAL: PUBLISHED / APPROVED / INDEPENDENTLY_APPROVED
-HANDOFF: NOT_ACTIVE
-ACTIVATION CANDIDATE: MATERIALIZED / READY_FOR_FRESH_INDEPENDENT_ACTIVATION_AUDIT / NOT_APPROVED / NOT_ACTIVE
-R2 IMPLEMENTATION AUTHORITY: NOT_AUTHORIZED
-R2 IMPLEMENTATION: NOT_IMPLEMENTED
-INDEPENDENT ACTIVATION AUDIT: NOT_RUN
+CURRENT ACTIVE IMPLEMENTATION HANDOFF: auditoria/handoffs/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-RECONCILIATION.md
+HANDOFF: RECONCILED / PUBLISHED / INDEPENDENTLY_APPROVED / PREACTIVATION_AUDITED / ACTIVE
+PREACTIVATION AUDIT: APPROVED / READY_FOR_ACTIVATION_TRANSITION
+R2 IMPLEMENTATION AUTHORITY: AUTHORIZED_TO_START
+R2 IMPLEMENTATION STATE: NOT_IMPLEMENTED
+R3-R6: NOT_AUTHORIZED
+TurnoInstructor: LEGACY_VIVO / PRODUCTIVO
+Dark launch: PRESERVED
+Cutover: NOT_AUTHORIZED
+Flyway: V46
+V47: ABSENT
+Payments / Notifications: OUT_OF_SCOPE
+STATE: DERIVED / NON_PRODUCT_AUTHORITY / OPERATIONAL_CACHE
 ```
 
-This process-only transition does not change product authority, dark-launch boundaries, migrations, or the R2 implementation scope.
+`AUTHORIZED_TO_START` authorizes only a separate subsequent R2 implementation lifecycle to write within the exact approved R2 allowlist. It does not mean implemented, productive, cut over, migrated, or authorized for R3–R6, V47, Payments, or Notifications. This process-only transition changes no product code, tests, test infrastructure, migrations, configuration, product authority, dark-launch boundary, or implementation scope.
 ## Snapshot del repositorio verificado en 3B.0
 
 Branch verificada (snapshot 3B.0):

@@ -66,7 +66,7 @@ class ReservaJpaReaderArchitectureTest {
 
     @Test
     void allowlistFisicaExactaRechazaClaseExtraFaltanteOStereotypeProductivo() throws Exception {
-        Set<String> produccionEsperada = Set.of(
+        Set<String> r1Main = Set.of(
                 "src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/ReservaJpaReader.java",
                 "src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/mapper/ReservaProjectionMapper.java",
                 "src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/policy/F2eSqlPolicyViolationException.java",
@@ -78,7 +78,7 @@ class ReservaJpaReaderArchitectureTest {
                 "src/main/java/com/feelingpilates/transicion/programacion/read/ReservationReadFailureCode.java",
                 "src/main/java/com/feelingpilates/transicion/programacion/read/ReservationReadPort.java",
                 "src/main/java/com/feelingpilates/transicion/programacion/read/ReservationScope.java");
-        Set<String> testsEsperados = Set.of(
+        Set<String> r1Test = Set.of(
                 "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/ReservaJpaReaderArchitectureTest.java",
                 "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/ReservaJpaReaderPostgreSqlTest.java",
                 "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/ReservaJpaReaderRuntimeIsolationTest.java",
@@ -89,13 +89,45 @@ class ReservaJpaReaderArchitectureTest {
                 "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/F2eSliceChecksum.java",
                 "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/F2eStatementPolicyInspector.java",
                 "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/ReaderTransactionTestHarness.java");
-        assertEquals(produccionEsperada, archivosJava(
+        Set<String> r2Main = Set.of(
+                "src/main/java/com/feelingpilates/transicion/programacion/read/LegacyTurnReadPort.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/read/LegacyTurnScope.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/read/LegacyTurnReadContext.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/read/LegacyTurnReadSet.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/read/LegacyAdapterRejection.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/read/LegacyAdapterInputInvalid.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/projection/LegacyTurnProjectionCatalog.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/projection/LegacyTurnMemberRow.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/projection/LegacyAssignmentRow.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/projection/LegacyTurnProjectionQueryExecutor.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/mapper/LegacyTurnProjectionMapper.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/LegacyTurnJpaReader.java");
+        Set<String> r2Test = Set.of(
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/LegacyTurnProjectionMapperTest.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/LegacyTurnProjectionQueryExecutorTest.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/LegacyTurnJpaReaderPostgreSqlTest.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/LegacyTurnJpaReaderTransactionTest.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/LegacyTurnJpaReaderConcurrencyTest.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/LegacyTurnJpaReaderRuntimeIsolationTest.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/LegacyTurnR2ArchitectureTest.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/LegacyTurnR2PostgresTestConfiguration.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/LegacyTurnTransactionTestOwner.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/LegacyTurnJdbcCapture.java");
+        assertTrue(java.util.Collections.disjoint(r1Main, r2Main));
+        assertTrue(java.util.Collections.disjoint(r1Test, r2Test));
+        Set<String> actualMain = archivosJava(
                 Path.of("src/main/java/com/feelingpilates/transicion/programacion/read"),
-                Path.of("src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa")));
-        assertEquals(testsEsperados, archivosJava(
-                Path.of("src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa")));
+                Path.of("src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa"));
+        Set<String> actualTest = archivosJava(
+                Path.of("src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa"));
+        assertEquals(union(r1Main, r2Main), actualMain);
+        assertEquals(union(r1Test, r2Test), actualTest);
+        assertEquals(r1Main, intersection(actualMain, r1Main));
+        assertEquals(r1Test, intersection(actualTest, r1Test));
+        assertEquals(r2Main, intersection(actualMain, r2Main));
+        assertEquals(r2Test, intersection(actualTest, r2Test));
 
-        for (String archivo : produccionEsperada) {
+        for (String archivo : union(r1Main, r2Main)) {
             String codigo = Files.readString(Path.of(archivo));
             for (String prohibido : List.of(
                     "@Component", "@Service", "@Repository", "@Configuration", "@Bean",
@@ -103,6 +135,18 @@ class ReservaJpaReaderArchitectureTest {
                 assertFalse(codigo.contains(prohibido), archivo + ":" + prohibido);
             }
         }
+    }
+
+    private Set<String> union(Set<String> left, Set<String> right) {
+        Set<String> result = new java.util.LinkedHashSet<>(left);
+        result.addAll(right);
+        return Set.copyOf(result);
+    }
+
+    private Set<String> intersection(Set<String> left, Set<String> right) {
+        Set<String> result = new java.util.LinkedHashSet<>(left);
+        result.retainAll(right);
+        return Set.copyOf(result);
     }
 
     private Set<String> archivosJava(Path... raices) throws Exception {

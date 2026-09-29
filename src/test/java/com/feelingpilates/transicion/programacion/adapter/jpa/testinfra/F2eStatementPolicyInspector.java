@@ -1,6 +1,7 @@
 package com.feelingpilates.transicion.programacion.adapter.jpa.testinfra;
 
 import com.feelingpilates.transicion.programacion.adapter.jpa.policy.F2eSqlPolicyViolationException;
+import com.feelingpilates.transicion.programacion.adapter.jpa.projection.LegacyTurnProjectionCatalog;
 import com.feelingpilates.transicion.programacion.read.ReadSnapshotContext;
 import org.hibernate.resource.jdbc.spi.StatementInspector;
 
@@ -24,7 +25,7 @@ public final class F2eStatementPolicyInspector implements StatementInspector {
     static final String ID_POR_SCOPE = ReadSnapshotContext.ProjectionCatalogVersion.R1_RESERVA_V1
             .statementIdByScope();
 
-    private static final Map<String, String> CATALOGO = Map.of(
+    private static final Map<String, String> CATALOGO_R1 = Map.of(
             ID_AISLAMIENTO, "R1_TX_ISOLATION_V1",
             ID_SOLO_LECTURA, "R1_TX_READ_ONLY_V1",
             ID_POR_IDENTIDADES, ReadSnapshotContext.ProjectionCatalogVersion.R1_RESERVA_V1.statementByIds(),
@@ -32,10 +33,29 @@ public final class F2eStatementPolicyInspector implements StatementInspector {
     private static final Set<String> PALABRAS_DENEGADAS = Set.of(
             " insert ", " update ", " delete ", " merge ", " alter ", " create ",
             " drop ", " truncate ", " grant ", " revoke ", " for update", " for share",
-            " nextval", " setval", " currval", "pg_current_snapshot(");
+            " nextval", " setval", " currval");
 
     private final ThreadLocal<Captura> capturaActual = new ThreadLocal<>();
     private final AtomicLong statementsAceptados = new AtomicLong();
+    private final Map<String, String> catalogo;
+    private final boolean snapshotPermitido;
+
+    public F2eStatementPolicyInspector() {
+        this(CATALOGO_R1, false);
+    }
+
+    private F2eStatementPolicyInspector(Map<String, String> catalogo, boolean snapshotPermitido) {
+        this.catalogo = Map.copyOf(Objects.requireNonNull(catalogo, "catalogo"));
+        this.snapshotPermitido = snapshotPermitido;
+    }
+
+    public static F2eStatementPolicyInspector paraR2(LegacyTurnProjectionCatalog catalogoR2) {
+        if (catalogoR2 != LegacyTurnProjectionCatalog.R2_LEGACY_TURN_V1
+                || catalogoR2.statements().size() != 6) {
+            throw new IllegalArgumentException("R2 SQL catalog must be the sealed six-statement catalog");
+        }
+        return new F2eStatementPolicyInspector(catalogoR2.statementIdsToLogicalIds(), true);
+    }
 
     public Captura abrirCaptura(String identidadInvocacion) {
         if (identidadInvocacion == null || identidadInvocacion.isBlank() || capturaActual.get() != null) {
@@ -53,6 +73,13 @@ public final class F2eStatementPolicyInspector implements StatementInspector {
         }
         captura.cerrada = true;
         capturaActual.remove();
+        return List.copyOf(captura.identificadores);
+    }
+
+    public List<String> observarCaptura(Captura captura) {
+        if (capturaActual.get() != captura || captura.hilo != Thread.currentThread() || captura.cerrada) {
+            throw new IllegalStateException("F2E statement capture ownership not proven");
+        }
         return List.copyOf(captura.identificadores);
     }
 
@@ -86,7 +113,11 @@ public final class F2eStatementPolicyInspector implements StatementInspector {
             throw new F2eSqlPolicyViolationException(
                     F2eSqlPolicyViolationException.Reason.DENYLIST_VIOLATION, identificador);
         }
-        if (!CATALOGO.containsKey(identificador)) {
+        if (!snapshotPermitido && rodeada.contains("pg_current_snapshot(")) {
+            throw new F2eSqlPolicyViolationException(
+                    F2eSqlPolicyViolationException.Reason.DENYLIST_VIOLATION, identificador);
+        }
+        if (!catalogo.containsKey(identificador)) {
             throw new F2eSqlPolicyViolationException(
                     F2eSqlPolicyViolationException.Reason.CATALOG_MISS, identificador);
         }

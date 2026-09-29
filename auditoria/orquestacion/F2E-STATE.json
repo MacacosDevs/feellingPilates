@@ -22,7 +22,7 @@
       "anchorHead": "636a08f791197a5537032afb8885dd32bf058c35",
       "resolvedValueType": "SHA40_LOWERCASE"
     },
-    "ahead": 0,
+    "ahead": 2,
     "behind": 0,
     "equalityRequired": "ORIGIN_MAIN == CANONICAL_BASE_BEFORE_CONTROLLED_PUBLICATION"
   },
@@ -47,9 +47,9 @@
   },
   "lifecycle": {
     "selected": "F2E_R3_HANDOFF_ACTIVATION",
-    "selection": "PUBLISHED_R3_HANDOFF_ACTIVATION_CANDIDATE",
+    "selection": "R3 HANDOFF ACTIVATION",
     "profile": "PROCESS_ONLY / FRESH_INDEPENDENT_AUDIT_REQUIRED",
-    "candidateStage": "R3_HANDOFF_ACTIVATION_MATERIALIZED_CANDIDATE_PENDING_FRESH_INDEPENDENT_AUDIT",
+    "candidateStage": "MATERIALIZED_CANDIDATE / CORRECTION_1 / PENDING_FRESH_INDEPENDENT_REAUDIT / NOT_APPROVED / NOT_PUBLISHED",
     "r1": [
       "CLOSED",
       "ACCEPTED",
@@ -225,7 +225,8 @@
     },
     "r3Activation": {
       "artifact": "auditoria/reviews/HANDOFF-F2E-R3-ACTIVATION-PRE-AUDIT-CANDIDATE.md",
-      "status": "MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_AUDIT / NOT_APPROVED / NOT_PUBLISHED",
+      "candidateCommit": "e397a56c7b42c160b2eb12ef2c30529418a75a01",
+      "status": "MATERIALIZED_CANDIDATE / CORRECTION_1 / PENDING_FRESH_INDEPENDENT_REAUDIT / NOT_APPROVED / NOT_PUBLISHED",
       "approved": false,
       "published": false,
       "active": false,
@@ -249,7 +250,7 @@
     "r6MultiReaderOwnership": "NOT_AUTHORIZED",
     "r3ClosureAuthority": "PROCESS_FACT_RECORDING_ONLY"
   },
-  "activeMilestone": "F2E_R3_DESIGN_CLOSED",
+  "activeMilestone": "F2E_R3_HANDOFF_ACTIVATION",
   "authorityRefs": {
     "lifecycle": "auditoria/ESTADO-ACTUAL.md",
     "designD": "auditoria/fase-2e-diseno-adapters-read-only-snapshot-consistency.md",
@@ -267,7 +268,7 @@
     "r3HandoffActivationCandidate": "auditoria/reviews/HANDOFF-F2E-R3-ACTIVATION-PRE-AUDIT-CANDIDATE.md"
   },
   "authorityHashes": {
-    "lifecycle": "23c9e941c5367e3511303bd19f147046fb9f537ba85f873e160f9cade5542583",
+    "lifecycle": "a4efdf2ec2680a48dc1958d392cdb2c22429758612faf51f860a9225271abd73",
     "designD": "6c72cba1f83fbc2bcf3b3219d8252d2410ec482e30ae85d30fd2eeb04e8883d8",
     "semanticDesign": "6f850e9723f9861456d646039e4b233cff20d013ff956cab98f7370dffac4670",
     "r2PublishedDesign": "db4673dd0705c41e62d0b77339d45b2cd1e87c51e26064112ad95b843dafe9cf",
@@ -300,15 +301,16 @@
     "r2ImplementationReview": "dc47b8158a8e26dc95a8b09eacd669e5b81a588cc147fae78ca381a8fdef78d1"
   },
   "candidateIdentity": {
-    "stage": "POST_MERGE_R3_DESIGN_CLOSED",
-    "status": "RECONCILED / INDEPENDENTLY_AUDITED / APPROVED / PUBLISHED / INTEGRATED / CLOSED",
-    "parentCanonicalMain": "f61bdb7237c133ebcb7f5171366e9d9e8b7c3a89",
-    "designImplementationAuthority": "NOT_AUTHORIZED",
+    "stage": "MATERIALIZED_CANDIDATE / CORRECTION_1 / PENDING_FRESH_INDEPENDENT_REAUDIT / NOT_APPROVED / NOT_PUBLISHED",
+    "status": "MATERIALIZED_CANDIDATE / CORRECTION_1 / PENDING_FRESH_INDEPENDENT_REAUDIT / NOT_APPROVED / NOT_PUBLISHED",
+    "parentCanonicalMain": "636a08f791197a5537032afb8885dd32bf058c35",
+    "originalCandidateCommit": "e397a56c7b42c160b2eb12ef2c30529418a75a01",
+    "implementationAuthority": "NOT_AUTHORIZED",
     "implementation": "NOT_AUTHORIZED / NOT_IMPLEMENTED",
     "activeR3ImplementationHandoff": false,
-    "nextLifecycle": "R3 IMPLEMENTATION HANDOFF",
-    "candidateArtifact": "auditoria/fase-2e-r3-diseno-reader-programacion-nominal-reconciliado.md",
-    "designSha256": "42a21c09d137d363e938d441a499d48c5ec7537a73ee23861bfce2c4d75677f9"
+    "nextLifecycle": "R3 HANDOFF ACTIVATION AUDIT",
+    "candidateArtifact": "auditoria/reviews/HANDOFF-F2E-R3-ACTIVATION-PRE-AUDIT-CANDIDATE.md",
+    "candidateSha256": "3cb226fdd5bbb84ddff4c21bc530c6fe88f1f7d43c9297db10fd4fc56a8cedc7"
   },
   "allowlistIdentity": {
     "frozenRef": "auditoria/handoffs/HANDOFF-F2E-R2-IMPLEMENTACION-LECTOR-TURNO-LEGACY-CLEAN-MAIN-RECONCILIATION.md",
@@ -675,7 +677,7 @@
       "status": "MERGED"
     },
     "closure": "R3_HANDOFF_PROCESS_CLOSURE_PUBLISHED",
-    "r3Activation": "MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_AUDIT / NOT_APPROVED / NOT_PUBLISHED / NOT_ACTIVE"
+    "r3Activation": "MATERIALIZED_CANDIDATE / CORRECTION_1 / PENDING_FRESH_INDEPENDENT_REAUDIT / NOT_APPROVED / NOT_PUBLISHED / NOT_ACTIVE"
   },
   "humanGate": {
     "pendingJudgmentForClosure": false,
@@ -698,7 +700,9 @@
     "capturedAt": "2026-09-28",
     "cut": "R3_HANDOFF_ACTIVATION_CANDIDATE",
     "subagents": 0,
-    "independentAudit": "NOT_RUN"
+    "independentAudit": "BLOCKED",
+    "auditRound": 1,
+    "correction": 1
   },
   "historicalProvenanceRefs": {
     "historicalCommit": "6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c",

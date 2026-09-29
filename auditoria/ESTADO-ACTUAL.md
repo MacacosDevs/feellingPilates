@@ -1,12 +1,12 @@
 # FeelingPilates — Estado actual de la reestructuración
 
-Status: CANONICAL / CLEAN_MAIN_RECONCILIATION / R3_DESIGN_CLOSED
+Status: CANONICAL / CLEAN_MAIN_RECONCILIATION / R3_HANDOFF_MATERIALIZED_CANDIDATE
 Last updated: 2026-09-28
 Repository verification: VERIFIED
-Canonical base commit: 6fd7818a8390950688497167a6a96a8ff4147dd6
+Canonical base commit: 5964844e92fb467cda78debef01e318ebe33546f
 Flyway head: V46
 Historical F2E source HEAD: 6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c
-Current lifecycle: F2E_R3_DESIGN_PROCESS_CLOSURE
+Current lifecycle: F2E_R3_IMPLEMENTATION_HANDOFF_MATERIALIZATION
 R1: CLOSED / ACCEPTED / PUBLISHED / INTEGRATED
 R2 Design: COMPLETE / AUDITED / PUBLISHED / CLOSED
 Historical R2 Implementation Handoff: REPOSITORY_PUBLISHED_HISTORICAL_ARTIFACT (commit 6140978) / PROVENANCE_ONLY
@@ -19,11 +19,24 @@ R2 Implementation State: NOT_IMPLEMENTED
 R3-R6: NOT_AUTHORIZED
 R3 Design: RECONCILED / INDEPENDENTLY_AUDITED / APPROVED / PUBLISHED / INTEGRATED / CLOSED
 R3 Implementation: NOT_AUTHORIZED / NOT_IMPLEMENTED
+R3 Implementation Handoff: MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_HANDOFF_AUDIT / NOT_APPROVED / NOT_PUBLISHED / NOT_ACTIVE
 TurnoInstructor: LEGACY_VIVO / PRODUCTIVO
 Dark launch: PRESERVED
 Cutover: NOT_AUTHORIZED
 V47: ABSENT
 Payments / Notifications: OUT_OF_SCOPE
+
+## Candidato local del handoff R3
+
+Base canónica `5964844e92fb467cda78debef01e318ebe33546f`. El handoff de
+implementación R3 `auditoria/handoffs/HANDOFF-F2E-R3-IMPLEMENTACION-READER-PROGRAMACION-NOMINAL-CLEAN-MAIN.md`
+queda `MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_HANDOFF_AUDIT /
+NOT_APPROVED / NOT_PUBLISHED / NOT_ACTIVE`. Los allowlists del handoff son
+propuestas exactas para auditoría independiente posterior; no autorizan
+escritura de implementación en este lifecycle. R3 sigue `NOT_AUTHORIZED /
+NOT_IMPLEMENTED`; R4–R6 siguen `NOT_AUTHORIZED`. Flyway V46, V47 ausente,
+migración R3 ninguna; TurnoInstructor y routing productivo sin cambio.
+El próximo gate es una auditoría fresh en nuevo chat; no se ejecuta aquí.
 
 ## Cierre post-merge del diseño R3
 

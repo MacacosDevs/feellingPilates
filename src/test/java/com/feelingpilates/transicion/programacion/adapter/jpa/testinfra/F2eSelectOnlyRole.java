@@ -27,7 +27,23 @@ public final class F2eSelectOnlyRole {
     }
 
     public static F2eSelectOnlyRole crear(DataSource privilegiada, String claveCatalogo) {
-        String principal = "f2e_r1_reader_" + claveCatalogo.replace('-', '_');
+        return crear(privilegiada, "f2e_r1_reader_", claveCatalogo, Set.of("public.reserva"));
+    }
+
+    public static F2eSelectOnlyRole crear(
+            DataSource privilegiada,
+            String prefijoPrincipal,
+            String claveCatalogo,
+            Set<String> tablasSelectSelladas) {
+        if (privilegiada == null || prefijoPrincipal == null
+                || !prefijoPrincipal.matches("[a-z][a-z0-9_]*_")
+                || claveCatalogo == null || !claveCatalogo.matches("[a-z0-9][a-z0-9-]*")
+                || tablasSelectSelladas == null || tablasSelectSelladas.isEmpty()
+                || tablasSelectSelladas.stream().anyMatch(tabla ->
+                tabla == null || !tabla.matches("public\\.[a-z][a-z0-9_]*"))) {
+            throw new IllegalArgumentException("Invalid sealed F2E SELECT-only slice");
+        }
+        String principal = prefijoPrincipal + claveCatalogo.replace('-', '_');
         byte[] secreto = new byte[24];
         new SecureRandom().nextBytes(secreto);
         String contrasena = Base64.getUrlEncoder().withoutPadding().encodeToString(secreto);
@@ -39,7 +55,9 @@ public final class F2eSelectOnlyRole {
             sentencia.execute("REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA public FROM PUBLIC");
             sentencia.execute("GRANT CONNECT ON DATABASE " + conexion.getCatalog() + " TO " + principal);
             sentencia.execute("GRANT USAGE ON SCHEMA public TO " + principal);
-            sentencia.execute("GRANT SELECT ON TABLE public.reserva TO " + principal);
+            for (String tabla : tablasSelectSelladas.stream().sorted().toList()) {
+                sentencia.execute("GRANT SELECT ON TABLE " + tabla + " TO " + principal);
+            }
         } catch (SQLException excepcion) {
             throw new IllegalStateException("Unable to create F2E SELECT-only role", excepcion);
         }

@@ -1,12 +1,12 @@
 # FeelingPilates — Estado actual de la reestructuración
 
-Status: CANONICAL / CLEAN_MAIN_RECONCILIATION / R3_HANDOFF_ACTIVATION_CANDIDATE
-Last updated: 2026-09-28
+Status: CANONICAL / CLEAN_MAIN_RECONCILIATION / R3_HANDOFF_ACTIVATION_FINALIZATION_CONDITIONAL
+Last updated: 2026-09-29
 Repository verification: VERIFIED
-Canonical base commit: 636a08f791197a5537032afb8885dd32bf058c35
+Canonical base commit: cd644059faee6c7baa73e05c74f19fc89c3756fe
 Flyway head: V46
 Historical F2E source HEAD: 6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c
-Current lifecycle: F2E_R3_HANDOFF_ACTIVATION
+Current lifecycle: F2E_R3_HANDOFF_ACTIVATION_FINALIZATION
 R1: CLOSED / ACCEPTED / PUBLISHED / INTEGRATED
 R2 Design: COMPLETE / AUDITED / PUBLISHED / CLOSED
 Historical R2 Implementation Handoff: REPOSITORY_PUBLISHED_HISTORICAL_ARTIFACT (commit 6140978) / PROVENANCE_ONLY
@@ -18,38 +18,44 @@ R2 Implementation Authority: AUTHORIZED_TO_START
 R2 Implementation State: NOT_IMPLEMENTED
 R4-R6: NOT_AUTHORIZED
 R3 Design: RECONCILED / INDEPENDENTLY_AUDITED / APPROVED / PUBLISHED / INTEGRATED / CLOSED
-R3 Implementation: NOT_AUTHORIZED / NOT_IMPLEMENTED
-R3 Implementation Handoff: MATERIALIZED / RECONCILED / INDEPENDENTLY_AUDITED / APPROVED / PUBLISHED / INTEGRATED / NOT_ACTIVE
-R3 Handoff Activation: MATERIALIZED_CANDIDATE / PENDING_FRESH_INDEPENDENT_AUDIT / NOT_APPROVED / NOT_PUBLISHED
+R3 Implementation: AUTHORIZED_TO_START / NOT_IMPLEMENTED (effective only after verified finalization merge)
+R3 Implementation Handoff: MATERIALIZED / RECONCILED / INDEPENDENTLY_AUDITED / APPROVED / PUBLISHED / INTEGRATED / ACTIVE (effective only after verified finalization merge)
+R3 Handoff Activation: INDEPENDENTLY_AUDITED / APPROVED / PUBLISHED / INTEGRATED / FINALIZATION_CONDITIONAL
 TurnoInstructor: LEGACY_VIVO / PRODUCTIVO
 Dark launch: PRESERVED
 Cutover: NOT_AUTHORIZED
 V47: ABSENT
 Payments / Notifications: OUT_OF_SCOPE
 
-## Estado vigente — candidato de activación del handoff R3
+## Estado vigente — finalización condicionada de activación R3
 
-Base canónica `636a08f791197a5537032afb8885dd32bf058c35`. El diseño R3 está
-`CLOSED`; el handoff R3 está `MATERIALIZED / RECONCILED /
-INDEPENDENTLY_AUDITED / APPROVED / PUBLISHED / INTEGRATED / NOT_ACTIVE`.
+Base canónica de esta finalización `cd644059faee6c7baa73e05c74f19fc89c3756fe`
+(merge del PR #18). El diseño R3 está `CLOSED`; el handoff R3 está
+`MATERIALIZED / RECONCILED / INDEPENDENTLY_AUDITED / APPROVED / PUBLISHED /
+INTEGRATED`. Su activación se rige por la condición verificable de
+`auditoria/reviews/HANDOFF-F2E-R3-ACTIVATION-FINALIZATION.md`.
 La aprobación independiente del handoff está publicada en
 `auditoria/reviews/F2E-R3-REVIEW-HANDOFF-IMPLEMENTACION-READER-PROGRAMACION-NOMINAL-CLEAN-MAIN.md`
 (recibo `c9f28f2dd1901a1af8a874e3ced89c66e9b5f02b`, P0/P1/P2 `0/0/0`).
 El handoff conserva SHA-256
 `a74d139ca6c924dcbb98c368d80f38a17cf423408c7db30054e621b67b4cefa9`.
 
-La activación está `MATERIALIZED_CANDIDATE /
-PENDING_FRESH_INDEPENDENT_AUDIT / NOT_APPROVED / NOT_PUBLISHED` y se define
-en `auditoria/reviews/HANDOFF-F2E-R3-ACTIVATION-PRE-AUDIT-CANDIDATE.md`.
-La autoridad de implementación R3 permanece `NOT_AUTHORIZED`; la implementación
-permanece `NOT_IMPLEMENTED`. La activación sólo podrá finalizarse después de
-publicar una aprobación independiente de este candidato y verificar su
-integración en main. Ningún estado candidato concede autoridad por sí mismo.
+El candidato original `e397a56c7b42c160b2eb12ef2c30529418a75a01` y
+Correction.1 `0d0db6ef813fe04ddf11a3d72557311317761faa` recibieron
+reauditoría fresh independiente `APPROVED`, P0/P1/P2 `0/0/0`, con ambos P1
+cerrados. El recibo se publicó en el commit
+`875c94eea6c2b9ffdc16171777f51ea8a0f42b91` y quedó integrado en main
+por PR #18, merge `cd644059faee6c7baa73e05c74f19fc89c3756fe`.
+Mientras esta finalización no esté integrada y verificada en main, el handoff
+sigue `NOT_ACTIVE` y R3 sigue `NOT_AUTHORIZED / NOT_IMPLEMENTED`. Tras verificar
+la integración del commit de finalización y sus precondiciones, el handoff
+queda `ACTIVE` y la autoridad R3 `AUTHORIZED_TO_START`; la implementación
+permanece `NOT_IMPLEMENTED`. El registro candidato por sí solo no activa nada.
 
 La allowlist publicada conserva NEW 18, MODIFIED 2, WRITE_SCOPE 20, READ_ONLY
 17 y PROVENANCE_ONLY 4, con los seis hashes exactos del handoff y
-`DEFAULT_DENY` obligatorio. La implementación futura, si se autoriza en una
-transición separada, sólo podrá escribir dentro del WRITE_SCOPE de 20 rutas.
+`DEFAULT_DENY` obligatorio. La implementación futura autorizada sólo podrá
+escribir dentro del WRITE_SCOPE de 20 rutas.
 Flyway V46; V47 ausente; migración R3 ninguna. `TurnoInstructor` sigue
 `LEGACY_VIVO / PRODUCTIVO`; Programación productiva no cambia; R3 permanece
 `DARK_LAUNCH` sin routing productivo. Client API, web y reservas no cambian.

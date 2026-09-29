@@ -132,11 +132,16 @@ public final class LegacyTurnProjectionMapper {
     }
 
     public String logicalReadSetFingerprint(LegacyTurnReadSet readSet) {
-        List<byte[]> entries = readSet.sources().stream().map(source ->
-                LegacyTurnReadContext.secuenciaTextos(
-                        source.sourceSystem().name(), source.sourceAtomType().name(),
-                        source.sourceIdentity(), source.sourceFingerprint()))
-                .sorted(Arrays::compareUnsigned).toList();
+        Comparator<GenericSourceSnapshot> canonicalOrder = Comparator
+                .comparing((GenericSourceSnapshot source) -> source.sourceSystem().name(),
+                        LegacyTurnReadContext.UTF8_UNSIGNED)
+                .thenComparing(source -> source.sourceAtomType().name(), LegacyTurnReadContext.UTF8_UNSIGNED)
+                .thenComparing(GenericSourceSnapshot::sourceIdentity, LegacyTurnReadContext.UTF8_UNSIGNED)
+                .thenComparing(GenericSourceSnapshot::sourceFingerprint, LegacyTurnReadContext.UTF8_UNSIGNED);
+        List<byte[]> entries = readSet.sources().stream().sorted(canonicalOrder).map(source ->
+                LegacyTurnReadContext.secuenciaTextos(source.sourceSystem().name(),
+                        source.sourceAtomType().name(), source.sourceIdentity(), source.sourceFingerprint()))
+                .toList();
         List<byte[]> parts = new ArrayList<>();
         parts.add(LegacyTurnReadContext.utf8("F2E-READSET-V1"));
         parts.addAll(entries);
@@ -165,10 +170,6 @@ public final class LegacyTurnProjectionMapper {
         Map<UUID, Long> memberMultiplicity = new LinkedHashMap<>();
         physicalMembers.stream().map(IndexedMember::row).map(LegacyTurnMemberRow::memberInstructorId)
                 .filter(Objects::nonNull).forEach(member -> memberMultiplicity.merge(member, 1L, Long::sum));
-        memberMultiplicity.entrySet().stream().filter(entry -> entry.getValue() > 1).forEach(entry ->
-                rejections.add(rejectionInvariant(MEMBERS, scope, "DUPLICATE_PHYSICAL_ROW",
-                        safeIds(turnId, entry.getKey()), physicalMembers.getFirst().ordinal(),
-                        Math.toIntExact(entry.getValue()))));
 
         Map<AssignmentKey, List<IndexedAssignment>> assignmentsByKey = new LinkedHashMap<>();
         List<IndexedAssignment> invalidAssignmentKeys = new ArrayList<>();
@@ -183,10 +184,6 @@ public final class LegacyTurnProjectionMapper {
         }
         invalidAssignmentKeys.forEach(indexed -> rejections.add(rejectionInput(
                 ASSIGNMENTS, scope, "INVALID_REQUIRED_FIELD", safeIds(turnId), indexed.ordinal(), 1)));
-        assignmentsByKey.entrySet().stream().filter(entry -> entry.getValue().size() > 1).forEach(entry ->
-                rejections.add(rejectionInvariant(ASSIGNMENTS, scope, "DUPLICATE_PHYSICAL_ROW",
-                        safeIds(entry.getKey().turnId(), entry.getKey().instructorId(), entry.getKey().activityId()),
-                        entry.getValue().getFirst().ordinal(), entry.getValue().size())));
 
         List<IndexedAssignment> uniqueAssignments = assignmentsByKey.values().stream()
                 .map(List::getFirst).sorted(Comparator.comparing((IndexedAssignment row) -> row.row().instructorId(),
@@ -197,26 +194,28 @@ public final class LegacyTurnProjectionMapper {
         boolean turnRejected = !headerValid || !headersCompatible || !membershipShapeValid;
         String turnMarker = !headerValid ? "INVALID_REQUIRED_FIELD"
                 : !headersCompatible ? "DUPLICATE_LOGICAL_ATOM" : "INVALID_SOURCE_TYPE";
-        if (turnRejected) {
-            for (int index = 0; index < atoms.size(); index++) {
-                Atom atom = atoms.get(index);
+        Set<UUID> memberSet = Set.copyOf(members);
+        Set<UUID> reportedDuplicateMembers = new HashSet<>();
+        for (Atom atom : atoms) {
+            AssignmentKey key = atom.assignment() == null ? null
+                    : new AssignmentKey(turnId, atom.assignment().instructorId(), atom.assignment().activityId());
+            List<IndexedAssignment> physical = key == null ? null : assignmentsByKey.get(key);
+            if (physical != null && physical.size() > 1) {
+                rejections.add(rejectionInvariant(ASSIGNMENTS, scope, "DUPLICATE_PHYSICAL_ROW",
+                        safeIds(turnId, atom.instructorId(), atom.activityId()),
+                        physical.getFirst().ordinal(), physical.size()));
+            } else if (atom.memberId() != null && memberMultiplicity.getOrDefault(atom.memberId(), 0L) > 1
+                    && reportedDuplicateMembers.add(atom.memberId())) {
+                rejections.add(rejectionInvariant(MEMBERS, scope, "DUPLICATE_PHYSICAL_ROW",
+                        safeIds(turnId, atom.memberId()), physicalMembers.getFirst().ordinal(),
+                        Math.toIntExact(memberMultiplicity.get(atom.memberId()))));
+            } else if (turnRejected) {
                 rejections.add(rejectionInput(MEMBERS, scope, turnMarker,
                         safeIds(turnId, atom.instructorId(), atom.activityId()),
                         physicalMembers.getFirst().ordinal(), 1));
+            } else {
+                generated.add(generate(header, atom, memberSet, context, scope));
             }
-            return;
-        }
-
-        Set<AssignmentKey> duplicated = assignmentsByKey.entrySet().stream()
-                .filter(entry -> entry.getValue().size() > 1).map(Map.Entry::getKey)
-                .collect(java.util.stream.Collectors.toSet());
-        Set<UUID> memberSet = Set.copyOf(members);
-        for (Atom atom : atoms) {
-            if (atom.assignment() != null && duplicated.contains(new AssignmentKey(
-                    turnId, atom.assignment().instructorId(), atom.assignment().activityId()))) {
-                continue;
-            }
-            generated.add(generate(header, atom, memberSet, context, scope));
         }
     }
 

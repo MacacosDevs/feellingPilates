@@ -152,8 +152,15 @@ public class LegacyTurnR2PostgresTestConfiguration {
     @Bean(name = "legacyTurnJpaReader")
     LegacyTurnJpaReader legacyTurnJpaReader(
             @Qualifier("legacyTurnProjectionQueryExecutor") LegacyTurnProjectionQueryExecutor executor,
-            @Qualifier("legacyTurnProjectionMapper") LegacyTurnProjectionMapper mapper) {
-        return new LegacyTurnJpaReader(executor, mapper, LegacyTurnProjectionCatalog.R2_LEGACY_TURN_V1);
+            @Qualifier("legacyTurnProjectionMapper") LegacyTurnProjectionMapper mapper,
+            @Qualifier("legacyTurnContextRegistry") LegacyTurnTransactionTestOwner.ContextRegistry contexts) {
+        return new LegacyTurnJpaReader(executor, mapper, LegacyTurnProjectionCatalog.R2_LEGACY_TURN_V1,
+                contexts);
+    }
+
+    @Bean(name = "legacyTurnContextRegistry")
+    LegacyTurnTransactionTestOwner.ContextRegistry legacyTurnContextRegistry() {
+        return new LegacyTurnTransactionTestOwner.ContextRegistry();
     }
 
     @Bean(name = "legacyTurnTransactionTestOwner")
@@ -163,6 +170,7 @@ public class LegacyTurnR2PostgresTestConfiguration {
             @Qualifier("legacyTurnProjectionMapper") LegacyTurnProjectionMapper mapper,
             @Qualifier("f2eR2StatementPolicyInspector") F2eStatementPolicyInspector inspector,
             @Qualifier("legacyTurnJdbcCapture") LegacyTurnJdbcCapture jdbcCapture,
+            @Qualifier("legacyTurnContextRegistry") LegacyTurnTransactionTestOwner.ContextRegistry contexts,
             @Qualifier("f2eR2ReaderDataSource") DataSource readerDataSource,
             @Qualifier("f2eR2ReaderEntityManagerFactory") EntityManagerFactory factory,
             @Qualifier("f2eR2ReaderTransactionManager") JpaTransactionManager manager,
@@ -173,7 +181,7 @@ public class LegacyTurnR2PostgresTestConfiguration {
                 schemaFingerprint, canonicalUrl(container), container.getDatabaseName(), "public",
                 role.principal(), readerDataSource, factory, manager, entityManager, inspector);
         return new LegacyTurnTransactionTestOwner(
-                reader, executor, mapper, inspector, jdbcCapture, descriptor);
+                reader, executor, mapper, inspector, jdbcCapture, contexts, descriptor);
     }
 
     public UUID salonId() { return salonId; }

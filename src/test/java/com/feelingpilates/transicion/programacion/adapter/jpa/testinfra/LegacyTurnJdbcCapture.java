@@ -2,6 +2,11 @@ package com.feelingpilates.transicion.programacion.adapter.jpa.testinfra;
 
 import org.postgresql.PGConnection;
 import org.springframework.jdbc.datasource.DelegatingDataSource;
+import org.hibernate.Session;
+import org.springframework.orm.jpa.EntityManagerHolder;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import jakarta.persistence.EntityManagerFactory;
 
 import javax.sql.DataSource;
 import java.lang.reflect.InvocationTargetException;
@@ -46,13 +51,50 @@ public final class LegacyTurnJdbcCapture {
         return capture;
     }
 
+    public void bindResource(Capture capture, Object transactionOwner, EntityManagerFactory factory,
+                             EntityManagerHolder holder, Session session, Object physical) {
+        requireOpen(capture);
+        capture.transactionOwner = Objects.requireNonNull(transactionOwner, "transactionOwner");
+        capture.factory = Objects.requireNonNull(factory, "factory");
+        capture.holder = Objects.requireNonNull(holder, "holder");
+        capture.session = Objects.requireNonNull(session, "session");
+        capture.physical = Objects.requireNonNull(physical, "physical");
+        verifyResource(capture, physical);
+    }
+
+    public List<StatementObservation> snapshot(Capture capture) {
+        requireOpen(capture);
+        return capture.observations.stream().map(StatementObservationMutable::snapshot).toList();
+    }
+
+    public boolean isOpen(Capture capture) {
+        return current.get() == capture && !capture.closed && capture.owner == Thread.currentThread();
+    }
+
+    public void verifyBoundResource(Capture capture, Object observedPhysical) {
+        verifyResource(capture, observedPhysical);
+    }
+
     public List<StatementObservation> close(Capture capture) {
-        if (current.get() != capture || capture.owner != Thread.currentThread() || capture.closed) {
-            throw new IllegalStateException("R2 JDBC capture ownership not proven");
-        }
+        requireOpen(capture);
         capture.closed = true;
         current.remove();
         return capture.observations.stream().map(StatementObservationMutable::snapshot).toList();
+    }
+
+    private void requireOpen(Capture capture) {
+        if (!isOpen(capture)) throw new IllegalStateException("R2 JDBC capture ownership not proven");
+    }
+
+    private void verifyResource(Capture capture, Object physical) {
+        requireOpen(capture);
+        if (capture.factory == null || capture.holder == null || capture.session == null
+                || capture.physical != physical
+                || TransactionSynchronizationManager.getResource(capture.factory) != capture.holder
+                || capture.holder.getEntityManager().unwrap(Session.class) != capture.session
+                || !capture.session.isJoinedToTransaction()) {
+            throw new IllegalStateException("R2 statement transaction resource chain changed");
+        }
     }
 
     public void discard(Capture capture) {
@@ -76,16 +118,16 @@ public final class LegacyTurnJdbcCapture {
                 new Class<?>[]{Connection.class}, (proxy, method, arguments) -> {
                     if (method.getName().startsWith("prepareStatement") && arguments != null
                             && arguments.length > 0 && arguments[0] instanceof String sql) {
-                        PreparedStatement statement = (PreparedStatement) invoke(delegate, method, arguments);
                         Capture capture = current.get();
+                        if (capture != null) verifyResource(capture, physical);
+                        PreparedStatement statement = (PreparedStatement) invoke(delegate, method, arguments);
                         if (capture == null) return statement;
-                        if (capture.owner != Thread.currentThread() || capture.closed) {
-                            throw new IllegalStateException("R2 JDBC statement outside capture owner");
-                        }
+                        verifyResource(capture, physical);
                         StatementObservationMutable observation = new StatementObservationMutable(
-                                capture.observations.size() + 1, sql, delegate, physical);
+                                capture.observations.size() + 1, sql, (Connection) proxy, physical, capture);
                         capture.observations.add(observation);
-                        return wrapStatement(statement, observation);
+                        verifyResource(capture, physical);
+                        return wrapStatement(statement, observation, capture);
                     }
                     if ("equals".equals(method.getName())) return proxy == arguments[0];
                     if ("hashCode".equals(method.getName())) return System.identityHashCode(proxy);
@@ -94,22 +136,25 @@ public final class LegacyTurnJdbcCapture {
     }
 
     private PreparedStatement wrapStatement(
-            PreparedStatement delegate, StatementObservationMutable observation) {
+            PreparedStatement delegate, StatementObservationMutable observation, Capture capture) {
         return (PreparedStatement) Proxy.newProxyInstance(PreparedStatement.class.getClassLoader(),
                 new Class<?>[]{PreparedStatement.class}, (proxy, method, arguments) -> {
                     String name = method.getName();
                     if (name.startsWith("set") && arguments != null && arguments.length >= 2
                             && arguments[0] instanceof Integer position) {
+                        verifyResource(capture, observation.physicalConnection);
                         Object value = arguments[1];
                         observation.binds.put(position, new BindObservation(
                                 position, name, value == null ? "NULL" : value.getClass().getName(),
                                 canonical(value), arguments.length > 2 ? canonical(arguments[2]) : null));
                     }
                     if (name.startsWith("execute")) {
+                        verifyResource(capture, observation.physicalConnection);
                         observation.entered = true;
                         try {
                             Object result = invoke(delegate, method, arguments);
                             observation.completed = true;
+                            verifyResource(capture, observation.physicalConnection);
                             awaitMembersBarrier(observation.sql);
                             return result;
                         } catch (Throwable failure) {
@@ -157,6 +202,11 @@ public final class LegacyTurnJdbcCapture {
         private final Thread owner;
         private final List<StatementObservationMutable> observations = new ArrayList<>();
         private boolean closed;
+        private Object transactionOwner;
+        private EntityManagerFactory factory;
+        private EntityManagerHolder holder;
+        private Session session;
+        private Object physical;
 
         private Capture(String invocationIdentity, Thread owner) {
             this.invocationIdentity = invocationIdentity;
@@ -173,6 +223,10 @@ public final class LegacyTurnJdbcCapture {
             int ordinal,
             String sql,
             Map<Integer, BindObservation> binds,
+            Object transactionOwner,
+            EntityManagerFactory factory,
+            EntityManagerHolder holder,
+            Session session,
             Connection connection,
             Object physicalConnection,
             boolean executeEntered,
@@ -187,21 +241,25 @@ public final class LegacyTurnJdbcCapture {
         private final int ordinal;
         private final String sql;
         private final Connection connection;
+        private final Capture capture;
         private final Object physicalConnection;
         private final Map<Integer, BindObservation> binds = new LinkedHashMap<>();
         private boolean entered;
         private boolean completed;
         private boolean failed;
 
-        private StatementObservationMutable(int ordinal, String sql, Connection connection, Object physicalConnection) {
+        private StatementObservationMutable(int ordinal, String sql, Connection connection,
+                                            Object physicalConnection, Capture capture) {
             this.ordinal = ordinal;
             this.sql = sql;
             this.connection = connection;
             this.physicalConnection = physicalConnection;
+            this.capture = capture;
         }
 
         private StatementObservation snapshot() {
-            return new StatementObservation(ordinal, sql, binds, connection, physicalConnection,
+            return new StatementObservation(ordinal, sql, binds, capture.transactionOwner, capture.factory,
+                    capture.holder, capture.session, connection, physicalConnection,
                     entered, completed, failed);
         }
     }

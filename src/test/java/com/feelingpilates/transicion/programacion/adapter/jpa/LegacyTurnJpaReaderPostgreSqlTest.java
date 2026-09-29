@@ -3,6 +3,7 @@ package com.feelingpilates.transicion.programacion.adapter.jpa;
 import com.feelingpilates.transicion.programacion.adapter.jpa.testinfra.F2eSliceChecksum;
 import com.feelingpilates.transicion.programacion.adapter.jpa.testinfra.LegacyTurnR2PostgresTestConfiguration;
 import com.feelingpilates.transicion.programacion.adapter.jpa.testinfra.LegacyTurnTransactionTestOwner;
+import com.feelingpilates.transicion.programacion.adapter.jpa.testinfra.LegacyTurnJdbcCapture;
 import com.feelingpilates.transicion.programacion.read.LegacyTurnScope;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.util.Set;
+import java.util.UUID;
+import java.util.List;
+import java.util.LinkedHashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -98,6 +102,53 @@ class LegacyTurnJpaReaderPostgreSqlTest {
         assertEquals(3, before.rowCounts().get("public.turno_instructor"));
         assertFalse(outcome.readSet().sources().isEmpty());
         assertEquals(outcome.snapshotInitial(), outcome.snapshotFinal());
+    }
+
+    @Test
+    void realJdbcBindsHaveExactSettersPositionsTypesValuesAndNaturalUuidOrder() {
+        UUID high = new UUID(Long.MAX_VALUE, 0);
+        UUID low = new UUID(Long.MIN_VALUE, 0);
+        LinkedHashSet<UUID> deliberatelyUnsorted = new LinkedHashSet<>(List.of(high, low, configuration.salonId()));
+        LegacyTurnScope scope = new LegacyTurnScope(deliberatelyUnsorted,
+                LegacyTurnR2PostgresTestConfiguration.FECHA);
+        assertFalse(List.copyOf(deliberatelyUnsorted).equals(scope.salonIdsNaturales()));
+        var outcome = owner.inRepeatableReadOnly(new LegacyTurnTransactionTestOwner.Seed(
+                "run-r2-jdbc", "unsorted-bind-proof", "rules-v1", ZoneId.of("UTC")), scope);
+        assertTrue(outcome.completed());
+        var members = outcome.jdbcObservations().get(4).binds();
+        List<UUID> expectedSalons = scope.salonIdsNaturales();
+        for (int i = 0; i < expectedSalons.size(); i++) {
+            assertBind(members.get(i + 1), i + 1, "setObject", UUID.class.getName(),
+                    expectedSalons.get(i).toString());
+        }
+        int offset = expectedSalons.size();
+        assertBind(members.get(offset + 1), offset + 1, "setBoolean", Boolean.class.getName(), "true");
+        assertBind(members.get(offset + 2), offset + 2, "setString", String.class.getName(), "RECURRENTE");
+        assertBind(members.get(offset + 3), offset + 3, "setShort", Short.class.getName(), "1");
+        assertBind(members.get(offset + 4), offset + 4, "setString", String.class.getName(), "EXCEPCION");
+        assertBind(members.get(offset + 5), offset + 5, "setString", String.class.getName(), "CANCELACION");
+        assertBind(members.get(offset + 6), offset + 6, "setDate", java.sql.Date.class.getName(),
+                LegacyTurnR2PostgresTestConfiguration.FECHA.toString());
+        assertEquals(offset + 6, members.size());
+
+        var assignments = outcome.jdbcObservations().get(5).binds();
+        List<UUID> turnIds = List.of(
+                LegacyTurnR2PostgresTestConfiguration.TURNO_RECURRENTE,
+                LegacyTurnR2PostgresTestConfiguration.TURNO_EXCEPCION,
+                LegacyTurnR2PostgresTestConfiguration.TURNO_CANCELACION);
+        for (int i = 0; i < turnIds.size(); i++) {
+            assertBind(assignments.get(i + 1), i + 1, "setObject", UUID.class.getName(),
+                    turnIds.get(i).toString());
+        }
+        assertEquals(turnIds.size(), assignments.size());
+    }
+
+    private void assertBind(LegacyTurnJdbcCapture.BindObservation observed, int position,
+                            String setter, String runtimeType, String value) {
+        assertEquals(position, observed.position());
+        assertEquals(setter, observed.setter());
+        assertEquals(runtimeType, observed.runtimeClass());
+        assertEquals(value, observed.canonicalValue());
     }
 
     private void assertDenied(String sql) {

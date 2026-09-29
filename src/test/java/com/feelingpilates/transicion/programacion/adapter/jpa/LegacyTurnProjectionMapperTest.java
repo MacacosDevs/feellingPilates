@@ -6,6 +6,7 @@ import com.feelingpilates.transicion.programacion.adapter.jpa.projection.LegacyT
 import com.feelingpilates.transicion.programacion.adapter.jpa.projection.LegacyTurnProjectionCatalog;
 import com.feelingpilates.transicion.programacion.read.LegacyAdapterInputInvalid;
 import com.feelingpilates.transicion.programacion.read.LegacyTurnReadContext;
+import com.feelingpilates.transicion.programacion.read.LegacyTurnReadSet;
 import com.feelingpilates.transicion.programacion.read.LegacyTurnScope;
 import org.junit.jupiter.api.Test;
 
@@ -126,6 +127,65 @@ class LegacyTurnProjectionMapperTest {
         assertEquals(1, failure.rejections().size());
         assertEquals("DUPLICATE_PHYSICAL_ROW", failure.rejections().getFirst().marker());
         assertEquals(2, failure.rejections().getFirst().observedPhysicalRowCount());
+    }
+
+    @Test
+    void duplicateAssignmentPrecedesInvalidHeaderOncePerLogicalAtom() {
+        LegacyTurnMemberRow valid = member(MEMBER_A);
+        LegacyTurnMemberRow invalid = new LegacyTurnMemberRow(valid.turnId(), valid.type(), valid.active(),
+                valid.salonId(), valid.dayOfWeek(), valid.date(), valid.turnStart(), valid.turnEnd(),
+                null, valid.updatedAtTechnical(), valid.memberInstructorId());
+        LegacyAssignmentRow duplicated = assignment(MEMBER_A, ACTIVITY_A, null, null);
+        LegacyAdapterInputInvalid failure = assertThrows(LegacyAdapterInputInvalid.class, () ->
+                mapper.mapear(List.of(invalid), List.of(duplicated, duplicated,
+                        assignment(MEMBER_A, ACTIVITY_B, null, null)), context(), scope));
+        assertEquals(2, failure.rejections().size());
+        assertEquals(List.of("DUPLICATE_PHYSICAL_ROW", "INVALID_REQUIRED_FIELD"),
+                failure.rejections().stream().map(rejection -> rejection.marker()).toList());
+        assertEquals(2, failure.rejections().getFirst().observedPhysicalRowCount());
+    }
+
+    @Test
+    void duplicatedMembershipWithInvalidHeaderPreservesKAndPhysicalMultiplicity() {
+        LegacyTurnMemberRow valid = member(MEMBER_A);
+        LegacyTurnMemberRow invalid = new LegacyTurnMemberRow(valid.turnId(), valid.type(), valid.active(),
+                valid.salonId(), valid.dayOfWeek(), valid.date(), valid.turnStart(), valid.turnEnd(),
+                null, valid.updatedAtTechnical(), valid.memberInstructorId());
+        LegacyAdapterInputInvalid failure = assertThrows(LegacyAdapterInputInvalid.class, () ->
+                mapper.mapear(List.of(invalid, invalid), List.of(
+                        assignment(MEMBER_A, ACTIVITY_A, null, null),
+                        assignment(MEMBER_A, ACTIVITY_B, null, null)), context(), scope));
+        assertEquals(2, failure.rejections().size());
+        assertEquals("DUPLICATE_PHYSICAL_ROW", failure.rejections().getFirst().marker());
+        assertEquals(2, failure.rejections().getFirst().observedPhysicalRowCount());
+        assertEquals("INVALID_REQUIRED_FIELD", failure.rejections().get(1).marker());
+    }
+
+    @Test
+    void readSetFingerprintOrdersFourLogicalUtf8ComponentsBeforeFraming() {
+        var cancellation = mapper.mapear(List.of(member(null, "CANCELACION")),
+                List.of(), context(), scope).sources().getFirst();
+        LegacyTurnMemberRow exceptionHeader = member(null, "EXCEPCION");
+        exceptionHeader = new LegacyTurnMemberRow(uuid(21), exceptionHeader.type(), exceptionHeader.active(),
+                exceptionHeader.salonId(), exceptionHeader.dayOfWeek(), exceptionHeader.date(),
+                exceptionHeader.turnStart(), exceptionHeader.turnEnd(), exceptionHeader.createdAtTechnical(),
+                exceptionHeader.updatedAtTechnical(), exceptionHeader.memberInstructorId());
+        var exception = mapper.mapear(List.of(exceptionHeader),
+                List.of(), context(), scope).sources().getFirst();
+        assertTrue(LegacyTurnReadContext.UTF8_UNSIGNED.compare(
+                cancellation.sourceAtomType().name(), exception.sourceAtomType().name()) < 0);
+        byte[] cancelEntry = entry(cancellation);
+        byte[] exceptionEntry = entry(exception);
+        assertTrue(java.util.Arrays.compareUnsigned(cancelEntry, exceptionEntry) > 0);
+        String expected = LegacyTurnReadContext.sha256(LegacyTurnReadContext.secuencia(List.of(
+                LegacyTurnReadContext.utf8("F2E-READSET-V1"), cancelEntry, exceptionEntry)));
+        assertEquals(expected, mapper.logicalReadSetFingerprint(new LegacyTurnReadSet(List.of(exception, cancellation))));
+        assertEquals(expected, mapper.logicalReadSetFingerprint(new LegacyTurnReadSet(List.of(cancellation, exception))));
+    }
+
+    private byte[] entry(com.feelingpilates.transicion.programacion.detector.GenericSourceSnapshot source) {
+        return LegacyTurnReadContext.secuenciaTextos(source.sourceSystem().name(),
+                source.sourceAtomType().name(), source.sourceIdentity(), source.sourceFingerprint());
     }
 
     @Test

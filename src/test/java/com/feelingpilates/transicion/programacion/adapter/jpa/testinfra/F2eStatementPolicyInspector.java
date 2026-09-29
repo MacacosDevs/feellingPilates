@@ -76,6 +76,13 @@ public final class F2eStatementPolicyInspector implements StatementInspector {
         return List.copyOf(captura.identificadores);
     }
 
+    public List<String> observarCaptura(Captura captura) {
+        if (capturaActual.get() != captura || captura.hilo != Thread.currentThread() || captura.cerrada) {
+            throw new IllegalStateException("F2E statement capture ownership not proven");
+        }
+        return List.copyOf(captura.identificadores);
+    }
+
     public void descartarCaptura(Captura captura) {
         if (capturaActual.get() == captura) {
             captura.cerrada = true;

@@ -87,7 +87,8 @@ class LegacyTurnProjectionQueryExecutorTest {
         LegacyTurnReadContext context = context(scope);
         LegacyTurnProjectionQueryExecutor executor = new LegacyTurnProjectionQueryExecutor(entityManager, CATALOG);
         LegacyTurnJpaReader reader = new LegacyTurnJpaReader(executor,
-                new LegacyTurnProjectionMapper(CATALOG), CATALOG);
+                new LegacyTurnProjectionMapper(CATALOG), CATALOG,
+                (trustedContext, trustedScope) -> assertEquals(context, trustedContext));
 
         org.springframework.transaction.support.TransactionSynchronizationManager.setActualTransactionActive(true);
         org.springframework.transaction.support.TransactionSynchronizationManager.setCurrentTransactionReadOnly(true);

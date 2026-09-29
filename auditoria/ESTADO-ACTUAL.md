@@ -1,12 +1,12 @@
 # FeelingPilates — Estado actual de la reestructuración
 
-Status: CANONICAL / CLEAN_MAIN_RECONCILIATION
+Status: CANONICAL / CLEAN_MAIN_RECONCILIATION / R3_DESIGN_CLOSED
 Last updated: 2026-09-28
 Repository verification: VERIFIED
 Canonical base commit: 6fd7818a8390950688497167a6a96a8ff4147dd6
 Flyway head: V46
 Historical F2E source HEAD: 6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c
-Current lifecycle: F2E_R2_HANDOFF_ACTIVATION
+Current lifecycle: F2E_R3_DESIGN_PROCESS_CLOSURE
 R1: CLOSED / ACCEPTED / PUBLISHED / INTEGRATED
 R2 Design: COMPLETE / AUDITED / PUBLISHED / CLOSED
 Historical R2 Implementation Handoff: REPOSITORY_PUBLISHED_HISTORICAL_ARTIFACT (commit 6140978) / PROVENANCE_ONLY
@@ -17,11 +17,48 @@ Preactivation audit receipt: auditoria/reviews/HANDOFF-F2E-R2-ACTIVATION-PRE-AUD
 R2 Implementation Authority: AUTHORIZED_TO_START
 R2 Implementation State: NOT_IMPLEMENTED
 R3-R6: NOT_AUTHORIZED
+R3 Design: RECONCILED / INDEPENDENTLY_AUDITED / APPROVED / PUBLISHED / INTEGRATED / CLOSED
+R3 Implementation: NOT_AUTHORIZED / NOT_IMPLEMENTED
 TurnoInstructor: LEGACY_VIVO / PRODUCTIVO
 Dark launch: PRESERVED
 Cutover: NOT_AUTHORIZED
 V47: ABSENT
 Payments / Notifications: OUT_OF_SCOPE
+
+## Cierre post-merge del diseño R3
+
+El diseño R3 reconciliado quedó publicado e integrado por PR #14 en el merge commit
+canónico `f61bdb7237c133ebcb7f5171366e9d9e8b7c3a89`. Su lineage es:
+
+```text
+a26bfa5b9769fdb38cb5514773cc65679b81d468
+→ a9902a37593bd6ecde26fd671ca753bb59c4a4e7
+→ a8d3044e44b590a04f1570c70a8b3bdd79fddc98
+→ f61bdb7237c133ebcb7f5171366e9d9e8b7c3a89
+```
+
+Diseño: `RECONCILED / INDEPENDENTLY_AUDITED / APPROVED / PUBLISHED / INTEGRATED / CLOSED`.
+El artefacto es `auditoria/fase-2e-r3-diseno-reader-programacion-nominal-reconciliado.md`
+con SHA-256 `42a21c09d137d363e938d441a499d48c5ec7537a73ee23861bfce2c4d75677f9`.
+La revisión independiente publicada permanece en
+`auditoria/reviews/F2E-R3-REVIEW-DISENO-READER-PROGRAMACION-NOMINAL-RECONCILIADO.md`.
+
+R3 implementación: `NOT_AUTHORIZED / NOT_IMPLEMENTED`. No existe handoff activo de
+implementación R3. El siguiente lifecycle exacto es `R3 IMPLEMENTATION HANDOFF`, cuyo
+propósito será derivar del diseño cerrado el allowlist de implementación clean-main y
+su contrato de aceptación. Este cierre no autoriza implementación.
+
+Decisiones de diseño preservadas: Flyway `V46`; `V47 ABSENT / NOT_REQUIRED_FOR_R3`;
+ninguna migración; duplicados aplicables resueltos `READ_TIME_FAIL_CLOSED`; reader
+`MANDATORY / readOnly=true` con `f2eReaderTransactionManager`; owner individual
+`REQUIRES_NEW / REPEATABLE_READ / readOnly=true`; invocación sin owner fail-closed;
+ownership futuro de múltiples readers corresponde a R6 y no está autorizado. R4-R6
+siguen `NOT_AUTHORIZED`; `TurnoInstructor` sigue `LEGACY_VIVO / PRODUCTIVO`; dark launch
+`PRESERVED`; cutover `NOT_AUTHORIZED`; Payments / Notifications `OUT_OF_SCOPE`.
+
+Este lifecycle sólo registra hechos de reconciliación, auditoría, aprobación,
+publicación e integración ya ocurridos. No cambia diseño, producto, pruebas,
+configuración, migraciones ni autoridad de implementación.
 
 ---
 

@@ -373,6 +373,69 @@ public final class F2eSliceChecksum {
         return texto.getBytes(StandardCharsets.UTF_8);
     }
 
+    /** Re-evaluates both predicates on every invocation; never freezes physical membership. */
+    public static ResultadoR3 calcularNominalDinamico(DataSource observer, LocalDate fecha) {
+        java.util.Objects.requireNonNull(fecha);
+        String blockPredicate = "b.activo = true AND b.vigente_desde <= ? AND "
+                + "(b.vigente_hasta IS NULL OR ? <= b.vigente_hasta) AND b.dia_semana = ?";
+        String blockSql = "SELECT b.id,b.serie_id,b.salon_id,b.dia_semana,b.hora_inicio,b.hora_fin,"
+                + "b.vigente_desde,b.vigente_hasta,b.activo,b.creado_en,b.actualizado_en "
+                + "FROM public.programacion_bloque b WHERE " + blockPredicate + " ORDER BY b.id";
+        String assignmentSql = "SELECT a.id,a.serie_id,a.bloque_id,a.instructor_id,a.tipo_actividad_id,"
+                + "a.hora_inicio,a.hora_fin,a.vigente_desde,a.vigente_hasta,a.activo,a.creado_en,a.actualizado_en "
+                + "FROM public.programacion_asignacion a JOIN public.programacion_bloque b ON b.id=a.bloque_id "
+                + "WHERE " + blockPredicate + " AND a.activo = true AND a.vigente_desde <= ? AND "
+                + "(a.vigente_hasta IS NULL OR ? <= a.vigente_hasta) ORDER BY a.id";
+        Map<String, Integer> counts = new java.util.LinkedHashMap<>();
+        Map<String, String> hashes = new java.util.LinkedHashMap<>();
+        try (var c = observer.getConnection()) {
+            c.setAutoCommit(false); c.setTransactionIsolation(java.sql.Connection.TRANSACTION_REPEATABLE_READ);
+            c.setReadOnly(true);
+            for (String table : List.of("public.programacion_bloque", "public.programacion_asignacion")) {
+                boolean block = table.endsWith("bloque");
+                try (var q = c.prepareStatement(block ? blockSql : assignmentSql)) {
+                    q.setObject(1, fecha); q.setObject(2, fecha);
+                    q.setShort(3, (short)(fecha.getDayOfWeek().getValue() % 7));
+                    if (!block) { q.setObject(4, fecha); q.setObject(5, fecha); }
+                    try (var rs = q.executeQuery()) {
+                        List<FilaHash> rows = new ArrayList<>();
+                        while (rs.next()) {
+                            List<Campo> fields = new ArrayList<>();
+                            var md = rs.getMetaData();
+                            for (int i = 1; i <= md.getColumnCount(); i++) {
+                                String name = md.getColumnLabel(i);
+                                String type = md.getColumnTypeName(i);
+                                Object value;
+                                String encoded;
+                                switch (type) {
+                                    case "uuid" -> { value = rs.getObject(i, UUID.class); encoded = value == null ? "" : value.toString(); }
+                                    case "date" -> { value = rs.getObject(i, LocalDate.class); encoded = value == null ? "" : value.toString(); }
+                                    case "time" -> { var v = rs.getObject(i, LocalTime.class); value=v;
+                                        encoded=v == null ? "" : ReadSnapshotIdentifiers.hora(v); }
+                                    case "timestamptz" -> { var v = rs.getObject(i, OffsetDateTime.class); value=v;
+                                        encoded=v == null ? "" : ReadSnapshotIdentifiers.instante(v); }
+                                    case "bool" -> { value=rs.getObject(i, Boolean.class); encoded=value == null ? "" : value.toString(); }
+                                    case "int2" -> { value=rs.getObject(i, Short.class); encoded=value == null ? "" : value.toString(); }
+                                    default -> throw new IllegalStateException("Unexpected R3 checksum scalar type");
+                                }
+                                fields.add(value == null ? Campo.nulo(name,type) : Campo.valor(name,type,encoded));
+                            }
+                            rows.add(new FilaHash(rs.getObject("id", UUID.class), hashFilaPrueba(fields)));
+                        }
+                        counts.put(table, rows.size()); hashes.put(table, hashTablaPrueba(table, rows));
+                    }
+                }
+            }
+            c.commit();
+        } catch (SQLException e) { throw new IllegalStateException("R3 dynamic checksum failed", e); }
+        byte[] scope = ReadSnapshotIdentifiers.secuenciaTextos("F2E-R3-DYNAMIC-SLICE-V1", fecha.toString(),
+                Short.toString((short)(fecha.getDayOfWeek().getValue() % 7)));
+        return new ResultadoR3(counts, hashes, hashSlicePrueba(scope, hashes));
+    }
+    public record ResultadoR3(Map<String,Integer> rowCounts, Map<String,String> tableHashes, String sliceHash) {
+        public ResultadoR3 { rowCounts=Map.copyOf(rowCounts); tableHashes=Map.copyOf(tableHashes); }
+    }
+
     public record Resultado(int filas, String hashTabla, String hashSlice) { }
 
     public record ResultadoR2(

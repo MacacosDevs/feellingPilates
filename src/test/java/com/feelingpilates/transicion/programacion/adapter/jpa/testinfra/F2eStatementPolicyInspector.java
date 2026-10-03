@@ -57,6 +57,13 @@ public final class F2eStatementPolicyInspector implements StatementInspector {
         return new F2eStatementPolicyInspector(catalogoR2.statementIdsToLogicalIds(), true);
     }
 
+    public static F2eStatementPolicyInspector paraR3(
+            com.feelingpilates.transicion.programacion.adapter.jpa.projection.NominalProjectionCatalog catalog) {
+        if (catalog != com.feelingpilates.transicion.programacion.adapter.jpa.projection.NominalProjectionCatalog.R3_NOMINAL_V1
+                || catalog.statements().size() != 5) throw new IllegalArgumentException("R3 sealed catalog required");
+        return new F2eStatementPolicyInspector(catalog.statementIdsToLogicalIds(), true);
+    }
+
     public Captura abrirCaptura(String identidadInvocacion) {
         if (identidadInvocacion == null || identidadInvocacion.isBlank() || capturaActual.get() != null) {
             throw new IllegalStateException("F2E statement capture cannot be nested or anonymous");

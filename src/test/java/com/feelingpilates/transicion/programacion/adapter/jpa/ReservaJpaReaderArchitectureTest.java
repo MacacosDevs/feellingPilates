@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ReservaJpaReaderArchitectureTest {
 
@@ -113,6 +114,30 @@ class ReservaJpaReaderArchitectureTest {
                 "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/LegacyTurnR2PostgresTestConfiguration.java",
                 "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/LegacyTurnTransactionTestOwner.java",
                 "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/LegacyTurnJdbcCapture.java");
+        Set<String> r3Main = Set.of(
+                "src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/NominalJpaReader.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/mapper/NominalProjectionMapper.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/projection/NominalProjectionCatalog.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/projection/NominalProjectionQueryExecutor.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/projection/NominalProjectionRow.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/read/NominalBackingSnapshot.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/read/NominalProgrammingReadPort.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/read/NominalProgrammingReadSet.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/read/NominalReadFailure.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/read/NominalReadSnapshotContext.java");
+        Set<String> r3Test = Set.of(
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/NominalJpaReaderArchitectureTest.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/NominalJpaReaderPostgreSqlTest.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/NominalJpaReaderRuntimeIsolationTest.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/NominalJpaReaderTransactionTest.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/NominalProjectionMapperTest.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/NominalProjectionQueryExecutorTest.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/NominalPostgresTestConfiguration.java",
+                "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/NominalTransactionTestOwner.java");
+        assertTrue(java.util.Collections.disjoint(r1Main, r3Main));
+        assertTrue(java.util.Collections.disjoint(r2Main, r3Main));
+        assertTrue(java.util.Collections.disjoint(r1Test, r3Test));
+        assertTrue(java.util.Collections.disjoint(r2Test, r3Test));
         assertTrue(java.util.Collections.disjoint(r1Main, r2Main));
         assertTrue(java.util.Collections.disjoint(r1Test, r2Test));
         Set<String> actualMain = archivosJava(
@@ -120,20 +145,55 @@ class ReservaJpaReaderArchitectureTest {
                 Path.of("src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa"));
         Set<String> actualTest = archivosJava(
                 Path.of("src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa"));
-        assertEquals(union(r1Main, r2Main), actualMain);
-        assertEquals(union(r1Test, r2Test), actualTest);
-        assertEquals(r1Main, intersection(actualMain, r1Main));
-        assertEquals(r1Test, intersection(actualTest, r1Test));
-        assertEquals(r2Main, intersection(actualMain, r2Main));
-        assertEquals(r2Test, intersection(actualTest, r2Test));
+        // R3 is a separate dark-launch lifecycle: absent on the predecessor base,
+        // or present as its entire frozen inventory. Partial or unknown classes fail.
+        verificarInventario(r1Main, r2Main, r3Main, r1Test, r2Test, r3Test, actualMain, actualTest);
+        Set<String> baseMain = union(r1Main, r2Main);
+        Set<String> baseTest = union(r1Test, r2Test);
+        Set<String> fullMain = union(baseMain, r3Main);
+        Set<String> fullTest = union(baseTest, r3Test);
+        verificarInventario(r1Main, r2Main, r3Main, r1Test, r2Test, r3Test, baseMain, baseTest);
+        verificarInventario(r1Main, r2Main, r3Main, r1Test, r2Test, r3Test, fullMain, fullTest);
+        assertThrows(AssertionError.class, () -> verificarInventario(
+                r1Main, r2Main, r3Main, r1Test, r2Test, r3Test,
+                union(baseMain, Set.of(r3Main.iterator().next())), baseTest));
+        assertThrows(AssertionError.class, () -> verificarInventario(
+                r1Main, r2Main, r3Main, r1Test, r2Test, r3Test, fullMain, baseTest));
+        assertThrows(AssertionError.class, () -> verificarInventario(
+                r1Main, r2Main, r3Main, r1Test, r2Test, r3Test, baseMain, fullTest));
+        assertThrows(AssertionError.class, () -> verificarInventario(
+                r1Main, r2Main, r3Main, r1Test, r2Test, r3Test,
+                union(fullMain, Set.of("src/main/java/UnapprovedR4Reader.java")), fullTest));
+        Set<String> missingR1 = new java.util.HashSet<>(fullMain);
+        missingR1.remove(r1Main.iterator().next());
+        assertThrows(AssertionError.class, () -> verificarInventario(
+                r1Main, r2Main, r3Main, r1Test, r2Test, r3Test, missingR1, fullTest));
 
-        for (String archivo : union(r1Main, r2Main)) {
+        for (String archivo : actualMain) {
             String codigo = Files.readString(Path.of(archivo));
             for (String prohibido : List.of(
                     "@Component", "@Service", "@Repository", "@Configuration", "@Bean",
                     ".controller.", ".service.", ".scheduler.", ".listener.")) {
                 assertFalse(codigo.contains(prohibido), archivo + ":" + prohibido);
             }
+        }
+    }
+
+    private void verificarInventario(
+            Set<String> r1Main, Set<String> r2Main, Set<String> r3Main,
+            Set<String> r1Test, Set<String> r2Test, Set<String> r3Test,
+            Set<String> actualMain, Set<String> actualTest) {
+        boolean r3Present = !java.util.Collections.disjoint(actualMain, r3Main)
+                || !java.util.Collections.disjoint(actualTest, r3Test);
+        assertEquals(union(union(r1Main, r2Main), r3Present ? r3Main : Set.of()), actualMain);
+        assertEquals(union(union(r1Test, r2Test), r3Present ? r3Test : Set.of()), actualTest);
+        assertEquals(r1Main, intersection(actualMain, r1Main));
+        assertEquals(r1Test, intersection(actualTest, r1Test));
+        assertEquals(r2Main, intersection(actualMain, r2Main));
+        assertEquals(r2Test, intersection(actualTest, r2Test));
+        if (r3Present) {
+            assertEquals(r3Main, intersection(actualMain, r3Main));
+            assertEquals(r3Test, intersection(actualTest, r3Test));
         }
     }
 

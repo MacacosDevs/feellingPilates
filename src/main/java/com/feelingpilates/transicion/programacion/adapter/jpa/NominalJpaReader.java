@@ -32,6 +32,17 @@ public final class NominalJpaReader implements NominalProgrammingReadPort {
                 || !Objects.equals(TransactionSynchronizationManager.getCurrentTransactionIsolationLevel(),
                     TransactionDefinition.ISOLATION_REPEATABLE_READ))
             throw new NominalReadFailure(NominalReadFailure.Category.TRANSACTION_CONTEXT_INVALID, fecha);
+        try {
+            Object proxy = org.springframework.aop.framework.AopContext.currentProxy();
+            if (!(proxy instanceof NominalProgrammingReadPort)
+                    || !(proxy instanceof org.springframework.aop.framework.Advised advised)
+                    || advised.getTargetSource().getTarget() != this)
+                throw new NominalReadFailure(NominalReadFailure.Category.TRANSACTION_CONTEXT_INVALID, fecha);
+        } catch (NominalReadFailure e) { throw e; }
+        catch (Exception e) {
+            throw new NominalReadFailure(NominalReadFailure.Category.TRANSACTION_CONTEXT_INVALID, fecha,
+                    java.util.List.of(), e);
+        }
         if (context.projectionCatalogVersion() != catalog.version())
             throw new NominalReadFailure(NominalReadFailure.Category.TRANSACTION_CONTEXT_INVALID, fecha);
         try { authority.verify(context, fecha); }

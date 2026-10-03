@@ -70,6 +70,25 @@ class NominalJpaReaderTransactionTest {
         assertThrows(NominalReadFailure.class,()->direct.readNominalOnDate(NominalProjectionMapperTest.context(),FECHA));
         assertInvalidFault(NominalTransactionTestOwner.Fault.DIRECT_READER);
     }
+    @Test void directReaderAndOwnerInsideOtherwiseValidPhysicalRRTransactionFailBeforeData() {
+        var directEM=org.mockito.Mockito.mock(jakarta.persistence.EntityManager.class);
+        var executor=new NominalProjectionQueryExecutor(directEM,NominalProjectionCatalog.R3_NOMINAL_V1);
+        var directReader=new NominalJpaReader(executor,
+                new com.feelingpilates.transicion.programacion.adapter.jpa.mapper.NominalProjectionMapper(NominalProjectionCatalog.R3_NOMINAL_V1),
+                NominalProjectionCatalog.R3_NOMINAL_V1,(c,d)->{});
+        var tx=new TransactionTemplate(manager);tx.setIsolationLevel(TransactionDefinition.ISOLATION_REPEATABLE_READ);tx.setReadOnly(true);
+        assertEquals(NominalReadFailure.Category.TRANSACTION_CONTEXT_INVALID,
+                assertThrows(NominalReadFailure.class,()->tx.execute(s->directReader.readNominalOnDate(NominalProjectionMapperTest.context(),FECHA))).category());
+        org.mockito.Mockito.verifyNoInteractions(directEM);
+        var actual=org.springframework.test.util.AopTestUtils.<NominalTransactionTestOwner>getTargetObject(owner);
+        var descriptor=(NominalPostgresTestConfiguration.Descriptor)org.springframework.test.util.ReflectionTestUtils.getField(actual,"descriptor");
+        var actualExecutor=(NominalProjectionQueryExecutor)org.springframework.test.util.ReflectionTestUtils.getField(actual,"executor");
+        var inspector=(F2eStatementPolicyInspector)org.springframework.test.util.ReflectionTestUtils.getField(actual,"inspector");
+        var contexts=(NominalTransactionTestOwner.ContextRegistry)org.springframework.test.util.ReflectionTestUtils.getField(actual,"contexts");
+        var directOwner=new NominalTransactionTestOwner(reader,actualExecutor,inspector,capture,contexts,descriptor);
+        assertEquals(NominalReadFailure.Category.TRANSACTION_CONTEXT_INVALID,
+                assertThrows(NominalReadFailure.class,()->tx.execute(s->directOwner.inRepeatableReadOnly(seed(),FECHA))).category());
+    }
     @Test void equalValueForgedReplayCrossAttemptAndTamperedFieldsFailClosed() {
         var prior=owner.inRepeatableReadOnly(seed(),FECHA).context;
         assertEquals(NominalReadFailure.Category.TRANSACTION_CONTEXT_INVALID,

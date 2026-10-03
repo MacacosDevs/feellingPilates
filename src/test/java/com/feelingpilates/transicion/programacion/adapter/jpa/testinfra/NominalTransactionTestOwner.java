@@ -185,6 +185,13 @@ public class NominalTransactionTestOwner {
                 || !TransactionSynchronizationManager.isCurrentTransactionReadOnly()
                 || !Objects.equals(TransactionSynchronizationManager.getCurrentTransactionIsolationLevel(),
                         TransactionDefinition.ISOLATION_REPEATABLE_READ)) throw invalid(null,null);
+        try {
+            Object proxy=org.springframework.aop.framework.AopContext.currentProxy();
+            if (!(proxy instanceof NominalTransactionTestOwner)
+                    || !(proxy instanceof org.springframework.aop.framework.Advised advised)
+                    || advised.getTargetSource().getTarget()!=this) throw invalid(null,null);
+        } catch (NominalReadFailure e) { throw e; }
+        catch (Exception e) { throw invalid(null,e); }
         Object r=TransactionSynchronizationManager.getResource(descriptor.entityManagerFactory());
         if (!(r instanceof EntityManagerHolder holder)) throw invalid(null,null);
         Session session=holder.getEntityManager().unwrap(Session.class);

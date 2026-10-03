@@ -147,7 +147,7 @@
       "retentionOwner": "RUN_COORDINATOR",
       "externalBackup": "NOT_GUARANTEED"
     },
-    "fullCandidateManifest": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_f90eb621de3d/PROCESS-CLOSURE-CANDIDATE.tsv",
+    "fullCandidateManifest": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_f90eb621de3d/PROCESS-CLOSURE-CANDIDATE-CORRECTION1.tsv",
     "fullManifestStatus": "MATERIALIZED_EXTERNALLY_AFTER_STATE",
     "stateExcludedFromPayload": true,
     "auditReceiptPath": "auditoria/reviews/F2E-R3-IMPLEMENTACION-CIERRE-INDEPENDENT-RECEIPT.md",
@@ -330,7 +330,39 @@
     "finalResolvedState": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_f90eb621de3d/R3-CLOSED-RESOLVED-STATE.json",
     "finalResolvedStateStatusAtCapture": "NOT_CREATED",
     "digestLocation": "EXTERNAL_FULL_MANIFEST_AND_FINAL_RECEIPT",
-    "mustReconstructAndVerifyHigherSourcesBeforeUse": true
+    "mustReconstructAndVerifyHigherSourcesBeforeUse": true,
+    "historicalProvenanceRefs": {
+      "historicalCommit": "6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c",
+      "status": "HISTORICAL_PROVENANCE_ONLY / EXTERNAL_GIT_OBJECT_ACCESSIBLE",
+      "agents": "AGENTS.md",
+      "navigation": "auditoria/README-REESTRUCTURACION.md",
+      "workRules": "auditoria/REGLAS-DE-TRABAJO-IA.md",
+      "architecture": "auditoria/ARQUITECTURA-ACTUAL.md",
+      "decisions": "auditoria/DECISIONES-ARQUITECTONICAS.md",
+      "domain": "auditoria/contexto/DOMINIO-FUNCIONAL.md",
+      "legacy": "auditoria/contexto/MAPA-LEGACY-Y-MIGRACION.md",
+      "orqReadme": "auditoria/orquestacion/README.md",
+      "orqWorkflow": "auditoria/orquestacion/WORKFLOW.md",
+      "orqStates": "auditoria/orquestacion/STATE-MACHINE.md",
+      "orqGates": "auditoria/orquestacion/GATES.md",
+      "orqRoles": "auditoria/orquestacion/ROLES.md",
+      "priorState": "3329cc0d8d8c2d6b44df980e7e96e3b24dcfe3a8:auditoria/orquestacion/F2E-STATE.json"
+    },
+    "historicalProvenanceHashes": {
+      "agents": "1d70ebbc5bfef3c0004a7ca53ce8a91bf6a9660a4085e2c7ff2a44a5d58038c4",
+      "navigation": "747227acc83ad7337d8a1214646ee089def5ed42ec6eee637d22ff96969ce2b2",
+      "workRules": "84799b8946e428e7e907bc20b96362e699347e7307d0ba886c4d85c06ffa55ea",
+      "architecture": "63733821b86e89aacecbc1573c1e6d4d4b396fe6162f6871b7f810060bc81a7c",
+      "decisions": "6dc6fb6230ce794449883cd858864eebab2bdfb6cd2bc5c7ac4fa4e023ce579b",
+      "domain": "1abce9e0bc187a1cfb34d384faa4b340150eebd7a8e8213922e90f853cb266df",
+      "legacy": "ee3739a10435e19e2a1f123c95a9c3446c7c7c3c72b85e56c7ef40147e72ce8f",
+      "orqReadme": "21d094499f49a7c7f0878e4c183114c4ff8525446dca5e8db1151a90e7146a7c",
+      "orqWorkflow": "107857275a38dfb23f094ec35054113b88de404e0ae7100c2bf527071de130d1",
+      "orqStates": "0641e4725947d1fb2f16cf304255b0b30739090bb810488672503a206f6f13d8",
+      "orqGates": "b3137de84aa171dd6f11bf439c79b937e44a52de54a5cb841fd57048678d490b",
+      "orqRoles": "8c19f5981cad4941a34356fecde833168b1754620e167fd323b36c35490dbb50",
+      "priorState": "0d1264b432b9c3cf1af78f8f465ec80bb77b4befec8790de9aadd6bf16787332"
+    }
   },
   "openFindings": [
     {
@@ -431,37 +463,5 @@
     "newProcessAuditTask": null,
     "newProcessAuditDispatch": null,
     "unknownReason": "NOT_CREATED_AT_CAPTURE"
-  },
-  "historicalProvenanceRefs": {
-    "historicalCommit": "6140978bfd7b723fbbf9ddde1b5b5ba4f777c43c",
-    "status": "HISTORICAL_PROVENANCE_ONLY / EXTERNAL_GIT_OBJECT_ACCESSIBLE",
-    "agents": "AGENTS.md",
-    "navigation": "auditoria/README-REESTRUCTURACION.md",
-    "workRules": "auditoria/REGLAS-DE-TRABAJO-IA.md",
-    "architecture": "auditoria/ARQUITECTURA-ACTUAL.md",
-    "decisions": "auditoria/DECISIONES-ARQUITECTONICAS.md",
-    "domain": "auditoria/contexto/DOMINIO-FUNCIONAL.md",
-    "legacy": "auditoria/contexto/MAPA-LEGACY-Y-MIGRACION.md",
-    "orqReadme": "auditoria/orquestacion/README.md",
-    "orqWorkflow": "auditoria/orquestacion/WORKFLOW.md",
-    "orqStates": "auditoria/orquestacion/STATE-MACHINE.md",
-    "orqGates": "auditoria/orquestacion/GATES.md",
-    "orqRoles": "auditoria/orquestacion/ROLES.md",
-    "priorState": "3329cc0d8d8c2d6b44df980e7e96e3b24dcfe3a8:auditoria/orquestacion/F2E-STATE.json"
-  },
-  "historicalProvenanceHashes": {
-    "agents": "1d70ebbc5bfef3c0004a7ca53ce8a91bf6a9660a4085e2c7ff2a44a5d58038c4",
-    "navigation": "747227acc83ad7337d8a1214646ee089def5ed42ec6eee637d22ff96969ce2b2",
-    "workRules": "84799b8946e428e7e907bc20b96362e699347e7307d0ba886c4d85c06ffa55ea",
-    "architecture": "63733821b86e89aacecbc1573c1e6d4d4b396fe6162f6871b7f810060bc81a7c",
-    "decisions": "6dc6fb6230ce794449883cd858864eebab2bdfb6cd2bc5c7ac4fa4e023ce579b",
-    "domain": "1abce9e0bc187a1cfb34d384faa4b340150eebd7a8e8213922e90f853cb266df",
-    "legacy": "ee3739a10435e19e2a1f123c95a9c3446c7c7c3c72b85e56c7ef40147e72ce8f",
-    "orqReadme": "21d094499f49a7c7f0878e4c183114c4ff8525446dca5e8db1151a90e7146a7c",
-    "orqWorkflow": "107857275a38dfb23f094ec35054113b88de404e0ae7100c2bf527071de130d1",
-    "orqStates": "0641e4725947d1fb2f16cf304255b0b30739090bb810488672503a206f6f13d8",
-    "orqGates": "b3137de84aa171dd6f11bf439c79b937e44a52de54a5cb841fd57048678d490b",
-    "orqRoles": "8c19f5981cad4941a34356fecde833168b1754620e167fd323b36c35490dbb50",
-    "priorState": "0d1264b432b9c3cf1af78f8f465ec80bb77b4befec8790de9aadd6bf16787332"
   }
 }

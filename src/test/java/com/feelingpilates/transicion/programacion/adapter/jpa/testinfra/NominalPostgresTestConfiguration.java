@@ -147,7 +147,8 @@ public class NominalPostgresTestConfiguration {
                 proxy.setExposeProxy(true);
                 proxy.addAdvice((org.aopalliance.intercept.MethodInterceptor) invocation -> {
                     try { return invocation.proceed(); }
-                    catch (org.springframework.transaction.IllegalTransactionStateException e) {
+                    catch (org.springframework.transaction.IllegalTransactionStateException
+                            | org.springframework.beans.factory.NoSuchBeanDefinitionException e) {
                         Object[] args = invocation.getArguments();
                         LocalDate date = args.length == 2 && args[1] instanceof LocalDate d ? d : null;
                         throw new com.feelingpilates.transicion.programacion.read.NominalReadFailure(

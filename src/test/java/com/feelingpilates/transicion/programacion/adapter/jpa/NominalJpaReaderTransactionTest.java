@@ -29,6 +29,7 @@ class NominalJpaReaderTransactionTest {
     @Autowired @Qualifier("f2eR3ReaderDataSource") DataSource readerDS;
     @Autowired NominalTransactionTestOwner.JdbcCapture capture;
     @Autowired PostgreSQLContainer<?> container;
+    @Autowired org.springframework.context.ApplicationContext applicationContext;
     @BeforeEach void reset() { config.resetFixtures(privileged); }
     static NominalTransactionTestOwner.Seed seed() {
         return new NominalTransactionTestOwner.Seed("run-r3",UUID.randomUUID().toString(),"rules-v1",ZoneId.of("America/Mexico_City"));
@@ -53,6 +54,45 @@ class NominalJpaReaderTransactionTest {
         assertTrue(outcome.jdbcObservations.stream().allMatch(o->o.holder()==outcome.holder && o.session()==outcome.session
                 && o.physicalConnection()==outcome.physicalConnection && o.factory()==factory));
         System.out.println("R3 owned RR initial="+outcome.snapshotInitial+" final="+outcome.snapshotFinal+" resource/snapshot/completion SQL="+outcome.statementIds+" metadata="+outcome.metadataObservations);
+    }
+    @Test void missingAndWrongTypeNamedManagerAreTypedBeforeData() {
+        for (String state : List.of("absent", "wrong-type", "present")) {
+            var entityManager = org.mockito.Mockito.mock(jakarta.persistence.EntityManager.class);
+            var catalog = NominalProjectionCatalog.R3_NOMINAL_V1;
+            var target = new NominalJpaReader(new NominalProjectionQueryExecutor(entityManager, catalog),
+                    new com.feelingpilates.transicion.programacion.adapter.jpa.mapper.NominalProjectionMapper(catalog),
+                    catalog, (context, date) -> fail("invalid manager reached owner authority"));
+            var beans = new org.springframework.beans.factory.support.DefaultListableBeanFactory();
+            if (!state.equals("absent")) {
+                Object namedBean = state.equals("present")
+                        ? new org.springframework.jdbc.datasource.DataSourceTransactionManager(
+                                new org.postgresql.ds.PGSimpleDataSource()) : new Object();
+                beans.registerSingleton("f2eReaderTransactionManager", namedBean);
+            }
+            var interceptor = new org.springframework.transaction.interceptor.TransactionInterceptor();
+            interceptor.setTransactionAttributeSource(
+                    new org.springframework.transaction.annotation.AnnotationTransactionAttributeSource());
+            interceptor.setBeanFactory(beans);
+            interceptor.afterPropertiesSet();
+            var proxy = new org.springframework.aop.framework.ProxyFactory(target);
+            proxy.setInterfaces(NominalProgrammingReadPort.class);
+            proxy.setExposeProxy(true);
+            proxy.addAdvice(interceptor);
+            var boundary = applicationContext.getBean("nominalFailureBoundary",
+                    org.springframework.beans.factory.config.BeanPostProcessor.class);
+            var guarded = (NominalProgrammingReadPort) boundary.postProcessAfterInitialization(
+                    proxy.getProxy(), "nominalJpaReader");
+            var failure = assertThrows(NominalReadFailure.class,
+                    () -> guarded.readNominalOnDate(NominalProjectionMapperTest.context(), FECHA));
+            assertEquals(NominalReadFailure.Category.TRANSACTION_CONTEXT_INVALID, failure.category());
+            assertEquals(FECHA, failure.fecha());
+            assertTrue(failure.physicalIds().isEmpty());
+            if (state.equals("present")) assertInstanceOf(IllegalTransactionStateException.class, failure.getCause());
+            else assertInstanceOf(org.springframework.beans.factory.NoSuchBeanDefinitionException.class, failure.getCause());
+            org.mockito.Mockito.verifyNoInteractions(entityManager);
+            System.out.println("R3 named-manager " + state + ": " + failure.category()
+                    + "; cause=" + failure.getCause().getClass().getSimpleName() + "; DATA interactions=0");
+        }
     }
     @Test void missingOwnerReadCommittedWrongManagerAndDirectConstructionFailBeforeData() {
         for(int isolation:List.of(TransactionDefinition.ISOLATION_READ_COMMITTED,TransactionDefinition.ISOLATION_REPEATABLE_READ)) {

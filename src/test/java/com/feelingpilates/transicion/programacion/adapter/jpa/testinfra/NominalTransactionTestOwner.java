@@ -71,6 +71,7 @@ public class NominalTransactionTestOwner {
                             || TransactionSynchronizationManager.getResource(descriptor.entityManagerFactory())!=tx.holder()
                             || !completion.statements.equals(inspector.observarCaptura(sql))
                             || !completion.observations.equals(jdbc.snapshot(cap))) throw invalid(fecha,null);
+                    if (!completion.logical.equals(jdbc.logicalBindings(cap))) throw invalid(fecha,null);
                     completion.commitGuardPassed=true;
                 } catch (RuntimeException e) {
                     if(e instanceof NominalReadFailure f) throw f;
@@ -81,6 +82,7 @@ public class NominalTransactionTestOwner {
                 try {
                     if (jdbc.isOpen(cap)) {
                         completion.completed=status==STATUS_COMMITTED && ready.get() && completion.commitGuardPassed
+                                && completion.logical.equals(jdbc.logicalBindings(cap))
                                 && completion.statements.equals(inspector.cerrarCaptura(sql))
                                 && completion.observations.equals(jdbc.close(cap));
                     }
@@ -138,22 +140,39 @@ public class NominalTransactionTestOwner {
                         || o.holder()!=tx.holder() || o.session()!=tx.session() || o.connection()!=conn.connection()
                         || o.physicalConnection()!=conn.physical()) throw invalid(fecha,null);
             }
+            assertLogicalBindings(jdbc.logicalBindings(cap),fecha);
             assertJdbcBinding(observed.get(4),fecha);
             String observedCommitment=NominalReadSnapshotContext.hash("F2E-R3-CAPTURE-COMMITMENT-V1",evidence,invocation,
                     String.join("/",ids),fecha.toString(),Short.toString((short)(fecha.getDayOfWeek().getValue()%7)));
             if (!trusted.statementCaptureCommitment().equals(observedCommitment)) throw invalid(fecha,null);
             var metadata=jdbc.metadata(cap);
             if (metadata.size()!=4 || metadata.stream().anyMatch(m->m.physicalConnection()!=conn.physical())) throw invalid(fecha,null);
-            completion.statements=ids; completion.observations=observed;
+            completion.statements=ids; completion.observations=observed;completion.logical=jdbc.logicalBindings(cap);
             ready.set(true);
             if(fault==Fault.ROLLBACK) org.springframework.transaction.interceptor.TransactionAspectSupport
                     .currentTransactionStatus().setRollbackOnly();
             return new Outcome(set,trusted,initial.snapshot(),fin.snapshot(),ids,observed,metadata,
-                    conn.physical(),tx.holder(),tx.session(),completion);
+                    conn.physical(),tx.holder(),tx.session(),jdbc.logicalBindings(cap),completion);
         } catch (RuntimeException e) {
             contexts.clear(); inspector.descartarCaptura(sql); jdbc.discard(cap);
             if(e instanceof NominalReadFailure f) throw f;
             throw new NominalReadFailure(NominalReadFailure.Category.DATABASE_READ_FAILURE,fecha,List.of(),e);
+        }
+    }
+    public static void assertLogicalBindings(List<JdbcCapture.NamedBindingObservation> bindings,LocalDate fecha) {
+        if(bindings.size()!=4) throw invalid(fecha,null);
+        Map<String,JdbcCapture.NamedBindingObservation> byName=new HashMap<>();
+        for(var b:bindings) {
+            if(!b.sql().equals(NominalProjectionCatalog.DATA_SQL) || byName.put(b.name(),b)!=null) throw invalid(fecha,null);
+        }
+        if(!byName.keySet().equals(Set.of("assignmentActive","blockActive","fecha","dayOfWeek"))) throw invalid(fecha,null);
+        for(String name:byName.keySet()) {
+            var b=byName.get(name);
+            String type=name.equals("fecha")?"java.time.LocalDate":name.equals("dayOfWeek")?"java.lang.Short":"java.lang.Boolean";
+            String value=name.equals("fecha")?fecha.toString():name.equals("dayOfWeek")
+                    ?Short.toString((short)(fecha.getDayOfWeek().getValue()%7)):"true";
+            if(!b.runtimeClass().equals(type) || !b.declaredClass().equals(type) || !b.canonicalValue().equals(value))
+                throw invalid(fecha,null);
         }
     }
     /** Independent expectation, not inferred from observed setter calls. */
@@ -249,6 +268,7 @@ public class NominalTransactionTestOwner {
         volatile boolean completed;
         boolean commitGuardPassed;
         List<String> statements=List.of(); List<JdbcCapture.StatementObservation> observations=List.of();
+        List<JdbcCapture.NamedBindingObservation> logical=List.of();
     }
     public static final class Outcome {
         private final NominalProgrammingReadSet provisional;
@@ -258,15 +278,17 @@ public class NominalTransactionTestOwner {
         public final List<String> statementIds;
         public final List<JdbcCapture.StatementObservation> jdbcObservations;
         public final List<JdbcCapture.MetadataObservation> metadataObservations;
+        public final List<JdbcCapture.NamedBindingObservation> logicalBindings;
         public final Object physicalConnection;
         public final EntityManagerHolder holder;
         public final Session session;
         private Outcome(NominalProgrammingReadSet set,NominalReadSnapshotContext context,String initial,String fin,
                 List<String> ids,List<JdbcCapture.StatementObservation> observations,List<JdbcCapture.MetadataObservation> metadata,
-                Object physical,EntityManagerHolder holder,Session session,Completion completion) {
+                Object physical,EntityManagerHolder holder,Session session,List<JdbcCapture.NamedBindingObservation> logical,
+                Completion completion) {
             this.provisional=set;this.context=context;this.snapshotInitial=initial;this.snapshotFinal=fin;
             this.statementIds=List.copyOf(ids);this.jdbcObservations=List.copyOf(observations);
-            this.metadataObservations=List.copyOf(metadata);this.physicalConnection=physical;
+            this.metadataObservations=List.copyOf(metadata);this.logicalBindings=List.copyOf(logical);this.physicalConnection=physical;
             this.holder=holder;this.session=session;this.completion=completion;
         }
         public NominalProgrammingReadSet readSet() {
@@ -324,6 +346,45 @@ public static final class JdbcCapture {
     public List<StatementObservation> failureObservations() {
         return lastDiscarded.get() == null ? List.of() : lastDiscarded.get();
     }
+
+    /** Records calls forwarded to the live JPA native query, independent of positional JDBC observations. */
+    public jakarta.persistence.EntityManager wrapEntityManager(jakarta.persistence.EntityManager delegate) {
+        return (jakarta.persistence.EntityManager) Proxy.newProxyInstance(
+                jakarta.persistence.EntityManager.class.getClassLoader(), new Class<?>[]{jakarta.persistence.EntityManager.class},
+                (proxy, method, args) -> {
+                    Object result=invoke(delegate,method,args);
+                    if (method.getName().equals("createNativeQuery") && args!=null && args[0] instanceof String sql
+                            && result instanceof jakarta.persistence.Query query) {
+                        return Proxy.newProxyInstance(jakarta.persistence.Query.class.getClassLoader(),
+                                new Class<?>[]{jakarta.persistence.Query.class}, (qp,qm,qa)-> {
+                                    if(qm.getName().equals("unwrap") && qa[0]==org.hibernate.query.NativeQuery.class)
+                                        return wrapNativeQuery(query.unwrap(org.hibernate.query.NativeQuery.class),sql);
+                                    return invoke(query,qm,qa);
+                                });
+                    }
+                    return result;
+                });
+    }
+    private org.hibernate.query.NativeQuery<?> wrapNativeQuery(org.hibernate.query.NativeQuery<?> target,String sql) {
+        return (org.hibernate.query.NativeQuery<?>) Proxy.newProxyInstance(org.hibernate.query.NativeQuery.class.getClassLoader(),
+                new Class<?>[]{org.hibernate.query.NativeQuery.class}, (proxy,method,args)-> {
+                    Capture cap=current.get();
+                    if(cap==null) throw new IllegalStateException("R3 native query outside invocation capture");
+                    verifyResource(cap,cap.physical);
+                    Object result=invoke(target,method,args);
+                    if(method.getName().equals("setParameter") && args.length==3 && args[0] instanceof String name
+                            && args[2] instanceof Class<?> explicitType) {
+                        Object value=args[1];
+                        cap.logicalBindings.add(new NamedBindingObservation(sql,name,
+                                value==null?"NULL":value.getClass().getName(),explicitType.getName(),canonical(value)));
+                    }
+                    return result==target?proxy:result;
+                });
+    }
+    public List<NamedBindingObservation> logicalBindings(Capture cap) {
+        requireOpen(cap);return List.copyOf(cap.logicalBindings);
+    }
+    public record NamedBindingObservation(String sql,String name,String runtimeClass,String declaredClass,String canonicalValue) { }
 
     public DataSource wrap(DataSource delegate) {
         Objects.requireNonNull(delegate, "delegate");
@@ -547,6 +608,7 @@ public static final class JdbcCapture {
         private final Thread owner;
         private final List<StatementObservationMutable> observations = new ArrayList<>();
         private final List<MetadataObservation> metadata = new ArrayList<>();
+        private final List<NamedBindingObservation> logicalBindings = new ArrayList<>();
         private boolean closed;
         private Object transactionOwner;
         private EntityManagerFactory factory;

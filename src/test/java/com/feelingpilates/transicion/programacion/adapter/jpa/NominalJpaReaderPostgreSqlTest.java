@@ -82,6 +82,27 @@ class NominalJpaReaderPostgreSqlTest {
         var outcome=owner.inRepeatableReadOnly(seed(),FECHA);
         assertTrue(outcome.completed());assertEquals(1,outcome.readSet().candidates().size());
         var data=outcome.jdbcObservations.get(4);
+        NominalTransactionTestOwner.assertLogicalBindings(outcome.logicalBindings,FECHA);
+        assertEquals(Set.of("assignmentActive","blockActive","fecha","dayOfWeek"),outcome.logicalBindings.stream()
+                .map(NominalTransactionTestOwner.JdbcCapture.NamedBindingObservation::name).collect(java.util.stream.Collectors.toSet()));
+        for(var logical:outcome.logicalBindings) {
+            String expectedType=logical.name().equals("fecha")?"java.time.LocalDate":logical.name().equals("dayOfWeek")?"java.lang.Short":"java.lang.Boolean";
+            String expectedValue=logical.name().equals("fecha")?FECHA.toString():logical.name().equals("dayOfWeek")?"1":"true";
+            assertEquals(expectedType,logical.runtimeClass());assertEquals(expectedType,logical.declaredClass());
+            assertEquals(expectedValue,logical.canonicalValue());assertEquals(NominalProjectionCatalog.DATA_SQL,logical.sql());
+        }
+        for(int index=0;index<outcome.logicalBindings.size();index++) {
+            var original=outcome.logicalBindings.get(index);
+            for(var wrong:List.of(
+                    new NominalTransactionTestOwner.JdbcCapture.NamedBindingObservation(original.sql(),"unknown",original.runtimeClass(),original.declaredClass(),original.canonicalValue()),
+                    new NominalTransactionTestOwner.JdbcCapture.NamedBindingObservation(original.sql(),original.name(),"java.lang.String",original.declaredClass(),original.canonicalValue()),
+                    new NominalTransactionTestOwner.JdbcCapture.NamedBindingObservation(original.sql(),original.name(),original.runtimeClass(),"java.lang.String",original.canonicalValue()),
+                    new NominalTransactionTestOwner.JdbcCapture.NamedBindingObservation(original.sql(),original.name(),original.runtimeClass(),original.declaredClass(),"wrong"))) {
+                var changed=new ArrayList<>(outcome.logicalBindings);changed.set(index,wrong);
+                assertThrows(NominalReadFailure.class,()->NominalTransactionTestOwner.assertLogicalBindings(changed,FECHA));
+            }
+        }
+        System.out.println("R3 actual JPA named bindings="+outcome.logicalBindings);
         NominalTransactionTestOwner.assertJdbcBinding(data,FECHA);
         assertEquals(NominalProjectionCatalog.positionalSql(),data.sql());
         assertEquals(List.of("assignmentActive","blockActive","fecha","fecha","fecha","fecha","dayOfWeek"),

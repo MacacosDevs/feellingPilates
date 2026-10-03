@@ -123,8 +123,9 @@ public class NominalPostgresTestConfiguration {
 
     @Bean(name = "f2eR3ReaderEntityManager")
     EntityManager f2eR3ReaderEntityManager(
-            @Qualifier("f2eR3ReaderEntityManagerFactory") EntityManagerFactory factory) {
-        return SharedEntityManagerCreator.createSharedEntityManager(factory);
+            @Qualifier("f2eR3ReaderEntityManagerFactory") EntityManagerFactory factory,
+            @Qualifier("nominalJdbcCapture") NominalTransactionTestOwner.JdbcCapture capture) {
+        return capture.wrapEntityManager(SharedEntityManagerCreator.createSharedEntityManager(factory));
     }
 
     @Bean(name = "f2eReaderTransactionManager")

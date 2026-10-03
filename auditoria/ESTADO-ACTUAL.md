@@ -1,5 +1,60 @@
 # FeelingPilates — Estado actual de la reestructuración
 
+Status: CANONICAL / R3_IMPLEMENTATION_INTEGRATED / PROCESS_CLOSURE_CONDITIONAL
+Last updated: 2026-10-03
+Canonical implementation merge: 3329cc0d8d8c2d6b44df980e7e96e3b24dcfe3a8
+Current lifecycle: F2E_R3_IMPLEMENTATION_PROCESS_CLOSURE
+R1: CLOSED / ACCEPTED / PUBLISHED / INTEGRATED; guard reconciliado separadamente por PR #20
+R2 Implementation: IMPLEMENTED / ACCEPTED / PUBLISHED / INTEGRATED / CLOSED
+R3 Implementation: IMPLEMENTED / INDEPENDENTLY_AUDITED / ACCEPTED / PUBLISHED / INTEGRATED
+R3 Process Closure: CANDIDATE / PENDING_FRESH_INDEPENDENT_PROCESS_AUDIT / EFFECTIVE_ONLY_AFTER_VERIFIED_CLOSURE_MERGE
+R3 Handoff: ACTIVE_FOR_IMPLEMENTED_R3 / DEFAULT_DENY / WRITE_SCOPE_20_UNCHANGED
+R4-R6: NOT_AUTHORIZED
+TurnoInstructor: LEGACY_VIVO / PRODUCTIVO
+Dark launch: PRESERVED
+Cutover: NOT_AUTHORIZED
+Flyway: V46 (49 migrations V1–V46); V47 ABSENT; migración R3 NONE
+Payments / Notifications: OUT_OF_SCOPE
+
+## Estado vigente — implementación R3 integrada, cierre de proceso condicionado
+
+PR [#21](https://github.com/MacacosDevs/feellingPilates/pull/21) quedó MERGED el
+2026-10-03T22:41:28Z. Su merge `3329cc0d8d8c2d6b44df980e7e96e3b24dcfe3a8` tiene padres
+`c79216f99c66cbd4d5d909498ee41222e10090c9` y
+`c22952c18d0da732594314e7e34e150bdc8db856`.
+El candidato técnico aprobado es `94d8f06c16ee64d85c45e7cd6e47ec4ab5ce375f`;
+el hijo de publicación añadió sólo el recibo de revisión, sin cambiar código.
+La verificación live posterior probó ese historial y las 20 fuentes idénticas.
+Recibo técnico: `auditoria/reviews/F2E-R3-IMPLEMENTACION-READER-PROGRAMACION-NOMINAL-CLEAN-MAIN-REVIEW.md`.
+Auditoría fresh independiente: Task `task_50459af87d58`, Dispatch
+`ctx_07373e2b6353`, APPROVED, P0/P1/P2 `0/0/0`; P1-1 CLOSED.
+Gate real `gate_54c01ce6906e`: READY_FOR_CONTROLLED_PUBLICATION.
+Regresión independiente: **549 tests, 0 failures, 0 errors, 0 skipped**;
+R3 36, R1/R2 94, detector 37, Lane 1–4 382; clean compile 217 fuentes.
+JDBC_BINDING, CHECKSUM_STABILITY y CHECKSUM_SENSITIVITY: PASS.
+
+PR #19 activó el handoff (merge `cefcde1adf51cc7eedbf98538fb6a5f4b3322e13`).
+PR #20 reconcilió el guard R1 con autorización humana separada, auditoría y merge
+`c79216f99c66cbd4d5d909498ee41222e10090c9`; no amplió el WRITE_SCOPE R3.
+La implementación usa exactamente 18 NEW y 2 MODIFIED aditivas; ninguna migración,
+configuración, routing productivo, client API, web, reservas ni cutover cambia.
+
+El cierre separado se define en `auditoria/reviews/F2E-R3-IMPLEMENTACION-CIERRE-POST-MERGE.md`.
+CLOSED sólo cuando: auditoría independiente del candidato exacto APPROVED con P0/P1/P2 0/0/0; recibo factual de esa auditoría publicado como hijo directo sin cambiar los tres archivos auditados; merge normal de ese historial en main verificado live; delta respecto de 3329cc0d limitado a las cuatro rutas de proceso; las 20 fuentes R3 y las tres autoridades selladas conservan sus hashes aprobados; PR #19/#20/#21 y candidato/recibo de cierre son ancestros del main verificado. Si falta una prueba: PROCESS_CLOSURE_PENDING / FAIL_CLOSED.
+No se declara CLOSED en este corte candidato. La condición se resuelve mediante
+Git/GitHub live y el recibo `auditoria/reviews/F2E-R3-IMPLEMENTACION-CIERRE-INDEPENDENT-RECEIPT.md`; el cache STATE no concede autoridad.
+Tras cumplirla, R3 es IMPLEMENTED / ACCEPTED / PUBLISHED / INTEGRATED / CLOSED.
+La siguiente acción autorizada es sólo completar este cierre; R4–R6 requieren
+una autoridad futura independiente y no quedan autorizados por el cierre.
+
+## HISTORICAL_PROVENANCE_ONLY — snapshots anteriores
+
+Todo el contenido siguiente conserva los cortes históricos completos. Sus frases
+«estado vigente», NOT_IMPLEMENTED, NOT_ACTIVE o próximos lifecycles describen
+esos cortes; no reemplazan el bloque actual ni las fuentes superiores publicadas.
+
+# FeelingPilates — Estado actual de la reestructuración
+
 Status: CANONICAL / CLEAN_MAIN_RECONCILIATION / R3_HANDOFF_ACTIVATION_FINALIZATION_CONDITIONAL
 Last updated: 2026-09-29
 Repository verification: VERIFIED

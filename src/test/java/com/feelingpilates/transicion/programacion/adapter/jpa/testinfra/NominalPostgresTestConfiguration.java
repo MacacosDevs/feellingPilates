@@ -64,15 +64,14 @@ public class NominalPostgresTestConfiguration {
         dataSource.setURL(f2eR3PostgresContainer.getJdbcUrl());
         dataSource.setUser(f2eR3PostgresContainer.getUsername());
         dataSource.setPassword(f2eR3PostgresContainer.getPassword());
-        Flyway flyway = Flyway.configure().dataSource(dataSource).locations("classpath:db/migration").load();
+        Flyway flyway = Flyway.configure().dataSource(dataSource).locations("classpath:db/migration").target("46").load();
         flyway.migrate();
         flyway.validate();
         var info = flyway.info();
         flywayHead = info.current() == null ? null : info.current().getVersion().getVersion();
         appliedMigrations = info.applied().length;
         if (!"46".equals(flywayHead) || appliedMigrations != 49 || info.pending().length != 0
-                || java.util.Arrays.stream(info.all()).anyMatch(
-                migration -> migration.getState() != org.flywaydb.core.api.MigrationState.SUCCESS)) {
+                || !F2ePostgresTestConfiguration.catalogoFixtureV46Valido(info)) {
             throw new IllegalStateException("R3 Flyway V1-V46 validation not proven");
         }
         insertFixtures(dataSource);

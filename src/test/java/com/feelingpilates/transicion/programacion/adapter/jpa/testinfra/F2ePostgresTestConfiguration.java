@@ -95,7 +95,7 @@ public class F2ePostgresTestConfiguration {
         dataSource.setURL(f2ePostgresContainer.getJdbcUrl());
         dataSource.setUser(f2ePostgresContainer.getUsername());
         dataSource.setPassword(f2ePostgresContainer.getPassword());
-        Flyway flyway = Flyway.configure().dataSource(dataSource).locations("classpath:db/migration").load();
+        Flyway flyway = Flyway.configure().dataSource(dataSource).locations("classpath:db/migration").target("46").load();
         flyway.migrate();
         flyway.validate();
         var informacionMigraciones = flyway.info();
@@ -103,13 +103,42 @@ public class F2ePostgresTestConfiguration {
                 || !"46".equals(informacionMigraciones.current().getVersion().getVersion())
                 || informacionMigraciones.pending().length != 0
                 || informacionMigraciones.applied().length != 49
-                || java.util.Arrays.stream(informacionMigraciones.all()).anyMatch(
-                        m -> m.getState() != org.flywaydb.core.api.MigrationState.SUCCESS)) {
+                || !catalogoFixtureV46Valido(informacionMigraciones)) {
             throw new IllegalStateException("F2E Flyway host validation not proven");
         }
         insertarFixtures(dataSource);
         rolLector = F2eSelectOnlyRole.crear(dataSource, CLAVE_CATALOGO);
         return dataSource;
+    }
+
+
+    // R1-R3 retain their sealed V46 acceptance schemas. Only the separate R4
+    // prerequisite may resolve above this target; unknown/ignored migrations fail.
+    public static boolean catalogoFixtureV46Valido(org.flywaydb.core.api.MigrationInfoService info) {
+        var expected = new java.util.HashSet<String>();
+        for (int version = 1; version <= 46; version++) expected.add(Integer.toString(version));
+        expected.addAll(java.util.Set.of("22.1", "22.2", "22.3"));
+        if (info.current() == null || !"46".equals(info.current().getVersion().getVersion())
+                || info.pending().length != 0 || info.applied().length != 49) return false;
+        var appliedVersions = new java.util.HashSet<String>();
+        for (var migration : info.applied()) {
+            if (migration.getVersion() == null
+                    || migration.getState() != org.flywaydb.core.api.MigrationState.SUCCESS
+                    || !appliedVersions.add(migration.getVersion().getVersion())) return false;
+        }
+        if (!appliedVersions.equals(expected)) return false;
+        int success = 0;
+        int prerequisite = 0;
+        for (var migration : info.all()) {
+            if (migration.getVersion() == null) return false;
+            if (migration.getState() == org.flywaydb.core.api.MigrationState.SUCCESS
+                    && expected.contains(migration.getVersion().getVersion())) success++;
+            else if (migration.getState() == org.flywaydb.core.api.MigrationState.ABOVE_TARGET
+                    && "47".equals(migration.getVersion().getVersion())
+                    && "V47__programacion_ajuste_fecha.sql".equals(migration.getScript())) prerequisite++;
+            else return false;
+        }
+        return success == 49 && prerequisite <= 1 && info.all().length == 49 + prerequisite;
     }
 
     @Bean(name = "f2eReaderDataSource")

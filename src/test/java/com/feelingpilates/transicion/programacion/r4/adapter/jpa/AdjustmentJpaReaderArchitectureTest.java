@@ -29,6 +29,19 @@ class AdjustmentJpaReaderArchitectureTest {
         "src/test/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/testinfra/AdjustmentSliceChecksum.java",
         "src/test/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/testinfra/AdjustmentStatementPolicyInspector.java",
         "src/test/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/testinfra/AdjustmentTransactionTestOwner.java");
+    // Only the ten frozen R5 production paths may consume these two immutable input contracts.
+    private static final Set<String> R5_DTO_CONSUMERS = Set.of(
+            "src/main/java/com/feelingpilates/transicion/programacion/r5/composition/EffectiveProgrammingComposer.java",
+            "src/main/java/com/feelingpilates/transicion/programacion/r5/composition/EffectiveCompositionInput.java",
+            "src/main/java/com/feelingpilates/transicion/programacion/r5/composition/EffectiveCompositionEnvelope.java",
+            "src/main/java/com/feelingpilates/transicion/programacion/r5/composition/EffectiveValidityEvidence.java",
+            "src/main/java/com/feelingpilates/transicion/programacion/r5/composition/EffectiveProgrammingCompositionResult.java",
+            "src/main/java/com/feelingpilates/transicion/programacion/r5/composition/EffectiveCompositionBacking.java",
+            "src/main/java/com/feelingpilates/transicion/programacion/r5/composition/EffectiveCompositionOmission.java",
+            "src/main/java/com/feelingpilates/transicion/programacion/r5/composition/EffectiveCompositionSuppression.java",
+            "src/main/java/com/feelingpilates/transicion/programacion/r5/composition/EffectiveCompositionFailure.java",
+            "src/main/java/com/feelingpilates/transicion/programacion/r5/composition/EffectiveCompositionCanonicalizer.java");
+    private static final Set<String> R5_INPUT_DTOS = Set.of("AdjustmentReadSet", "AdjustmentBackingSnapshot");
     @Test void exactTenMainElevenTestInventoryWithExtraMissingNegativeControls() throws Exception {
         Set<String> actual=new HashSet<>();
         for(String prefix:List.of("src/main/java/","src/test/java/")) {
@@ -49,7 +62,7 @@ class AdjustmentJpaReaderArchitectureTest {
                 String code=Files.readString(p);
                 if(PATHS.contains(p.toString())) {
                     checkEdges(code,p.toString().contains("/read/"));
-                } else for(String name:names) assertFalse(java.util.regex.Pattern.compile("\\b"+name+"\\b").matcher(code).find(),p+":"+name);
+                } else checkExternalCaller(p, code, new HashSet<>(names));
             }
         }
         assertEquals(1,AdjustmentReadPort.class.getDeclaredMethods().length);
@@ -75,5 +88,50 @@ class AdjustmentJpaReaderArchitectureTest {
         for(String sql:List.of("SELECT 1","SELECT * FROM programacion_ajuste_fecha","SELECT pg_current_snapshot()::text FOR UPDATE",
                 "UPDATE programacion_ajuste_fecha SET activo=false","DELETE FROM programacion_ajuste_fecha","SELECT pg_current_snapshot()::text; SELECT 1"))
             assertThrows(RuntimeException.class,()->inspector.inspect(sql));
+    }
+    private static void checkExternalCaller(Path path, String code, Set<String> names) {
+        Set<String> forbidden = new HashSet<>(names);
+        if (R5_DTO_CONSUMERS.contains(path.toString())) {
+            checkPureR5DtoConsumer(code);
+            forbidden.removeAll(R5_INPUT_DTOS);
+        }
+        for (String name : forbidden)
+            assertFalse(java.util.regex.Pattern.compile("\\b" + name + "\\b").matcher(code).find(), path + ":" + name);
+    }
+    private static void checkPureR5DtoConsumer(String code) {
+        assertTrue(java.util.regex.Pattern.compile(
+                "(?m)^\\s*package\\s+com\\.feelingpilates\\.transicion\\.programacion\\.r5\\.composition\\s*;")
+                .matcher(code).find(), "exact R5 composition package required");
+        for (String forbidden : List.of("org.springframework", "jakarta.persistence", "javax.persistence",
+                "org.hibernate", "java.sql", "javax.sql", ".adapter.", ".repositorio.", ".entidad.",
+                ".servicio.", ".controlador.", ".read.*", "Transactional", "JdbcTemplate", "DriverManager",
+                "EntityManager", "DataSource", "TransactionTemplate", "JpaRepository"))
+            assertFalse(code.contains(forbidden), "R5 DTO exception is pure only: " + forbidden);
+    }
+    @Test void r5ExceptionIsExactDtoOnlyAndDefaultDeny() {
+        Set<String> names = PATHS.stream().filter(p -> p.startsWith("src/main/")).map(p -> Path.of(p).getFileName().toString().replace(".java", "")).collect(java.util.stream.Collectors.toSet());
+        String packageLine = "package com.feelingpilates.transicion.programacion.r5.composition;\n";
+        for (String consumer : R5_DTO_CONSUMERS) {
+            for (String dto : R5_INPUT_DTOS)
+                checkExternalCaller(Path.of(consumer), packageLine + "class Fixture { " + dto + " input; }", names);
+            for (String name : names) if (!R5_INPUT_DTOS.contains(name))
+                assertThrows(AssertionError.class, () -> checkExternalCaller(Path.of(consumer),
+                        packageLine + "class Fixture { " + name + " dependency; }", names));
+        }
+        Path allowed = Path.of("src/main/java/com/feelingpilates/transicion/programacion/r5/composition/EffectiveCompositionInput.java");
+        for (String path : List.of("src/main/java/com/feelingpilates/transicion/programacion/r5/composition/Extra.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/r5/composition/nested/EffectiveCompositionInput.java",
+                "src/main/java/com/feelingpilates/transicion/programacion/r6/composition/EffectiveCompositionInput.java",
+                "src/main/java/com/feelingpilates/productivo/EffectiveCompositionInput.java"))
+            for (String dto : R5_INPUT_DTOS)
+                assertThrows(AssertionError.class, () -> checkExternalCaller(Path.of(path),
+                        packageLine + "class Fixture { " + dto + " input; }", names));
+        assertThrows(AssertionError.class, () -> checkExternalCaller(allowed,
+                "package com.feelingpilates.productivo; class Fixture {}", names));
+        for (String forbidden : List.of("org.springframework", "jakarta.persistence", "javax.persistence",
+                "org.hibernate", "java.sql", "javax.sql", ".adapter.", ".repositorio.", ".entidad.",
+                ".servicio.", ".controlador.", ".read.*", "Transactional", "JdbcTemplate", "DriverManager",
+                "EntityManager", "DataSource", "TransactionTemplate", "JpaRepository"))
+            assertThrows(AssertionError.class, () -> checkExternalCaller(allowed, packageLine + forbidden, names));
     }
 }

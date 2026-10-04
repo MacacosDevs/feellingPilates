@@ -205,27 +205,27 @@ All paths are canonical repository-relative files. NEW was physically absent on 
 ### CURRENT_R4_AUTHORIZED_NEW
 
 ```text
-src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/AdjustmentJpaReader.java
-src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/mapper/AdjustmentProjectionMapper.java
-src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/projection/AdjustmentProjectionCatalog.java
-src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/projection/AdjustmentProjectionQueryExecutor.java
-src/main/java/com/feelingpilates/transicion/programacion/adapter/jpa/projection/AdjustmentProjectionRow.java
-src/main/java/com/feelingpilates/transicion/programacion/read/AdjustmentBackingSnapshot.java
-src/main/java/com/feelingpilates/transicion/programacion/read/AdjustmentReadFailure.java
-src/main/java/com/feelingpilates/transicion/programacion/read/AdjustmentReadPort.java
-src/main/java/com/feelingpilates/transicion/programacion/read/AdjustmentReadSet.java
-src/main/java/com/feelingpilates/transicion/programacion/read/AdjustmentReadSnapshotContext.java
-src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/AdjustmentJpaReaderArchitectureTest.java
-src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/AdjustmentJpaReaderPostgreSqlTest.java
-src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/AdjustmentJpaReaderRuntimeIsolationTest.java
-src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/AdjustmentJpaReaderTransactionTest.java
-src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/AdjustmentProjectionMapperTest.java
-src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/AdjustmentProjectionQueryExecutorTest.java
-src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/AdjustmentJdbcCapture.java
-src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/AdjustmentPostgresTestConfiguration.java
-src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/AdjustmentSliceChecksum.java
-src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/AdjustmentStatementPolicyInspector.java
-src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/AdjustmentTransactionTestOwner.java
+src/main/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/AdjustmentJpaReader.java
+src/main/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/mapper/AdjustmentProjectionMapper.java
+src/main/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/projection/AdjustmentProjectionCatalog.java
+src/main/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/projection/AdjustmentProjectionQueryExecutor.java
+src/main/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/projection/AdjustmentProjectionRow.java
+src/main/java/com/feelingpilates/transicion/programacion/r4/read/AdjustmentBackingSnapshot.java
+src/main/java/com/feelingpilates/transicion/programacion/r4/read/AdjustmentReadFailure.java
+src/main/java/com/feelingpilates/transicion/programacion/r4/read/AdjustmentReadPort.java
+src/main/java/com/feelingpilates/transicion/programacion/r4/read/AdjustmentReadSet.java
+src/main/java/com/feelingpilates/transicion/programacion/r4/read/AdjustmentReadSnapshotContext.java
+src/test/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/AdjustmentJpaReaderArchitectureTest.java
+src/test/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/AdjustmentJpaReaderPostgreSqlTest.java
+src/test/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/AdjustmentJpaReaderRuntimeIsolationTest.java
+src/test/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/AdjustmentJpaReaderTransactionTest.java
+src/test/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/AdjustmentProjectionMapperTest.java
+src/test/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/AdjustmentProjectionQueryExecutorTest.java
+src/test/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/testinfra/AdjustmentJdbcCapture.java
+src/test/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/testinfra/AdjustmentPostgresTestConfiguration.java
+src/test/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/testinfra/AdjustmentSliceChecksum.java
+src/test/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/testinfra/AdjustmentStatementPolicyInspector.java
+src/test/java/com/feelingpilates/transicion/programacion/r4/adapter/jpa/testinfra/AdjustmentTransactionTestOwner.java
 ```
 
 ### CURRENT_R4_AUTHORIZED_MODIFIED
@@ -267,12 +267,18 @@ Path-set algorithm: deduplicate, sort UTF8 byte order, join LF, append final LF 
 
 | Set | Count | SHA256 |
 | --- | ---: | --- |
-| CURRENT_R4_AUTHORIZED_NEW | 21 | `407e05ebe7a43dac0b5fe00bb7249804e42cc710110afc2896208e0f0453ac35` |
+| CURRENT_R4_AUTHORIZED_NEW | 21 | `f7514bde3d6cee12de6e26a30d3f1e6038c3031d2c99344da9eac55c870293b9` |
 | CURRENT_R4_AUTHORIZED_MODIFIED | 0 | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
 | CURRENT_R4_READ_ONLY | 9 | `7392db15004fafe0b85ec7e661dcb5c6aa860b1c99c03182dc161edf2a16c83c` |
 | CURRENT_R4_PROVENANCE_ONLY | 8 | `29d31787280a52a53f9bdeb8fbb2dfdc4a400f5a5a8ea2b612f3734788aa9103` |
-| WRITE_SCOPE | 21 | `407e05ebe7a43dac0b5fe00bb7249804e42cc710110afc2896208e0f0453ac35` |
-| TOTAL_ACTIVE_PATHS | 30 | `29f2f561033dbc9da6244317b7621ab70b6b6b842bbd48c77fda837790ccf0e1` |
+| WRITE_SCOPE | 21 | `f7514bde3d6cee12de6e26a30d3f1e6038c3031d2c99344da9eac55c870293b9` |
+| TOTAL_ACTIVE_PATHS | 30 | `1ed78c51c87351ff6cf31c0077cbe4f7859e59fb0d9b35c2cff93539ee21b1d5` |
+
+## Bounded Correction.1 — R4-HANDOFF-P1-1
+
+Original candidate be367b72f15d5d6597cbe8b0ddc56c666dfbbc6e remains BLOCKED P0/P1/P2=0/1/0 in history. Fresh native audit task_ba02f985def3 / ctx_a959651d67ac supplies exact path-only corrective artifact; no HUMAN_GATE or scope expansion required. This single P1 correction consumes handoff-stage P1 1/1 (P2 0/2). Basenames/responsibilities/contracts and existing READ_ONLY9/PROVENANCE_ONLY8 remain unchanged. No source file is created here.
+
+Future domain/port package is com.feelingpilates.transicion.programacion.r4.read; adapters/tests use com.feelingpilates.transicion.programacion.r4.adapter.jpa and corresponding mapper/projection/testinfra subpackages. Existing read-only helpers remain at their actual sealed packages. All21 NEW paths are outside the sealed recursive R1/R2/R3 inventory roots. NEW R4 architecture suite must independently assert its entire exact ten-main/eleven-test inventory with extra/missing/stereotype/caller negative controls and domain package edges. Preserve complete current R1/R2/R3 inventory equality in ReservaJpaReaderArchitectureTest plus every broader no-escape/R2/R3 caller scan and full default regression; no source masking, skip, old guard edit or reuse grant. Correction is documentary path materialization only. New independent exact-byte re-audit required; NOT_ACTIVE / NOT_AUTHORIZED / NOT_IMPLEMENTED remain until separate lifecycles.
 
 ## Publication, process closure and separate activation
 

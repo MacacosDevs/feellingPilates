@@ -80,14 +80,14 @@
   },
   "handoffHashes": {
     "activeImplementation": null,
-    "candidateImplementation": "936b4b2c3a9768fd3cb19d7a6b1afdd49bef7ec625d8bd1f359e202aafb19999"
+    "candidateImplementation": "210bfc17e4e8bbf0917190262aa165c3804ab4f477bf6a30ea56021dc8961912"
   },
   "candidateIdentity": {
-    "status": "PENDING_FRESH_AUDIT",
+    "status": "CORRECTION1_PENDING_FRESH_INDEPENDENT_REAUDIT",
     "base": "d4fb4428d7251160cef4e90fd0da37192e0ae0cd",
     "payload": {
       "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_64c27c26eb22/HANDOFF-PAYLOAD.tsv",
-      "sha256": "1df20c0f67de1f93995e50a6f6aa6f5b23674788911d27439bd9eb5a2671aae3",
+      "sha256": "85085469887cea3d45fa8f79d474f4b50654e80fc6a2be0bbc5dc92b088f00d6",
       "availability": "LOCAL_RETAINED"
     },
     "fullCandidateManifest": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_64c27c26eb22/HANDOFF-CANDIDATE.tsv",
@@ -122,7 +122,7 @@
   },
   "validationState": {
     "processAudit": {
-      "statusAtCapture": "PENDING",
+      "statusAtCapture": "ROUND1_BLOCKED / CORRECTION1_PENDING_FRESH_ROUND2",
       "taskId": null,
       "dispatchId": null,
       "unknownReason": "NOT_CREATED_AT_CAPTURE"
@@ -138,6 +138,16 @@
       "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_64c27c26eb22/RECONSTRUCTION.json",
       "sha256": "9b4211de9e7c9e2fa8cbf1b260d1639446ab5a45c59b6e963e6a104aa2916405",
       "availability": "LOCAL_RETAINED"
+    },
+    {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_64c27c26eb22/handoff-audit1.md",
+      "sha256": "ef69e21d8cbf515d0bc623358c6196237539c4631d6da683243b3e7a6febbdc2",
+      "availability": "LOCAL_RETAINED"
+    },
+    {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_64c27c26eb22/handoff-audit1-ctx_a959651d67ac/corrective-artifact.md",
+      "sha256": "20bd28aeaf7716151110a6b523da2a42b906c7e6176bc01d9979914c91677e7e",
+      "availability": "LOCAL_RETAINED"
     }
   ],
   "summaryEvidence": {
@@ -147,7 +157,16 @@
       "availability": "LOCAL_RETAINED"
     }
   },
-  "openFindings": [],
+  "openFindings": [
+    {
+      "id": "R4-HANDOFF-P1-1",
+      "severity": "P1",
+      "status": "CORRECTED_PENDING_FRESH_REAUDIT",
+      "originalCandidate": "be367b72f15d5d6597cbe8b0ddc56c666dfbbc6e",
+      "originalVerdict": "BLOCKED0/1/0",
+      "correctiveArtifact": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_64c27c26eb22/handoff-audit1-ctx_a959651d67ac/corrective-artifact.md"
+    }
+  ],
   "crossLaneGuards": {
     "r1r3": "CLOSED",
     "fixtureExceptionPaths": [
@@ -193,8 +212,8 @@
   },
   "lastRun": {
     "id": "run_64c27c26eb22",
-    "stage": "HANDOFF_CANDIDATE",
-    "p1CorrectionsUsed": 0,
+    "stage": "HANDOFF_CORRECTION1_CANDIDATE",
+    "p1CorrectionsUsed": 1,
     "p2CorrectionsUsed": 0
   }
 }

@@ -1,3 +1,16 @@
+# FeelingPilates — R4 implementation handoff candidate
+
+Current lifecycle F2E_R4_IMPLEMENTATION_HANDOFF; DOCUMENTATION_ONLY.
+Base `d4fb4428d7251160cef4e90fd0da37192e0ae0cd`; R1–R3 CLOSED; R4 reconciled design CLOSED; R4 schema prerequisite CLOSED (PR27 verified).
+R4 handoff MATERIALIZED_CANDIDATE / NOT_ACTIVE; implementation NOT_AUTHORIZED / NOT_IMPLEMENTED.
+Round1 BLOCKED0/1/0, R4-HANDOFF-P1-1 bounded path-only Correction.1 applied (P1 1/1 consumed), relocated programacion/r4 NEW21/MODIFIED0. Fresh independent round2 pending; publication/merge/process closure conditional on [closure record](reviews/F2E-R4-HANDOFF-PROCESS-CLOSURE.md).
+[Self-contained R4 handoff](handoffs/HANDOFF-F2E-R4-IMPLEMENTACION-READER-AJUSTES-FECHA-CLEAN-MAIN.md) fixes inactive NEW21/MODIFIED0 DEFAULT_DENY; no historical allowlist reuse.
+Flyway V47/50, all migrations preserved; no new migration, exclusion, entity/repository/writer or reader implementation.
+TurnoInstructor LEGACY_VIVO / PRODUCTIVO; dark launch PRESERVED; client API/Web/Reservations unchanged; R5–R6/cutover/deploy NOT_AUTHORIZED.
+Separate activation required after handoff closure; no self activation.
+
+## HISTORICAL_PROVENANCE_ONLY — full previous capture, resolved by PR27
+
 # FeelingPilates — current R4 schema prerequisite lifecycle
 
 Status: CANONICAL / R4_SCHEMA_INTEGRATED / PROCESS_CLOSURE_CONDITIONAL

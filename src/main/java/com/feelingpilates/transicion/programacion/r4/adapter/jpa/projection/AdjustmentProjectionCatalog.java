@@ -1,0 +1,27 @@
+package com.feelingpilates.transicion.programacion.r4.adapter.jpa.projection;
+import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import com.feelingpilates.transicion.programacion.r4.read.AdjustmentReadSnapshotContext;
+public enum AdjustmentProjectionCatalog { R4_ADJUSTMENT_V1;
+public record Statement(String logicalId,String sql,String catalogId) { public String positionalSql() { return sql.replace(":fecha","?").replace(":active","?"); } }
+private final Map<String,Statement> statements;
+AdjustmentProjectionCatalog() { Map<String,Statement> s=new LinkedHashMap<>();
+s.put("R4_ADJUSTMENTS_ON_DATE_V1",new Statement("R4_ADJUSTMENTS_ON_DATE_V1","SELECT id, tipo, fecha, asignacion_serie_id, salon_resultado_id, instructor_resultado_id, tipo_actividad_resultado_id, hora_inicio_resultado, hora_fin_resultado, activo, creado_en, actualizado_en FROM programacion_ajuste_fecha WHERE fecha = :fecha AND activo = :active ORDER BY fecha, id","df80dc6e8de6a448b4b1432e9451a5bc659272275ab933e28b644a352a7b56ca"));
+s.put("R4_TX_ISOLATION_V1",new Statement("R4_TX_ISOLATION_V1","SELECT current_setting('transaction_isolation')","4a669a2f628e12468e0d532889e0bcafd38c09a5aadfb27f2f20f56159c1671e"));
+s.put("R4_TX_READ_ONLY_V1",new Statement("R4_TX_READ_ONLY_V1","SELECT current_setting('transaction_read_only')","9963ea856cdf9bfb3e9c440b1c3a6c062fd375a906f465cbe7a7ac88878716c7"));
+s.put("R4_TX_RESOURCE_V1",new Statement("R4_TX_RESOURCE_V1","SELECT current_database() AS database_name, current_schema() AS schema_name, current_user AS principal","851b907052ecdf5d34f77f047e95ff9c5e902e3b45b09bbd9975edc0ddad507c"));
+s.put("R4_TX_SNAPSHOT_V1",new Statement("R4_TX_SNAPSHOT_V1","SELECT pg_current_snapshot()::text","24f02692f50e880b77a78f9ea64501ce276b7b0e2a93c880a4c23e03bbe19aa0"));
+s.put("R4_SCHEMA_HISTORY_V1",new Statement("R4_SCHEMA_HISTORY_V1","SELECT installed_rank, version, description, type, script, checksum, success FROM public.flyway_schema_history ORDER BY installed_rank","87cda2f204bb29283d741ac2f518ffc5be4ec2ced1eab4d34a24e322c587a6de"));
+s.put("R4_SCHEMA_COLUMNS_V1",new Statement("R4_SCHEMA_COLUMNS_V1","SELECT a.attnum, a.attname, pg_catalog.format_type(a.atttypid, a.atttypmod) AS data_type, a.attnotnull, pg_catalog.pg_get_expr(d.adbin, d.adrelid) AS column_default FROM pg_catalog.pg_attribute a JOIN pg_catalog.pg_class c ON c.oid = a.attrelid JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace LEFT JOIN pg_catalog.pg_attrdef d ON d.adrelid = a.attrelid AND d.adnum = a.attnum WHERE n.nspname = 'public' AND c.relname = 'programacion_ajuste_fecha' AND a.attnum > 0 AND NOT a.attisdropped ORDER BY a.attnum","6a4269c1e807dad48a46b4f3974cd688be243bbc4eb4c989c920a39947800a2e"));
+s.put("R4_SCHEMA_CONSTRAINTS_V1",new Statement("R4_SCHEMA_CONSTRAINTS_V1","SELECT con.conname, con.contype::text, con.convalidated, pg_catalog.pg_get_constraintdef(con.oid, true) AS definition FROM pg_catalog.pg_constraint con JOIN pg_catalog.pg_class c ON c.oid = con.conrelid JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relname = 'programacion_ajuste_fecha' ORDER BY con.conname","d326eb312c002af342e6ee21cfb00bb006d0bd5e0db0c59d1d25aaebda18653a"));
+s.put("R4_SCHEMA_INDEXES_V1",new Statement("R4_SCHEMA_INDEXES_V1","SELECT i.relname AS index_name, x.indisunique, x.indisvalid, x.indisready, pg_catalog.pg_get_indexdef(x.indexrelid) AS definition FROM pg_catalog.pg_index x JOIN pg_catalog.pg_class c ON c.oid = x.indrelid JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace JOIN pg_catalog.pg_class i ON i.oid = x.indexrelid WHERE n.nspname = 'public' AND c.relname = 'programacion_ajuste_fecha' ORDER BY i.relname","c5229dde86781fb86c638f60d492efd901d56516b47f5836fe19e79ab9f7370c"));
+statements=Collections.unmodifiableMap(s); for(var s1:statements.values()) if(!id(s1.positionalSql()).equals(s1.catalogId())) throw new IllegalStateException("catalog hash"); }
+public AdjustmentReadSnapshotContext.ProjectionCatalogVersion version() { return AdjustmentReadSnapshotContext.ProjectionCatalogVersion.R4_ADJUSTMENT_V1; }
+public Statement statement(String logicalId) { Statement s=statements.get(logicalId); if(s==null) throw new IllegalArgumentException("unknown SQL"); return s; }
+public Collection<Statement> statements() { return statements.values(); }
+public String logicalId(String sql) { String normalized=normalize(sql); return statements.values().stream().filter(s->s.positionalSql().equals(normalized)).map(Statement::logicalId).findFirst().orElseThrow(()->new IllegalArgumentException("uncatalogued SQL: "+normalized)); }
+public static String normalize(String sql) { return Objects.requireNonNull(sql).replaceAll("\\s+"," ").strip(); }
+public static String id(String sql) { try { byte[] b=sql.getBytes(StandardCharsets.UTF_8); var md=MessageDigest.getInstance("SHA-256"); md.update(("F2E_SQL_CATALOG_ID_V1\n"+b.length+":").getBytes(StandardCharsets.UTF_8)); return HexFormat.of().formatHex(md.digest(b)); } catch(java.security.NoSuchAlgorithmException e) { throw new IllegalStateException(e); } }
+public static List<String> manifest() { return List.of("R4_TX_ISOLATION_V1","R4_TX_READ_ONLY_V1","R4_TX_RESOURCE_V1","R4_TX_SNAPSHOT_V1","R4_SCHEMA_HISTORY_V1","R4_SCHEMA_COLUMNS_V1","R4_SCHEMA_CONSTRAINTS_V1","R4_SCHEMA_INDEXES_V1","R4_ADJUSTMENTS_ON_DATE_V1","R4_TX_ISOLATION_V1","R4_TX_READ_ONLY_V1","R4_TX_RESOURCE_V1","R4_TX_SNAPSHOT_V1","R4_SCHEMA_HISTORY_V1","R4_SCHEMA_COLUMNS_V1","R4_SCHEMA_CONSTRAINTS_V1","R4_SCHEMA_INDEXES_V1"); }
+}

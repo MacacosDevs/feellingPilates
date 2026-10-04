@@ -8,6 +8,7 @@ import com.feelingpilates.calendario.repositorio.ReservaRepository;
 import com.feelingpilates.calendario.repositorio.TurnoInstructorRepository;
 import com.feelingpilates.exception.ResourceNotFoundException;
 import com.feelingpilates.exception.ValidacionException;
+import com.feelingpilates.seguridad.AutorizadorSalon;
 import com.feelingpilates.ubicaciones.entidad.Salon;
 import com.feelingpilates.ubicaciones.entidad.TipoActividad;
 import com.feelingpilates.ubicaciones.repositorio.SalonRepository;
@@ -34,6 +35,7 @@ public class ReservaService {
     private final UsuarioRepository usuarioRepository;
     private final SalonRepository salonRepository;
     private final TipoActividadRepository tipoActividadRepository;
+    private final AutorizadorSalon autorizadorSalon;
 
     public ReservaService(
             ReservaRepository reservaRepository,
@@ -41,17 +43,20 @@ public class ReservaService {
             TurnoInstructorService turnoInstructorService,
             UsuarioRepository usuarioRepository,
             SalonRepository salonRepository,
-            TipoActividadRepository tipoActividadRepository) {
+            TipoActividadRepository tipoActividadRepository,
+            AutorizadorSalon autorizadorSalon) {
         this.reservaRepository = reservaRepository;
         this.turnoRepository = turnoRepository;
         this.turnoInstructorService = turnoInstructorService;
         this.usuarioRepository = usuarioRepository;
         this.salonRepository = salonRepository;
         this.tipoActividadRepository = tipoActividadRepository;
+        this.autorizadorSalon = autorizadorSalon;
     }
 
     @Transactional(readOnly = true)
-    public List<ReservaResponse> listarPorSalonYFecha(UUID salonId, LocalDate fecha) {
+    public List<ReservaResponse> listarPorSalonYFecha(UUID actorId, UUID salonId, LocalDate fecha) {
+        autorizadorSalon.verificarAccesoSalon(actorId, "calendario.leer", salonId);
         return reservaRepository.findBySalonIdAndFechaAndEstado(salonId, fecha, Reserva.Estado.CONFIRMADA).stream()
                 .map(this::aResponse)
                 .toList();
@@ -64,7 +69,8 @@ public class ReservaService {
                 .toList();
     }
 
-    public ReservaResponse crear(ReservaRequest request) {
+    public ReservaResponse crear(UUID actorId, ReservaRequest request) {
+        autorizadorSalon.verificarAccesoSalon(actorId, "reserva.administrar", request.salonId());
         Salon salon = salonRepository.findById(request.salonId())
                 .orElseThrow(() -> new ResourceNotFoundException("Salón no encontrado"));
         Usuario instructor = usuarioRepository.findById(request.instructorId())
@@ -104,9 +110,10 @@ public class ReservaService {
         return aResponse(reservaRepository.save(reserva));
     }
 
-    public void cancelar(UUID id) {
+    public void cancelar(UUID actorId, UUID id) {
         Reserva reserva = reservaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
+        autorizadorSalon.verificarAccesoSalon(actorId, "reserva.administrar", reserva.getSalon().getId());
         reserva.setEstado(Reserva.Estado.CANCELADA);
         reservaRepository.save(reserva);
     }

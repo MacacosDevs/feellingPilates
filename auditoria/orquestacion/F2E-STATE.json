@@ -1,0 +1,240 @@
+{
+  "schemaVersion": "F2E-STATE-V2",
+  "classification": "DERIVED / NON_PRODUCT_AUTHORITY / OPERATIONAL_CACHE",
+  "lane": "F2E",
+  "repository": "/Users/jesusaldaircruzortiz/orca/workspaces/feelingpilates/f2e-clean-main-reconciliation",
+  "branch": "AldairCruz7/f2e-r4-handoff-activation-finalization",
+  "head": {
+    "source": "GIT_HEAD",
+    "ref": "HEAD",
+    "anchorHead": "0923d4760786fc96e184dda48f97f8d10df960c6",
+    "resolvedValueType": "SHA40_LOWERCASE",
+    "anchorIsTerminalHead": false
+  },
+  "upstream": {
+    "ref": "origin/main",
+    "head": {
+      "source": "GIT_REV_PARSE",
+      "ref": "origin/main",
+      "anchorHead": "0923d4760786fc96e184dda48f97f8d10df960c6"
+    },
+    "branchTrackingAtCapture": "UNSET",
+    "aheadAtCapture": 0,
+    "behindAtCapture": 0,
+    "comparisonRef": "origin/main"
+  },
+  "liveRemote": {
+    "ref": "refs/heads/main",
+    "head": {
+      "source": "GIT_LS_REMOTE_NON_MUTATING",
+      "ref": "refs/heads/main",
+      "anchorHead": "0923d4760786fc96e184dda48f97f8d10df960c6"
+    },
+    "receipt": {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_64c27c26eb22/FINALIZATION-LIVE-MAIN.txt",
+      "sha256": "0d32495e6bb219225bc112b7796d42b11e9e12975d39d2b4bb96d80e3144a657",
+      "availability": "LOCAL_RETAINED",
+      "retentionOwner": "RUN_COORDINATOR",
+      "externalBackup": "NOT_GUARANTEED"
+    }
+  },
+  "lifecycle": {
+    "selected": "F2E_R4_HANDOFF_ACTIVATION_FINALIZATION",
+    "profile": "PROCESS_ONLY / DOCUMENTATION_ONLY",
+    "r1r3": "CLOSED",
+    "r4Design": "CLOSED",
+    "schemaPrerequisite": "CLOSED",
+    "r4Handoff": "NOT_ACTIVE / FINALIZATION_CANDIDATE",
+    "r4Implementation": "NOT_AUTHORIZED / NOT_IMPLEMENTED",
+    "r5r6": "NOT_AUTHORIZED",
+    "flywayHead": "V47",
+    "migrationCount": 50,
+    "turnoInstructor": "LEGACY_VIVO / PRODUCTIVO",
+    "darkLaunch": "PRESERVED",
+    "cutover": "NOT_AUTHORIZED",
+    "deploy": "NOT_EXECUTED",
+    "closureConditionRef": "auditoria/reviews/F2E-R4-HANDOFF-ACTIVATION-FINALIZATION.md",
+    "handoffProcessClosure": "CLOSED",
+    "activationApproval": "PUBLISHED / INTEGRATED / PREACTIVATION_AUDITED",
+    "terminalEffectiveState": {
+      "condition": "VERIFIED_FINALIZATION_NORMAL_MERGE_AND_ALL_FIXED_CHECKS",
+      "r4Handoff": "ACTIVE",
+      "r4ImplementationAuthority": "AUTHORIZED_TO_START",
+      "r4Implementation": "NOT_IMPLEMENTED",
+      "activationLifecycle": "CLOSED"
+    }
+  },
+  "activeMilestone": "R4_FINALIZATION_CANDIDATE",
+  "authorityRefs": {
+    "r4Design": "auditoria/fase-2e-r4-diseno-reader-ajustes-fecha-reconciliado.md",
+    "r4Schema": "auditoria/fase-2e-r4-prerrequisito-esquema-reconciliado.md",
+    "schemaAudit": "auditoria/reviews/F2E-R4-SCHEMA-INDEPENDENT-RECEIPT.md",
+    "r3Design": "auditoria/fase-2e-r3-diseno-reader-programacion-nominal-reconciliado.md",
+    "r3Handoff": "auditoria/handoffs/HANDOFF-F2E-R3-IMPLEMENTACION-READER-PROGRAMACION-NOMINAL-CLEAN-MAIN.md",
+    "runbook": "auditoria/orquestacion/F2E-RUNBOOK.md",
+    "policy": "auditoria/orquestacion/F2E-EXECUTION-POLICY.md"
+  },
+  "authorityHashes": {
+    "r4Design": "d966e32318c10b5fa6226f17f63001d71fbbe24419d7dee70842a97f9c7204d4",
+    "r4Schema": "f095844d82e6e1b091d02ef914035cc0ac0b984a8069f197f6ffb1f656b4623c",
+    "schemaAudit": "3ff724e6e0dee31da9e09cdfa0aa6796bbd2c323c447a82aec462849817ced3f",
+    "r3Design": "42a21c09d137d363e938d441a499d48c5ec7537a73ee23861bfce2c4d75677f9",
+    "r3Handoff": "a74d139ca6c924dcbb98c368d80f38a17cf423408c7db30054e621b67b4cefa9",
+    "runbook": "e5469dc8c32c5a82c35844617122fb6ca465f8b17d376e0cca332d9db27ac50c",
+    "policy": "68e5d474b2f1b420fea68ca713c35d220fa3150effe03849b08efe1ada0d88ec"
+  },
+  "handoffRefs": {
+    "activeImplementation": null,
+    "candidateImplementation": "auditoria/handoffs/HANDOFF-F2E-R4-IMPLEMENTACION-READER-AJUSTES-FECHA-CLEAN-MAIN.md"
+  },
+  "handoffHashes": {
+    "activeImplementation": null,
+    "candidateImplementation": "210bfc17e4e8bbf0917190262aa165c3804ab4f477bf6a30ea56021dc8961912"
+  },
+  "candidateIdentity": {
+    "status": "DETERMINISTIC_PLAN_CONFORMANCE_CANDIDATE",
+    "base": "0923d4760786fc96e184dda48f97f8d10df960c6",
+    "payload": {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_64c27c26eb22/FINALIZATION-PAYLOAD.tsv",
+      "sha256": "b3d8219c80f8155ee539ff67d74b407106d6e6d6ceb8189752320f3eabfc9c34",
+      "availability": "LOCAL_RETAINED",
+      "retentionOwner": "RUN_COORDINATOR",
+      "externalBackup": "NOT_GUARANTEED"
+    },
+    "fullCandidateManifest": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_64c27c26eb22/FINALIZATION-CANDIDATE.tsv",
+    "stateExcludedFromPayload": true,
+    "approvalRef": "auditoria/reviews/F2E-R4-HANDOFF-ACTIVATION-INDEPENDENT-RECEIPT.md",
+    "newAudit": "NOT_CLAIMED_FIXED_APPROVED_PLAN"
+  },
+  "allowlistIdentity": {
+    "frozenRef": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_64c27c26eb22/FINALIZATION-ALLOWLIST.json",
+    "sha256": "bc49ba147e555def4552432fd24d3d0c94e6441550400b7a9649c8747d14fa82",
+    "paths": [
+      "auditoria/ESTADO-ACTUAL.md",
+      "auditoria/orquestacion/F2E-STATE.json",
+      "auditoria/reviews/F2E-R4-HANDOFF-ACTIVATION-FINALIZATION.md"
+    ],
+    "mutationClass": "PROCESS_ONLY",
+    "defaultDeny": true
+  },
+  "repositoryShape": {
+    "statusAtCapture": "CLEAN_BEFORE_EDITS",
+    "indexDeltaAtCapture": 0,
+    "untrackedAtCapture": 0,
+    "baseline": {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_64c27c26eb22/FINALIZATION-BASELINE.tsv",
+      "sha256": "3c3f2460293fbbfd938d5a5f5b87b88cd2e2901878949990c89f9f599ab1c232",
+      "availability": "LOCAL_RETAINED",
+      "retentionOwner": "RUN_COORDINATOR",
+      "externalBackup": "NOT_GUARANTEED"
+    },
+    "trackedAtBase": 433,
+    "requiredTerminalShape": "CLEAN_INDEX_EMPTY_UNTRACKED_0"
+  },
+  "validationState": {
+    "processAudit": {
+      "status": "APPROVED_PUBLISHED_PREACTIVATION_PLAN",
+      "taskId": "task_7d2c123b0533",
+      "dispatchId": "ctx_d59e59dee070",
+      "receiptRef": "auditoria/reviews/F2E-R4-HANDOFF-ACTIVATION-INDEPENDENT-RECEIPT.md"
+    },
+    "finalizationValidation": "PENDING_EXACT_PLAN_CONFORMANCE_AND_MERGE",
+    "technicalTests": "NOT_APPLICABLE_DOCUMENTATION_ONLY / NOT_EXECUTED",
+    "futureReaderAcceptance": "REQUIRED / NOT_EXECUTED",
+    "productionDatabase": "NOT_ACCESSED"
+  },
+  "databaseEvidenceRefs": [],
+  "rawEvidenceRefs": [
+    {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_64c27c26eb22/ACTIVATION-TERMINAL.json",
+      "sha256": "3fd5ab9bc61b2133827fd368bbe846ff62d3b3000e5af22511fe8fd75c60e1aa",
+      "availability": "LOCAL_RETAINED",
+      "retentionOwner": "RUN_COORDINATOR",
+      "externalBackup": "NOT_GUARANTEED"
+    }
+  ],
+  "summaryEvidence": {
+    "priorState": {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_64c27c26eb22/FINALIZATION-PRIOR-STATE.json",
+      "sha256": "1e32cd3edf86cde3c1ffe34d171b6a4aeb8d7d7dbe7b23f455182628acfff7d3",
+      "availability": "LOCAL_RETAINED",
+      "retentionOwner": "RUN_COORDINATOR",
+      "externalBackup": "NOT_GUARANTEED"
+    },
+    "fixedInputs": {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_64c27c26eb22/FINALIZATION-FIXED-INPUTS.tsv",
+      "sha256": "e5122838205b47091f0bbbffd90982cc6aa011b733b4fdd6dcbe7520fbed2db5",
+      "availability": "LOCAL_RETAINED",
+      "retentionOwner": "RUN_COORDINATOR",
+      "externalBackup": "NOT_GUARANTEED"
+    },
+    "actualPublishedPrerequisites": {
+      "handoffMerge": "c245e1ebc22f331cdb418b5f32dd29ccf223735f",
+      "handoffPR": 28,
+      "handoffCandidate": "6ca9a3d494eadd7c49a806e01a5286ad5f62a612",
+      "handoffReceiptCommit": "b65fffe6fa261cfce5948915abe8352077d21387",
+      "handoffPath": "auditoria/handoffs/HANDOFF-F2E-R4-IMPLEMENTACION-READER-AJUSTES-FECHA-CLEAN-MAIN.md",
+      "handoffReceiptPath": "auditoria/reviews/F2E-R4-HANDOFF-INDEPENDENT-RECEIPT.md",
+      "activationMerge": "0923d4760786fc96e184dda48f97f8d10df960c6",
+      "activationPR": 29,
+      "activationCandidate": "241b336e4c1b774d2be21ce3a8e945a6e680fa34",
+      "activationReceiptCommit": "3f075e942f4ee4b34332827bc1280772d103448d",
+      "activationTask": "task_7d2c123b0533",
+      "activationDispatch": "ctx_d59e59dee070",
+      "activationCorrections": 0
+    }
+  },
+  "openFindings": [],
+  "crossLaneGuards": {
+    "r1r3": "CLOSED",
+    "fixtureExceptionPaths": [
+      "src/test/java/com/feelingpilates/programacion/ProgramacionPersistenciaTest.java",
+      "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/F2ePostgresTestConfiguration.java",
+      "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/LegacyTurnR2PostgresTestConfiguration.java",
+      "src/test/java/com/feelingpilates/transicion/programacion/adapter/jpa/testinfra/NominalPostgresTestConfiguration.java"
+    ],
+    "newTestPaths": 0,
+    "runtimeJava": "UNCHANGED",
+    "historical49Migrations": "UNCHANGED",
+    "r4Design": "UNCHANGED",
+    "assignmentExclusion": "ABSENT",
+    "readerWriterActivation": "ABSENT",
+    "darkLaunch": "PRESERVED",
+    "cutover": "NOT_AUTHORIZED"
+  },
+  "modelRoutingState": {
+    "preactivationAuditRequested": "gpt-6.1-sol/high",
+    "preactivationAuditEffective": "gpt-6.1-sol/high",
+    "receiptRef": "auditoria/reviews/F2E-R4-HANDOFF-ACTIVATION-INDEPENDENT-RECEIPT.md",
+    "finalizationFreshAudit": "NOT_CLAIMED"
+  },
+  "currentGate": {
+    "id": null,
+    "status": "PENDING_VERIFIED_FINALIZATION_MERGE",
+    "unknownReason": "NO_FUTURE_MERGE_ID_AT_CAPTURE"
+  },
+  "humanGate": {
+    "id": "gate_ae89151aa63d",
+    "status": "RESOLVED",
+    "resolution": "AUTHORIZED / EXACT_FOUR_TEST_PATH_EXCEPTION_ONLY",
+    "receipt": {
+      "path": "/Users/jesusaldaircruzortiz/.codex/feelingpilates-evidence/run_6c6245bb15ba/GATE-AUTHORIZED.json",
+      "sha256": "d2d68ce37d5b7b78fe22e3367638024b2176fb8324b706e9d55c4bb74114811a",
+      "availability": "LOCAL_RETAINED",
+      "retentionOwner": "RUN_COORDINATOR",
+      "externalBackup": "NOT_GUARANTEED"
+    }
+  },
+  "nextAuthorizedTransition": {
+    "currentScope": "VERIFY_PUBLISH_MERGE_EXACT_FINALIZATION",
+    "terminal": "ACTIVE_AUTHORIZED_TO_START_NOT_IMPLEMENTED_ONLY_AFTER_ALL_CHECKS",
+    "readerImplementationThisRun": "FORBIDDEN"
+  },
+  "lastRun": {
+    "id": "run_64c27c26eb22",
+    "stage": "FINALIZATION_CANDIDATE",
+    "p1CorrectionsUsed": 0,
+    "p2CorrectionsUsed": 0,
+    "handoffP1Consumed": 1
+  }
+}

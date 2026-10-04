@@ -1,0 +1,12 @@
+package com.feelingpilates.ubicaciones.repositorio;
+
+import com.feelingpilates.ubicaciones.entidad.TipoRecurso;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface TipoRecursoRepository extends JpaRepository<TipoRecurso, UUID> {
+
+    List<TipoRecurso> findByActivoTrueOrderByNombre();
+}

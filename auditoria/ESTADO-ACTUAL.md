@@ -1,3 +1,40 @@
+# FeelingPilates — current R4 schema prerequisite lifecycle
+
+Status: CANONICAL / R4_SCHEMA_INTEGRATED / PROCESS_CLOSURE_CONDITIONAL
+Current lifecycle: F2E_R4_SCHEMA_PREREQUISITE_PROCESS_CLOSURE
+Verified canonical schema merge: ff9f6893cb2270e1ebd38220e4143add258372b6 (PR #26)
+Fixture reconciliation: independently audited, published, integrated, CLOSED (PR #25)
+R1-R3: CLOSED; R4 reconciled design: CLOSED
+R4 schema prerequisite: IMPLEMENTED / VALIDATED / INDEPENDENTLY_AUDITED / ACCEPTED / PUBLISHED / INTEGRATED
+Schema process closure: PENDING_FRESH_INDEPENDENT_AUDIT_AND_VERIFIED_PROCESS_MERGE
+Flyway: V47 / 50 migrations; historical49 unchanged; no assignment exclusion
+R4 reader implementation/handoff/activation: NOT_AUTHORIZED / NOT_IMPLEMENTED / NONE_ACTIVE
+R5-R6: NOT_AUTHORIZED
+TurnoInstructor: LEGACY_VIVO / PRODUCTIVO; dark launch PRESERVED; cutover NOT_AUTHORIZED
+Deploy/productive database migration: NOT_EXECUTED; payments/notifications OUT_OF_SCOPE
+
+Schema authority: [minimum prerequisite](fase-2e-r4-prerrequisito-esquema-reconciliado.md).
+Independent schema acceptance: [factual receipt](reviews/F2E-R4-SCHEMA-INDEPENDENT-RECEIPT.md).
+Accepted schema: twelve columns, PK/three result FKs/closed types/complete forms/positive time,
+partial active target uniqueness and active-date index. No reader/writer, entity/repository,
+backfill, trigger, extension, old migration changes or productive routing.
+Human-authorized fixture exception changes exactly four existing test files, keeps V46/49
+fail-closed fixture guards, and exercises actual full V47/50 schema without skipping tests.
+Fresh coordinator and independent regression555/0/0/0; schema targeted21/0/0/0.
+Physical V47 Flyway checksum -1624594375. No acceptance of future unseen bytes.
+Process condition: [separate closure](reviews/F2E-R4-SCHEMA-PROCESS-CLOSURE.md).
+
+CLOSED only after fresh independent GPT-6.1-Sol High closure audit APPROVED with P0/P1=0; factual-only reserved receipt committed as direct child preserving all three audited files; normal merge verified on live canonical main; exact four-path process delta from ff9f6893cb2270e1ebd38220e4143add258372b6; all source/tests/migrations, schema authority/receipt and sealed R1-R3/R4 design unchanged; original historical49 migration and runtime hashes unchanged; PR25/PR26 plus audited schema/candidate/receipt and closure candidate/receipt ancestors; clean working tree/index/untracked. Otherwise PROCESS_CLOSURE_PENDING / FAIL_CLOSED.
+
+Capture labels remain conditional; actual closure resolves through the factual receipt and
+live Git/GitHub, without retroactive modification of audited STATE. No successor reader
+implementation is authorized by closing this schema prerequisite.
+
+## HISTORICAL_PROVENANCE_ONLY — prior closed-design capture
+
+All following prior labels/next steps describe their captures, subordinate to current scope
+and verified receipts. Their product authority is not broadened.
+
 # FeelingPilates — Estado actual de la reestructuración
 
 Status: CANONICAL / R4_DESIGN_INTEGRATED / PROCESS_CLOSURE_CONDITIONAL

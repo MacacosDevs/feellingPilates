@@ -59,7 +59,8 @@
     "turnoInstructor": "LEGACY_VIVO / PRODUCTIVO",
     "darkLaunch": "PRESERVED",
     "cutover": "NOT_AUTHORIZED",
-    "paymentsNotifications": "OUT_OF_SCOPE"
+    "paymentsNotifications": "OUT_OF_SCOPE",
+    "r4HandoffAbsenceReason": "NOT_CREATED / NONE_FOR_CURRENT_R4_DESIGN_LIFECYCLE"
   },
   "activeMilestone": "R4_DESIGN_INTEGRATED_PROCESS_CLOSURE_CANDIDATE",
   "authorityRefs": {
@@ -76,8 +77,12 @@
     "3": "e5469dc8c32c5a82c35844617122fb6ca465f8b17d376e0cca332d9db27ac50c",
     "4": "68e5d474b2f1b420fea68ca713c35d220fa3150effe03849b08efe1ada0d88ec"
   },
-  "handoffRefs": {},
-  "handoffHashes": {},
+  "handoffRefs": {
+    "activeImplementation": null
+  },
+  "handoffHashes": {
+    "activeImplementation": null
+  },
   "candidateIdentity": {
     "status": "PENDING_FRESH_INDEPENDENT_PROCESS_AUDIT",
     "base": "d3abd2c27a8de094c9cc60e0db43d9a816713ab2",

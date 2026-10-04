@@ -42,9 +42,25 @@ class ProgramacionPersistenciaTest {
     private AsignacionRepository asignacionRepository;
 
     @Test
-    void flywayMigraDesdeV1HastaV46() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("46");
-        assertThat(flyway.info().applied()).hasSize(49);
+    void flywayMigraCatalogoCanonicoCompletoSinMigracionesDesconocidas() {
+        var info = flyway.info();
+        var versions = new java.util.HashSet<String>();
+        for (int version = 1; version <= 46; version++) versions.add(Integer.toString(version));
+        versions.addAll(java.util.Set.of("22.1", "22.2", "22.3"));
+        boolean prerequisite = java.util.Arrays.stream(info.all()).anyMatch(
+                migration -> "V47__programacion_ajuste_fecha.sql".equals(migration.getScript()));
+        if (prerequisite) versions.add("47");
+        assertThat(info.current().getVersion().getVersion()).isEqualTo(prerequisite ? "47" : "46");
+        assertThat(info.pending()).isEmpty();
+        assertThat(info.all()).hasSize(prerequisite ? 50 : 49);
+        assertThat(info.applied()).hasSize(prerequisite ? 50 : 49);
+        assertThat(java.util.Arrays.stream(info.all()).map(migration -> {
+            assertThat(migration.getState()).isEqualTo(org.flywaydb.core.api.MigrationState.SUCCESS);
+            return migration.getVersion().getVersion();
+        }).toList()).containsExactlyInAnyOrderElementsOf(versions);
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT to_regclass('public.programacion_ajuste_fecha') IS NOT NULL", Boolean.class))
+                .isEqualTo(prerequisite);
     }
 
     @Test
@@ -296,6 +312,70 @@ class ProgramacionPersistenciaTest {
                 """,
                 id, UUID.randomUUID(), salonId, diaSemana, horaInicio, horaFin, vigenteDesde, vigenteHasta);
         return id;
+    }
+
+
+    @Test
+    void fixturesV46RechazanCatalogosDesconocidosYConservanFailClosed() {
+        var baseline = new java.util.ArrayList<org.flywaydb.core.api.MigrationInfo>();
+        for (int version = 1; version <= 46; version++) baseline.add(migration(
+                Integer.toString(version), org.flywaydb.core.api.MigrationState.SUCCESS, "baseline"));
+        for (String version : java.util.List.of("22.1", "22.2", "22.3")) baseline.add(migration(
+                version, org.flywaydb.core.api.MigrationState.SUCCESS, "baseline"));
+        assertThat(validFixture(baseline, baseline, java.util.List.of(), baseline.get(45))).isTrue();
+        var resolved = new java.util.ArrayList<>(baseline);
+        resolved.add(migration("47", org.flywaydb.core.api.MigrationState.ABOVE_TARGET,
+                "V47__programacion_ajuste_fecha.sql"));
+        assertThat(validFixture(resolved, baseline, java.util.List.of(), baseline.get(45))).isTrue();
+        for (var state : org.flywaydb.core.api.MigrationState.values()) {
+            if (state == org.flywaydb.core.api.MigrationState.ABOVE_TARGET) continue;
+            var invalid = new java.util.ArrayList<>(baseline);
+            invalid.add(migration("47", state, "V47__programacion_ajuste_fecha.sql"));
+            assertThat(validFixture(invalid, baseline, java.util.List.of(), baseline.get(45))).isFalse();
+        }
+        for (String version : java.util.List.of("46.1", "48")) {
+            var invalid = new java.util.ArrayList<>(baseline);
+            invalid.add(migration(version, org.flywaydb.core.api.MigrationState.ABOVE_TARGET,
+                    "V47__programacion_ajuste_fecha.sql"));
+            assertThat(validFixture(invalid, baseline, java.util.List.of(), baseline.get(45))).isFalse();
+        }
+        var wrongScript = new java.util.ArrayList<>(baseline);
+        wrongScript.add(migration("47", org.flywaydb.core.api.MigrationState.ABOVE_TARGET, "V47__other.sql"));
+        assertThat(validFixture(wrongScript, baseline, java.util.List.of(), baseline.get(45))).isFalse();
+        resolved.add(resolved.get(49));
+        assertThat(validFixture(resolved, baseline, java.util.List.of(), baseline.get(45))).isFalse();
+        var missing = new java.util.ArrayList<>(baseline); missing.remove(0);
+        assertThat(validFixture(missing, missing, java.util.List.of(), baseline.get(45))).isFalse();
+        var duplicate = new java.util.ArrayList<>(baseline); duplicate.set(0, baseline.get(1));
+        assertThat(validFixture(duplicate, duplicate, java.util.List.of(), baseline.get(45))).isFalse();
+        assertThat(validFixture(baseline, baseline, java.util.List.of(baseline.get(0)), baseline.get(45))).isFalse();
+        assertThat(validFixture(baseline, baseline, java.util.List.of(), null)).isFalse();
+        assertThat(validFixture(baseline, baseline, java.util.List.of(), baseline.get(44))).isFalse();
+        var failed = new java.util.ArrayList<>(baseline);
+        failed.set(0, migration("1", org.flywaydb.core.api.MigrationState.FAILED, "baseline"));
+        assertThat(validFixture(failed, failed, java.util.List.of(), baseline.get(45))).isFalse();
+    }
+
+    private static org.flywaydb.core.api.MigrationInfo migration(String version,
+            org.flywaydb.core.api.MigrationState state, String script) {
+        var info = org.mockito.Mockito.mock(org.flywaydb.core.api.MigrationInfo.class);
+        org.mockito.Mockito.when(info.getVersion()).thenReturn(org.flywaydb.core.api.MigrationVersion.fromVersion(version));
+        org.mockito.Mockito.when(info.getState()).thenReturn(state);
+        org.mockito.Mockito.when(info.getScript()).thenReturn(script);
+        return info;
+    }
+
+    private static boolean validFixture(java.util.List<org.flywaydb.core.api.MigrationInfo> all,
+            java.util.List<org.flywaydb.core.api.MigrationInfo> applied,
+            java.util.List<org.flywaydb.core.api.MigrationInfo> pending,
+            org.flywaydb.core.api.MigrationInfo current) {
+        var info = org.mockito.Mockito.mock(org.flywaydb.core.api.MigrationInfoService.class);
+        org.mockito.Mockito.when(info.all()).thenReturn(all.toArray(org.flywaydb.core.api.MigrationInfo[]::new));
+        org.mockito.Mockito.when(info.applied()).thenReturn(applied.toArray(org.flywaydb.core.api.MigrationInfo[]::new));
+        org.mockito.Mockito.when(info.pending()).thenReturn(pending.toArray(org.flywaydb.core.api.MigrationInfo[]::new));
+        org.mockito.Mockito.when(info.current()).thenReturn(current);
+        return com.feelingpilates.transicion.programacion.adapter.jpa.testinfra.F2ePostgresTestConfiguration
+                .catalogoFixtureV46Valido(info);
     }
 
     private UUID insertarAsignacion(

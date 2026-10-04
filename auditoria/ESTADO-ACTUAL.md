@@ -1,5 +1,40 @@
 # FeelingPilates — Estado actual de la reestructuración
 
+Status: CANONICAL / R4_DESIGN_INTEGRATED / PROCESS_CLOSURE_CONDITIONAL
+Last updated: 2026-10-03 (UTC)
+Current lifecycle: F2E_R4_DESIGN_PROCESS_CLOSURE
+Canonical design merge: d3abd2c27a8de094c9cc60e0db43d9a816713ab2 (PR #23)
+R1–R3: CLOSED / ACCEPTED / PUBLISHED / INTEGRATED; PR #22 closure verified
+R4 design: COMPLETE / INDEPENDENTLY_AUDITED / ACCEPTED / PUBLISHED / INTEGRATED
+R4 process closure: PENDING_FRESH_INDEPENDENT_AUDIT_AND_VERIFIED_CLOSURE_MERGE
+R4 implementation/handoff/migration: NOT_AUTHORIZED / NOT_IMPLEMENTED / NONE_CREATED
+R4–R6 activation: NOT_AUTHORIZED
+TurnoInstructor: LEGACY_VIVO / PRODUCTIVO
+Dark launch: PRESERVED; Cutover: NOT_AUTHORIZED
+Flyway: V46 / 49 migrations / V47 ABSENT
+Payments / Notifications: OUT_OF_SCOPE
+
+## Estado vigente — R4 diseño integrado, cierre separado condicionado
+
+Diseño autocontenido: [reader de ajustes](fase-2e-r4-diseno-reader-ajustes-fecha-reconciliado.md).
+Auditoría exact-byte fresh [recibo](reviews/F2E-R4-DESIGN-INDEPENDENT-RECEIPT.md): task_b31cab48b966/ctx_876fa9a64312, APPROVED DESIGN ONLY, P0/P1/P2 0/0/0.
+PR [#23](https://github.com/MacacosDevs/feellingPilates/pull/23) MERGED; candidato43248a6 y reciboc35ac5a, diseño SHA256 d966e32318c10b5fa6226f17f63001d71fbbe24419d7dee70842a97f9c7204d4.
+Sin correcciones; sin tests técnicos ejecutados en este lifecycle documental.
+R3 cierre PR [#22](https://github.com/MacacosDevs/feellingPilates/pull/22) integrado en 5c8a9ab; sus condiciones y fuentes selladas corroboradas antes de comenzar R4.
+R4 sólo facts/backing exact-date; requiere mínimo prerrequisito de persistencia separado, no V47 bundle ni exclusión de asignaciones. No entity managed/restauración, composición R5 ni owner multi-reader R6.
+Cierre separado: [condiciones](reviews/F2E-R4-DESIGN-PROCESS-CLOSURE.md).
+
+CLOSED only after fresh independent closure audit APPROVED with P0/P1=0; factual receipt committed as direct child preserving all three audited candidate files; normal merge of candidate+receipt into main verified live; exact four-path process delta from d3abd2c; design and design receipt unchanged; all baseline source, tests, migrations and sealed R1-R3 authority unchanged; clean index, tracked and untracked; PR22/PR23 and audited candidate/receipt ancestors of main. Otherwise PROCESS_CLOSURE_PENDING / FAIL_CLOSED.
+
+Tras ese cumplimiento el diseño R4 queda CLOSED; receipt factual y Git/GitHub live resuelven los estados de captura sin reescribir bytes auditados.
+Siguiente lifecycle necesario: MINIMUM_R4_SCHEMA_PREREQUISITE_AUTHORITY, read-only/design authority antes de una migración separadamente autorizada y un futuro handoff R4. No se inicia por este cierre.
+
+## HISTORICAL_PROVENANCE_ONLY — corte completo anterior
+
+El bloque siguiente conserva íntegro el corte previo R3; sus etiquetas y próximas acciones describen ese corte y se subordinan al estado vigente de arriba y a evidencia live.
+
+# FeelingPilates — Estado actual de la reestructuración
+
 Status: CANONICAL / R3_IMPLEMENTATION_INTEGRATED / PROCESS_CLOSURE_CONDITIONAL
 Last updated: 2026-10-03
 Canonical implementation merge: 3329cc0d8d8c2d6b44df980e7e96e3b24dcfe3a8

@@ -283,7 +283,7 @@ All ten main files use package `com.feelingpilates.transicion.programacion.r5.co
 | EffectiveCompositionFailure | R5-only exception; category exactly §6, date, deterministic involved references/IDs, precise rule/invariant, available immutable original/support evidence and original cause. Unknown programmer failures propagate. No changes to closed enums/exceptions. |
 | EffectiveCompositionCanonicalizer | Pure V1 recursive framing, explicit fixed field schemas of these records and all original reader DTOs, strict scalar normalization/order/domains and collision check from §7. No reflection over arbitrary objects, toString serialization, clock, I/O, reader invocation or SemanticHash substitution. |
 
-PRESENT requires matching queried/entity IDs and required scalar fields; ABSENT requires no entity value and explicit complete absence provenance. Status strings preserve source values: instructor `ACTIVO` is active and role name `INSTRUCTOR` is exact; unknown status value is malformed evidence rather than invented omission. Hours use PostgreSQL day encoding Sunday0..Saturday6, inclusive validFrom/validUntil, open upper endpoint permitted, exact-date exception date/salon binding and active true; shape closed=(both times absent), open=(both times present positive time6). Distinct duplicate physical/composite keys reject even identical; shared nominal block physical IDs may recur only with identical complete block payload as closed R3 permits. Repeated assignment IDs reject. No fabricated physical primary key for composite edges.
+PRESENT requires matching queried/entity IDs and required scalar fields; ABSENT requires no entity value and explicit complete absence provenance. Status strings preserve source values: instructor `activo` is active; valid source statuses are exactly `activo`, `suspendido`, `eliminado` and role name `INSTRUCTOR` is exact; unknown status value is malformed evidence rather than invented omission. Hours use PostgreSQL day encoding Sunday0..Saturday6, inclusive validFrom/validUntil, open upper endpoint permitted, exact-date exception date/salon binding and active true; shape closed=(both times absent), open=(both times present positive time6). Distinct duplicate physical/composite keys reject even identical; shared nominal block physical IDs may recur only with identical complete block payload as closed R3 permits. Repeated assignment IDs reject. No fabricated physical primary key for composite edges.
 
 Admission reimplements the closed PURE scalar validations under these R5 files; it may use immutable DTO accessors and ReadSnapshotIdentifiers pure methods, never instantiate/invoke R3/R4 mappers, readers, ports, contexts, services or repositories. Original snapshot contexts are PROVENANCE_ONLY sources for algorithm reconstruction. Nominal backing constructor is insufficient: explicitly repeat block/assignment IDs, flags, applicability, time containment, time6/timestamp6, day, physical consistency and closed list order `(unsigned seriesId,unsigned assignmentId)` before derived sorting. Reconstruct exact original normalizedFields: all closed mapper physical names (including `NULL` optional until tokens), fecha/day and snapshotEvidenceId/executionProvenanceId/statementCaptureCommitment; require exact map equality, record IDs, source/schema/rule/zone/date envelope agreement. Closed R3 observable map has exactly salonId/instructorId/activityId/start/end/fecha. R3 candidateFingerprint is closed hash seqText(`F2E-R3-CANDIDATE-V1`, closed reference.toString(), decoded mapaCanonico(observable)); projection fingerprint is closed hash seqText(`F2E-R3-PROJECTION-V1`, decoded mapaCanonico(physical)); snapshotIdentity is closed hash seqText(`F2E-R3-SNAPSHOT-V1`, original executionProvenanceId, projectionFingerprint). The closed reference.toString use applies only to validation of a preserved R3 hash, never R5 canonicalization.
 
@@ -441,6 +441,8 @@ src/main/java/com/feelingpilates/transicion/programacion/r4/read/AdjustmentReadS
 src/main/java/com/feelingpilates/transicion/programacion/read/NominalReadSnapshotContext.java
 src/main/java/com/feelingpilates/ubicaciones/servicio/HorarioEfectivoSalon.java
 src/main/java/com/feelingpilates/ubicaciones/servicio/HorarioOperacionResolver.java
+src/main/java/com/feelingpilates/usuarios/entidad/Rol.java
+src/main/java/com/feelingpilates/usuarios/entidad/Usuario.java
 ```
 
 | Set | Count | SHA256 |
@@ -448,7 +450,7 @@ src/main/java/com/feelingpilates/ubicaciones/servicio/HorarioOperacionResolver.j
 | CURRENT_R5_AUTHORIZED_NEW | 20 | `330488d90768982ed3c18c7d49a2531767eda2409b2de178f7c5a2d68586d01b` |
 | CURRENT_R5_AUTHORIZED_MODIFIED | 0 | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
 | CURRENT_R5_READ_ONLY | 69 | `3f420b74e85f36087598219874b04f460c1da49baf6864cb3b0100b474cb1b4d` |
-| CURRENT_R5_PROVENANCE_ONLY | 13 | `9b61f4f8a062d5a32ef90c268beac9cbbcfa484516944edcb72a6f49532ca5fb` |
+| CURRENT_R5_PROVENANCE_ONLY | 15 | `224a681283d4ad2b009572414e20bc9a8d5f67a6d455b2077db83c3370431577` |
 | WRITE_SCOPE | 20 | `330488d90768982ed3c18c7d49a2531767eda2409b2de178f7c5a2d68586d01b` |
 | TOTAL_ACTIVE_PATHS | 89 | `11bb29d121ddab3cdb07fb7c22da56eb37fd1c726454ac1e8d210dfe5730341a` |
 
@@ -484,6 +486,8 @@ src/main/java/com/feelingpilates/ubicaciones/servicio/HorarioOperacionResolver.j
 | src/main/java/com/feelingpilates/transicion/programacion/read/ReadSnapshotIdentifiers.java | `1c23fb83cdec352b885e5ce6272f49edafb0388f832f9be134544647f6c72aed` |
 | src/main/java/com/feelingpilates/ubicaciones/servicio/HorarioEfectivoSalon.java | `065e544c912e283c7800d109d4ec2b2f9f6016af40b272cf2bfa242db4c4c970` |
 | src/main/java/com/feelingpilates/ubicaciones/servicio/HorarioOperacionResolver.java | `d90e18e46797830de52caf32dde6e36b343765a40a6cd909a8c6bd74b766a339` |
+| src/main/java/com/feelingpilates/usuarios/entidad/Rol.java | `3c572b3890742009c79aa62e2fd74a31ee6963cb96bbc2dda5bddc91018fd7e6` |
+| src/main/java/com/feelingpilates/usuarios/entidad/Usuario.java | `616d67f14e5799c826ff9acb72566b2ac095f5471274dcce7eff88161a3e3a36` |
 | src/test/java/com/feelingpilates/programacion/ProgramacionPersistenciaTest.java | `0c846a24d982f3a2673525c9c59b0acaa07e813ceebe56524e7987a80f8d8cf3` |
 | src/test/java/com/feelingpilates/programacion/repositorio/BloqueProgramacionRepositoryVigenciaTest.java | `e90211144efd46b3946816525c875dd4866ae2106117e076dd87f64e784e6c57` |
 | src/test/java/com/feelingpilates/programacion/servicio/BloqueProgramacionServiceTest.java | `13946d1f2de3e4b18900f6ac9009071cac109bd879e2c2e496179378a0ce1446` |

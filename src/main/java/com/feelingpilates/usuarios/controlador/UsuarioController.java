@@ -4,11 +4,13 @@ import com.feelingpilates.seguridad.UsuarioAutenticado;
 import com.feelingpilates.usuarios.dto.ActualizarPerfilRequest;
 import com.feelingpilates.usuarios.dto.FotoUsuario;
 import com.feelingpilates.usuarios.dto.UsuarioResponse;
+import com.feelingpilates.usuarios.entidad.Usuario;
 import com.feelingpilates.usuarios.servicio.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,6 +48,13 @@ public class UsuarioController {
     public UsuarioResponse actualizarMiFoto(@AuthenticationPrincipal UsuarioAutenticado usuario,
                                             @RequestParam("archivo") MultipartFile archivo) {
         return usuarioService.actualizarFoto(usuario.id(), archivo);
+    }
+
+    /** Borrado logico: nunca se elimina la fila. El cliente cierra la sesion localmente al recibir la respuesta. */
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> eliminarMiCuenta(@AuthenticationPrincipal UsuarioAutenticado usuario) {
+        usuarioService.cambiarEstatus(usuario.id(), Usuario.EstatusUsuario.eliminado);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/foto")

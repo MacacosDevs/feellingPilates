@@ -61,4 +61,4 @@ After actual finalization normal merge and gate verification, exactly one new in
 
 Terminal outcome may state handoff ACTIVE, R5 implementation AUTHORIZED_TO_START / NOT_IMPLEMENTED and activation lifecycle CLOSED only from actual verified gates and published evidence. No implementation work starts. R6 remains NOT_AUTHORIZED. Sole eligible next lifecycle is separately started R5 pure implementation under published active handoff; its code/acceptance/audit are not performed by this activation.
 
-External evidence `~/.codex/feelingpilates-evidence/r5-handoff-20261004/`; owner RUN_COORDINATOR, LOCAL_RETAINED, external backup NOT_GUARANTEED. Public Git/PR documents carry authority without claiming all raw transcripts remotely backed up.
+External evidence `~/.codex/feelingpilates-evidence/r5-handoff-reconciled-20261004/`; owner RUN_COORDINATOR, LOCAL_RETAINED, external backup NOT_GUARANTEED. Public Git/PR documents carry authority without claiming all raw transcripts remotely backed up.

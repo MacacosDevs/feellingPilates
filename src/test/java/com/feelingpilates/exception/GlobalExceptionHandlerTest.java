@@ -82,4 +82,50 @@ class GlobalExceptionHandlerTest {
         assertThat(respuesta.getBody().message()).isEqualTo("Solicitud mal formada");
         assertThat(respuesta.getBody().codigo()).isNull();
     }
+
+    @Test
+    void parametroRequeridoFaltanteDevuelve400ConElNombreDelParametro() {
+        ResponseEntity<ErrorResponse> respuesta = handler.handleParametroFaltante(
+                new org.springframework.web.bind.MissingServletRequestParameterException("desde", "LocalDate"), request);
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+        assertThat(respuesta.getBody().message()).isEqualTo("Falta el parámetro requerido: desde");
+    }
+
+    @Test
+    void rutaInexistenteDevuelve404() {
+        ResponseEntity<ErrorResponse> respuesta = handler.handleRutaInexistente(
+                new org.springframework.web.servlet.resource.NoResourceFoundException(
+                        org.springframework.http.HttpMethod.GET, "/api/clases", "api/clases"), request);
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+        assertThat(respuesta.getBody().message()).isEqualTo("Recurso no encontrado");
+    }
+
+    @Test
+    void metodoNoSoportadoDevuelve405() {
+        ResponseEntity<ErrorResponse> respuesta = handler.handleMetodoNoPermitido(
+                new org.springframework.web.HttpRequestMethodNotSupportedException("DELETE"), request);
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(405);
+    }
+
+    @Test
+    void genericoRespetaElStatus4xxDeOtrasExcepcionesDeSpringMvc() {
+        ResponseEntity<ErrorResponse> respuesta = handler.handleGeneric(
+                new org.springframework.web.HttpMediaTypeNotSupportedException("text/plain"), request);
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(415);
+        assertThat(respuesta.getBody().message()).isEqualTo("Solicitud no válida");
+    }
+
+    @Test
+    void genericoConservaUn5xxDeclaradoConMensajeGenerico() {
+        ResponseEntity<ErrorResponse> respuesta = handler.handleGeneric(
+                new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE, "detalle interno"), request);
+
+        assertThat(respuesta.getStatusCode().value()).isEqualTo(503);
+        assertThat(respuesta.getBody().message()).isEqualTo("Ocurrió un error inesperado");
+    }
 }

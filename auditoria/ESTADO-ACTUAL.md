@@ -1,3 +1,14 @@
+# FeelingPilates — R4 handoff activation finalization candidate
+
+Current lifecycle F2E_R4_HANDOFF_ACTIVATION_FINALIZATION / PROCESS_ONLY / DOCUMENTATION_ONLY.
+At capture: R4 handoff NOT_ACTIVE; implementation NOT_AUTHORIZED / NOT_IMPLEMENTED.
+Published independent preactivation approval PR 29, merge `0923d4760786fc96e184dda48f97f8d10df960c6`. Handoff lifecycle CLOSED/PUBLISHED/INTEGRATED PR 28.
+Terminal effective state ONLY AFTER [verified finalization merge conditions](reviews/F2E-R4-HANDOFF-ACTIVATION-FINALIZATION.md): handoff ACTIVE, implementation AUTHORIZED_TO_START / NOT_IMPLEMENTED, activation lifecycle CLOSED. Audit approval or unmerged finalization alone has no effect.
+WRITE_SCOPE21 NEW/MODIFIED0, DEFAULT_DENY, programacion/r4; existing core/guards/migrations immutable.
+R1–R3 CLOSED; R4 design/schema CLOSED; TurnoInstructor LEGACY_VIVO / PRODUCTIVO; dark launch/client API/Web/Reservations preserved; Flyway47/50 unchanged; R5–R6/cutover/deploy NOT_AUTHORIZED. No reader implementation or technical PASS.
+
+## HISTORICAL_PROVENANCE_ONLY — complete preactivation capture
+
 # FeelingPilates — separate R4 handoff preactivation candidate
 
 Handoff lifecycle CLOSED / PUBLISHED / INTEGRATED, verified canonical merge `c245e1ebc22f331cdb418b5f32dd29ccf223735f` (PR 28).

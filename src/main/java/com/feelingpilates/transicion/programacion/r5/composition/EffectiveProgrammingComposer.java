@@ -82,7 +82,7 @@ public final class EffectiveProgrammingComposer {
                     p.physicalResourceIdentity(),p.transactionBoundaryIdentity(),p.statementCaptureIdentity(),p.runIdentity(),p.attemptIdentity(),
                     p.ruleCatalogVersion(),p.databaseName(),p.schemaName(),p.principal(),p.projectionCatalogVersion(),p.readerInvocationIdentity(),
                     p.snapshotClaim(),p.snapshotEvidenceId(),p.statementCaptureCommitment());
-            require(p.schemaFingerprint().matches("sha256:[0-9a-f]{64}") && p.snapshotEvidenceId().matches("[0-9a-f]{64}")
+            require(p.ruleVersion().equals("V1") && p.schemaFingerprint().matches("sha256:[0-9a-f]{64}") && p.snapshotEvidenceId().matches("[0-9a-f]{64}")
                     && p.statementCaptureCommitment().matches("[0-9a-f]{64}"),INPUT_ENVELOPE_INVALID,i,"participant descriptor hashes");
             if(synthetic) require(p.completion()==EffectiveCompositionEnvelope.Completion.SYNTHETIC
                     && p.physicalResourceIdentity().equals(EffectiveCompositionEnvelope.SYNTHETIC)
@@ -289,21 +289,36 @@ public final class EffectiveProgrammingComposer {
         require(p!=null&&id!=null&&id.equals(p.queriedId())&&p.kind()!=null,INPUT_EVIDENCE_INCOMPLETE,i,"typed queried presence "+relation);
         require((p.kind()==PresenceKind.PRESENT)==(p.value()!=null),COMPOSITION_INPUT_INVALID,i,"presence shape "+relation);
         UUID actual=null;
-        if(p.value() instanceof Salon v) {actual=v.id();require(v.activo()!=null,COMPOSITION_INPUT_INVALID,i,"salon active scalar");}
-        else if(p.value() instanceof Instructor v) {actual=v.id();require(v.estatus()!=null&&Set.of("activo","suspendido","eliminado").contains(v.estatus()),COMPOSITION_INPUT_INVALID,i,"known instructor status");}
-        else if(p.value() instanceof Activity v) {actual=v.id();require(v.activo()!=null,COMPOSITION_INPUT_INVALID,i,"activity active scalar");}
+        if(p.value() instanceof Salon v) {require(relation.equals("SALON"),COMPOSITION_INPUT_INVALID,i,"typed salon relation");actual=v.id();require(v.activo()!=null,COMPOSITION_INPUT_INVALID,i,"salon active scalar");}
+        else if(p.value() instanceof Instructor v) {require(relation.equals("INSTRUCTOR"),COMPOSITION_INPUT_INVALID,i,"typed instructor relation");actual=v.id();require(v.estatus()!=null&&Set.of("activo","suspendido","eliminado").contains(v.estatus()),COMPOSITION_INPUT_INVALID,i,"known instructor status");}
+        else if(p.value() instanceof Activity v) {require(relation.equals("ACTIVITY"),COMPOSITION_INPUT_INVALID,i,"typed activity relation");actual=v.id();require(v.activo()!=null,COMPOSITION_INPUT_INVALID,i,"activity active scalar");}
         else require(p.value()==null,COMPOSITION_INPUT_INVALID,i,"typed master value");
         require(actual==null?p.kind()==PresenceKind.ABSENT:actual.equals(id),COMPOSITION_INPUT_INVALID,i,"queried/entity identity "+relation);
         metadata(i,p.metadata(),relation,id,actual==null?List.of():List.of(actual.toString()));
     }
     private static void validateEvidence(EffectiveCompositionInput i,List<EffectiveCompositionBacking> preliminary) {
         var v=i.validityEvidence();
+        for(Object value:v.salons().values())require(value instanceof Presence<?>,COMPOSITION_INPUT_INVALID,i,"typed salon presence");
+        for(Object value:v.instructors().values())require(value instanceof Presence<?>,COMPOSITION_INPUT_INVALID,i,"typed instructor presence");
+        for(Object value:v.activities().values())require(value instanceof Presence<?>,COMPOSITION_INPUT_INVALID,i,"typed activity presence");
+        for(Object value:v.hours().values())require(value instanceof Hours,COMPOSITION_INPUT_INVALID,i,"typed hours relation");
+        for(Object value:v.roles().values())require(value instanceof Relation<?>,COMPOSITION_INPUT_INVALID,i,"typed role relation");
+        for(Object value:v.specializations().values())require(value instanceof Relation<?>,COMPOSITION_INPUT_INVALID,i,"typed specialization relation");
+        for(Object value:v.offerings().values())require(value instanceof Relation<?>,COMPOSITION_INPUT_INVALID,i,"typed offering relation");
+        for(var h:v.hours().values()) {
+            if(h.exceptions()!=null)for(Object row:h.exceptions().rows())require(row instanceof DateException,COMPOSITION_INPUT_INVALID,i,"typed date exception row");
+            if(h.weekly()!=null)for(Object row:h.weekly().rows())require(row instanceof WeeklyHours,COMPOSITION_INPUT_INVALID,i,"typed weekly row");
+        }
+        for(var r:v.roles().values())for(Object row:r.rows())require(row instanceof RoleEdge,COMPOSITION_INPUT_INVALID,i,"typed role row");
+        for(var r:v.specializations().values())for(Object row:r.rows())require(row instanceof SpecializationEdge,COMPOSITION_INPUT_INVALID,i,"typed specialization row");
+        for(var r:v.offerings().values())for(Object row:r.rows())require(row instanceof OfferingEdge,COMPOSITION_INPUT_INVALID,i,"typed offering row");
         for(var b:preliminary)require(v.salons().containsKey(b.salonId())&&v.hours().containsKey(b.salonId())&&v.offerings().containsKey(b.salonId())
                 &&v.instructors().containsKey(b.instructorId())&&v.roles().containsKey(b.instructorId())&&v.specializations().containsKey(b.instructorId())
                 &&v.activities().containsKey(b.activityId()),INPUT_EVIDENCE_INCOMPLETE,i,"complete preliminary final-dimension coverage");
         v.salons().forEach((id,p)->presence(i,id,p,"SALON"));
         v.instructors().forEach((id,p)->presence(i,id,p,"INSTRUCTOR"));
         v.activities().forEach((id,p)->presence(i,id,p,"ACTIVITY"));
+        var exceptionIds=new HashSet<UUID>();var weeklyIds=new HashSet<UUID>();
         v.hours().forEach((id,h)->{
             require(h!=null&&h.exceptions()!=null&&h.weekly()!=null,INPUT_EVIDENCE_INCOMPLETE,i,"hours complete relations");
             var exceptions=h.exceptions().rows();var weekly=h.weekly().rows();
@@ -312,12 +327,14 @@ public final class EffectiveProgrammingComposer {
                 require(r.id()!=null&&id.equals(r.salonId())&&i.date().equals(r.date())&&Boolean.TRUE.equals(r.activo())&&r.cerrado()!=null,
                         COMPOSITION_INPUT_INVALID,i,"active exact-date exception shape");
                 require(r.cerrado()?(r.opening()==null&&r.closing()==null):(r.opening()!=null&&r.closing()!=null),COMPOSITION_INPUT_INVALID,i,"exception closed/open form");
+                require(exceptionIds.add(r.id()),AMBIGUOUS_OR_CONTRADICTORY_INPUT,i,"globally unique physical date exception");
                 if(!r.cerrado())interval(i,r.opening(),r.closing());keys.add(r.id().toString());
             }
             metadata(i,h.exceptions().metadata(),"DATE_EXCEPTIONS",id,keys);keys.clear();
             for(var r:weekly) {
                 require(r.id()!=null&&id.equals(r.salonId())&&r.day()!=null&&r.day()==(short)(i.date().getDayOfWeek().getValue()%7)
                         &&applicable(r.validFrom(),r.validUntil(),i.date()),COMPOSITION_INPUT_INVALID,i,"applicable weekly hours shape");
+                require(weeklyIds.add(r.id()),AMBIGUOUS_OR_CONTRADICTORY_INPUT,i,"globally unique physical weekly hours");
                 interval(i,r.opening(),r.closing());keys.add(r.id().toString());
             }
             metadata(i,h.weekly().metadata(),"WEEKLY_HOURS",id,keys);
@@ -386,9 +403,14 @@ public final class EffectiveProgrammingComposer {
         var ids=new ArrayList<String>();
         if(b.nominalBacking()!=null) {ids.add("NOMINAL_ASSIGNMENT/"+b.nominalBacking().assignmentId());ids.add("NOMINAL_BLOCK/"+b.nominalBacking().blockId());}
         if(b.adjustmentBacking()!=null)ids.add("ADJUSTMENT/"+b.adjustmentBacking().id());
-        addSupportIds(b.support(),ids);ids.sort((a,c)->Arrays.compareUnsigned(text(a),text(c)));
+        addSupportIds(b.support(),ids);ids.sort(EffectiveProgrammingComposer::recordIdOrder);
         var provenance=new EvidenceProvenance("R5_PURE_EFFECTIVE_GRAPH",schema,ids,"F2E_R5_PURE_COMPOSITION","V1",i.businessZoneId()+"/"+i.date(),fields);
         return new ProgrammingCandidateSnapshot(b.reference(),DetectorVocabulary.CandidateType.valueOf(b.origin().name()),snapshot,fingerprint,b.salonId(),b.instructorId(),b.activityId(),b.start(),b.end(),obs,provenance);
+    }
+    private static int recordIdOrder(String a,String b) {
+        int left=a.indexOf('/'),right=b.indexOf('/');String ap=a.substring(0,left),bp=b.substring(0,right);
+        int c=Arrays.compareUnsigned(text(ap),text(bp));
+        return c!=0?c:EffectiveValidityEvidence.compareRecordKey(ap+"/",a.substring(left+1),b.substring(right+1));
     }
     private static void addSupportIds(EffectiveValidityEvidence v,List<String> ids) {
         v.salons().values().forEach(p->p.metadata().recordKeys().forEach(k->ids.add("SALON/"+k)));
@@ -407,10 +429,9 @@ public final class EffectiveProgrammingComposer {
         var values=candidates.stream().map(c->candidateContent(c)).toList();
         return s.hash("F2E-R5-CONTENT-V1",i.date(),i.businessZoneId(),RULE,values,backing,omissions,suppressions);
     }
-    private static Map<String,Object> candidateContent(ProgrammingCandidateSnapshot c) {
-        return Map.ofEntries(Map.entry("reference",c.reference()),Map.entry("candidateType",c.candidateType()),Map.entry("candidateFingerprint",c.candidateFingerprint()),
-                Map.entry("salonId",c.salonId()),Map.entry("instructorId",c.instructorId()),Map.entry("activityId",c.activityId()),Map.entry("start",c.start()),Map.entry("end",c.end()),
-                Map.entry("observableFields",c.observableFields()),Map.entry("provenance",c.provenance()));
+    private static CandidateContent candidateContent(ProgrammingCandidateSnapshot c) {
+        return new CandidateContent(c.reference(),c.candidateType(),c.candidateFingerprint(),c.salonId(),c.instructorId(),
+                c.activityId(),c.start(),c.end(),c.observableFields(),c.provenance());
     }
     /** Re-derives the complete outcome partition and hashes for issuance; never invokes compose recursively. */
     static void verifyResult(EffectiveProgrammingCompositionResult r) {

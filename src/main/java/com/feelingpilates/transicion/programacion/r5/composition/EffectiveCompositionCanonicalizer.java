@@ -44,7 +44,15 @@ public final class EffectiveCompositionCanonicalizer {
         return framed(parts);
     }
     static List<?> sortedRows(List<?> rows) {
-        return rows.stream().sorted((a,b)->Arrays.compareUnsigned(encode(a),encode(b))).toList();
+        return rows.stream().sorted((a,b)->Arrays.compareUnsigned(supportRowKey(a),supportRowKey(b))).toList();
+    }
+    static byte[] supportRowKey(Object row) {
+        if(row instanceof EffectiveValidityEvidence.DateException r)return encode(r.id());
+        if(row instanceof EffectiveValidityEvidence.WeeklyHours r)return encode(r.id());
+        if(row instanceof EffectiveValidityEvidence.RoleEdge r)return encode(Arrays.asList(r.usuarioId(),r.rolId(),r.nullableSalonId()));
+        if(row instanceof EffectiveValidityEvidence.SpecializationEdge r)return encode(List.of(r.usuarioId(),r.activityId()));
+        if(row instanceof EffectiveValidityEvidence.OfferingEdge r)return encode(List.of(r.salonId(),r.activityId()));
+        throw new IllegalArgumentException("unknown support row schema");
     }
     public static byte[] encode(Object value) {
         try { return encodeValue(value); }
@@ -63,7 +71,16 @@ public final class EffectiveCompositionCanonicalizer {
         if(value instanceof Boolean v) return scalar("Boolean",v.toString());
         if(value instanceof Short v) return scalar("Short",Short.toString(v));
         if(value instanceof Integer v) return scalar("Integer",Integer.toString(v));
-        if(value instanceof Enum<?> v) return scalar(v.getDeclaringClass().getSimpleName(),v.name());
+        if(value instanceof Enum<?> v) {
+            if(!(v instanceof ReferenciaOcurrencia.Tipo || v instanceof com.feelingpilates.transicion.programacion.detector.DetectorVocabulary.CandidateType
+                    || v instanceof com.feelingpilates.transicion.programacion.detector.DetectorVocabulary.SourceSystem
+                    || v instanceof com.feelingpilates.transicion.programacion.detector.DetectorVocabulary.SourceAtomType
+                    || v instanceof EffectiveCompositionEnvelope.Mode || v instanceof EffectiveCompositionEnvelope.Completion
+                    || v instanceof EffectiveValidityEvidence.PresenceKind || v instanceof EffectiveCompositionBacking.Origin
+                    || v instanceof EffectiveCompositionBacking.NominalAxis || v instanceof EffectiveCompositionBacking.AdjustmentAxis
+                    || v instanceof EffectiveCompositionOmission.Cause))throw new IllegalArgumentException("unknown enum schema");
+            return scalar(v.getDeclaringClass().getSimpleName(),v.name());
+        }
         if(value instanceof List<?> v) {
             var parts=new ArrayList<byte[]>();parts.add(text("LIST"));parts.add(text(Integer.toString(v.size())));
             for(var item:v) parts.add(encode(item));return framed(parts);
@@ -102,7 +119,7 @@ public final class EffectiveCompositionCanonicalizer {
         if(value instanceof EffectiveValidityEvidence v) return record("EffectiveValidityEvidence",
                 "salons", v.salons(), "instructors", v.instructors(), "activities", v.activities(), "hours", v.hours(), "roles", v.roles(), "specializations", v.specializations(), "offerings", v.offerings());
         if(value instanceof EffectiveValidityEvidence.RelationMetadata v) return record("RelationMetadata",
-                "sourceName", v.sourceName(), "schemaFingerprint", v.schemaFingerprint(), "ruleVersion", v.ruleVersion(), "participantName", v.participantName(), "participantExecutionIdentity", v.participantExecutionIdentity(), "scope", v.scope(), "complete", v.complete(), "recordKeys", v.recordKeys().stream().sorted((a,b)->Arrays.compareUnsigned(text(a),text(b))).toList());
+                "sourceName", v.sourceName(), "schemaFingerprint", v.schemaFingerprint(), "ruleVersion", v.ruleVersion(), "participantName", v.participantName(), "participantExecutionIdentity", v.participantExecutionIdentity(), "scope", v.scope(), "complete", v.complete(), "recordKeys", v.recordKeys());
         if(value instanceof EffectiveValidityEvidence.Presence<?> v) return record("Presence",
                 "kind", v.kind(), "queriedId", v.queriedId(), "value", v.value(), "metadata", v.metadata());
         if(value instanceof EffectiveValidityEvidence.Relation<?> v) return record("Relation",
@@ -129,8 +146,21 @@ public final class EffectiveCompositionCanonicalizer {
                 "reference", v.reference(), "fecha", v.fecha(), "dayOfWeek", v.dayOfWeek(), "assignmentSeriesId", v.assignmentSeriesId(), "assignmentId", v.assignmentId(), "assignmentBlockId", v.assignmentBlockId(), "blockId", v.blockId(), "blockSeriesId", v.blockSeriesId(), "salonId", v.salonId(), "instructorId", v.instructorId(), "activityId", v.activityId(), "assignmentStart", v.assignmentStart(), "assignmentEnd", v.assignmentEnd(), "blockStart", v.blockStart(), "blockEnd", v.blockEnd(), "assignmentFrom", v.assignmentFrom(), "assignmentUntil", v.assignmentUntil(), "assignmentActive", v.assignmentActive(), "blockFrom", v.blockFrom(), "blockUntil", v.blockUntil(), "blockActive", v.blockActive(), "assignmentCreated", v.assignmentCreated(), "assignmentUpdated", v.assignmentUpdated(), "blockCreated", v.blockCreated(), "blockUpdated", v.blockUpdated(), "blockDay", v.blockDay());
         if(value instanceof NominalProgrammingReadSet v) return record("NominalProgrammingReadSet",
                 "candidates", v.candidates(), "backing", v.backing());
+        if(value instanceof EffectiveProgrammingCompositionResult r)return record("EffectiveProgrammingCompositionResult",
+                "date",r.date(),"businessZoneId",r.businessZoneId(),"ruleVersion",r.ruleVersion(),"envelope",r.envelope(),
+                "candidates",r.candidates(),"backingByReference",r.backingByReference(),"omissions",r.omissions(),"suppressions",r.suppressions(),
+                "inputCommitment",r.inputCommitment(),"resultContentFingerprint",r.resultContentFingerprint(),
+                "resultSnapshotIdentity",r.resultSnapshotIdentity(),"evidenceMode",r.evidenceMode(),"input",r.input());
+        if(value instanceof CandidateContent r)return record("ProgrammingCandidateSnapshot",
+                "reference",r.reference(),"candidateType",r.candidateType(),"candidateFingerprint",r.candidateFingerprint(),
+                "salonId",r.salonId(),"instructorId",r.instructorId(),"activityId",r.activityId(),"start",r.start(),"end",r.end(),
+                "observableFields",r.observableFields(),"provenance",r.provenance());
         throw new IllegalArgumentException("unsupported canonical schema");
     }
+    record CandidateContent(ReferenciaOcurrencia reference,
+            com.feelingpilates.transicion.programacion.detector.DetectorVocabulary.CandidateType candidateType,
+            String candidateFingerprint,UUID salonId,UUID instructorId,UUID activityId,LocalTime start,LocalTime end,
+            Map<String,String> observableFields,EvidenceProvenance provenance) { }
     static String closedHash(String... fields) {
         return digest(ReadSnapshotIdentifiers.secuenciaTextos(fields));
     }

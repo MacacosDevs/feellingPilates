@@ -23,6 +23,7 @@ public record EffectiveCompositionEnvelope(Mode mode, LocalDate date, String bus
             String readerInvocationIdentity, String snapshotClaim, String snapshotEvidenceId,
             String statementCaptureCommitment) { }
     public EffectiveCompositionEnvelope {
-        participants = Map.copyOf(participants);
+        var sorted=new TreeMap<String,Participant>((a,b)->Arrays.compareUnsigned(EffectiveCompositionCanonicalizer.text(a),EffectiveCompositionCanonicalizer.text(b)));
+        sorted.putAll(Map.copyOf(participants));participants=Collections.unmodifiableMap(new LinkedHashMap<>(sorted));
     }
 }

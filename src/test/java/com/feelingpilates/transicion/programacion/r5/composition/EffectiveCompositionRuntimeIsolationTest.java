@@ -34,9 +34,13 @@ class EffectiveCompositionRuntimeIsolationTest {
             }
         } catch(ReflectiveOperationException e){throw new AssertionError(e);}
         for(var type:productionTypes())assertEquals(0,context.getBeanNamesForType(type,true,true).length,type.getName());
-        for(String name:factory.getBeanDefinitionNames()) {
-            var definition=factory.getBeanDefinition(name);inspectDefinition(definition,context);String beanClass=definition.getBeanClassName();
-            assertFalse(beanClass!=null&&productionTypes().stream().anyMatch(t->beanClass.equals(t.getName())||beanClass.startsWith(t.getName()+"$")),name);
+        var registered=new TreeSet<String>(Arrays.asList(factory.getBeanDefinitionNames()));
+        registered.addAll(Arrays.asList(factory.getSingletonNames()));
+        for(String name:registered) {
+            if(factory.containsBeanDefinition(name)) {
+                var definition=factory.getBeanDefinition(name);inspectDefinition(definition,context);String beanClass=definition.getBeanClassName();
+                assertFalse(beanClass!=null&&productionTypes().stream().anyMatch(t->beanClass.equals(t.getName())||beanClass.startsWith(t.getName()+"$")),name);
+            }
             assertFalse(r5Type(factory.getType(name,false)),name);
             for(String dependency:factory.getDependenciesForBean(name)) {
                 assertFalse(dependency.contains(EffectiveCompositionArchitectureTest.PACKAGE),name+"->"+dependency);
@@ -140,6 +144,12 @@ class EffectiveCompositionRuntimeIsolationTest {
         }
         try(var c=new org.springframework.context.annotation.AnnotationConfigApplicationContext()) {
             c.getBeanFactory().registerResolvableDependency(EffectiveProgrammingComposer.class,new EffectiveProgrammingComposer());c.refresh();
+            assertThrows(AssertionError.class,()->noRegistration(c));
+        }
+        try(var c=new org.springframework.context.annotation.AnnotationConfigApplicationContext()) {
+            c.refresh();c.getBeanFactory().registerSingleton("nestedR5Registration",new EffectiveValidityEvidence.Salon(id(1),true));
+            assertArrayEquals(new String[]{"nestedR5Registration"},c.getBeanNamesForType(EffectiveValidityEvidence.Salon.class));
+            assertFalse(c.getBeanFactory().containsBeanDefinition("nestedR5Registration"));
             assertThrows(AssertionError.class,()->noRegistration(c));
         }
         assertThrows(AssertionError.class,()->EffectiveCompositionArchitectureTest.caller("class Productive { EffectiveProgrammingComposer composer; }"));

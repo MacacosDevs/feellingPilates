@@ -201,7 +201,7 @@ final class EffectiveCompositionTestFixtures {
             catch(ReflectiveOperationException e){throw new AssertionError(e);}
             if(v instanceof Relation<?> r) {var rows=new ArrayList<>(r.rows());rows.sort((a,b)->Arrays.compareUnsigned(oracle(supportKey(a)),oracle(supportKey(b))));fields.put("rows",rows);}
             if(v instanceof RelationMetadata m)fields.put("recordKeys",m.recordKeys().stream().sorted((a,b)->Arrays.compareUnsigned(oracle(metadataKey(m.scope(),a)),oracle(metadataKey(m.scope(),b)))).toList());
-            return oracleRecord(v.getClass().getSimpleName(),fields);
+            return oracleRecord(v instanceof EffectiveCompositionCanonicalizer.CandidateContent?"ProgrammingCandidateSnapshot":v.getClass().getSimpleName(),fields);
         }
         if(v instanceof EffectiveProgrammingCompositionResult r)return oracleRecord("EffectiveProgrammingCompositionResult",Map.ofEntries(
                 Map.entry("date",r.date()),Map.entry("businessZoneId",r.businessZoneId()),Map.entry("ruleVersion",r.ruleVersion()),Map.entry("envelope",r.envelope()),

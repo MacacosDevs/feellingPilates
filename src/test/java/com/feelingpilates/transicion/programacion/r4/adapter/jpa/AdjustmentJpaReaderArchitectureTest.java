@@ -95,6 +95,10 @@ class AdjustmentJpaReaderArchitectureTest {
             checkPureR5DtoConsumer(code);
             forbidden.removeAll(R5_INPUT_DTOS);
         }
+        if (COMPARISON_DTOS.containsKey(path.toString())) {
+            checkPureComparison(code);
+            forbidden.remove(COMPARISON_DTOS.get(path.toString()));
+        }
         for (String name : forbidden)
             assertFalse(java.util.regex.Pattern.compile("\\b" + name + "\\b").matcher(code).find(), path + ":" + name);
     }
@@ -134,4 +138,30 @@ class AdjustmentJpaReaderArchitectureTest {
                 "EntityManager", "DataSource", "TransactionTemplate", "JpaRepository"))
             assertThrows(AssertionError.class, () -> checkExternalCaller(allowed, packageLine + forbidden, names));
     }
+    private static final Map<String,String> COMPARISON_DTOS = Map.of(
+        "src/main/java/com/feelingpilates/transicion/programacion/comparison/v2/ComparisonInputV2.java", "AdjustmentReadSet",
+        "src/main/java/com/feelingpilates/transicion/programacion/comparison/v2/OmissionAwareAdjustmentClassifierV2.java", "AdjustmentBackingSnapshot");
+    private static void checkPureComparison(String code) {
+        assertTrue(java.util.regex.Pattern.compile("(?m)^\\s*package\\s+com\\.feelingpilates\\.transicion\\.programacion\\.comparison\\.v2\\s*;").matcher(code.replaceAll("(?s)/\\*.*?\\*/"," ").replaceAll("(?m)//.*$"," ")).find(),"exact comparison package");
+        assertFalse(java.util.regex.Pattern.compile("\\bRuntime\\b").matcher(code).find(),"no Runtime effect");
+        for (String forbidden : List.of("org.springframework","jakarta.persistence","javax.persistence","org.hibernate","java.sql","javax.sql",
+                ".adapter.",".servicio.",".repositorio.",".entidad.",".controlador.",".read.*","java.lang.reflect","Class.forName","getDeclared",
+                "Thread","Clock","Random","System.","ProcessBuilder","ClassLoader","Proxy","Transactional","EntityManager","DataSource"))
+            assertFalse(code.contains(forbidden), "comparison must be pure: " + forbidden);
+    }
+    @Test void comparisonExceptionIsExactPathDtoAndPackageWithDefaultDeny() {
+        Set<String> names = new HashSet<>(List.of("AdjustmentReadSet","AdjustmentBackingSnapshot","AdjustmentReadPort"));
+        String pkg = "package com.feelingpilates.transicion.programacion.comparison.v2;";
+        COMPARISON_DTOS.forEach((path,dto)->{
+            checkExternalCaller(Path.of(path),pkg+" class Fixture { "+dto+" value; }",names);
+            for(String denied:names) if(!denied.equals(dto)) assertThrows(AssertionError.class,()->checkExternalCaller(Path.of(path),pkg+" "+denied+" value;",names));
+            for(String altered:List.of(path.replace("/v2/","/v2/nested/"),path.replace("ComparisonInputV2","Extra"),path.replace("/comparison/","/r6/")))
+                if(!COMPARISON_DTOS.containsKey(altered)) assertThrows(AssertionError.class,()->checkExternalCaller(Path.of(altered),pkg+" "+dto+" value;",names));
+            assertThrows(AssertionError.class,()->checkExternalCaller(Path.of(path),"package productivo; "+dto+" value;",names));
+            assertThrows(AssertionError.class,()->checkExternalCaller(Path.of(path),"package productivo; /* "+pkg+" */ "+dto+" value;",names));
+            for(String bad:List.of("org.springframework","java.lang.reflect","Class.forName",".read.*","EntityManager","DataSource","Thread"))
+                assertThrows(AssertionError.class,()->checkExternalCaller(Path.of(path),pkg+bad,names));
+        });
+    }
+
 }

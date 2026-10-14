@@ -49,7 +49,7 @@ class EffectiveCompositionArchitectureTest {
         try(var files=Files.walk(Path.of("src/main/java"))) {
             for(var p:files.filter(f->f.toString().endsWith(".java")).toList()) {
                 String code=Files.readString(p);
-                if(paths().contains(p.toString()))pure(code,p.getFileName().toString().replace(".java",""));else caller(code);
+                if(paths().contains(p.toString()))pure(code,p.getFileName().toString().replace(".java",""));else if(COMPARISON.containsKey(p.toString()))comparisonCaller(p,code);else caller(code);
             }
         }
     }
@@ -62,4 +62,49 @@ class EffectiveCompositionArchitectureTest {
         for(String main:MAIN)assertThrows(AssertionError.class,()->caller("class Caller { "+main+" dependency; }"));
         assertThrows(AssertionError.class,()->caller("Class.forName(\""+PACKAGE+".EffectiveProgrammingComposer\");"));
     }
+    static final Map<String,Set<String>> COMPARISON = Map.of(
+        "src/main/java/com/feelingpilates/transicion/programacion/comparison/v2/ComparisonInputV2.java",Set.of("EffectiveProgrammingCompositionResult"),
+        "src/main/java/com/feelingpilates/transicion/programacion/comparison/v2/ComparisonCompatibilityV2.java",Set.of("EffectiveProgrammingCompositionResult"),
+        "src/main/java/com/feelingpilates/transicion/programacion/comparison/v2/ComparisonEvaluationV2.java",Set.of("EffectiveCompositionOmission"),
+        "src/main/java/com/feelingpilates/transicion/programacion/comparison/v2/OmissionAwareAdjustmentClassifierV2.java",Set.of("EffectiveProgrammingCompositionResult","EffectiveCompositionInput","EffectiveCompositionEnvelope",
+            "EffectiveCompositionBacking","EffectiveCompositionOmission","EffectiveCompositionSuppression","EffectiveValidityEvidence"));
+    static void comparisonCaller(Path path,String code) {
+        String withoutComments=code.replaceAll("(?s)/\\*.*?\\*/"," ").replaceAll("(?m)//.*$"," ");
+        String body=withoutComments.replaceAll("\\b(?:package|import)\\s+(?:static\\s+)?[\\w.*]+\\s*;"," ");
+        assertFalse(java.util.regex.Pattern.compile("\\bcom\\s*\\.\\s*feelingpilates\\b").matcher(body).find(),"no fully qualified project routes");
+        String effects=withoutComments.replace("java.io.ByteArrayOutputStream", "MemoryBuffer");
+        assertFalse(effects.contains("java.io"),"only explicit memory byte buffer I/O type");
+        assertFalse(effects.contains("java.nio.channels"),"no channels");
+        for(String effect:List.of("FileInputStream","FileOutputStream","FileReader","FileWriter","RandomAccessFile","ObjectInputStream","ObjectOutputStream","FileChannel","SocketChannel","PrintStream","PrintWriter"))
+            assertFalse(java.util.regex.Pattern.compile("\\b"+effect+"\\b").matcher(effects).find(),"no I/O sink "+effect);
+        assertTrue(COMPARISON.containsKey(path.toString()),"exact comparison caller");
+        assertTrue(java.util.regex.Pattern.compile("(?m)^\\s*package\\s+com\\.feelingpilates\\.transicion\\.programacion\\.comparison\\.v2\\s*;").matcher(code.replaceAll("(?s)/\\*.*?\\*/"," ").replaceAll("(?m)//.*$"," ")).find(),"exact comparison package");
+        assertFalse(java.util.regex.Pattern.compile("\\bRuntime\\b").matcher(code).find(),"no Runtime effect");
+        var forbidden=new HashSet<>(MAIN);forbidden.removeAll(COMPARISON.get(path.toString()));
+        assertTrue(Collections.disjoint(symbols(code),forbidden),"only listed R5 DTO symbols");
+        for(String token:List.of("org.springframework","jakarta.persistence","javax.persistence","org.hibernate","java.sql","javax.sql","java.net","java.nio.file","java.lang.reflect",
+                ".adapter.",".servicio.",".repositorio.",".entidad.",".controlador.",".read.*","Class.forName","getDeclared","Thread","Clock","Random","System.","ProcessBuilder","ClassLoader","Proxy","DataSource","EntityManager"))
+            assertFalse(code.contains(token),"pure comparison: "+token);
+        assertFalse(code.contains(PACKAGE+".*"),"no wildcard R5 import");
+    }
+    @Test void comparisonDtoExceptionsKeepEveryUnrelatedCallerDenied() {
+        String pkg="package com.feelingpilates.transicion.programacion.comparison.v2;";
+        COMPARISON.forEach((path,allowed)->{
+            for(String name:MAIN) {
+                String code=pkg+" class Fixture { "+name+" field; }";
+                if(allowed.contains(name))comparisonCaller(Path.of(path),code);
+                else assertThrows(AssertionError.class,()->comparisonCaller(Path.of(path),code));
+                assertThrows(AssertionError.class,()->caller(code));
+            }
+            assertThrows(AssertionError.class,()->comparisonCaller(Path.of(path),"package productivo;"));
+            for(String dto:allowed)assertThrows(AssertionError.class,()->comparisonCaller(Path.of(path),pkg+" class Fixture { com.feelingpilates.transicion.programacion.r5.composition."+dto+" value; }"));
+            assertThrows(AssertionError.class,()->comparisonCaller(Path.of(path),pkg+" import java.io.FileInputStream; class Fixture {}"));
+            assertThrows(AssertionError.class,()->comparisonCaller(Path.of(path),"package productivo; /* "+pkg+" */"));
+            for(String altered:List.of(path.replace("/v2/","/v2/nested/"),path.replace("/comparison/","/r6/"),path.replace(".java","Extra.java")))
+                assertThrows(AssertionError.class,()->comparisonCaller(Path.of(altered),pkg));
+            for(String bad:List.of("org.springframework","java.lang.reflect","Class.forName",PACKAGE+".*","Thread","DataSource","java.net"))
+                assertThrows(AssertionError.class,()->comparisonCaller(Path.of(path),pkg+bad));
+        });
+    }
+
 }

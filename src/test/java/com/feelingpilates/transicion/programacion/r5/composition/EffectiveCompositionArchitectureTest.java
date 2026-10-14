@@ -69,6 +69,14 @@ class EffectiveCompositionArchitectureTest {
         "src/main/java/com/feelingpilates/transicion/programacion/comparison/v2/OmissionAwareAdjustmentClassifierV2.java",Set.of("EffectiveProgrammingCompositionResult","EffectiveCompositionInput","EffectiveCompositionEnvelope",
             "EffectiveCompositionBacking","EffectiveCompositionOmission","EffectiveCompositionSuppression","EffectiveValidityEvidence"));
     static void comparisonCaller(Path path,String code) {
+        String withoutComments=code.replaceAll("(?s)/\\*.*?\\*/"," ").replaceAll("(?m)//.*$"," ");
+        String body=withoutComments.replaceAll("\\b(?:package|import)\\s+(?:static\\s+)?[\\w.*]+\\s*;"," ");
+        assertFalse(java.util.regex.Pattern.compile("\\bcom\\s*\\.\\s*feelingpilates\\b").matcher(body).find(),"no fully qualified project routes");
+        String effects=withoutComments.replace("java.io.ByteArrayOutputStream", "MemoryBuffer");
+        assertFalse(effects.contains("java.io"),"only explicit memory byte buffer I/O type");
+        assertFalse(effects.contains("java.nio.channels"),"no channels");
+        for(String effect:List.of("FileInputStream","FileOutputStream","FileReader","FileWriter","RandomAccessFile","ObjectInputStream","ObjectOutputStream","FileChannel","SocketChannel","PrintStream","PrintWriter"))
+            assertFalse(java.util.regex.Pattern.compile("\\b"+effect+"\\b").matcher(effects).find(),"no I/O sink "+effect);
         assertTrue(COMPARISON.containsKey(path.toString()),"exact comparison caller");
         assertTrue(java.util.regex.Pattern.compile("(?m)^\\s*package\\s+com\\.feelingpilates\\.transicion\\.programacion\\.comparison\\.v2\\s*;").matcher(code.replaceAll("(?s)/\\*.*?\\*/"," ").replaceAll("(?m)//.*$"," ")).find(),"exact comparison package");
         assertFalse(java.util.regex.Pattern.compile("\\bRuntime\\b").matcher(code).find(),"no Runtime effect");
@@ -89,6 +97,8 @@ class EffectiveCompositionArchitectureTest {
                 assertThrows(AssertionError.class,()->caller(code));
             }
             assertThrows(AssertionError.class,()->comparisonCaller(Path.of(path),"package productivo;"));
+            for(String dto:allowed)assertThrows(AssertionError.class,()->comparisonCaller(Path.of(path),pkg+" class Fixture { com.feelingpilates.transicion.programacion.r5.composition."+dto+" value; }"));
+            assertThrows(AssertionError.class,()->comparisonCaller(Path.of(path),pkg+" import java.io.FileInputStream; class Fixture {}"));
             assertThrows(AssertionError.class,()->comparisonCaller(Path.of(path),"package productivo; /* "+pkg+" */"));
             for(String altered:List.of(path.replace("/v2/","/v2/nested/"),path.replace("/comparison/","/r6/"),path.replace(".java","Extra.java")))
                 assertThrows(AssertionError.class,()->comparisonCaller(Path.of(altered),pkg));

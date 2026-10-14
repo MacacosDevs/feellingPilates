@@ -30,8 +30,12 @@ class ComparisonDeterminismV2Test {
     }
     @Test void everyInputMetadataAndOutcomeMutationChangesCommitment() {
         var i=comparison(withCause(input(0,new int[]{},1),1));var service=new ComparisonCompatibilityV2();var r=service.compare(i);
-        for(var changed:List.of(copy(i,"runIdentity","other run"),copy(i,"invocationIdentity","other invocation"),copy(i,"evaluatedAt",i.evaluatedAt().plusSeconds(1))))
-            assertNotEquals(r.inputCommitment(),service.compare(changed).inputCommitment());
+        for(var changed:List.of(copy(i,"runIdentity","other run"),copy(i,"invocationIdentity","other invocation"),copy(i,"evaluatedAt",i.evaluatedAt().plusSeconds(1)))) {
+            var other=service.compare(changed);
+            assertNotEquals(r.inputCommitment(),other.inputCommitment());
+            assertNotEquals(r.executionCommitment(),other.executionCommitment());
+            assertEquals(r.contentCommitment(),other.contentCommitment());
+        }
         var outcome=r.evaluations().getFirst().outcome();
         for(var component:outcome.getClass().getRecordComponents()) {
             Object value;
@@ -44,6 +48,25 @@ class ComparisonDeterminismV2Test {
         }
         var other=service.compare(comparison(withCause(input(0,new int[]{},1),2)));
         assertNotEquals(r.inputCommitment(),other.inputCommitment());assertNotEquals(r.contentCommitment(),other.contentCommitment());
+    }
+    @Test void unsignedReferenceMapAndFullLedgerOrderingPreservesClosedCore() {
+        var low=new com.feelingpilates.programacion.dominio.ReferenciaOcurrencia(com.feelingpilates.programacion.dominio.ReferenciaOcurrencia.Tipo.SERIE_ASIGNACION,new UUID(0,1),DATE);
+        var high=new com.feelingpilates.programacion.dominio.ReferenciaOcurrencia(low.tipo(),new UUID(Long.MIN_VALUE,0),DATE);
+        var input=comparison(input(1,new int[]{0},0),legacy("CANCELACION",0,43));var target=input.nominalCandidates().getFirst();
+        var generated=new LegacyCandidateGeneratorV2().generate(input.legacy().getFirst(),List.of(copy(target,"reference",high),copy(target,"reference",low)),DATE);
+        assertEquals(List.of(low,high),generated.observations().stream().map(o->o.target().reference()).toList());
+        String encoded=new String(ComparisonCanonicalizerV2.encode(Map.of(high,"high",low,"low")),java.nio.charset.StandardCharsets.UTF_8);
+        assertTrue(encoded.indexOf(low.id().toString())<encoded.indexOf(high.id().toString()));
+        assertTrue(high.compareTo(low)<0); // CLOSED comparator intentionally stays signed.
+    }
+    @Test void allSourceGroupsSeparateComparisonMetadataFromContent() {
+        var input=comparison(input(3,new int[]{1,2,0},1),legacy("CANCELACION",0,44));var service=new ComparisonCompatibilityV2();
+        var original=service.compare(input);
+        for(var changed:List.of(copy(input,"runIdentity","other"),copy(input,"invocationIdentity","other"),copy(input,"evaluatedAt",input.evaluatedAt().plusSeconds(1)))) {
+            var other=service.compare(changed);assertEquals(original.contentCommitment(),other.contentCommitment());
+            assertNotEquals(original.executionCommitment(),other.executionCommitment());
+            assertNotEquals(original.evaluations().getFirst().resultCommitment(),other.evaluations().getFirst().resultCommitment());
+        }
     }
     private static Object differentEnum(Enum<?> value) {
         for(var other:value.getDeclaringClass().getEnumConstants())if(other!=value)return other;return null;

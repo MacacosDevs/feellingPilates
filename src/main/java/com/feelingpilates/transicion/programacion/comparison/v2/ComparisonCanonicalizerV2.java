@@ -15,6 +15,18 @@ public final class ComparisonCanonicalizerV2 {
         int c = Long.compareUnsigned(a.getMostSignificantBits(), b.getMostSignificantBits());
         return c != 0 ? c : Long.compareUnsigned(a.getLeastSignificantBits(), b.getLeastSignificantBits());
     };
+    public static final Comparator<ReferenciaOcurrencia> REFERENCE_ORDER = Comparator
+            .comparing((ReferenciaOcurrencia r) -> r.tipo().ordinal())
+            .thenComparing(ReferenciaOcurrencia::id, UUID_ORDER).thenComparing(ReferenciaOcurrencia::fecha);
+    /** Semantic projection excludes comparison-only run/evaluation/time and hashes derived from them.
+     * Original closed source, candidate and R5 commitments retain their exact supplied provenance. */
+    static List<Object> content(ComparisonEvaluationV2 e) {
+        var r=e.request();
+        return List.of("EVALUATION_CONTENT_V2", e.variant(), r.detectorVersion(), r.ruleId(), r.ruleVersion(),
+                r.source(), r.expectedTargetAtomType(), r.declaredRelationCardinality(), r.candidateGeneration(),
+                r.classificationContext(), r.provenance(), r.evidenceHash(), e.outcome(), e.omission().isPresent(),
+                e.axis(), e.evidenceCommitment());
+    }
     static void requiredText(String s) {
         ComparisonFailureV2.require(s != null && !s.isBlank() && s.indexOf('\0') < 0, "CANONICALIZATION", "required text"); text(s);
     }
@@ -42,7 +54,7 @@ public final class ComparisonCanonicalizerV2 {
     private static int compareKeys(Object a,Object b) {
         if(a instanceof String left && b instanceof String right)return TEXT_ORDER.compare(left,right);
         if(a instanceof UUID left && b instanceof UUID right)return UUID_ORDER.compare(left,right);
-        if(a instanceof ReferenciaOcurrencia left && b instanceof ReferenciaOcurrencia right)return left.compareTo(right);
+        if(a instanceof ReferenciaOcurrencia left && b instanceof ReferenciaOcurrencia right)return REFERENCE_ORDER.compare(left,right);
         return Arrays.compareUnsigned(encode(a),encode(b));
     }
     public static byte[] encode(Object value) {

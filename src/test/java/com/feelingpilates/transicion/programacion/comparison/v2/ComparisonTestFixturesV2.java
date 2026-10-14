@@ -180,7 +180,7 @@ final class ComparisonTestFixturesV2 {
     static List<GenericSourceSnapshot> legacy(String type,int shape,int serial,boolean synthetic) {
         var scope=new com.feelingpilates.transicion.programacion.read.LegacyTurnScope(Set.of(id(1)),DATE);
         var context=new com.feelingpilates.transicion.programacion.read.LegacyTurnReadContext(synthetic?"SYNTHETIC_RUN":"run",synthetic?"SYNTHETIC_ATTEMPT":"attempt",synthetic?"SYNTHETIC_LEGACY":"REAL_LEGACY","sha256:"+HASH,
-                com.feelingpilates.transicion.programacion.read.LegacyTurnReadContext.ProjectionCatalogVersion.R2_LEGACY_TURN_V1,"SYNTHETIC_RULE",ZoneId.of(ZONE),scope.canonical(),
+                com.feelingpilates.transicion.programacion.read.LegacyTurnReadContext.ProjectionCatalogVersion.R2_LEGACY_TURN_V1,synthetic?"SYNTHETIC_RULE":"rules",ZoneId.of(ZONE),scope.canonical(),
                 com.feelingpilates.transicion.programacion.read.LegacyTurnReadContext.SnapshotClaim.R2_INTERNAL_RR_TEST,HASH);
         var turn=id(800+serial);var stamp=OffsetDateTime.parse("2026-10-01T00:00:00Z");
         var member=new com.feelingpilates.transicion.programacion.adapter.jpa.projection.LegacyTurnMemberRow(turn,type,true,id(1),type.equals("RECURRENTE")?(short)0:null,

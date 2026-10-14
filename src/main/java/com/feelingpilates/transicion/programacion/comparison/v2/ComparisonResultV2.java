@@ -9,8 +9,9 @@ public final class ComparisonResultV2 {
     private final List<ComparisonCandidateEvidenceV2> observations;
     private final int sourceCount, universeCount, excludedCount;
     private final String inputCommitment, contentCommitment, executionCommitment;
-    private ComparisonResultV2(List<ComparisonEvaluationV2> evaluations, List<ComparisonCandidateEvidenceV2> observations,
-            ComparisonInputV2 input) {
+    private ComparisonResultV2(ComparisonInputV2 input) {
+        var derived=ComparisonCompatibilityV2.derive(input);
+        var evaluations=derived.evaluations(); var observations=derived.observations();
         this.input=input;
         int sourceCount=input.reservations().size()+input.legacy().size()+input.adjustmentSources().size();
         String inputCommitment=ComparisonCanonicalizerV2.hash("F2E-COMPARISON-INPUT-V2",input);
@@ -22,13 +23,12 @@ public final class ComparisonResultV2 {
         ComparisonFailureV2.require(sourceCount == evaluations.size(), "ACCOUNTING", "one evaluation per source");
         var seen = new HashSet<String>();
         for (var e : evaluations) ComparisonFailureV2.require(seen.add(e.evaluationIdentity()), "ACCOUNTING", "duplicate evaluation");
-        this.contentCommitment = ComparisonCanonicalizerV2.hash("F2E-COMPARISON-CONTENT-V2", evaluations, observations,
+        this.contentCommitment = ComparisonCanonicalizerV2.hash("F2E-COMPARISON-CONTENT-V2", evaluations.stream().map(ComparisonCanonicalizerV2::content).toList(), observations,
                 sourceCount, universeCount, excludedCount, input.compositionBinding());
-        this.executionCommitment = ComparisonCanonicalizerV2.hash("F2E-COMPARISON-EXECUTION-V2", invocationIdentity, inputCommitment, contentCommitment);
+        this.executionCommitment = ComparisonCanonicalizerV2.hash("F2E-COMPARISON-EXECUTION-V2", invocationIdentity, inputCommitment, contentCommitment, evaluations, observations);
     }
-    static ComparisonResultV2 issue(List<ComparisonEvaluationV2> evaluations, List<ComparisonCandidateEvidenceV2> observations,
-            ComparisonInputV2 input) {
-        return new ComparisonResultV2(evaluations, observations, input);
+    static ComparisonResultV2 issue(ComparisonInputV2 input) {
+        return new ComparisonResultV2(input);
     }
     public ComparisonInputV2 input() { return input; }
     public List<ComparisonEvaluationV2> evaluations() { return evaluations; }

@@ -31,10 +31,13 @@ public final class OmissionAwareAdjustmentClassifierV2 {
             for(String value:List.of(i.runIdentity(),i.invocationIdentity(),i.completionReceiptIdentity()))realLabel(value);
             var sources=new ArrayList<SourceSnapshot>();sources.addAll(i.reservations());sources.addAll(i.legacy());
             for(var source:sources) {
+                try {
                 realLabel(source.provenance().sourceName());realLabel(source.snapshotIdentity());
-                for(String key:List.of("runIdentity","attemptIdentity","fixtureIdentity","readerInvocationIdentity","logicalSnapshotId")) {
+                realLabel(source.sourceIdentity());realLabel(source.provenance().ruleId());realLabel(source.provenance().ruleVersion());
+                for(String key:List.of("runIdentity","attemptIdentity","fixtureIdentity","readerInvocationIdentity","logicalSnapshotId","ruleCatalogVersion","projectionCatalogVersion","scope","scopeCanonical","projectionContractId","projectionContractVersion","snapshotClaim","snapshotEvidenceId","executionProvenanceId","sourceIdentity","snapshotIdentity")) {
                     var value=source.provenance().normalizedFields().get(key);if(value!=null)realLabel(value);
                 }
+                } catch(ComparisonFailureV2 failure) { throw failure.withContext(i,source); }
             }
         }
         for (var p:i.reservations()) require(p.date().equals(i.date()) && p.historicalProgrammingTarget().isEmpty(),"current exact-date reservation only");

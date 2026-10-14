@@ -20,6 +20,14 @@ class ComparisonArchitectureV2Test {
         assertTrue(Collections.disjoint(symbols(code),new HashSet<>(MAIN)),"outside caller into comparison");assertFalse(code.contains(PACKAGE),"dynamic/FQ comparison caller");
     }
     static void pure(String code,String name) {
+        String withoutComments=code.replaceAll("(?s)/\\*.*?\\*/"," ").replaceAll("(?m)//.*$"," ");
+        String body=withoutComments.replaceAll("\\b(?:package|import)\\s+(?:static\\s+)?[\\w.*]+\\s*;"," ");
+        assertFalse(java.util.regex.Pattern.compile("\\bcom\\s*\\.\\s*feelingpilates\\b").matcher(body).find(),"no fully qualified project routes");
+        String effects=withoutComments.replace("java.io.ByteArrayOutputStream", "MemoryBuffer");
+        assertFalse(effects.contains("java.io"),"only explicit memory byte buffer I/O type");
+        assertFalse(effects.contains("java.nio.channels"),"no channels");
+        for(String effect:List.of("FileInputStream","FileOutputStream","FileReader","FileWriter","RandomAccessFile","ObjectInputStream","ObjectOutputStream","FileChannel","SocketChannel","PrintStream","PrintWriter"))
+            assertFalse(java.util.regex.Pattern.compile("\\b"+effect+"\\b").matcher(effects).find(),"no I/O sink "+effect);
         assertTrue(Pattern.compile("(?m)^\\s*package\\s+com\\.feelingpilates\\.transicion\\.programacion\\.comparison\\.v2\\s*;").matcher(code.replaceAll("(?s)/\\*.*?\\*/"," ").replaceAll("(?m)//.*$"," ")).find());assertTrue(Pattern.compile("public\\s+(?:final\\s+class|record)\\s+"+name+"\\b").matcher(code).find());
         for(String forbidden:List.of("org.springframework","jakarta.persistence","javax.persistence","org.hibernate","java.sql","javax.sql","java.net","java.nio.file","java.lang.reflect","java.util.concurrent",
                 ".adapter.",".repositorio.",".servicio.",".controlador.",".entidad.",".read.*","Class.forName","getDeclared","UUID.randomUUID",".now(","::now"))assertFalse(code.contains(forbidden),forbidden);
@@ -55,7 +63,7 @@ class ComparisonArchitectureV2Test {
     }
     @Test void purityInventoryAndCallerNegativeControlsAreReal() {
         String good="package "+PACKAGE+"; public final class ComparisonCompatibilityV2 {}";pure(good,"ComparisonCompatibilityV2");
-        for(String bad:List.of("@Component","import java.sql.Connection;","Class.forName();","new Thread();","import org.springframework.context.Bean;","EffectiveProgrammingComposer composer;","import productivo.Other;"))
+        for(String bad:List.of("@Component","import java.sql.Connection;","Class.forName();","new Thread();","import org.springframework.context.Bean;","EffectiveProgrammingComposer composer;","import productivo.Other;","import java.io.FileInputStream;","new java.io.FileInputStream(\"x\");","com.feelingpilates.transicion.programacion.read.NominalProgrammingReadSet input;"))
             assertThrows(AssertionError.class,()->pure(good+"\n"+bad,"ComparisonCompatibilityV2"));
         assertThrows(AssertionError.class,()->pure("package productivo; /* package "+PACKAGE+"; */ public final class ComparisonCompatibilityV2 {}","ComparisonCompatibilityV2"));
         for(String name:MAIN)assertThrows(AssertionError.class,()->caller("class Caller { "+name+" dependency; }"));

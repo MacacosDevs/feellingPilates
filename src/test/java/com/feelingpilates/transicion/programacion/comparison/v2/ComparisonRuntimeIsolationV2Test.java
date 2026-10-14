@@ -124,11 +124,20 @@ class ComparisonRuntimeIsolationV2Test {
         }
         assertTrue(checked>30);System.out.println("COMPARISON_V2_RUNTIME productiveSourceComponents="+checked);
     }
+    static void noIoEdges(String pool) {
+        assertFalse(pool.replace("java/io/ByteArrayOutputStream", "MemoryBuffer").contains("java/io/"),"no file/stream I/O edge");
+    }
+    @Test void runtimeIoEdgeNegativeControls() {
+        noIoEdges("java/io/ByteArrayOutputStream");
+        for(String sink:List.of("FileInputStream","FileOutputStream","File","FileReader","FileWriter","ObjectInputStream"))
+            assertThrows(AssertionError.class,()->noIoEdges("java/io/"+sink));
+    }
     static void classpathEdges() throws Exception {
         for(var type:productionTypes()) {
             try(var in=type.getResourceAsStream("/"+type.getName().replace('.','/')+".class")) {
                 assertNotNull(in);String pool=new String(in.readAllBytes(),StandardCharsets.ISO_8859_1);
-                for(String edge:List.of("org/springframework","jakarta/persistence","org/hibernate","java/sql/","javax/sql/","java/net/","java/nio/file/","java/lang/reflect/",
+                noIoEdges(pool);
+                for(String edge:List.of("org/springframework","jakarta/persistence","org/hibernate","java/sql/","javax/sql/","java/net/","java/nio/file/","java/nio/channels/","java/lang/reflect/",
                         "NominalJpaReader","AdjustmentJpaReader","NominalReadSnapshotContext","AdjustmentReadSnapshotContext","ReadPort","/repositorio/","/servicio/","/adapter/"))assertFalse(pool.contains(edge),type+":"+edge);
             }
         }

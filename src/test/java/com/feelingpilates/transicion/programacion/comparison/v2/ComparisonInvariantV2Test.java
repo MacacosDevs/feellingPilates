@@ -28,6 +28,41 @@ class ComparisonInvariantV2Test {
                 new ReservedSubinterval(time(9),time(10)),HASH,HASH,Map.of(),provenance);
         assertThrows(ComparisonFailureV2.class,()->service.compare(copy(real,"reservations",List.of(reservation))));
     }
+    @Test void everyDeclaredSourceIdentitySlotRejectsSyntheticLabels() {
+        var service=new ComparisonCompatibilityV2();var real=declaredRealInput(legacy("RECURRENTE",0,41,false));
+        var source=real.legacy().getFirst();
+        for(String key:List.of("runIdentity","attemptIdentity","fixtureIdentity","readerInvocationIdentity","logicalSnapshotId","ruleCatalogVersion","projectionCatalogVersion","scope","scopeCanonical","projectionContractId","projectionContractVersion","snapshotClaim","snapshotEvidenceId","executionProvenanceId","sourceIdentity","snapshotIdentity")) {
+            var fields=new LinkedHashMap<>(source.provenance().normalizedFields());fields.put(key,"SYNTHETIC_MARKER");
+            var changed=copy(source,"provenance",copy(source.provenance(),"normalizedFields",fields));
+            var failure=assertThrows(ComparisonFailureV2.class,()->service.compare(copy(real,"legacy",List.of(changed))));
+            assertEquals("R5_LINKAGE",failure.stage(),key);
+            assertEquals(Optional.of(source.sourceIdentity()),failure.context().sourceIdentity(),key);
+        }
+    }
+    @Test void noCallerChosenBatchListsCanReachIssuance() {
+        assertEquals(1,ComparisonResultV2.class.getDeclaredConstructors().length);
+        assertArrayEquals(new Class<?>[]{ComparisonInputV2.class},ComparisonResultV2.class.getDeclaredConstructors()[0].getParameterTypes());
+        for(var method:ComparisonResultV2.class.getDeclaredMethods())if(method.getName().equals("issue"))
+            assertArrayEquals(new Class<?>[]{ComparisonInputV2.class},method.getParameterTypes());
+        var input=comparison(withCause(input(0,new int[]{},1),1));
+        var actual=ComparisonResultV2.issue(input);
+        assertEquals(ComparisonEvaluationV2.Variant.EXPLAINED_ADDITION_OMISSION_V2,actual.evaluations().getFirst().variant());
+        assertTrue(actual.evaluations().getFirst().coreResult().isEmpty());
+        assertEquals(input.adjustmentSources().getFirst(),actual.evaluations().getFirst().request().source());
+    }
+    @Test void failuresRetainOnlyAvailableSafeContextAndOriginalCause() {
+        var input=comparison(input(1,new int[]{0},0),legacy("RECURRENTE",0,42));
+        var broken=copy(input.legacy().getFirst(),"observableFields",Map.of());
+        var failed=assertThrows(ComparisonFailureV2.class,()->new ComparisonCompatibilityV2().compare(copy(input,"legacy",List.of(broken))));
+        assertEquals(Optional.of(input.runIdentity()),failed.context().runIdentity());
+        assertEquals(Optional.of(input.invocationIdentity()),failed.context().invocationIdentity());
+        assertEquals(Optional.of(DATE),failed.context().date());assertEquals(Optional.of(broken.sourceIdentity()),failed.context().sourceIdentity());
+        var absent=assertThrows(ComparisonFailureV2.class,()->new ComparisonCompatibilityV2().compare(null));
+        assertEquals(Optional.empty(),absent.context().runIdentity());assertEquals(Optional.empty(),absent.context().sourceIdentity());
+        assertInstanceOf(NullPointerException.class,absent.getCause());
+        var cause=new IllegalArgumentException("original");
+        assertSame(cause,new ComparisonFailureV2("TEST","safe",cause).withContext(input,broken).getCause());
+    }
     @Test void allResultsAndEvidenceStayImmutableAndPrivatelyIssued() {
         var i=comparison(withCause(input(0,new int[]{},1),1));var r=new ComparisonCompatibilityV2().compare(i);var e=r.evaluations().getFirst();
         assertSame(i,r.input());

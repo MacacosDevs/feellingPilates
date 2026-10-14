@@ -39,7 +39,7 @@ public final class LegacyCandidateGeneratorV2 {
             ComparisonFailureV2.require(expectedPolicy.equals(f.get("scenarioPolicy")), "LEGACY", "preserved R2 scenario policy");
             ComparisonFailureV2.require(recurrent ? f.get("date").equals("NULL") && f.get("dayOfWeek").equals(Integer.toString(date.getDayOfWeek().getValue()%7))
                     : f.get("date").equals(date.toString()) && f.get("dayOfWeek").equals("NULL"), "LEGACY", "physical date/day shape");
-            var sorted = new ArrayList<>(List.copyOf(universe)); sorted.sort(Comparator.comparing(ProgrammingCandidateSnapshot::reference));
+            var sorted = new ArrayList<>(List.copyOf(universe)); sorted.sort(Comparator.comparing(ProgrammingCandidateSnapshot::reference,ComparisonCanonicalizerV2.REFERENCE_ORDER));
             var seen = new HashSet<Object>(); var candidates = new ArrayList<DetectorCandidate>(); var observations = new ArrayList<ComparisonCandidateEvidenceV2>();
             var guard = new F2DAuthorityGuard();
             for (var target : sorted) {

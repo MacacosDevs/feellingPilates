@@ -16,6 +16,9 @@ public final class ComparisonFailureV2 extends RuntimeException {
     private ComparisonFailureV2(String stage,String message,Throwable cause,SafeContext context) {
         super(message,cause);this.stage=stage;this.context=context;
     }
+    ComparisonFailureV2 withAvailableMetadata(SafeContext available) {
+        return new ComparisonFailureV2(stage,getMessage(),getCause(),available);
+    }
     ComparisonFailureV2 withContext(ComparisonInputV2 input,SourceSnapshot source) {
         if(input==null)return this;
         return new ComparisonFailureV2(stage,getMessage(),getCause(),new SafeContext(Optional.of(input.runIdentity()),

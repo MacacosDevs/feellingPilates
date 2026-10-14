@@ -16,16 +16,24 @@ public record ComparisonInputV2(String runIdentity, String invocationIdentity, L
     public static final String RULE = "F2E-COMPARISON-COMPATIBILITY-V2";
     public enum Mode { SYNTHETIC_DESIGN_FIXTURE, OWNER_AUTHENTICATED_SUPPLIED }
     public ComparisonInputV2 {
+        Optional<String> safeRun=Optional.empty(),safeInvocation=Optional.empty();
+        Optional<LocalDate> safeDate=Optional.ofNullable(date);
         try {
-            for (String text : List.of(runIdentity, invocationIdentity, businessZoneId, ruleVersion, completionReceiptIdentity))
+            ComparisonCanonicalizerV2.requiredText(runIdentity); safeRun=Optional.of(runIdentity);
+            ComparisonCanonicalizerV2.requiredText(invocationIdentity); safeInvocation=Optional.of(invocationIdentity);
+            for (String text : List.of(businessZoneId, ruleVersion, completionReceiptIdentity))
                 ComparisonCanonicalizerV2.requiredText(text);
             Objects.requireNonNull(date); Objects.requireNonNull(evaluatedAt); Objects.requireNonNull(mode);
             ZoneId.of(businessZoneId);
             ComparisonFailureV2.require(RULE.equals(ruleVersion), "INPUT", "fixed comparison rule");
             Objects.requireNonNull(nominalReadSet); Objects.requireNonNull(adjustmentReadSet); Objects.requireNonNull(effectiveResult);
             reservations = ordered(reservations); legacy = ordered(legacy);
-        } catch (ComparisonFailureV2 e) { throw e; }
-        catch (RuntimeException e) { throw new ComparisonFailureV2("INPUT", "invalid supplied comparison input", e); }
+        } catch (ComparisonFailureV2 e) {
+            throw e.withAvailableMetadata(new ComparisonFailureV2.SafeContext(safeRun,safeInvocation,safeDate,Optional.empty()));
+        } catch (RuntimeException e) {
+            throw new ComparisonFailureV2("INPUT", "invalid supplied comparison input", e)
+                    .withAvailableMetadata(new ComparisonFailureV2.SafeContext(safeRun,safeInvocation,safeDate,Optional.empty()));
+        }
     }
     private static <T extends SourceSnapshot> List<T> ordered(List<T> values) {
         var copy = new ArrayList<>(List.copyOf(values));

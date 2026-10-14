@@ -39,6 +39,29 @@ class ComparisonInvariantV2Test {
             assertEquals(Optional.of(source.sourceIdentity()),failure.context().sourceIdentity(),key);
         }
     }
+    @Test void constructorFailuresRetainOnlyAlreadyValidatedSafeMetadata() {
+        var input=comparison(input(0,new int[]{},0));
+        for(String field:List.of("businessZoneId","ruleVersion")) {
+            var failure=assertThrows(ComparisonFailureV2.class,()->copy(input,field,field.equals("businessZoneId")?"invalid zone":"wrong rule"));
+            assertEquals(Optional.of(input.runIdentity()),failure.context().runIdentity());
+            assertEquals(Optional.of(input.invocationIdentity()),failure.context().invocationIdentity());
+            assertEquals(Optional.of(DATE),failure.context().date());assertEquals(Optional.empty(),failure.context().sourceIdentity());
+            if(field.equals("businessZoneId"))assertInstanceOf(java.time.DateTimeException.class,failure.getCause());
+            else assertNull(failure.getCause());
+        }
+        var invalidInvocation=assertThrows(ComparisonFailureV2.class,()->copy(input,"invocationIdentity","bad\0identity"));
+        assertEquals(Optional.of(input.runIdentity()),invalidInvocation.context().runIdentity());
+        assertEquals(Optional.empty(),invalidInvocation.context().invocationIdentity());assertEquals(Optional.of(DATE),invalidInvocation.context().date());
+        var invalidRun=assertThrows(ComparisonFailureV2.class,()->copy(input,"runIdentity","\ud800"));
+        assertEquals(Optional.empty(),invalidRun.context().runIdentity());assertEquals(Optional.empty(),invalidRun.context().invocationIdentity());
+        assertEquals(Optional.of(DATE),invalidRun.context().date());
+        var absentDate=assertThrows(ComparisonFailureV2.class,()->copy(input,"date",null));
+        assertEquals(Optional.empty(),absentDate.context().date());assertEquals(Optional.of(input.runIdentity()),absentDate.context().runIdentity());
+        assertInstanceOf(NullPointerException.class,absentDate.getCause());
+        var absentInvocation=assertThrows(ComparisonFailureV2.class,()->copy(input,"invocationIdentity",null));
+        assertEquals(Optional.of(input.runIdentity()),absentInvocation.context().runIdentity());
+        assertEquals(Optional.empty(),absentInvocation.context().invocationIdentity());
+    }
     @Test void noCallerChosenBatchListsCanReachIssuance() {
         assertEquals(1,ComparisonResultV2.class.getDeclaredConstructors().length);
         assertArrayEquals(new Class<?>[]{ComparisonInputV2.class},ComparisonResultV2.class.getDeclaredConstructors()[0].getParameterTypes());

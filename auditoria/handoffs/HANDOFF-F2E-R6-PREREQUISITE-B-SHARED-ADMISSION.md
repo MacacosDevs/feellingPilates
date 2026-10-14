@@ -1,0 +1,17 @@
+# B shared compatibility — DESIGN ONLY handoff, Correction.1
+
+NOT_ACTIVE_EXECUTABLE_AUTHORITY / IMPLEMENTATION_NOT_AUTHORIZED / B_DESIGN_ACCEPTANCE_PENDING_AT_CAPTURE.
+
+B solves the separately reserved R3/R4 shared admission, R5 supplied facts and V2 shared R2 claim/formula/caller compatibility. Its one bounded correction P1-B-D1-01 defines the exact absent future owner → pure schema helper → privately matched descriptor/decision reservation seam, supported by immutable accepted A common metadata groups and typed plans. It changes no old product rule, source SQL/mapping/atom/hash algorithm or A main.
+
+Exact full design SHA256 `b3a5266ad6b4b69f3f907d19667ba880b59ba8b7c77971ae458e73e7ccae983d`; observed stationary base `943fca2139cf24336e24b7f77e81b211d5cb7a8f`. The design contains complete normative appendices. Actual B-C1 independent report must approve these exact design/handoff bytes with P0/P1=0; no B-D1 rejection supplies acceptance. ONE authorized B Correction.1 consumed1/1; no autonomous additional correction, no A/C/R6 reset.
+
+Accepted A Correction.2 dependency design `2053c6cf226817dffc33283decf9e504986b457316756847bb4f2253b82d09da`, actual report `65459785b1ec499a97b1e048efa6d474d51ab287f4b3ad2a4e8b4f916c9b8981`, P0/P1/P2=0/0/1. Retain its exact bytes, R1 provenance CLOSED, completion schemas resolved; two stale C1 labels A-C2-01 are known OPEN/nonblocking editorial evidence under actual human continuation approval. Do not repair/re-audit A or substitute rejected A-C1 receipt. A design acceptance is not full admission implementation/closure or B acceptance.
+
+Current source/test/guard/config/migration WRITE_SCOPE EMPTY / DEFAULT_DENY. INTEGRATION-PATH-INVENTORY reserves NEW13/MODIFIED17/READ_ONLY506/PROVENANCE_ONLY2 only; actual full canonical A executable content bindings28 remain pending. No executable manifest proposal until BOTH designs accepted; no B source write before full canonical A admission closure, actual bound current preimages/authority paths/hashes and separate exact B HUMAN_GATE. A/B source lifecycles remain separate and A main immutable.
+
+Documentary design publication/normal merge/fresh independent factual closure follows design section8: after BOTH designs pass, A exact NEW3 first, then B exact NEW3 with now-canonical A design/handoff/actual C2 receipt READ_ONLY; accepted candidate/handoff unchanged and actual B report direct factual child. Fresh process reports/terminal receipts published/read back in each own PR; no fourth repository path. No physical PASS, active implementation handoff or full prerequisite closure is claimed.
+
+Required later tests/architecture: complete actual current50 vs old49 nominal/current R4 slices and all private pre-acquisition omission/corruption/identity/decision negatives count ZERO R3/R4 data queries; actual same RR registered resources, original9/17 events and whole-unit A completion/cleanup controls; original/new R1-R5/C modes/hash/semantics/backing/omission/classification/guards; no-write/role/host/full Maven gates. All REQUIRED/NOT_EXECUTED now.
+
+R1-R5 CLOSED, CLOSED R6 design, all50 migrations, legacy productive, dark launch and API/Web/Reservations preserved. C P2-I3-01 OPEN/nonblocking/unfixed. R6 implementation/owner/facade/validity acquisition/configuration/routing/cutover NOT_AUTHORIZED. Evidence LOCAL_RETAINED; external backup/provider-internal telemetry completeness NOT_GUARANTEED.

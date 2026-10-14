@@ -2,7 +2,7 @@
 
 Authority class: R6_DESIGN_RECONCILIATION / DOCUMENTATION_ONLY.
 Capture: MATERIALIZED_CANDIDATE / NOT_INDEPENDENTLY_ACCEPTED / NOT_PUBLISHED.
-Base: `552fe66d673bb4cfa14651cccbdf26ac32bb5611` (tree `545685d195f866826a9be23599ff4c6049acab18`).
+Base: `446b46f3c1fda7392ced072645ad8e7ef61cc096` (tree `241214d1daa7d1ef4cadb7ae7afa17a83703d0b1`).
 R6 implementation/handoff/activation: NOT_AUTHORIZED / NOT_STARTED.
 
 ## 1. Authority, precedence and outcome
@@ -36,14 +36,46 @@ physical evidence of admission limits, not permission to change those limits.
 R1–R5 remain CLOSED. Actual R4 PR32 and R5 PR38 closure receipts, retained and
 published, establish later facts than immutable pending headers and stale STATE/
 ESTADO captures. None supplies fresh R6 execution proof. Current V47/50 is preserved;
-all 484 existing tracked physical files and all 50 migration bytes are sealed.
+all 503 current-main tracked physical files and all 50 migration bytes are sealed for this documentary delta.
+The separately accepted comparison prerequisite alone changed its three authorized
+test guards; no CLOSED production/core bytes or product semantics changed.
 TurnoInstructor LEGACY_VIVO / PRODUCTIVO, client API/Web/Reservations and productive
 Programación remain preserved. Dark launch only; no routing, deploy or cutover.
 
 This is a complete target design with explicit prerequisite authority boundaries,
 not a claim that current participants can execute it. Design closure can be accepted
-while implementation readiness is BLOCKED_BY_PARTICIPANT_COMPATIBILITY. The sole
-next eligible decision is §2's bounded prerequisite; no R6 handoff is derivable yet.
+while implementation readiness is BLOCKED_BY_PARTICIPANT_COMPATIBILITY. The remaining
+eligible decisions are §2's A/B shared-admission prerequisites; no R6 handoff is derivable yet.
+
+The original design candidate `21313eec5d696afbb384bb5e7de656c85e18739e` remains a
+preserved ancestor, independently rejected P0/P1/P2=0/2/0. Its original design SHA256
+`e8615655b84ab2977175a5c8cbd5937e613c6dade1e2b1f3ad1d2c2cd7365c41` and D1 report
+`46e0cab4234fe97bf07baf0f31d0ea576fec874d9993d31693dda3d2afc1e8db` remain immutable;
+[the rejection is published](https://github.com/MacacosDevs/feellingPilates/pull/39#issuecomment-6158087269).
+This descendant is a new candidate and inherits no approval of those rejected bytes.
+Normal merge imports only the separately closed canonical prerequisite; no history rewrite.
+
+Comparison prerequisite C is separately CLOSED: documentary [PR39](https://github.com/MacacosDevs/feellingPilates/pull/39),
+canonical259bd156fcd1e9bb40202728f1c62cc892576f83, and executable
+[PR40](https://github.com/MacacosDevs/feellingPilates/pull/40) at canonical `446b46f3c1fda7392ced072645ad8e7ef61cc096`.
+Executable candidate `af7b9a8b401d0bffe5a389a08278b30ac1199731`, tree `241214d1daa7d1ef4cadb7ae7afa17a83703d0b1`,
+received a NEW GPT-6.1-Sol High [independent acceptance](https://github.com/MacacosDevs/feellingPilates/pull/40#issuecomment-6159634772)
+P0/P1/P2=0/0/1; report SHA256 `5d383ba67a13aaa5ace630aaaa666ad6c8f40d081d2efed0fa1909ca7fff611f`.
+Its separate [factual process closure](https://github.com/MacacosDevs/feellingPilates/pull/40#issuecomment-6159666123) verifies normal merge,
+exact A16/M3/READ_ONLY481/protected484, all50 migrations and immutable PR39 authority.
+I1 rejection, approved historical I2 and the final I3 correction/audit remain public
+with their commits/reports. C introduces only plain supplied-input comparison V2 and
+its exact three guard exceptions, not an R6 physical owner, admission, acquisition,
+validity, configuration, caller, trigger or route. This R6 delta is documentation only.
+C retains nonblocking P2-I3-01: on a rejected malformed supplied source, V2 failure
+context can contain an unsafe sourceIdentity. Its constructor P2 is resolved; this
+different limitation is explicitly open, with no remaining C correction budget.
+R6 must derive public failure IDs only from its own already strict-validated request/
+owner/source identities and must not echo unvalidated V2 exception context. Preserve
+the original exception as protected cause, never release its raw payload to a public
+diagnostic. Correcting C itself requires new authority/fresh audit; this design does
+not claim to fix or weaken it. Add malformed-ID/no-unsafe-echo controls in the future
+R6 acceptance, without modifying C during this documentary lifecycle.
 
 ## 2. Admission matrix and bounded prerequisites
 
@@ -53,6 +85,7 @@ next eligible decision is §2's bounded prerequisite; no R6 handoff is derivable
 | R2 | Legacy member/assignment observations, never R5 composition input | NO: R2_INTERNAL_RR_TEST, f2eR2ReaderTransactionManager, private individual owner | Same prerequisite; no bean alias as proof |
 | R3 | Complete global nominal read set and backing, no validity prefilter | NO current R6 authority: R3_INTERNAL_RR_TEST/private owner | Separately approved admission/descriptor and exact caller compatibility |
 | R4 | Complete global active exact-date adjustment read set and backing | NO current R6 authority: R4_INTERNAL_RR_TEST/private owner | Same; V47/50 physical descriptor |
+| comparison.v2 | CLOSED pure supplied-input comparison, one typed evaluation per atom and omission-aware tagged result | No R6 caller admission or physical authentication | Preserve C; B must separately authorize an exact future R6 caller |
 | VALIDITY | Complete typed scalar support for R5 | NOT_IMPLEMENTED | R6-specific acquisition and capture scope in §§5–6, separate handoff required |
 | R5 | Pure composition after successful physical completion | NO current R6 caller admission; real mode checks original R3/R4 labels | Separately approved claim-consumer/caller compatibility; keep pure |
 
@@ -87,6 +120,10 @@ its old descriptor or weakening R4's schema checks.
 B also owns the exact necessary guard reconciliation: current
 `NominalJpaReaderArchitectureTest`, `r4/adapter/jpa/AdjustmentJpaReaderArchitectureTest`,
 and `r5/composition/EffectiveCompositionArchitectureTest` deny R6 production consumers.
+Current `comparison/v2/ComparisonArchitectureV2Test` independently denies every outside
+production caller into V2. B must inventory and separately authorize its exact R6
+consumer exception too; C authorized only its own three old-guard exceptions. No
+fourth guard modification is absorbed into C or this documentary design.
 A future exact path/edge manifest must permit only the approved isolated R6 ports/
 DTO/composer consumers, preserve old inventories and pure R5 constraints, and reject
 all other callers with negative fixtures. No wildcard, scan exclusion, skip, rename,
@@ -118,16 +155,20 @@ not a shared snapshot across dates. R6 never installs that scheduling trigger he
 
 Use typed length-prefixed canonical UTF-8 fields with explicit null/presence and list
 counts (no delimiter concatenation), SHA256 domain-separated by version. UUID sort
-is unsigned 16-byte order, text sort unsigned UTF-8, references use closed type/UUID/
-date order. Preserve every closed source formula and its own order verbatim.
+is unsigned 16-byte order, text sort unsigned UTF-8, V2 references use type/unsigned UUID/date order. Preserve every closed source formula
+and its own core/reference ordering verbatim; the old reference comparator is signed.
 Request commitment binds every request field including budgets; invocation identity
 binds request commitment + owner-reserved nonce; boundary identity binds invocation
 + native resource generation. Source execution identities remain original participant
 commitments. Shared snapshot identity binds boundary + initial observed pg snapshot +
-actual descriptor commitments, not time or a caller string. Evaluation identity binds
-invocation + rule ID/version + source type + original source identity + axis.
-Repeated source/rule/axis identities are rejected. Equal data in different attempts
-may have equal content commitments but distinct execution identities.
+actual descriptor commitments, not time or a caller string. R6 ledger identity binds
+invocation + comparison rule/version + source type + original source identity + fixed
+group/axis. Retain V2 evaluation identity formula unchanged: invocation, V2 rule, source
+type/identity and scenario; its axis is determined by group and bound in full evidence.
+Repeated source/rule/axis identities are rejected. Exact same supplied semantic facts
+may share content with different comparison-only metadata; original participant/R5
+hashes legitimately retain their own execution provenance, so different physical
+attempts are not promised equal content commitments.
 
 No self/future-hash cycles: planned catalog/bind commitments exist before execution;
 observed statement events bind them after execution; participant execution evidence
@@ -309,75 +350,114 @@ repairs targets, selects winners or reinterprets R5 categories.
 
 ## 7. Separate diagnostic comparison boundary
 
-All comparisons require the complete successful five-source unit, including valid
-R5 composition. R1/R2 are not inputs to effective composition. No comparison joins
-earlier separate runs, accepted single-reader tests or matching snapshot strings.
-Candidate universes keep every candidate and rejection/evidence; no selected mapping.
+All comparisons require the complete successfully acquired R1/R2/R3/R4/VALIDITY unit,
+positive physical completion and valid R5 composition. R1/R2 never enter R5 composition.
+R6 authenticates physical evidence before creating OWNER_AUTHENTICATED_SUPPLIED input
+for the separately versioned pure ComparisonCompatibilityV2. This input mode is a
+supplied declaration, not a capability or physical proof; V2 performs no SQL, capture,
+resource authentication, composition, framework registration or productive routing.
+R6 must reject synthetic/mixed labels and any missing A/B authority before acquisition.
+Matching strings, separate reader runs or successful individual tests cannot qualify.
 
-Fixed evaluation groups: Reserva→effective; legacy recurrent→nominal; legacy exception
-→nominal; legacy cancellation→nominal; legacy exception→effective; legacy cancellation
-→effective; NEW cancellation; NEW replacement; NEW addition. Within groups sort source
-identity unsigned UTF-8, then closed occurrence reference. Each source/axis exactly
-once, with complete input/result/count ledger; adjustment sources come from original
-R4 identities, not an invented observation. Nominal comparison candidates retain R3
-provenance/type, effective candidates R5 provenance/type. R2 never becomes a target.
+The input retains request run/invocation/date/zone/evaluatedAt, fixed
+F2E-COMPARISON-COMPATIBILITY-V2 rule, actual completion identity, all immutable original
+Reserva/R2 snapshots, exact original R3/R4 read sets and the actual privately issued
+EffectiveProgrammingCompositionResult. R3/R4 facts must equal R5.input() exactly;
+R5 date/zone/rule/envelope/completion, source/backing/support links and its exhaustive
+disjoint survivor/omission/suppression partition are mandatory. Whole-unit validation
+rejects foreign, duplicate, orphaned, malformed, contradictory or unaccounted evidence.
+No forged R5 result, copied substitute, reflection, public success flag or package-private
+verification bypass. R6 separately binds these supplied relationships to its owner receipt.
 
-| Group | Candidate/evidence construction | Closed classification binding |
+Fixed evaluation groups: Reserva, LEGACY_RECURRENTE, LEGACY_EXCEPCION,
+LEGACY_CANCELACION, NEW_CANCELACION, NEW_REEMPLAZO, NEW_ADICION. Sort original source
+identities unsigned UTF-8 within each group; inspected targets use V2 type/unsigned16
+UUID/date reference order, with original closed candidate/result ordering retained.
+Duplicate references fail, never deduplicate or select a winner. Exactly one typed
+evaluation per original source atom, with no second nominal/effective evaluation of a
+puntual atom. Supplemental observations are evidence, never substitutes for results.
+
+| Group | Complete universe / candidate predicate | Required classification |
 | --- | --- | --- |
-| Reserva | Existing CandidateEvidenceGenerator.generate over entire effective universe; date/salon/instructor/activity equality and reserved-subinterval containment | standard(), no semantic counts; ONE_TO_MANY diagnostic candidate relation; historical target absent |
-| Recurrent legacy | For every nominal candidate, compare date/salon/instructor/activity and effectiveStart/effectiveEnd from closed R2 scalar fields; retain all matches/mismatches in diagnostic ledger | Preserve scenarioPolicy: STANDARD_EVALUATION or INCOMPATIBLE_EVIDENCE; CURRENT_SNAPSHOT_ONLY; no inferred historical functional validity |
-| Legacy puntual, each axis | Observable comparisons on nominal or effective universe, preserving event type/identity and all plausible candidates; cancellation scope is date/salon/instructor, range/activity explanatory only | legacyExceptionUnknownIntent() or legacyCancellationUnknownIntent(), counts absent; UNSUPPORTED/UNKNOWN_INTENT regardless of plausible matches |
-| NEW cancellation | Nominal count from matching target series/date R3; effective count for that reference from R5; validate exact R4 cancellation suppression backing | newCancellation(n,e), ONE_TO_ZERO; suppressed nominal not a surviving candidate |
-| NEW replacement | Matching series/date nominal and effective counts plus exact R4 replacement backing/result dimensions | newReplacement(n,e), ONE_TO_ONE |
-| NEW addition | Effective count for AJUSTE/id/date plus exact R4 addition backing/result dimensions | newAddition(e), ONE_TO_ONE (effective axis); nominal axis NOT_APPLICABLE |
+| Reserva | R5 effective; unchanged CandidateEvidenceGenerator date/salon/instructor/activity equality and reserved-subinterval containment | unchanged standard(), ONE_TO_MANY, no historical target |
+| Complete recurrent | R3 nominal; evaluationDate/domingo-zero day, salon/instructor/activity and exact supplied effectiveStart/effectiveEnd | unchanged standard() for CURRENT_OBSERVATION; RECURRENT_CLAIM_DEPENDENT remains R2 policy, not a new enum |
+| Anomalous recurrent | Every R3 nominal inspected; retain representable structural markers, no fabricated complete dimensions/candidates | unchanged incompatibleEvidence(), divergent and blocking |
+| Legacy exception | R5 effective; exact date/salon/instructor/activity and effectiveStart/effectiveEnd when safely supplied | unchanged legacyExceptionUnknownIntent(), UNSUPPORTED/UNKNOWN_INTENT at0/1/N |
+| Legacy cancellation | R3 nominal; exact evaluation date/salon/instructor only | unchanged legacyCancellationUnknownIntent(), UNSUPPORTED/UNKNOWN_INTENT at0/1/N |
+| NEW cancellation | Exact series/date nominal/effective counts and original R4/R5 suppression | unchanged newCancellation(n,e), ONE_TO_ZERO |
+| NEW replacement | Exact series/date counts and original replacement backing/omission | unchanged newReplacement(n,e), ONE_TO_ONE |
+| NEW addition survivor | Exact AJUSTE/id/date effective count and original addition backing | unchanged newAddition(e), ONE_TO_ONE; nominal count absent |
+| NEW addition explained omission | Exact zero effective count and unique original originating R4/R5 typed omission/support/backing | EXPLAINED_ADDITION_OMISSION_V2, never old count-only MISSING |
 
-For the Reserva and NEW groups, use expectedTargetAtomType
-EFFECTIVE_OCCURRENCE_REFERENCE and the existing DetectorClassifier unchanged.
-Legacy comparison output is a separate immutable R6 observational ledger, not an
-invented DetectorCandidate eligibility rule or a new domain equivalence. Each pair
-binds original source/candidate identity, axis/provenance, the six scalar observations
-and MATCH/MISMATCH/UNOBSERVABLE per dimension, original R2 markers/scenarioPolicy and
-UNKNOWN_INTENT/history limitations. Recurrent date uses evaluationDate plus dayOfWeek,
-not its physical date=NULL; interval uses effectiveStart/effectiveEnd, never raw-null
-fallback invented by R6. ABSENT/NULL and GAP atoms remain explicit UNOBSERVABLE,
-nonmember/incomplete/outside-range markers remain present. Do not parse them as UUIDs
-or valid intervals, drop them, or promote them to complete STANDARD evidence.
+LegacyCandidateGeneratorV2 inspects EVERY target and retains an immutable typed pair
+row with MATCH/MISMATCH/UNOBSERVABLE for date/day/salon/instructor/activity/start/end,
+original source/target/provenance, explicit axis and admitted flag. Preserve all26 R2
+observables and46 provenance fields, raw values/rangeRule/atomKind/membership/markers.
+Physical recurrent date=NULL uses evaluationDate/day, never a null-date mismatch.
+ABSENT/NULL sentinels are not parsed as UUIDs/times or promoted to complete evidence;
+intervals use R2's effective fields and its already-supplied fallback, never an R6 guess.
+Punctual UNKNOWN_INTENT dominates anomaly. Cancellation activity/range remain explanatory
+and cannot narrow its three-dimensional nominal set: two matching references with
+different activity/range remain two candidates. Missing instructor yields no complete
+candidate; missing activity/range alone cannot exclude a cancellation target.
 
-For cancellation, only date/salon/instructor define the plausible nominal set per
-closed identity §7.2; retain activity/range without narrowing that set. Other legacy
-pairs retain all observational field/range comparisons without asserting a newly
-approved equivalence. R6 does not feed a GenericSourceSnapshot to the Reserva-only
-generator or invent interval rejection enums in the closed core. The ledger records
-R2's scenario policy and punctual UNSUPPORTED/UNKNOWN_INTENT as closed constraints,
-not a newly computed DetectorResult. This deliberately bounds the legacy diagnostic
-surface: exact legacy-to-core candidate eligibility beyond the already closed R2
-policy would require separate rule authority, and is NOT_AUTHORIZED here. R1 and NEW
-core evaluations remain fully included; there is no claim that observational legacy
-field matches constitute a semantic mapping or legacy functional validity.
+Only plausible complete observations become truthful unchanged DetectorCandidates,
+with supported FIELD_MATCH evidence and hashes binding the interval/day ledger. Do not
+invent interval rejection enums, forced rejected candidates or Reserva-only generator
+support for GenericSourceSnapshot. F2DAuthorityGuard evaluates every target; conflict
+aborts the unit. Unchanged DetectorClassifier produces actual results, full cardinality,
+ambiguity/reasons/blocking and all blocked capabilities. No matching-field assertion is
+a selected mapping, productive equivalence, historical claim or legacy intent inference.
+Generated/candidate counts describe retained core candidates; universe/excluded counts
+explicitly describe supplemental legacy inspected pairs. Every GAP/assignment atom
+remains accounted once. Multiplicity is never resolved by taking the first match.
 
-Adjustment candidates are the matching target-reference subset, with original nominal/
-effective axes in the diagnostic evidence ledger. Validate backing before counts.
-R5 rejection, duplicate/malformed facts or incompatible backing aborts before any
-semantic detector result. For well-formed R5 outputs the closed classifier decides
-EXPECTED_ABSENCE/MISSING/DIVERGENT; R6 does not turn legitimate operational omission
-of a replacement/addition into successful presence. Counts are real exact counts,
-never 1 because a first match exists. ClassificationContext and DetectorClassifier
-remain unmodified; all result selection statuses remain NOT_SELECTED_BY_DETECTOR.
+Adjustment dispatch uses exact reference AND originating adjustment identity, not just
+dimensions or an empty effective list. Validate R5's original full evidence before
+counts: cancellation suppression is distinct from operational omission; replacement
+keeps series/date, addition keeps AJUSTE/id/date. Valid cancellation n=1/e=0 yields
+unchanged EXPECTED_ABSENCE; replacement survivor n=1/e=1 and addition survivor e=1 retain
+exact old results; explained replacement omission n=1/e=0 retains exact old divergent
+result plus the actual typed omission. Contradictory/unexplained outcomes fail the whole
+input rather than manufacture semantic MISSING or successful presence.
 
-Historical-target-current-outcome is unavailable: current Reserva has no independently
-authorized target history. Reject that requested mode before SQL; do not synthesize
-HistoricalProgrammingTargetSnapshot or infer it from candidates. LEGACY_HISTORY_REQUIRED,
-required-target and incompatible-evidence scenarios are not substituted for this
-current-snapshot mode. Reserva→legacy may be attached as explanatory observations
-only, with no F2D target, classification or selected link. No D08/crosswalk/fence/resolver.
+Both old guards remain unchanged: DetectorClassifier.newAddition(0) returns MISSING,
+and DetectorResult rejects NEW_ADICION/zero-effective/DIVERGENT_INCOMPATIBLE. Therefore
+an explained addition omission uses only the validated V2 tagged variant, containing
+no old DetectorResult. It retains original legal request/source, exact AJUSTE reference,
+actual typed R5 omission with all eight possible causes/support/backing/schema/rule/
+envelope commitments, and truthful result fields: generated/candidate/effective counts0,
+nominal count absent/NOT_APPLICABLE, effective axis, ONE_TO_ONE required relation,
+NO_CANDIDATES, DIVERGENT_INCOMPATIBLE/DIVERGENT, NOT_AMBIGUOUS/reason absent,
+NOT_APPLICABLE history, NOT_SELECTED_BY_DETECTOR, absence/unsupported reasons absent,
+blocking/BLOCKING, all five blocked capabilities and retained F2D compatibility.
+No fake e=1, changed source/scenario, forged V1 object or arbitrary caller omission flag.
+All representable cases use CORE_V1 retaining exact original request/DetectorResult.
 
-Zero source atoms yields an explicit completed source/evaluation ledger with zero
-counts and successful physical/composition evidence, not an anomaly-free assertion
-about unqueried populations. Final immutable result binds request/invocation/completion,
-full source inventories, R5 candidates/backing/omissions/suppressions, every comparison
-ledger and the original DetectorResults for Reserva/NEW, scope/coverage and all evidence commitments. evaluatedAt
-is validated request metadata, not snapshot authenticity. Release the whole immutable
-result only after all groups validate; no result streaming or report persistence.
+ComparisonResultV2 issuance derives the whole ordered evaluation/observation universe
+from retained immutable input; no caller-chosen result lists reach its private factory.
+It returns only after complete binding/accounting/variant validation. Strict typed
+length-prefix UTF-8/domain-separated SHA256 uses explicit null/presence/count framing,
+unsigned text/UUID/reference ordering and duplicate rejection. Retain CLOSED hashes
+verbatim. Semantic content excludes comparison-only run/invocation/evaluation/time and
+derived execution hashes; execution binds full input plus original requests/results/
+observations/evidence. Original source/R5 hashes may legitimately contain their own
+execution provenance; no attempt invariance is promised for changed supplied facts.
+Full R6 commitments additionally bind acquisition/coverage/capture/completion evidence.
+No self-hash cycle or metadata timestamp is snapshot authenticity.
+
+Historical-target-current-outcome remains unavailable: current Reserva has no authorized
+independent target history. Reject it before SQL; no inferred HistoricalProgrammingTargetSnapshot,
+LEGACY_HISTORY_REQUIRED/required-target substitution or productive claim. Reserva→legacy
+may be explanatory only, never a target/classification/link. No D08/crosswalk/resolver.
+
+Zero source atoms has explicit zero source/evaluation accounting, complete acquisition,
+coverage and composition evidence; it is not proof of unqueried populations. The final
+immutable R6 result retains complete input/source inventories, owner completion evidence,
+R5 candidates/backing/omissions/suppressions, actual ComparisonResultV2 including every
+original CORE_V1 request/result and typed omission variant, supplemental observations,
+counts, scope/coverage and commitments. Any later pure failure discards the whole unit.
+No successful prefix, streaming, logging sink, report persistence or productive consumer.
 
 ## 8. Fail closed, architecture, no writes and required runtime evidence
 
@@ -446,9 +526,13 @@ Future implementation acceptance MUST execute, not borrow historical PASS:
   in default/dev/prod and all single-gate configurations; both-gate isolated presence,
   zero productive callers/triggers and no R5 framework/I/O dependency.
 
-All above: REQUIRED / NOT_EXECUTED in this lifecycle. No application/Maven/DB/host test,
-production runtime observation or material-source audit is claimed. Documentation-only
-validation checks seals/scope/ancestry/links; it is not physical snapshot acceptance.
+All above: REQUIRED / NOT_EXECUTED for R6 implementation acceptance. C separately
+executed all five required compatibility regression commands and a fresh independent
+clean rebuild:79 suites/655 tests/zero failures/errors/skips; those sealed facts are
+not fresh R6 shared-transaction proof. This R6 documentary candidate runs only
+scope/hash/link/ancestry/publication checks; no R6 application/DB/host/material-source
+audit or productive runtime observation is claimed. Documentation validation is not
+physical snapshot acceptance.
 Technical references supporting the transaction distinction are PostgreSQL's
 [isolation documentation](https://www.postgresql.org/docs/current/transaction-iso.html),
 Spring's [propagation reference](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/tx-propagation.html)
@@ -466,7 +550,8 @@ Frozen write scope NEW3 / MODIFIED0, default deny:
 No source/test/config/migration/STATE/ESTADO/closed-authority edits. Future implementation
 handoff must freeze exact NEW paths for isolated facade/owner/capability/resource/
 capture/descriptor/completion envelopes, validity port/catalog/scalar executor/mapper,
-pure comparison adapter/result ledger and explicit two-gate config plus acceptance
+an isolated R6 wrapper consuming the already accepted comparison.v2 (without reimplementing
+or silently versioning its contract), and explicit two-gate config plus acceptance
 fixtures. No broad directory permission or old R6 allowlist inheritance. A/B closed
 integration/guard edits belong to their own lifecycle, never this NEW-only scope.
 
@@ -475,13 +560,15 @@ of author/preflight/prior-round participation; no child auditors. Record actual 
 effective model/effort and observable launch, no provider telemetry invention or fallback.
 P0/authority ambiguity/out-of-scope=0 corrections; P1 uniquely bounded=1, P2 mechanical=2,
 TX/snapshot=1 only within already fixed design authority; overlapping limits take the
-strictest, no reset by new task/model/stage. Retain every blocked commit/report. A/B's
-explicit deferred decision is not silently corrected here. Any new genuine prerequisite
+strictest, no reset by new task/model/stage. Retain every blocked commit/report. The original D1 two P1 findings are corrected here only by consuming separately
+authorized and CLOSED C, not by changing CLOSED core behavior. This is the single
+uniquely bounded design P1 correction candidate (1/1 consumed). A/B's explicit deferred
+decision is not silently corrected here; budgets never reset by prerequisite/task/model. Any new genuine prerequisite
 choice or closed semantic change stops with exact evidence for human decision.
 
 After APPROVED P0/P1=0, add only reserved report/receipt as a direct factual child,
-preserving audited design bytes. Repeat baseline484/migrations50/audited bytes/scope/
-cleanliness and live main552fe66 checks before publication and merge. Main movement
+preserving audited design bytes. Repeat current baseline503/migrations50/audited bytes/scope/
+cleanliness and live main446b46f3c1fda7392ced072645ad8e7ef61cc096 checks before publication and merge. Main movement
 stops; never rebase an approval silently. Normal merge must preserve candidate/receipt
 ancestry and identical factual-head/merge tree. Publish actual reports, correction
 history and integration facts; no prefilled future IDs/self-hashes.

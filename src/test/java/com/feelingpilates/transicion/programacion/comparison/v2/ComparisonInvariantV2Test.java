@@ -18,6 +18,16 @@ class ComparisonInvariantV2Test {
         var broken=copy(i.legacy().getFirst(),"observableFields",Map.of());
         assertThrows(ComparisonFailureV2.class,()->service.compare(copy(i,"legacy",List.of(broken))));
     }
+    @Test void mixedSyntheticSourceLabelsCannotUpgradeDeclaredRealInputs() {
+        var service=new ComparisonCompatibilityV2();var real=declaredRealInput(legacy("RECURRENTE",0,1,false));
+        assertEquals(1,service.compare(real).evaluationCount()); // supplied declarations, not physical authentication
+        assertThrows(ComparisonFailureV2.class,()->service.compare(declaredRealInput(legacy("RECURRENTE",0,1))));
+        assertThrows(ComparisonFailureV2.class,()->service.compare(copy(real,"runIdentity","SYNTHETIC_RUN")));
+        var provenance=new EvidenceProvenance("SYNTHETIC_RESERVA","sha256:"+HASH,List.of(id(9).toString()),"R1","V1",ZONE+"/"+DATE,Map.of());
+        var reservation=new ReservationSourceSnapshot(id(9),DetectorVocabulary.ReservationState.CONFIRMADA,DATE,id(1),id(20),id(3),
+                new ReservedSubinterval(time(9),time(10)),HASH,HASH,Map.of(),provenance);
+        assertThrows(ComparisonFailureV2.class,()->service.compare(copy(real,"reservations",List.of(reservation))));
+    }
     @Test void allResultsAndEvidenceStayImmutableAndPrivatelyIssued() {
         var i=comparison(withCause(input(0,new int[]{},1),1));var r=new ComparisonCompatibilityV2().compare(i);var e=r.evaluations().getFirst();
         assertSame(i,r.input());

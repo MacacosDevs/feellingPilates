@@ -176,9 +176,10 @@ final class ComparisonTestFixturesV2 {
         return new ComparisonInputV2("SYNTHETIC_RUN","SYNTHETIC_COMPARISON",DATE,ZONE,Instant.parse("2026-10-04T12:00:00Z"),ComparisonInputV2.RULE,
                 ComparisonInputV2.Mode.SYNTHETIC_DESIGN_FIXTURE,result.envelope().completionReceiptIdentity(),List.of(),legacy,input.nominalReadSet(),input.adjustmentReadSet(),result);
     }
-    static List<GenericSourceSnapshot> legacy(String type,int shape,int serial) {
+    static List<GenericSourceSnapshot> legacy(String type,int shape,int serial) { return legacy(type,shape,serial,true); }
+    static List<GenericSourceSnapshot> legacy(String type,int shape,int serial,boolean synthetic) {
         var scope=new com.feelingpilates.transicion.programacion.read.LegacyTurnScope(Set.of(id(1)),DATE);
-        var context=new com.feelingpilates.transicion.programacion.read.LegacyTurnReadContext("SYNTHETIC_RUN","SYNTHETIC_ATTEMPT","SYNTHETIC_LEGACY","sha256:"+HASH,
+        var context=new com.feelingpilates.transicion.programacion.read.LegacyTurnReadContext(synthetic?"SYNTHETIC_RUN":"run",synthetic?"SYNTHETIC_ATTEMPT":"attempt",synthetic?"SYNTHETIC_LEGACY":"REAL_LEGACY","sha256:"+HASH,
                 com.feelingpilates.transicion.programacion.read.LegacyTurnReadContext.ProjectionCatalogVersion.R2_LEGACY_TURN_V1,"SYNTHETIC_RULE",ZoneId.of(ZONE),scope.canonical(),
                 com.feelingpilates.transicion.programacion.read.LegacyTurnReadContext.SnapshotClaim.R2_INTERNAL_RR_TEST,HASH);
         var turn=id(800+serial);var stamp=OffsetDateTime.parse("2026-10-01T00:00:00Z");
@@ -189,6 +190,24 @@ final class ComparisonTestFixturesV2 {
                         shape==1||shape==5?null:shape==6?time(19):time(10)));
         return new com.feelingpilates.transicion.programacion.adapter.jpa.mapper.LegacyTurnProjectionMapper(
                 com.feelingpilates.transicion.programacion.adapter.jpa.projection.LegacyTurnProjectionCatalog.R2_LEGACY_TURN_V1).mapear(List.of(member),assignments,context,scope).sources();
+    }
+
+    /** Real-mode declarations only; these fixtures do NOT authenticate physical acquisition. */
+    static EffectiveCompositionEnvelope declaredRealEnvelope() {
+        var participants=new LinkedHashMap<String,EffectiveCompositionEnvelope.Participant>();
+        for(var entry:envelope().participants().entrySet()) {
+            var p=entry.getValue();String key=entry.getKey();
+            p=new EffectiveCompositionEnvelope.Participant("REAL_"+key,p.schemaFingerprint(),p.ruleVersion(),p.readScope(),"PENDING",HASH,
+                    "resource","boundary",HASH,EffectiveCompositionEnvelope.Completion.SUCCESSFUL,"run","attempt","rules","database","public","reader",
+                    key.equals("VALIDITY")?"VALIDITY_V1":p.projectionCatalogVersion(),"invocation",p.snapshotClaim(),HASH,HASH);
+            p=copy(p,"executionIdentity",execution(p,key));participants.put(key,p);
+        }
+        return new EffectiveCompositionEnvelope(EffectiveCompositionEnvelope.Mode.R6_SUPPLIED_COHERENT_READ_FACTS,DATE,ZONE,"composition","authority","receipt",participants);
+    }
+    static ComparisonInputV2 declaredRealInput(List<GenericSourceSnapshot> sources) {
+        var e=declaredRealEnvelope();var i=input(List.of(nominal(0)),List.of(),e,null);var result=new EffectiveProgrammingComposer().compose(i);
+        return new ComparisonInputV2("run","invocation",DATE,ZONE,Instant.parse("2026-10-04T12:00:00Z"),ComparisonInputV2.RULE,
+                ComparisonInputV2.Mode.OWNER_AUTHENTICATED_SUPPLIED,"receipt",List.of(),sources,i.nominalReadSet(),i.adjustmentReadSet(),result);
     }
 
 }

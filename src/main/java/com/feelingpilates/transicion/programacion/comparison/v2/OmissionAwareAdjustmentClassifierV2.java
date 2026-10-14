@@ -27,6 +27,16 @@ public final class OmissionAwareAdjustmentClassifierV2 {
         require(i.completionReceiptIdentity().equals(envelope.completionReceiptIdentity()),"supplied completion receipt binding");
         require((i.mode()==ComparisonInputV2.Mode.SYNTHETIC_DESIGN_FIXTURE)==
                 (envelope.mode()==EffectiveCompositionEnvelope.Mode.SYNTHETIC_DESIGN_FIXTURE),"no synthetic/real mode upgrade");
+        if(i.mode()==ComparisonInputV2.Mode.OWNER_AUTHENTICATED_SUPPLIED) {
+            for(String value:List.of(i.runIdentity(),i.invocationIdentity(),i.completionReceiptIdentity()))realLabel(value);
+            var sources=new ArrayList<SourceSnapshot>();sources.addAll(i.reservations());sources.addAll(i.legacy());
+            for(var source:sources) {
+                realLabel(source.provenance().sourceName());realLabel(source.snapshotIdentity());
+                for(String key:List.of("runIdentity","attemptIdentity","fixtureIdentity","readerInvocationIdentity","logicalSnapshotId")) {
+                    var value=source.provenance().normalizedFields().get(key);if(value!=null)realLabel(value);
+                }
+            }
+        }
         for (var p:i.reservations()) require(p.date().equals(i.date()) && p.historicalProgrammingTarget().isEmpty(),"current exact-date reservation only");
         for (var s:i.legacy()) require(i.businessZoneId().equals(s.provenance().normalizedFields().get("businessZone")),"legacy supplied zone");
         var nominal=new LinkedHashMap<ReferenciaOcurrencia,NominalBackingSnapshot>();
@@ -78,6 +88,9 @@ public final class OmissionAwareAdjustmentClassifierV2 {
                 require(b.equals(backing.adjustmentBacking()) && source(i,b.id()).equals(backing.adjustmentSource()),"exact originating adjustment for outcome");
             }
         }
+    }
+    private static void realLabel(String value) {
+        String upper=value.toUpperCase(Locale.ROOT);require(!upper.contains("SYNTHETIC")&&!upper.contains("FIXTURE"),"no synthetic/mixed identity in real supplied mode");
     }
     private static void backing(ComparisonInputV2 i,EffectiveCompositionBacking b,
             Map<ReferenciaOcurrencia,NominalBackingSnapshot> nominal,Map<UUID,AdjustmentBackingSnapshot> adjustment) {
